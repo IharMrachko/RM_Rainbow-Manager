@@ -1,5 +1,5 @@
 <template>
-  <div>Привет CI/CD</div>
+  <div>Привет CI/CD!</div>
   <div>{{ msg }}</div>
   <p>Count: {{ count }}</p>
   <p>Double: {{ double }}</p>
