@@ -1,19 +1,40 @@
 <template>
-  <label v-if="isPlaceholder" class="label" :for="type">{{ label }}</label>
-  <div class="wrap-input">
-    <input :id="type" class="input100" :type="type" :placeholder="placeholder" />
-    <span class="focus-input100"></span>
-    <span class="symbol-input100">
-      <font-awesome-icon :icon="icon" />
-    </span>
-  </div>
+  <section>
+    <label v-if="isPlaceholder" class="label" :for="type">{{ label }}</label>
+
+    <div class="wrap-input validate-input" ref="wrapperRef">
+      <input
+        ref="inputRef"
+        :id="type"
+        class="input100"
+        :type="type"
+        :placeholder="placeholder"
+        v-model="value"
+        @blur="validate"
+        @focus="showErrorToggle"
+      />
+
+      <span class="focus-input100"></span>
+      <span class="symbol-input100">
+        <font-awesome-icon :icon="icon" />
+      </span>
+    </div>
+    <app-input-error-overlay
+      :target="wrapperRef"
+      :message="errorMessage"
+      :visible="showError"
+      @click="showErrorToggle"
+    ></app-input-error-overlay>
+  </section>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, PropType, ref } from 'vue';
+import { InputType } from '@/types/input.type';
+import AppInputErrorOverlay from '@/components/shared/AppInputErrorOverlay.vue';
 
 export default defineComponent({
-  name: 'HelloWorld',
+  components: { AppInputErrorOverlay },
   props: {
     isPlaceholder: {
       type: Boolean,
@@ -24,7 +45,7 @@ export default defineComponent({
       default: '',
     },
     type: {
-      type: String,
+      type: String as PropType<InputType>,
       default: 'text',
     },
     label: {
@@ -32,22 +53,39 @@ export default defineComponent({
       default: 'text',
     },
     icon: {
-      // сюда передаём ['fas', 'envelope'] или ['fas', 'user']
       type: [Array, String],
       required: true,
     },
+    errorMessage: { type: String, default: 'This field is required' },
   },
   setup() {
-    return {};
+    const value = ref('');
+    const showError = ref(true);
+    const inputRef = ref<HTMLInputElement | null>(null);
+    const wrapperRef = ref<HTMLElement | null>(null);
+
+    const validate = () => {
+      showError.value = value.value.trim() === '';
+    };
+
+    const showErrorToggle = () => {
+      showError.value = false;
+      inputRef.value?.focus();
+
+      // можно вызвать валидацию
+    };
+
+    return { value, showError, validate, showErrorToggle, inputRef, wrapperRef };
   },
 });
 </script>
 <style scoped lang="scss">
 .label {
+  display: block;
   text-align: left;
-  padding: 0 1rem 0.4rem 1rem;
+  padding: 0 1rem 0.3rem 1rem;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 14px;
 }
 .wrap-input {
   position: relative;
@@ -136,5 +174,8 @@ input {
 .input100:focus::placeholder {
   color: transparent;
   transition: color 0.3s ease;
+}
+.validate-input {
+  position: relative;
 }
 </style>

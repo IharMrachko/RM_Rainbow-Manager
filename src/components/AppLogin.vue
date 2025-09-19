@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import AppInput from '@/components/AppInput.vue';
-import AppButton from '@/components/AppButton.vue';
+import AppInput from '@/components/shared/AppInput.vue';
+import AppButton from '@/components/shared/AppButton.vue';
 </script>
 
 <template>
@@ -14,6 +14,7 @@ import AppButton from '@/components/AppButton.vue';
             placeholder="example@gmail.com"
             label="Email"
             :icon="['fas', 'envelope']"
+            type="email"
           ></app-input>
           <app-input
             placeholder="password"
@@ -61,6 +62,6 @@ import AppButton from '@/components/AppButton.vue';
 .login-inputs {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 1.2rem;
 }
 </style>
