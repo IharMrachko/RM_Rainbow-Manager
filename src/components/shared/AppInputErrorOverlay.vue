@@ -50,7 +50,7 @@ export default defineComponent({
 
     const updatePosition = () => {
       positionTrigger.value = Date.now();
-      zIndex.value = zIndex.value;
+      // zIndex.value = zIndex.value;
     };
 
     const onClick = () => {

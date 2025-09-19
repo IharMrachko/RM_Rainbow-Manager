@@ -2,14 +2,14 @@
   <section>
     <label v-if="isPlaceholder" class="label" :for="type">{{ label }}</label>
 
-    <div class="wrap-input validate-input" ref="wrapperRef">
+    <div ref="wrapperRef" class="wrap-input validate-input">
       <input
-        ref="inputRef"
         :id="type"
+        ref="inputRef"
+        v-model="value"
         class="input100"
         :type="type"
         :placeholder="placeholder"
-        v-model="value"
         @blur="validate"
         @focus="showErrorToggle"
       />

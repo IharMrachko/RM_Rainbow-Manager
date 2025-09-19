@@ -1,6 +1,6 @@
 import vue from 'eslint-plugin-vue';
 import prettierPlugin from 'eslint-plugin-prettier';
-import js from 'eslint-plugin-prettier';
+import js from '@eslint/js';
 import configPrettier from 'eslint-config-prettier';
 import globals from 'globals';
 import parser from '@typescript-eslint/parser';
@@ -22,6 +22,7 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.node,
+        ...globals.jest,
       },
     },
     rules: {

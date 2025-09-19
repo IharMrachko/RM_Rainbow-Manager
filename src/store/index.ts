@@ -1,27 +1,27 @@
-import {createStore, createLogger} from 'vuex'
+import { createLogger, createStore } from 'vuex';
 
 export default createStore({
-    state: {
-        count: 0,
+  state: {
+    count: 0,
+  },
+  getters: {
+    doubleCount: (state) => state.count * 2,
+  },
+  mutations: {
+    increment(state) {
+      state.count++;
     },
-    getters: {
-        doubleCount: state => state.count * 2
+    setCount(state, value) {
+      state.count = value;
     },
-    mutations: {
-        increment(state) {
-            state.count++
-        },
-        setCount(state, value) {
-            state.count = value
-        }
+  },
+  actions: {
+    asyncIncrement({ commit }) {
+      setTimeout(() => {
+        commit('increment');
+      }, 1000);
     },
-    actions: {
-        asyncIncrement({commit}) {
-            setTimeout(() => {
-                commit('increment')
-            }, 1000)
-        }
-    },
-    modules: {},
-    plugins: [createLogger()]
-})
+  },
+  modules: {},
+  plugins: [createLogger()],
+});
