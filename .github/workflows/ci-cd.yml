@@ -1,8 +1,10 @@
 name: CI/CD Vue 3
 
 on:
+  pull_request:
+    branches: [ main ] # Запуск при создании/обновлении PR в main
   push:
-    branches: [ main ] # Запуск только при пуше в main (после merge PR)
+    branches: [ main ] # Запуск после merge в main
 
 jobs:
   build-and-deploy:
@@ -12,35 +14,29 @@ jobs:
       contents: write
 
     steps:
-      # 1. Клонируем репозиторий
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Устанавливаем Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 3. Устанавливаем зависимости
       - name: Install dependencies
         run: npm ci
 
-      # 4. Линтинг
       - name: Lint code
         run: npm run lint
 
-      # 5. Тесты (если есть)
       - name: Run tests
         run: npm test
-        continue-on-error: true # если тестов нет, не падаем
+        continue-on-error: true
 
-      # 6. Сборка проекта
       - name: Build project
         run: npm run build
 
-      # 7. Деплой на GitHub Pages
       - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' # деплой только после merge
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
