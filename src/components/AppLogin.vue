@@ -73,7 +73,7 @@ export default defineComponent({
       setTimeout(() => {
         loading.value = false;
         values;
-      }, 3000);
+      }, 8000);
     };
 
     const handleMouseMove = (e: MouseEvent) => {
