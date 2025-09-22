@@ -1,13 +1,13 @@
 name: CI/CD Vue 3
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
+    types: [ closed ] # срабатывает только при закрытии PR
 
 jobs:
   build-and-deploy:
+    if: github.event.pull_request.merged == true # фильтр: только если PR смёржен
     runs-on: ubuntu-latest
     permissions:
       contents: write

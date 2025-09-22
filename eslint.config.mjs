@@ -27,6 +27,7 @@ export default [
     },
     rules: {
       'prettier/prettier': 'error',
+      'no-console': ['error', { allow: ['warn', 'error'] }], // запрет console.log
     },
   },
 
@@ -48,6 +49,7 @@ export default [
     rules: {
       'vue/multi-word-component-names': 'off',
       'prettier/prettier': 'error',
+      'no-console': ['error', { allow: ['warn', 'error'] }], // запрет console.log
     },
   },
 ];

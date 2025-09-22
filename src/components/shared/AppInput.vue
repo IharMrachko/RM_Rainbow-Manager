@@ -6,11 +6,12 @@
       <input
         :id="type"
         ref="inputRef"
-        v-model="value"
+        :value="modelValue"
         class="input100"
         :type="type"
         :placeholder="placeholder"
-        @blur="validate"
+        @input="handleInput"
+        @blur="handleBlur"
         @focus="showErrorToggle"
       />
 
@@ -20,22 +21,26 @@
       </span>
     </div>
     <app-input-error-overlay
+      v-if="wrapperRef"
       :target="wrapperRef"
-      :message="errorMessage"
+      :message="error"
       :visible="showError"
+      :z-index="zIndexTooltip"
       @click="showErrorToggle"
     ></app-input-error-overlay>
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref } from 'vue';
+import { defineComponent, PropType, ref, watch } from 'vue';
 import { InputType } from '@/types/input.type';
 import AppInputErrorOverlay from '@/components/shared/AppInputErrorOverlay.vue';
 
 export default defineComponent({
   components: { AppInputErrorOverlay },
   props: {
+    modelValue: { type: String, default: '' }, // для v-model
+    error: { type: [String, Boolean], default: '' }, // ошибка извне (vee-validate)
     isPlaceholder: {
       type: Boolean,
       default: true,
@@ -56,26 +61,56 @@ export default defineComponent({
       type: [Array, String],
       required: true,
     },
-    errorMessage: { type: String, default: 'This field is required' },
+    zIndexTooltip: { type: Number, default: 1010 },
   },
-  setup() {
+  emits: ['update:modelValue', 'blur', 'change', 'focus'],
+  setup(props, { emit }) {
     const value = ref('');
-    const showError = ref(true);
+    const showError = ref(false);
+    const isFocused = ref(false);
     const inputRef = ref<HTMLInputElement | null>(null);
     const wrapperRef = ref<HTMLElement | null>(null);
 
-    const validate = () => {
-      showError.value = value.value.trim() === '';
-    };
-
     const showErrorToggle = () => {
-      showError.value = false;
+      emit('focus');
+      isFocused.value = true;
       inputRef.value?.focus();
-
-      // можно вызвать валидацию
+      updateErrorVisibility();
     };
 
-    return { value, showError, validate, showErrorToggle, inputRef, wrapperRef };
+    const handleBlur = () => {
+      emit('blur');
+      isFocused.value = false;
+      updateErrorVisibility();
+    };
+
+    const handleInput = (e: Event) => {
+      emit('update:modelValue', (e.target as HTMLInputElement).value);
+      isFocused.value = true;
+      updateErrorVisibility();
+    };
+
+    const updateErrorVisibility = () => {
+      showError.value = !isFocused.value && Boolean(props.error);
+    };
+
+    watch(
+      () => props.error, // реактивный геттер
+      () => {
+        updateErrorVisibility();
+      },
+      { immediate: true } // чтобы сработало и при первом монтировании
+    );
+
+    return {
+      value,
+      showError,
+      showErrorToggle,
+      inputRef,
+      wrapperRef,
+      handleInput,
+      handleBlur,
+    };
   },
 });
 </script>
@@ -89,7 +124,6 @@ export default defineComponent({
 }
 .wrap-input {
   position: relative;
-  width: 300px;
 }
 
 input {
