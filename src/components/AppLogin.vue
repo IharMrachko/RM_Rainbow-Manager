@@ -70,9 +70,9 @@ export default defineComponent({
 
     const onSubmit = (values: Record<string, any>) => {
       loading.value = true;
-      console.warn('Форма отправлена:', values);
       setTimeout(() => {
         loading.value = false;
+        values;
       }, 3000);
     };
 
