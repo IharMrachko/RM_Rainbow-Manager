@@ -14,29 +14,36 @@ jobs:
       contents: write
 
     steps:
+      # 1. Клонируем репозиторий
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2. Устанавливаем Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      # 3. Устанавливаем зависимости
       - name: Install dependencies
         run: npm ci
 
+      # 4. Линтинг
       - name: Lint code
         run: npm run lint
 
+      # 5. Тесты (если есть)
       - name: Run tests
         run: npm test
         continue-on-error: true
 
+      # 6. Сборка проекта
       - name: Build project
         run: npm run build
 
+      # 7. Деплой на GitHub Pages (только после merge в main)
       - name: Deploy to GitHub Pages
-        if: github.event_name == 'push' # деплой только после merge
+        if: github.event_name == 'push'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
