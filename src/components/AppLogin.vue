@@ -71,6 +71,7 @@ export default defineComponent({
     const onSubmit = (values: Record<string, any>) => {
       loading.value = true;
       setTimeout(() => {
+        console.log(values);
         loading.value = false;
         values;
       }, 3000);
