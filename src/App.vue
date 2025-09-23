@@ -1,26 +1,16 @@
 <template>
-  <router-view />
+  <div class="container">
+    <app-toaster></app-toaster>
+    <router-view />
+  </div>
 </template>
 
+<script setup lang="ts">
+import AppToaster from '@/components/shared/AppToaster.vue';
+</script>
 <style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+.container {
+  height: 100vh;
+  background: linear-gradient(-135deg, #c850c0, #4158d0);
 }
 </style>

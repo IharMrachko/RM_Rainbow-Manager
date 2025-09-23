@@ -1,4 +1,5 @@
 import { createLogger, createStore } from 'vuex';
+import { toast } from './modules/toast';
 
 export default createStore({
   state: {
@@ -22,6 +23,8 @@ export default createStore({
       }, 1000);
     },
   },
-  modules: {},
+  modules: {
+    toast,
+  },
   plugins: [createLogger()],
 });
