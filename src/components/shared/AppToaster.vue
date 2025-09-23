@@ -2,13 +2,18 @@
   <teleport to="body">
     <div class="toast-container">
       <transition-group name="toast" tag="div">
-        <div v-for="toast in toasts" :key="toast.id" class="toast" :class="toast.type">
+        <div
+          v-for="toast in toasts"
+          id="toastTest"
+          :key="toast.id"
+          class="toast"
+          :class="toast.type"
+        >
           <span class="toast-icon">
             <font-awesome-icon :icon="iconClass(toast.type)" />
           </span>
           <span class="toast-message">{{ toast.message }}</span>
           <div class="toast-progress" :style="{ animationDuration: toast.duration + 'ms' }"></div>
-          <!-- Кнопка удаления -->
           <div class="toast-delete" @click="deleteToast(toast.id)">
             <font-awesome-icon :icon="['fas', 'times-circle']" />
           </div>
