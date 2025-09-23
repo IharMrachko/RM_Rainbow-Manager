@@ -69,7 +69,7 @@ export default defineComponent({
       password: yup.string().required('This field is required').min(6, 'Minimum 6 characters'),
     });
 
-    const onSubmit = (values: Record<string, any>) => {
+    const onSubmit = () => {
       loading.value = true;
       store.dispatch('toast/addToast', {
         message: 'Сборка прошла успешно!',
@@ -78,7 +78,6 @@ export default defineComponent({
       });
       setTimeout(() => {
         loading.value = false;
-        console.log(values);
       }, 1000);
     };
 
