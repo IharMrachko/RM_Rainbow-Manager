@@ -54,6 +54,7 @@ import AppButton from '@/components/shared/AppButton.vue';
 import AppInput from '@/components/shared/AppInput.vue';
 import * as yup from 'yup';
 import { Field, Form as VForm } from 'vee-validate';
+import store from '@/store';
 
 export default defineComponent({
   components: { Field, VForm, AppInput, AppButton },
@@ -70,10 +71,15 @@ export default defineComponent({
 
     const onSubmit = (values: Record<string, any>) => {
       loading.value = true;
+      store.dispatch('toast/addToast', {
+        message: 'Сборка прошла успешно!',
+        type: 'success',
+        duration: 5000,
+      });
       setTimeout(() => {
         loading.value = false;
-        values;
-      }, 8000);
+        console.log(values);
+      }, 1000);
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -120,7 +126,6 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(-135deg, #c850c0, #4158d0);
   padding: 1rem; // чтобы на маленьких экранах не прилипало к краям
 }
 
@@ -201,6 +206,7 @@ export default defineComponent({
   font-size: 13px;
   line-height: 1.5;
   color: #999999;
+  margin-right: 0.5rem;
 }
 
 a {
@@ -217,5 +223,11 @@ a {
 
 a:hover {
   color: #57b846;
+}
+
+.text-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
