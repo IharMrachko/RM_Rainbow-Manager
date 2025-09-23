@@ -19,9 +19,9 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent} from 'vue';
-import {useStore} from 'vuex';
-import {ToastType} from '@/store/modules/toast';
+import { computed, defineComponent } from 'vue';
+import { useStore } from 'vuex';
+import { ToastType } from '@/store/modules/toast';
 
 export default defineComponent({
   setup() {
