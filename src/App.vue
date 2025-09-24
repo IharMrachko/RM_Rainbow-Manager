@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref} from 'vue';
+import { defineComponent, ref } from 'vue';
 import AppToaster from '@/components/shared/AppToaster.vue';
 import AppToggle from '@/components/shared/AppToggle.vue';
 import AppHeader from '@/components/shared/AppHeader.vue';
