@@ -121,7 +121,7 @@ export default defineComponent({
 <style scoped lang="scss">
 .container {
   width: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh - 76px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -131,7 +131,7 @@ export default defineComponent({
 .wrap-login {
   width: 100%;
   max-width: 960px;
-  background: #fff;
+  background: var(--color-wrap-bg);
   border-radius: 10px;
   overflow: hidden;
   display: flex;

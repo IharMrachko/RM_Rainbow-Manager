@@ -16,8 +16,7 @@ import {
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-
-// Добавляем иконку в библиотеку
+import './styles/style.scss';
 
 library.add(
   faCheckCircle,
