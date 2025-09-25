@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
 import AuthLayout from '@/views/auth/AuthLayout.vue';
 import LoginView from '@/views/auth/views/LoginView.vue';
 import ForgotView from '@/views/auth/views/ForgotView.vue';
@@ -25,7 +25,7 @@ const routes: Array<RouteRecordRaw> = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHashHistory(),
   routes,
 });
 
