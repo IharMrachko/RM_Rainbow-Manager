@@ -34,7 +34,7 @@
 <script lang="ts">
 import { defineComponent, PropType, ref, watch } from 'vue';
 import { InputType } from '@/types/input.type';
-import AppInputErrorOverlay from '@/components/shared/AppInputErrorOverlay.vue';
+import AppInputErrorOverlay from '@/shared/components/AppInputErrorOverlay.vue';
 
 export default defineComponent({
   components: { AppInputErrorOverlay },

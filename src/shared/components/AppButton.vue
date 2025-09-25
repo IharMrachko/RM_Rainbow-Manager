@@ -1,13 +1,14 @@
 <template>
   <div class="container-btn">
-    <button :disabled="disabled || loading" class="btn">
+    <button :disabled="disabled || loading" class="btn" :class="typeBtn">
       <span v-if="!loading">{{ title }}</span>
       <span v-else class="loader"></span>
     </button>
   </div>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
+import { ColorType } from '@/types/color.type';
 
 export default defineComponent({
   props: {
@@ -23,10 +24,15 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    typeBtn: {
+      type: String as PropType<ColorType>,
+      default: 'success',
+    },
   },
 });
 </script>
 <style scoped lang="scss">
+@import '@/styles/style';
 button {
   outline: none !important;
   border: none;
@@ -42,7 +48,6 @@ button {
   width: 100%;
   height: 50px;
   border-radius: 25px;
-  background: #57b846;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-box;
@@ -55,6 +60,19 @@ button {
   -o-transition: all 0.4s;
   -moz-transition: all 0.4s;
   transition: all 0.4s;
+
+  &.success {
+    background-color: map-get($type-colors, success);
+  }
+  &.error {
+    background-color: map-get($type-colors, error);
+  }
+  &.info {
+    background-color: map-get($type-colors, info);
+  }
+  &.warning {
+    background-color: map-get($type-colors, warning);
+  }
 }
 
 .btn:hover {

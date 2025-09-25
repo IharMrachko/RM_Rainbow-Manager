@@ -1,13 +1,41 @@
+$type-colors: (
+        success: #57b846,
+        error: #f44336,
+        info: #2196f3,
+        warning: #ff9800,
+);
+
 :root {
   --color-bg: linear-gradient(-135deg, #c850c0, #4158d0);
   --color-text: #000;
   --color-wrap-bg: #fff;
+  --header-height: 76px
 }
 
 .dark {
   --color-bg: #111;
   --color-text: #eee;
   --color-wrap-bg: #111;
+
+  .toast {
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.4), 0 0 24px rgba(0, 255, 255, 0.2);
+
+    &.success {
+      box-shadow: 0 0 12px rgba(87, 184, 70, 0.6), 0 0 24px rgba(87, 184, 70, 0.3);
+    }
+
+    &.error {
+      box-shadow: 0 0 12px rgba(244, 67, 54, 0.6), 0 0 24px rgba(244, 67, 54, 0.3);
+    }
+
+    &.info {
+      box-shadow: 0 0 12px rgba(33, 150, 243, 0.6), 0 0 24px rgba(33, 150, 243, 0.3);
+    }
+
+    &.warning {
+      box-shadow: 0 0 12px rgba(255, 152, 0, 0.6), 0 0 24px rgba(255, 152, 0, 0.3);
+    }
+  }
 }
 
 body {
