@@ -1,35 +1,16 @@
 <template>
-  <div class="container">
-    <app-header>
-      <app-toggle v-model="isDarkMode" variant="theme" @toggled="toggled"></app-toggle>
-    </app-header>
-    <app-toaster></app-toaster>
-    <router-view />
-  </div>
+  <router-view />
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import AppToaster from '@/components/shared/AppToaster.vue';
-import AppToggle from '@/components/shared/AppToggle.vue';
-import AppHeader from '@/components/shared/AppHeader.vue';
+import { defineComponent } from 'vue';
+import { useStore } from 'vuex';
 
 export default defineComponent({
-  components: { AppHeader, AppToggle, AppToaster },
   setup() {
-    const isDarkMode = ref(false);
-    const toggled = (val: boolean) => {
-      document.documentElement.classList.toggle('dark', val);
-    };
-    return {
-      isDarkMode,
-      toggled,
-    };
+    const store = useStore();
+    store.dispatch('theme/initTheme');
   },
 });
 </script>
-<style lang="scss">
-.container {
-  height: calc(100vh - 76px);
-}
-</style>
+<style lang="scss"></style>

@@ -26,18 +26,18 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { useStore } from 'vuex';
-import { ToastType } from '@/store/modules/toast';
+import { ColorType } from '@/types/color.type';
 
 export default defineComponent({
   setup() {
     const store = useStore();
-    const toasts = computed(() => store.state.toast.toasts);
+    const toasts = computed(() => store.getters['toast/getToasts']);
     const deleteToast = (id: number) => {
       store.dispatch('toast/deleteToast', {
         id,
       });
     };
-    const iconClass = (type: ToastType) => {
+    const iconClass = (type: ColorType) => {
       switch (type) {
         case 'success':
           return ['fas', 'check-circle'];
@@ -61,13 +61,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-$toast-colors: (
-  success: #57b846,
-  error: #f44336,
-  info: #2196f3,
-  warning: #ff9800,
-);
-
+@import '@/styles/style';
 .toast-container {
   position: fixed;
   top: 1rem;
@@ -98,34 +92,34 @@ $toast-colors: (
 
   &.success {
     .toast-icon {
-      color: map-get($toast-colors, success);
+      color: map-get($type-colors, success);
     }
     .toast-progress {
-      background-color: map-get($toast-colors, success);
+      background-color: map-get($type-colors, success);
     }
   }
   &.error {
     .toast-icon {
-      color: map-get($toast-colors, error);
+      color: map-get($type-colors, error);
     }
     .toast-progress {
-      background-color: map-get($toast-colors, error);
+      background-color: map-get($type-colors, error);
     }
   }
   &.info {
     .toast-icon {
-      color: map-get($toast-colors, info);
+      color: map-get($type-colors, info);
     }
     .toast-progress {
-      background-color: map-get($toast-colors, info);
+      background-color: map-get($type-colors, info);
     }
   }
   &.warning {
     .toast-icon {
-      color: map-get($toast-colors, warning);
+      color: map-get($type-colors, warning);
     }
     .toast-progress {
-      background-color: map-get($toast-colors, warning);
+      background-color: map-get($type-colors, warning);
     }
   }
 

@@ -2,7 +2,7 @@
   <section class="container">
     <div class="wrap-login">
       <div class="login-pic" @mousemove="handleMouseMove" @mouseleave="resetTransform">
-        <img ref="imageRef" src="../assets/img-01.png" alt="" />
+        <img ref="imageRef" src="../../../assets/img-01.png" alt="" />
       </div>
       <div class="login-form">
         <h1 class="title">Login</h1>
@@ -50,16 +50,17 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import AppButton from '@/components/shared/AppButton.vue';
-import AppInput from '@/components/shared/AppInput.vue';
+import AppButton from '@/shared/components/AppButton.vue';
+import AppInput from '@/shared/components/AppInput.vue';
 import * as yup from 'yup';
 import { Field, Form as VForm } from 'vee-validate';
-import store from '@/store';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   components: { Field, VForm, AppInput, AppButton },
 
   setup() {
+    const store = useStore();
     const imageRef = ref<HTMLImageElement | null>(null);
     const email = ref('');
     const password = ref('');
@@ -73,8 +74,8 @@ export default defineComponent({
       loading.value = true;
       store.dispatch('toast/addToast', {
         message: 'Сборка прошла успешно!',
-        type: 'success',
-        duration: 5000,
+        type: 'warning',
+        duration: 3000,
       });
       setTimeout(() => {
         loading.value = false;
@@ -163,6 +164,7 @@ export default defineComponent({
 
   @media (max-width: 768px) {
     flex: none;
+    display: none;
     width: 80%;
     margin-bottom: 1.5rem;
   }

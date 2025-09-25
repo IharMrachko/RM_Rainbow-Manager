@@ -1,30 +1,15 @@
 import { createLogger, createStore } from 'vuex';
 import { toast } from './modules/toast';
+import { theme } from '@/store/modules/theme';
 
 export default createStore({
-  state: {
-    count: 0,
-  },
-  getters: {
-    doubleCount: (state) => state.count * 2,
-  },
-  mutations: {
-    increment(state) {
-      state.count++;
-    },
-    setCount(state, value) {
-      state.count = value;
-    },
-  },
-  actions: {
-    asyncIncrement({ commit }) {
-      setTimeout(() => {
-        commit('increment');
-      }, 1000);
-    },
-  },
+  state: {},
+  getters: {},
+  mutations: {},
+  actions: {},
   modules: {
     toast,
+    theme,
   },
   plugins: [createLogger()],
 });
