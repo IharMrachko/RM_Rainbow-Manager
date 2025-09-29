@@ -6,7 +6,7 @@
 <script lang="ts"></script>
 <style scoped lang="scss">
 .header {
-  height: 76px;
+  height: var(--header-height);
   position: sticky; /* или fixed, если нужно закрепить */
   top: 0;
   z-index: 100;

@@ -3,6 +3,7 @@
     <app-header>
       <app-toggle v-model="isDark" variant="theme" @toggled="toggled"></app-toggle>
     </app-header>
+
     <app-toaster></app-toaster>
     <router-view />
   </div>
@@ -17,6 +18,8 @@ import { useStore } from 'vuex';
 export default defineComponent({
   components: { AppHeader, AppToggle, AppToaster },
   setup() {
+    const containerRef = ref<HTMLElement | null>(null);
+    const isVisible = ref(true);
     const store = useStore();
     const isDark = ref(store.getters['theme/isDark']);
     const toggled = (isDark: boolean) => {
@@ -25,6 +28,8 @@ export default defineComponent({
     return {
       toggled,
       isDark,
+      containerRef,
+      isVisible,
     };
   },
 });

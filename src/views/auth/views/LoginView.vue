@@ -122,7 +122,6 @@ export default defineComponent({
 <style scoped lang="scss">
 .container {
   width: 100%;
-  min-height: calc(100vh - 76px);
   display: flex;
   align-items: center;
   justify-content: center;
