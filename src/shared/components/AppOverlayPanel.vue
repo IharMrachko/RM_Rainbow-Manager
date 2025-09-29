@@ -1,7 +1,6 @@
 <template>
   <teleport to="body">
     <div v-if="visible" ref="overlayRef" class="overlay" :style="overlayStyle">
-      Какой-то текст
       <slot></slot>
     </div>
   </teleport>
@@ -104,9 +103,11 @@ export default defineComponent({
     },
     width: { type: [Number, String], default: null },
   },
-  setup(props) {
+  emits: ['update:visible'],
+  setup(props, { emit }) {
     const overlayRef = ref<HTMLElement | null>(null);
     const positionTrigger = ref(0);
+    const isVisible = ref(props.visible);
 
     const overlayStyle = computed(() => {
       positionTrigger.value;
@@ -181,9 +182,17 @@ export default defineComponent({
       positionTrigger.value = Date.now();
     };
 
+    const handleClickOutside = (e: MouseEvent) => {
+      const overlayEl = overlayRef.value;
+      if (overlayEl && !overlayEl.contains(e.target as Node)) {
+        emit('update:visible', false); // закрываем через v-model
+      }
+    };
+
     onMounted(() => {
       window.addEventListener('resize', updatePosition);
       window.addEventListener('scroll', updatePosition, true);
+      document.addEventListener('click', handleClickOutside);
 
       nextTick(updatePosition);
     });
@@ -191,10 +200,12 @@ export default defineComponent({
     onBeforeUnmount(() => {
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition, true);
+      document.removeEventListener('click', handleClickOutside);
     });
     return {
       overlayStyle,
       overlayRef,
+      isVisible,
     };
   },
 });
@@ -203,8 +214,9 @@ export default defineComponent({
 <style scoped lang="scss">
 .overlay {
   background: #fff;
-  border-radius: 25px;
-  border: 1px solid red;
-  height: 400px;
+  border-radius: 15px;
+  min-height: 20px;
+  padding: 10px 20px;
+  color: #111111;
 }
 </style>

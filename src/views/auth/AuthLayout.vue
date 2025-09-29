@@ -1,11 +1,9 @@
 <template>
   <div class="container">
-    <div ref="containerRef">
-      <app-header>
-        <app-toggle v-model="isDark" variant="theme" @toggled="toggled"></app-toggle>
-        <app-overlay-panel :target="containerRef"></app-overlay-panel>
-      </app-header>
-    </div>
+    <app-header>
+      <app-toggle v-model="isDark" variant="theme" @toggled="toggled"></app-toggle>
+    </app-header>
+
     <app-toaster></app-toaster>
     <router-view />
   </div>
@@ -16,12 +14,12 @@ import AppToaster from '@/shared/components/AppToaster.vue';
 import AppToggle from '@/shared/components/AppToggle.vue';
 import AppHeader from '@/shared/components/AppHeader.vue';
 import { useStore } from 'vuex';
-import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
 
 export default defineComponent({
-  components: { AppOverlayPanel, AppHeader, AppToggle, AppToaster },
+  components: { AppHeader, AppToggle, AppToaster },
   setup() {
     const containerRef = ref<HTMLElement | null>(null);
+    const isVisible = ref(true);
     const store = useStore();
     const isDark = ref(store.getters['theme/isDark']);
     const toggled = (isDark: boolean) => {
@@ -31,6 +29,7 @@ export default defineComponent({
       toggled,
       isDark,
       containerRef,
+      isVisible,
     };
   },
 });
