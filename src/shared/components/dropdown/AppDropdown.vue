@@ -24,7 +24,7 @@ export default defineComponent({
   components: { AppOverlayPanel, AppInput },
   props: {
     modelValue: {
-      type: null as unknown as PropType<unknown>, // любой тип
+      type: [String, Number, Object] as PropType<string | number | Record<string, any>>,
       default: null,
     },
     label: {
