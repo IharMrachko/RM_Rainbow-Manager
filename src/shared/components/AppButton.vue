@@ -1,7 +1,7 @@
 <template>
   <div class="container-btn">
     <button :disabled="disabled || loading" class="btn" :class="typeBtn">
-      <span v-if="!loading">{{ title }}</span>
+      <span v-if="!loading">{{ t(title) }}</span>
       <span v-else class="loader"></span>
     </button>
   </div>
@@ -9,6 +9,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import { ColorType } from '@/types/color.type';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
   props: {
@@ -28,6 +29,10 @@ export default defineComponent({
       type: String as PropType<ColorType>,
       default: 'success',
     },
+  },
+  setup() {
+    const { t } = useI18n();
+    return { t };
   },
 });
 </script>

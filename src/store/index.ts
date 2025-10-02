@@ -1,6 +1,7 @@
 import { createLogger, createStore } from 'vuex';
 import { toast } from './modules/toast';
 import { theme } from '@/store/modules/theme';
+import { language } from '@/store/modules/language';
 
 export default createStore({
   state: {},
@@ -10,6 +11,7 @@ export default createStore({
   modules: {
     toast,
     theme,
+    language,
   },
   plugins: [createLogger()],
 });

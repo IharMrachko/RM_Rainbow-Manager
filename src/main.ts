@@ -17,6 +17,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import './styles/style.scss';
+import { i18n } from '../i18n';
 
 library.add(
   faCheckCircle,
@@ -28,4 +29,9 @@ library.add(
   faEnvelope
 );
 
-createApp(App).use(store).use(router).component('font-awesome-icon', FontAwesomeIcon).mount('#app');
+createApp(App)
+  .use(store)
+  .use(router)
+  .use(i18n)
+  .component('font-awesome-icon', FontAwesomeIcon)
+  .mount('#app');
