@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppToaster renders correctly and matches snapshot' 1`] = `
+<div data-v-app=""><!--teleport start--><!--teleport end--></div>
+<div class="toast-container"><transition-group-stub name="toast" tag="div" appear="false" persisted="false" css="true">
+    <div id="toastTest" class="toast success"><span class="toast-icon"><font-awesome-icon icon="fas,check-circle"></font-awesome-icon></span><span class="toast-message">Success message</span>
+      <div class="toast-progress" style="animation-duration: 3000ms;"></div>
+      <div class="toast-delete"><font-awesome-icon icon="fas,times-circle"></font-awesome-icon></div>
+    </div>
+    <div id="toastTest" class="toast error"><span class="toast-icon"><font-awesome-icon icon="fas,times-circle"></font-awesome-icon></span><span class="toast-message">Error message</span>
+      <div class="toast-progress" style="animation-duration: 5000ms;"></div>
+      <div class="toast-delete"><font-awesome-icon icon="fas,times-circle"></font-awesome-icon></div>
+    </div>
+  </transition-group-stub></div>
+`;

@@ -20,6 +20,7 @@ import { PositionPanel } from '@/types/position-panel';
 import { PositionY } from '@/types/positionY';
 import { PositionX } from '@/types/positionX';
 
+const MARGIN_TOP = 3;
 function getAnchorX(rect: DOMRect, x: PositionX): number {
   switch (x) {
     case 'left':
@@ -107,7 +108,6 @@ export default defineComponent({
   setup(props, { emit }) {
     const overlayRef = ref<HTMLElement | null>(null);
     const positionTrigger = ref(0);
-    const isVisible = ref(props.visible);
 
     const overlayStyle = computed(() => {
       positionTrigger.value;
@@ -141,7 +141,7 @@ export default defineComponent({
           top = rect.top + scrollY - panelH;
           break;
         case 'bottom':
-          top = rect.top + scrollY + rect.height;
+          top = rect.top + scrollY + rect.height + MARGIN_TOP;
           break;
         case 'center':
           top = rect.top + scrollY + rect.height / 2;
@@ -184,8 +184,16 @@ export default defineComponent({
 
     const handleClickOutside = (e: MouseEvent) => {
       const overlayEl = overlayRef.value;
-      if (overlayEl && !overlayEl.contains(e.target as Node)) {
-        emit('update:visible', false); // закрываем через v-model
+      const targetEl = props.target;
+      const clickedNode = e.target as Node;
+
+      if (
+        overlayEl &&
+        !overlayEl.contains(clickedNode) &&
+        targetEl &&
+        !targetEl.contains(clickedNode)
+      ) {
+        emit('update:visible', false);
       }
     };
 
@@ -202,10 +210,10 @@ export default defineComponent({
       window.removeEventListener('scroll', updatePosition, true);
       document.removeEventListener('click', handleClickOutside);
     });
+
     return {
       overlayStyle,
       overlayRef,
-      isVisible,
     };
   },
 });
@@ -216,7 +224,7 @@ export default defineComponent({
   background: #fff;
   border-radius: 15px;
   min-height: 20px;
-  padding: 10px 20px;
   color: #111111;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>

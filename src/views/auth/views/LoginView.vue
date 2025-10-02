@@ -5,7 +5,7 @@
         <img ref="imageRef" src="../../../assets/img-01.png" alt="" />
       </div>
       <div class="login-form">
-        <h1 class="title">Login</h1>
+        <h1 class="title">{{ t('login') }}</h1>
         <!--        v-slot="{ meta }"-->
         <VForm :validation-schema="formGroup" @submit="onSubmit">
           <section class="login-inputs">
@@ -14,7 +14,7 @@
                 v-bind="field"
                 v-model="email"
                 placeholder="example@gmail.com"
-                label="Email"
+                label="email"
                 :icon="['fas', 'envelope']"
                 :z-index-tooltip="1020"
                 :error="meta.touched ? errorMessage : ''"
@@ -26,7 +26,7 @@
                 v-bind="field"
                 v-model="password"
                 placeholder="password"
-                label="Password"
+                label="password"
                 type="password"
                 :icon="['fas', 'lock']"
                 :error="meta.touched ? errorMessage : ''"
@@ -34,13 +34,15 @@
             </Field>
           </section>
           <!--          :disabled="!meta.valid"-->
-          <app-button :loading="loading" type="submit" title="Login"></app-button>
+          <app-button :loading="loading" type="submit" title="login"></app-button>
         </VForm>
 
         <section>
           <div class="text-center">
-            <span class="txt1">Forgot</span>
-            <router-link class="txt2" :to="{ name: 'forgot' }"> Username / Password? </router-link>
+            <span class="txt1">{{ t('forgot') }}</span>
+            <router-link class="txt2" :to="{ name: 'forgot' }">
+              {{ t('userName') }} / {{ t('password') }}?
+            </router-link>
           </div>
         </section>
       </div>
@@ -55,12 +57,14 @@ import AppInput from '@/shared/components/AppInput.vue';
 import * as yup from 'yup';
 import { Field, Form as VForm } from 'vee-validate';
 import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
   components: { Field, VForm, AppInput, AppButton },
 
   setup() {
     const store = useStore();
+    const { t } = useI18n();
     const imageRef = ref<HTMLImageElement | null>(null);
     const email = ref('');
     const password = ref('');
@@ -114,6 +118,7 @@ export default defineComponent({
       imageRef,
       handleMouseMove,
       resetTransform,
+      t,
     };
   },
 });

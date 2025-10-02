@@ -1,6 +1,6 @@
 <template>
   <section>
-    <label v-if="isPlaceholder" class="label" :for="type">{{ label }}</label>
+    <label v-if="isLabel" class="label" :for="type"> {{ t(label) }}</label>
 
     <div ref="wrapperRef" class="wrap-input validate-input">
       <input
@@ -8,15 +8,19 @@
         ref="inputRef"
         :value="modelValue"
         class="input100"
+        :class="{ pr: icon }"
         :type="type"
-        :placeholder="placeholder"
+        :placeholder="t(placeholder)"
+        :disabled="disabled"
+        :readonly="readonly"
+        :style="{ height }"
         @input="handleInput"
         @blur="handleBlur"
         @focus="showErrorToggle"
       />
 
       <span class="focus-input100"></span>
-      <span class="symbol-input100">
+      <span v-if="icon" class="symbol-input100">
         <font-awesome-icon :icon="icon" />
       </span>
     </div>
@@ -35,15 +39,24 @@
 import { defineComponent, PropType, ref, watch } from 'vue';
 import { InputType } from '@/types/input.type';
 import AppInputErrorOverlay from '@/shared/components/AppInputErrorOverlay.vue';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
   components: { AppInputErrorOverlay },
   props: {
     modelValue: { type: String, default: '' }, // для v-model
     error: { type: [String, Boolean], default: '' }, // ошибка извне (vee-validate)
-    isPlaceholder: {
+    isLabel: {
       type: Boolean,
       default: true,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+    readonly: {
+      type: Boolean,
+      default: false,
     },
     placeholder: {
       type: String,
@@ -59,13 +72,18 @@ export default defineComponent({
     },
     icon: {
       type: [Array, String],
-      required: true,
+      default: '',
     },
     zIndexTooltip: { type: Number, default: 1010 },
+    height: {
+      type: String as PropType<string>,
+      default: '50px',
+    },
   },
   emits: ['update:modelValue', 'blur', 'change', 'focus'],
   setup(props, { emit }) {
     const value = ref('');
+    const { t } = useI18n();
     const showError = ref(false);
     const isFocused = ref(false);
     const inputRef = ref<HTMLInputElement | null>(null);
@@ -110,6 +128,7 @@ export default defineComponent({
       wrapperRef,
       handleInput,
       handleBlur,
+      t,
     };
   },
 });
@@ -139,13 +158,14 @@ input {
   display: block;
   width: 100%;
   background: #e6e6e6;
-  height: 50px;
   border-radius: 25px;
-  padding: 0 30px 0 68px;
+  padding: 0 30px 0 20px;
   position: relative;
   z-index: 1;
 }
-
+.input100.pr {
+  padding: 0 30px 0 68px;
+}
 /* Подложка для свечения */
 .focus-input100 {
   display: block;
@@ -211,5 +231,15 @@ input {
 }
 .validate-input {
   position: relative;
+}
+
+.input100:disabled {
+  background-color: #f0f0f0;
+  color: #999;
+  opacity: 0.5;
+}
+
+.input100::placeholder {
+  text-transform: lowercase;
 }
 </style>
