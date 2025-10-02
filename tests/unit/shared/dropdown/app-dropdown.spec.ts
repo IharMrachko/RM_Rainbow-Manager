@@ -73,7 +73,7 @@ describe('AppDropdown', () => {
 
     const wrapper = mount(AppDropdown, {
       props: {
-        modelValue: null,
+        modelValue: '',
         label: 'name',
       },
       slots: {
