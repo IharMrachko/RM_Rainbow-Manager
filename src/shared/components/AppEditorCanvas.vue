@@ -14,6 +14,8 @@
       <font-awesome-icon size="lg" :icon="['fas', 'undo']" />
     </button>
 
+    <button class="btn" @click="zoomMinus">-</button>
+    <button class="btn" @click="zoomPlus">+</button>
     <button class="btn btn-save" @click="saveImage">
       <font-awesome-icon size="lg" :icon="['fas', 'save']" />
     </button>
@@ -22,18 +24,16 @@
 
 <script lang="ts">
 import { defineComponent, nextTick, onMounted, ref, watch } from 'vue';
-
-type FrameSegment = { color: string };
+import { FrameColorSegment } from '@/types/frame-color-segment';
 
 export default defineComponent({
   name: 'AppEditorCanvas',
   props: {
     size: { type: Number, required: true },
     thickness: { type: Number, required: true },
-    segments: { type: Array as () => FrameSegment[], required: true },
+    segments: { type: Array as () => FrameColorSegment[], required: true },
     startAngle: { type: [Number, null], default: null },
     imageUrl: { type: [String, null], default: null },
-    zoom: { type: Number, required: true },
     rotation: { type: Number, required: true },
     offsetX: { type: Number, required: true },
     offsetY: { type: Number, required: true },
@@ -72,6 +72,7 @@ export default defineComponent({
       startY = 0,
       currentX = 0,
       currentY = 0;
+    let zoom = 1;
 
     function startSelection(e: MouseEvent) {
       if (!canvas.value) return;
@@ -145,7 +146,7 @@ export default defineComponent({
       ctx.rotate((props.rotation * Math.PI) / 180);
 
       const baseSize = props.size - thickness * 2;
-      const scale = props.zoom ?? 1;
+      const scale = zoom;
       const minSide = Math.min(img.width, img.height);
       const targetSize = baseSize * scale;
 
@@ -200,9 +201,22 @@ export default defineComponent({
       }
     );
 
+    watch(
+      () => props.segments,
+      async () => {
+        await nextTick();
+        render();
+      }
+    );
+
     function resetImage() {
       if (originalUrl.value) {
         emit('update:imageUrl', originalUrl.value);
+        zoom = 1;
+        render();
+      } else {
+        zoom = 1;
+        render();
       }
     }
 
@@ -215,6 +229,19 @@ export default defineComponent({
       link.click();
     }
 
+    function zoomPlus() {
+      zoom++;
+      render();
+    }
+
+    function zoomMinus() {
+      if (zoom === 1) {
+        return;
+      }
+      zoom--;
+      render();
+    }
+
     return {
       canvas,
       startSelection,
@@ -222,6 +249,8 @@ export default defineComponent({
       endSelection,
       resetImage,
       saveImage,
+      zoomPlus,
+      zoomMinus,
     };
   },
 });
