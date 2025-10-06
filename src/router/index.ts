@@ -3,7 +3,7 @@ import AuthLayout from '@/views/auth/AuthLayout.vue';
 import LoginView from '@/views/auth/views/LoginView.vue';
 import ForgotView from '@/views/auth/views/ForgotView.vue';
 import MainLayout from '@/views/main/MainLayout.vue';
-import ColorView from '@/views/main/views/ColorView.vue';
+import ColorView from '@/views/main/views/color-view/ColorView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
