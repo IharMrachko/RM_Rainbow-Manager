@@ -10,10 +10,13 @@ import {
   faCheckCircle,
   faEnvelope,
   faExclamationTriangle,
+  faFileUpload,
   faInfoCircle,
   faLock,
   faLongArrowAltRight,
+  faSave,
   faTimesCircle,
+  faUndo,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import './styles/style.scss';
@@ -26,7 +29,10 @@ library.add(
   faExclamationTriangle,
   faLock,
   faLongArrowAltRight,
-  faEnvelope
+  faEnvelope,
+  faFileUpload,
+  faUndo,
+  faSave
 );
 
 createApp(App)
