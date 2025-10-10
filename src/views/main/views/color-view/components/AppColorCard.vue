@@ -12,13 +12,14 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
+import { ColorCard } from '@/views/main/views/color-view/components/color-card.constanst';
 
 export default defineComponent({
   props: {
     card: {
-      type: String,
-      default: '',
+      type: Object as PropType<ColorCard>,
+      required: true,
     },
     isSelected: {
       type: Boolean,
@@ -70,6 +71,7 @@ export default defineComponent({
     height: 100px;
   }
 }
+
 .segments {
   display: flex;
   flex-direction: column;

@@ -34,7 +34,10 @@ import { computed, defineComponent, onBeforeMount, onBeforeUnmount, onMounted, r
 import AppEditorCanvas from '@/shared/components/AppEditorCanvas.vue';
 import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppColorCard from '@/views/main/views/color-view/components/AppColorCard.vue';
-import { colorCards } from '@/views/main/views/color-view/components/color-card.constanst';
+import {
+  ColorCard,
+  colorCards,
+} from '@/views/main/views/color-view/components/color-card.constanst';
 
 export default defineComponent({
   components: {
@@ -43,7 +46,7 @@ export default defineComponent({
     AppFileUploader,
   },
   setup() {
-    const cards = colorCards;
+    const cards: ColorCard[] = colorCards;
     const windowWidth = ref(document.documentElement.clientWidth);
 
     function updateWidth() {

@@ -1,6 +1,7 @@
 import { FrameColorSegment } from '@/types/frame-color-segment';
 
-export const colorCards: { id: number; segments: FrameColorSegment[] }[] = [
+export type ColorCard = { id: number; segments: FrameColorSegment[] };
+export const colorCards: ColorCard[] = [
   {
     id: 1,
     segments: [
