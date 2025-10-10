@@ -1,14 +1,17 @@
 <template>
   <div class="container-btn">
-    <button :disabled="disabled || loading" class="btn" :class="typeBtn">
+    <button :disabled="disabled || loading" :class="classes">
+      <span v-if="icon" class="btn-icon">
+        <font-awesome-icon size="lg" :icon="icon" />
+      </span>
       <span v-if="!loading">{{ t(title) }}</span>
       <span v-else class="loader"></span>
     </button>
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
-import { ColorType } from '@/types/color.type';
+import { computed, defineComponent, PropType } from 'vue';
+import { Severity } from '@/types/color.type';
 import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
@@ -25,14 +28,23 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    typeBtn: {
-      type: String as PropType<ColorType>,
+    severity: {
+      type: String as PropType<Severity>,
       default: 'success',
     },
+    raised: {
+      type: Boolean,
+      default: false,
+    },
+    icon: {
+      type: [Array, String],
+      default: '',
+    },
   },
-  setup() {
+  setup(props) {
     const { t } = useI18n();
-    return { t };
+    const classes = computed(() => ['btn', `${props.severity}`, { raised: props.raised }]);
+    return { t, classes };
   },
 });
 </script>
@@ -78,11 +90,36 @@ button {
   &.warning {
     background-color: map-get($type-colors, warning);
   }
+  &.secondary {
+    background-color: map-get($type-colors, secondary);
+  }
+
+  &.raised {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 2px 2px 6px #c5c5c5, -2px -2px 6px #ffffff;
+
+    & .btn-icon {
+      color: #111111;
+    }
+  }
 }
 
-.btn:hover {
+.btn:not(.raised):hover {
   cursor: pointer;
   background: #333333;
+}
+
+.btn.raised:active {
+  box-shadow: inset 2px 2px 6px #c5c5c5, inset -2px -2px 6px #ffffff;
 }
 
 .btn:disabled {
