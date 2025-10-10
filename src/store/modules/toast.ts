@@ -1,10 +1,10 @@
 import { Module } from 'vuex';
-import { ColorType } from '@/types/color.type';
+import { Severity } from '@/types/color.type';
 
 export interface Toast {
   id: number;
   message: string;
-  type: ColorType;
+  severity: Severity;
   duration: number;
 }
 
@@ -34,10 +34,10 @@ export const toast: Module<ToastState, any> = {
     },
   },
   actions: {
-    addToast({ commit }, payload: { message: string; type?: ColorType; duration?: number }) {
+    addToast({ commit }, payload: { message: string; severity?: Severity; duration?: number }) {
       commit('ADD_TOAST', {
         message: payload.message,
-        type: payload.type || 'info',
+        severity: payload.severity || 'info',
         duration: payload.duration || 4000,
       });
     },

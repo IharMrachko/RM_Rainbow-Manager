@@ -14,6 +14,8 @@ import {
   faInfoCircle,
   faLock,
   faLongArrowAltRight,
+  faMinus,
+  faPlus,
   faSave,
   faTimesCircle,
   faUndo,
@@ -32,7 +34,9 @@ library.add(
   faEnvelope,
   faFileUpload,
   faUndo,
-  faSave
+  faSave,
+  faPlus,
+  faMinus
 );
 
 createApp(App)

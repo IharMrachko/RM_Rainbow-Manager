@@ -26,7 +26,7 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { useStore } from 'vuex';
-import { ColorType } from '@/types/color.type';
+import { Severity } from '@/types/color.type';
 
 export default defineComponent({
   setup() {
@@ -37,8 +37,8 @@ export default defineComponent({
         id,
       });
     };
-    const iconClass = (type: ColorType) => {
-      switch (type) {
+    const iconClass = (severity: Severity) => {
+      switch (severity) {
         case 'success':
           return ['fas', 'check-circle'];
         case 'error':

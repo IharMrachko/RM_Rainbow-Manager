@@ -53,9 +53,9 @@ describe('AppButton.vue', () => {
     expect(button.attributes('disabled')).toBeDefined();
   });
 
-  it('applies correct typeBtn class', () => {
+  it('applies correct severity class', () => {
     const wrapper = mount(AppButton, {
-      props: { typeBtn: 'error' },
+      props: { severity: 'error' },
       global: {
         plugins: [i18n],
       },
@@ -63,5 +63,27 @@ describe('AppButton.vue', () => {
 
     const button = wrapper.find('button');
     expect(button.classes()).toContain('error');
+  });
+  it('applies correct raised class', () => {
+    const wrapper = mount(AppButton, {
+      props: { raised: true },
+      global: {
+        plugins: [i18n],
+      },
+    });
+
+    const button = wrapper.find('button');
+    expect(button.classes()).toContain('raised');
+  });
+  it('if icons props not empty ', () => {
+    const wrapper = mount(AppButton, {
+      props: { icon: ['fas', 'save'] },
+      global: {
+        plugins: [i18n],
+      },
+    });
+
+    const icon = wrapper.find('.btn-icon');
+    expect(icon.exists()).toBe(true);
   });
 });

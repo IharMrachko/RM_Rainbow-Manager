@@ -10,24 +10,31 @@
     ></canvas>
   </div>
   <div class="actions">
-    <button class="btn btn-reset" @click="resetImage">
-      <font-awesome-icon size="lg" :icon="['fas', 'undo']" />
-    </button>
-
-    <button class="btn" @click="zoomMinus">-</button>
-    <button class="btn" @click="zoomPlus">+</button>
-    <button class="btn btn-save" @click="saveImage">
-      <font-awesome-icon size="lg" :icon="['fas', 'save']" />
-    </button>
+    <app-button
+      severity="secondary"
+      raised
+      :icon="['fas', 'undo']"
+      @click="resetImage"
+    ></app-button>
+    <app-button severity="secondary" raised :icon="['fas', 'plus']" @click="zoomPlus"></app-button>
+    <app-button
+      severity="secondary"
+      raised
+      :icon="['fas', 'minus']"
+      @click="zoomMinus"
+    ></app-button>
+    <app-button severity="secondary" raised :icon="['fas', 'save']" @click="saveImage"></app-button>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, nextTick, onMounted, ref, watch } from 'vue';
 import { FrameColorSegment } from '@/types/frame-color-segment';
+import AppButton from '@/shared/components/AppButton.vue';
 
 export default defineComponent({
   name: 'AppEditorCanvas',
+  components: { AppButton },
   props: {
     size: { type: Number, required: true },
     thickness: { type: Number, required: true },
@@ -43,7 +50,13 @@ export default defineComponent({
     const canvas = ref<HTMLCanvasElement | null>(null);
     const imageRef = ref<HTMLImageElement | null>(null);
     const originalUrl = ref<string | null>(null);
-
+    // --- Crop selection ---
+    let isSelecting = false;
+    let startX = 0,
+      startY = 0,
+      currentX = 0,
+      currentY = 0;
+    let zoom = 1;
     function loadImage(url: string): Promise<HTMLImageElement> {
       return new Promise((resolve, reject) => {
         const img = new Image();
@@ -65,14 +78,6 @@ export default defineComponent({
       drawBaseImage(ctx);
       drawFrame(ctx);
     }
-
-    // --- Crop selection ---
-    let isSelecting = false;
-    let startX = 0,
-      startY = 0,
-      currentX = 0,
-      currentY = 0;
-    let zoom = 1;
 
     function startSelection(e: MouseEvent) {
       if (!canvas.value) return;
@@ -131,54 +136,62 @@ export default defineComponent({
     }
 
     function drawBaseImage(ctx: CanvasRenderingContext2D) {
-      const radius = props.size / 2;
-      const thickness = props.thickness;
+      const radius = props.size / 2; // Вычисляем радиус круга, исходя из размера компонента
+      const thickness = props.thickness; // Толщина рамки (обводка вокруг изображения)
       const img = imageRef.value;
       if (!img) return;
 
-      ctx.save();
-      ctx.beginPath();
+      ctx.save(); // Сохраняем текущие настройки канваса
+      ctx.beginPath(); // Начинаем путь для вырезания круглой области
+      // Рисуем круг с центром в середине канваса и радиусом, уменьшенным на толщину
       ctx.arc(radius, radius, radius - thickness, 0, 2 * Math.PI);
-      ctx.closePath();
-      ctx.clip();
-
+      ctx.closePath(); // Закрываем путь
+      ctx.clip(); // Ограничиваем область рисования кругом (всё вне круга будет обрезано)
+      // Перемещаем начало координат в центр круга + возможные смещения
       ctx.translate(radius + (props.offsetX ?? 0), radius + (props.offsetY ?? 0));
-      ctx.rotate((props.rotation * Math.PI) / 180);
+      ctx.rotate((props.rotation * Math.PI) / 180); // Поворачиваем канвас на заданный угол (в градусах → радианы)
 
-      const baseSize = props.size - thickness * 2;
-      const scale = zoom;
-      const minSide = Math.min(img.width, img.height);
-      const targetSize = baseSize * scale;
-
+      const baseSize = props.size - thickness * 2; // Вычисляем базовый размер изображения (с учётом толщины рамки)
+      const minSide = Math.min(img.width, img.height); // Находим меньшую сторону изображения (для обрезки по центру)
+      const targetSize = baseSize * zoom; // Итоговый размер изображения после масштабирования
+      // Рисуем изображение:
+      // - обрезаем его по центру до квадратной области minSide × minSide
+      // - размещаем его по центру канваса
+      // - масштабируем до targetSize × targetSize
       ctx.drawImage(
         img,
-        (img.width - minSide) / 2,
-        (img.height - minSide) / 2,
-        minSide,
-        minSide,
-        -targetSize / 2,
-        -targetSize / 2,
-        targetSize,
-        targetSize
+        (img.width - minSide) / 2, // x-координата обрезки
+        (img.height - minSide) / 2, // y-координата обрезки
+        minSide, // ширина обрезки
+        minSide, // высота обрезки
+        -targetSize / 2, // x-координата на канвасе
+        -targetSize / 2, // y-координата на канвасе
+        targetSize, // ширина на канвасе
+        targetSize // высота на канвасе
       );
-
+      // Восстанавливаем сохранённое состояние канваса
       ctx.restore();
     }
 
     function drawFrame(ctx: CanvasRenderingContext2D) {
-      const radius = props.size / 2;
-      const thickness = props.thickness;
-      const step = (2 * Math.PI) / props.segments.length;
+      const radius = props.size / 2; // Вычисляем радиус круга (половина размера компонента)
+      const thickness = props.thickness; // Толщина линии, которая будет использоваться для рисования дуг
+      const step = (2 * Math.PI) / props.segments.length; // Угол одного сегмента (в радианах), равный 2π / количество сегментов
+      // Начальный угол смещения (если не задан — по умолчанию вверх, то есть -π/2)
       const startOffset = props.startAngle ?? -Math.PI / 2;
 
-      ctx.lineWidth = thickness;
+      ctx.lineWidth = thickness; // Устанавливаем толщину линии для всех дуг
+      // Перебираем все сегменты и рисуем каждый как дугу
       props.segments.forEach((seg, i) => {
-        ctx.beginPath();
-        ctx.strokeStyle = seg.color;
-        const start = i * step + startOffset;
-        const end = (i + 1) * step + startOffset;
+        ctx.beginPath(); // Начинаем новый путь для текущего сегмента
+        ctx.strokeStyle = seg.color; // Устанавливаем цвет обводки для текущего сегмента
+        const start = i * step + startOffset; // Вычисляем начальный угол дуги для сегмента i
+        const end = (i + 1) * step + startOffset; // Вычисляем конечный угол дуги для сегмента i
+        // Рисуем дугу по окружности с заданным радиусом и углами
+        // Центр круга: (radius, radius)
+        // Радиус: radius - thickness / 2 (чтобы линия была по центру толщины)
         ctx.arc(radius, radius, radius - thickness / 2, start, end);
-        ctx.stroke();
+        ctx.stroke(); // Отрисовываем дугу на канвасе
       });
     }
 
@@ -195,17 +208,15 @@ export default defineComponent({
 
     watch(
       () => [props.size, props.thickness],
-      async () => {
-        await nextTick();
-        render();
+      () => {
+        nextTick(() => render());
       }
     );
 
     watch(
       () => props.segments,
-      async () => {
-        await nextTick();
-        render();
+      () => {
+        nextTick(() => render());
       }
     );
 
@@ -256,42 +267,9 @@ export default defineComponent({
 });
 </script>
 <style scoped>
-.btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: auto;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  box-shadow: 2px 2px 6px #c5c5c5, -2px -2px 6px #ffffff;
-}
-
-/* Общий эффект нажатия */
-.btn:active {
-  box-shadow: inset 2px 2px 6px #c5c5c5, inset -2px -2px 6px #ffffff;
-}
-
-/* Серый вариант для "Вернуть" */
-.btn-reset {
-  background: linear-gradient(145deg, #f0f0f0, #d9d9d9);
-  color: #444;
-}
-
-/* Зелёный вариант для "Сохранить" */
-.btn-save {
-  background: linear-gradient(145deg, #4caf50, #43a047);
-  color: #fff;
-}
-
-/* Контейнер */
 .actions {
   display: flex;
   gap: 12px;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 </style>
