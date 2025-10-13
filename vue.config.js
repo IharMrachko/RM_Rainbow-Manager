@@ -8,9 +8,25 @@ module.exports = defineConfig({
     msTileColor: '#000000',
     manifestOptions: {
       short_name: 'RM',
+      start_url: '/vue3/',
+      display: 'standalone',
+      background_color: '#ffffff',
+      icons: [
+        {
+          src: 'icons/rainbow-192.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+        {
+          src: 'icons/rainbow.png',
+          sizes: '512x512',
+          type: 'image/png',
+        },
+      ],
     },
     workboxOptions: {
       skipWaiting: true,
+      clientsClaim: true,
     },
   },
 });

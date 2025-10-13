@@ -1,7 +1,7 @@
 {
   "name": "Rainbow Manager",
   "short_name": "RM",
-  "start_url": ".",
+  "start_url": "/vue3/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#42b883",
