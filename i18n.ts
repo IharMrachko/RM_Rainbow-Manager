@@ -7,6 +7,8 @@ const messages = {
     password: 'Password',
     forgot: 'Forgot',
     userName: 'Username',
+    incorrectLoginPassword: 'Incorrect login or password',
+    userNotFound: 'User not found',
   },
   ru: {
     login: 'Вход',
@@ -14,6 +16,8 @@ const messages = {
     password: 'Пароль',
     forgot: 'Забыли',
     userName: 'Имя пользователя',
+    incorrectLoginPassword: 'Неверный логин или пароль',
+    userNotFound: 'Пользователь не найден',
   },
 };
 

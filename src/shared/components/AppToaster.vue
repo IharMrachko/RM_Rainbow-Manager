@@ -7,12 +7,12 @@
           id="toastTest"
           :key="toast.id"
           class="toast"
-          :class="toast.type"
+          :class="toast.severity"
         >
           <span class="toast-icon">
-            <font-awesome-icon :icon="iconClass(toast.type)" />
+            <font-awesome-icon :icon="iconClass(toast.severity)" />
           </span>
-          <span class="toast-message">{{ toast.message }}</span>
+          <span class="toast-message">{{ t(toast.message) }}</span>
           <div class="toast-progress" :style="{ animationDuration: toast.duration + 'ms' }"></div>
           <div class="toast-delete" @click="deleteToast(toast.id)">
             <font-awesome-icon :icon="['fas', 'times-circle']" />
@@ -27,9 +27,11 @@
 import { computed, defineComponent } from 'vue';
 import { useStore } from 'vuex';
 import { Severity } from '@/types/color.type';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
   setup() {
+    const { t } = useI18n();
     const store = useStore();
     const toasts = computed(() => store.getters['toast/getToasts']);
     const deleteToast = (id: number) => {
@@ -55,6 +57,7 @@ export default defineComponent({
       toasts,
       iconClass,
       deleteToast,
+      t,
     };
   },
 });

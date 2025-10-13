@@ -2,6 +2,8 @@ import { createStore } from 'vuex';
 import { flushPromises, mount } from '@vue/test-utils';
 import AppToaster from '@/shared/components/AppToaster.vue';
 import { nextTick } from 'vue';
+import { Toast } from '@/store/modules/toast';
+import { i18n } from '../../../i18n';
 
 describe('AppToaster', () => {
   let store: any;
@@ -17,9 +19,9 @@ describe('AppToaster', () => {
     state = {
       toast: {
         toasts: [
-          { id: 1, message: 'Success message', type: 'success', duration: 3000 },
-          { id: 2, message: 'Error message', type: 'error', duration: 5000 },
-        ],
+          { id: 1, message: 'Success message', severity: 'success', duration: 3000 },
+          { id: 2, message: 'Error message', severity: 'error', duration: 5000 },
+        ] as Toast[],
       },
     };
     getters = {
@@ -36,7 +38,7 @@ describe('AppToaster', () => {
       },
     });
     wrapper = mount(AppToaster, {
-      global: { plugins: [store] },
+      global: { plugins: [store, i18n] },
       attachTo: document.body,
     });
   });
