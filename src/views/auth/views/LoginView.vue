@@ -51,39 +51,38 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import AppInput from '@/shared/components/AppInput.vue';
 import * as yup from 'yup';
 import { Field, Form as VForm } from 'vee-validate';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   components: { Field, VForm, AppInput, AppButton },
 
   setup() {
+    const router = useRouter();
     const store = useStore();
     const { t } = useI18n();
     const imageRef = ref<HTMLImageElement | null>(null);
     const email = ref('');
     const password = ref('');
-    const loading = ref(false);
+    const loading = computed(() => store.getters['authFirebase/isLoading']);
     const formGroup = yup.object({
       email: yup.string().required('This field is required').email('Incorrect email'),
       password: yup.string().required('This field is required').min(6, 'Minimum 6 characters'),
     });
 
-    const onSubmit = () => {
-      loading.value = true;
-      store.dispatch('toast/addToast', {
-        message: 'Сборка прошла успешно!',
-        type: 'warning',
-        duration: 3000,
-      });
-      setTimeout(() => {
-        loading.value = false;
-      }, 1000);
+    const onSubmit = async (form: { email: string; password: string }) => {
+      try {
+        await store.dispatch('authFirebase/login', form);
+        await router.push('/main');
+      } catch (e) {
+        console.error(e);
+      }
     };
 
     const handleMouseMove = (e: MouseEvent) => {
