@@ -48,10 +48,18 @@ export default defineComponent({
   setup() {
     const cards: ColorCard[] = colorCards;
     const windowWidth = ref(document.documentElement.clientWidth);
+    const rotation = ref(0);
+    const filter = ref('none');
+    const cropMode = ref(false);
+    const offsetX = ref(0);
+    const offsetY = ref(0);
+    const selectedCard = ref<null | { id: number; segments: any[] }>(null);
+    const frameColors = ref();
+    const imageUrl = ref<string | null>(null);
 
-    function updateWidth() {
+    const updateWidth = () => {
       windowWidth.value = document.documentElement.clientWidth;
-    }
+    };
 
     onMounted(() => {
       window.addEventListener('resize', updateWidth);
@@ -73,27 +81,19 @@ export default defineComponent({
       return 100;
     });
 
-    const rotation = ref(0);
-    const filter = ref('none');
-    const cropMode = ref(false);
-    const offsetX = ref(0);
-    const offsetY = ref(0);
-    const selectedCard = ref<null | { id: number; segments: any[] }>(null);
-    const frameColors = ref();
     onBeforeMount(() => {
       const [first] = cards;
       selectedCard.value = first;
       frameColors.value = first.segments;
     });
-    const imageUrl = ref<string | null>(null);
 
-    function onFileSelected(file: File) {
+    const onFileSelected = (file: File) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         imageUrl.value = e.target?.result as string;
       };
       reader.readAsDataURL(file);
-    }
+    };
 
     const selected = (item: any) => {
       selectedCard.value = item;
@@ -160,9 +160,12 @@ export default defineComponent({
       justify-content: right;
     }
   }
+  @media (max-width: 768px) {
+    padding: 5px;
+  }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .color-container .color-wrapper .buttons {
     justify-content: center;
   }

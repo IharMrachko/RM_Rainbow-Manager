@@ -65,10 +65,10 @@ export default defineComponent({
 }
 
 /* телефоны */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .card {
-    width: 85px;
-    height: 100px;
+    width: 70px;
+    height: 50px;
   }
 }
 
@@ -95,5 +95,9 @@ export default defineComponent({
     /* глубокая тень */ 0 0 12px rgba(0, 0, 0, 0.9); /* дополнительная чёткость */
   letter-spacing: 2px; /* чуть больше воздуха */
   pointer-events: none;
+
+  @media (max-width: 768px) {
+    font-size: 30px;
+  }
 }
 </style>

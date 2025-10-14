@@ -17,6 +17,7 @@ import {
   faLongArrowAltRight,
   faMinus,
   faPlus,
+  faRightFromBracket,
   faSave,
   faTimesCircle,
   faUndo,
@@ -24,6 +25,8 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import './styles/style.scss';
 import { i18n } from '../i18n';
+import { auth } from '@/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 library.add(
   faCheckCircle,
@@ -37,8 +40,13 @@ library.add(
   faUndo,
   faSave,
   faPlus,
-  faMinus
+  faMinus,
+  faRightFromBracket
 );
+
+onAuthStateChanged(auth, (user) => {
+  store.commit('authFirebase/setUser', user);
+});
 
 createApp(App)
   .use(store)

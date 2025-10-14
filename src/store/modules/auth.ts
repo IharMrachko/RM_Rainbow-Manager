@@ -14,7 +14,11 @@ export const authFirebase: Module<AuthState, any> = {
     loading: false,
   }),
   getters: {
-    isAuthenticated: (state: AuthState) => !!state.user,
+    isAuthenticated: (state: AuthState) => {
+      const raw = localStorage.getItem('user');
+      const user = raw ? JSON.parse(raw) : null;
+      return !!state.user || !!user;
+    },
     currentUser: (state: AuthState) => state.user,
     isLoading: (state: AuthState) => state.loading,
   },

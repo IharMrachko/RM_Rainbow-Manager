@@ -4,6 +4,7 @@ import LoginView from '@/views/auth/views/LoginView.vue';
 import ForgotView from '@/views/auth/views/ForgotView.vue';
 import MainLayout from '@/views/main/MainLayout.vue';
 import ColorView from '@/views/main/views/color-view/ColorView.vue';
+import store from '@/store';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -29,11 +30,13 @@ const routes: Array<RouteRecordRaw> = [
     name: 'main',
     component: MainLayout,
     redirect: '/main/color',
+    meta: { requiresAuth: true },
     children: [
       {
         path: 'color',
         name: 'color',
         component: ColorView,
+        meta: { requiresAuth: true },
       },
     ],
   },
@@ -42,6 +45,24 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
   history: createWebHashHistory('/vue3/'),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = store.getters['authFirebase/isAuthenticated'];
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (!isAuthenticated) {
+      next({ name: 'login' });
+    } else {
+      next();
+    }
+  } else {
+    // если пользователь уже вошёл и идёт на /login → редиректим в main
+    if (to.name === 'login' && isAuthenticated) {
+      next({ name: 'color' });
+    } else {
+      next();
+    }
+  }
 });
 
 export default router;

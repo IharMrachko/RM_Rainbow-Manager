@@ -64,5 +64,9 @@ export default defineComponent({
       margin-left: 15px;
     }
   }
+
+  @media (max-width: 768px) {
+    height: auto;
+  }
 }
 </style>
