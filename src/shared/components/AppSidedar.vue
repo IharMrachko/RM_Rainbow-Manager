@@ -67,6 +67,7 @@ export default defineComponent({
 
     const logout = async () => {
       await store.dispatch('authFirebase/logout');
+      await store.dispatch('burgerMenu/setBurger', { isOpen: false });
       await router.push('/login');
     };
 
