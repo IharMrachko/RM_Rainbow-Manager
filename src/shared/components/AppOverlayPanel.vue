@@ -16,12 +16,12 @@ import {
   PropType,
   ref,
 } from 'vue';
-import { PositionPanel } from '@/types/position-panel';
-import { PositionY } from '@/types/positionY';
-import { PositionX } from '@/types/positionX';
+import { PositionPanelType } from '@/types/position-panel.type';
+import { PositionYType } from '@/types/positionY.type';
+import { PositionXType } from '@/types/positionX.type';
 
 const MARGIN_TOP = 3;
-function getAnchorX(rect: DOMRect, x: PositionX): number {
+function getAnchorX(rect: DOMRect, x: PositionXType): number {
   switch (x) {
     case 'left':
       return rect.left;
@@ -32,7 +32,7 @@ function getAnchorX(rect: DOMRect, x: PositionX): number {
   }
 }
 
-function getAnchorY(rect: DOMRect, y: PositionY): number {
+function getAnchorY(rect: DOMRect, y: PositionYType): number {
   switch (y) {
     case 'top':
       return rect.top;
@@ -43,7 +43,12 @@ function getAnchorY(rect: DOMRect, y: PositionY): number {
   }
 }
 
-function resolveX(x: PositionX, rect: DOMRect, panelW: number, viewportW: number): PositionX {
+function resolveX(
+  x: PositionXType,
+  rect: DOMRect,
+  panelW: number,
+  viewportW: number
+): PositionXType {
   const anchor = getAnchorX(rect, x);
   const fitsLeft = anchor - panelW >= 0;
   const fitsRight = anchor + panelW <= viewportW;
@@ -54,7 +59,12 @@ function resolveX(x: PositionX, rect: DOMRect, panelW: number, viewportW: number
   return 'center';
 }
 
-function resolveY(y: PositionY, rect: DOMRect, panelH: number, viewportH: number): PositionY {
+function resolveY(
+  y: PositionYType,
+  rect: DOMRect,
+  panelH: number,
+  viewportH: number
+): PositionYType {
   const anchor = getAnchorY(rect, y);
   const fitsTop = anchor - panelH >= 0;
   const fitsBottom = anchor + panelH <= viewportH;
@@ -79,9 +89,9 @@ function getBestPlacement(
   rect: DOMRect,
   panelW: number,
   panelH: number,
-  x: PositionX,
-  y: PositionY
-): PositionPanel {
+  x: PositionXType,
+  y: PositionYType
+): PositionPanelType {
   const viewportW = document.documentElement.clientWidth;
   const viewportH = document.documentElement.clientHeight;
   return {
@@ -96,7 +106,7 @@ export default defineComponent({
     visible: { type: Boolean, default: true },
     zIndex: { type: Number, default: 1010 },
     position: {
-      type: Object as PropType<PositionPanel>,
+      type: Object as PropType<PositionPanelType>,
       default: () => ({
         x: 'center',
         y: 'bottom',

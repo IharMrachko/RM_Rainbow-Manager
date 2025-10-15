@@ -11,13 +11,11 @@
       </section>
     </app-header>
 
-    <app-toaster></app-toaster>
     <router-view />
   </div>
 </template>
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
-import AppToaster from '@/shared/components/AppToaster.vue';
 import AppToggle from '@/shared/components/AppToggle.vue';
 import AppHeader from '@/shared/components/AppHeader.vue';
 import { useStore } from 'vuex';
@@ -25,7 +23,7 @@ import AppDropdown from '@/shared/components/dropdown/AppDropdown.vue';
 import AppOption from '@/shared/components/dropdown/AppOption.vue';
 
 export default defineComponent({
-  components: { AppOption, AppDropdown, AppHeader, AppToggle, AppToaster },
+  components: { AppOption, AppDropdown, AppHeader, AppToggle },
   setup() {
     const store = useStore();
     const containerRef = ref<HTMLElement | null>(null);
