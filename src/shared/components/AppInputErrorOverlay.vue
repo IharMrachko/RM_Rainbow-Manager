@@ -8,7 +8,9 @@
       @click="onClick"
     >
       <section>
-        <div class="error-message">{{ message }}</div>
+        <div class="error-message">
+          {{ typeof message === 'string' ? t(message) : t(message.key, message.values) }}
+        </div>
         <div class="exclamation-mark">!</div>
       </section>
     </div>
@@ -17,6 +19,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, onBeforeUnmount, onMounted, PropType, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const MARGIN_TOP = 7.5;
 const INCREASE_WITH_BY = 1.5;
@@ -24,12 +27,13 @@ const INCREASE_WITH_BY = 1.5;
 export default defineComponent({
   props: {
     target: { type: Object as PropType<HTMLElement | null>, required: true },
-    message: { type: String, default: '' },
+    message: { type: [String, Object], default: '' },
     visible: { type: Boolean, default: false },
     zIndex: { type: Number, default: 1010 },
   },
   emits: ['click'],
   setup(props, { emit }) {
+    const { t } = useI18n();
     const overlayRef = ref<HTMLElement | null>(null);
     const positionTrigger = ref(0);
 
@@ -64,7 +68,7 @@ export default defineComponent({
       window.removeEventListener('scroll', updatePosition, true);
     });
 
-    return { overlayRef, overlayStyle, onClick };
+    return { overlayRef, overlayStyle, onClick, t };
   },
 });
 </script>

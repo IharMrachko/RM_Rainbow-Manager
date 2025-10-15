@@ -72,8 +72,11 @@ export default defineComponent({
     const password = ref('');
     const loading = computed(() => store.getters['authFirebase/isLoading']);
     const formGroup = yup.object({
-      email: yup.string().required('This field is required').email('Incorrect email'),
-      password: yup.string().required('This field is required').min(6, 'Minimum 6 characters'),
+      email: yup.string().required('validation.required').email('validation.required'),
+      password: yup
+        .string()
+        .required('validation.required')
+        .min(6, { key: 'validation.min', values: { count: 6 } }),
     });
 
     const onSubmit = async (form: { email: string; password: string }) => {

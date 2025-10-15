@@ -9,6 +9,11 @@ const messages = {
     userName: 'Username',
     incorrectLoginPassword: 'Incorrect login or password',
     userNotFound: 'User not found',
+    validation: {
+      required: 'This field is required',
+      email: 'Invalid email address',
+      min: 'Minimum {count} characters',
+    },
   },
   ru: {
     login: 'Вход',
@@ -18,6 +23,11 @@ const messages = {
     userName: 'Имя пользователя',
     incorrectLoginPassword: 'Неверный логин или пароль',
     userNotFound: 'Пользователь не найден',
+    validation: {
+      required: 'Поле обязательно',
+      email: 'Некорректный email',
+      min: 'Минимум {count} символов',
+    },
   },
 };
 

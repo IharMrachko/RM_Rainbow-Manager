@@ -24,6 +24,7 @@ export const theme: Module<ThemeState, any> = {
     },
     SET_THEME(state: ThemeState, isDark: boolean): void {
       state.theme = isDark ? 'dark' : 'light';
+      state.isDark = isDark;
       document.documentElement.classList.toggle('dark', isDark);
       localStorage.setItem('theme', state.theme);
     },
