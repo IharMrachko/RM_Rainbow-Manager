@@ -2,12 +2,17 @@
   <div class="container">
     <app-header>
       <section class="header-section">
-        <app-toggle v-model="isDark" variant="theme" @toggled="toggled"></app-toggle>
-        <div class="app-dropdown">
-          <app-dropdown v-model="language" label="name">
-            <app-option v-for="item in languages" :key="item" :value="item">{{ item }}</app-option>
-          </app-dropdown>
-        </div>
+        <img src="../../assets/rainbow.svg" alt="App Logo" width="32" height="32" />
+        <section>
+          <app-toggle v-model="isDark" variant="theme" @toggled="toggled"></app-toggle>
+          <div class="app-dropdown">
+            <app-dropdown v-model="language" label="name">
+              <app-option v-for="item in languages" :key="item" :value="item">{{
+                item
+              }}</app-option>
+            </app-dropdown>
+          </div>
+        </section>
       </section>
     </app-header>
 
@@ -56,6 +61,13 @@ export default defineComponent({
 
   & .header-section {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    & section {
+      display: flex;
+      align-items: center;
+    }
 
     & .app-dropdown {
       width: 100px;
