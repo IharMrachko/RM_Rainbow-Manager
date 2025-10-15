@@ -45,4 +45,12 @@ body {
   color: var(--color-text);
 }
 
+a {
+  all: unset; /* сбросить все браузерные стили */
+  cursor: pointer; /* вернуть курсор-руку, т.к. unset убирает */
+  text-decoration: none;
+  color: inherit; /* цвет текста как у родителя */
+}
+
+
 

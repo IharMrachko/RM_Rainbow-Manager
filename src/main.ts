@@ -8,15 +8,19 @@ import 'modern-css-reset';
 // Font Awesome
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
+  faArrowLeft,
+  faArrowRight,
   faCheckCircle,
   faEnvelope,
   faExclamationTriangle,
   faFileUpload,
+  faImages,
   faInfoCircle,
   faLock,
   faLongArrowAltRight,
   faMinus,
   faPlus,
+  faRainbow,
   faRightFromBracket,
   faSave,
   faTimesCircle,
@@ -41,7 +45,11 @@ library.add(
   faSave,
   faPlus,
   faMinus,
-  faRightFromBracket
+  faRightFromBracket,
+  faArrowLeft,
+  faArrowRight,
+  faRainbow,
+  faImages
 );
 
 onAuthStateChanged(auth, (user) => {

@@ -1,14 +1,18 @@
 <template>
+  <app-toaster></app-toaster>
   <router-view />
 </template>
 
 <script lang="ts">
-import { defineComponent, watch } from 'vue';
+import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
+import AppToaster from '@/shared/components/AppToaster.vue';
 
 export default defineComponent({
+  components: { AppToaster },
   setup() {
+    const windowWidth = ref(document.documentElement.clientWidth);
     const store = useStore();
     const { locale } = useI18n();
     store.dispatch('theme/initTheme');
@@ -20,6 +24,18 @@ export default defineComponent({
       },
       { immediate: true }
     );
+    const updateWidth = () => {
+      windowWidth.value = document.documentElement.clientWidth;
+      store.dispatch('mobile/setClientWidth', { clientWidth: windowWidth.value });
+    };
+
+    onMounted(() => {
+      store.dispatch('mobile/setClientWidth', { clientWidth: windowWidth.value });
+      window.addEventListener('resize', updateWidth);
+    });
+    onBeforeUnmount(() => {
+      window.removeEventListener('resize', updateWidth);
+    });
   },
 });
 </script>

@@ -10,7 +10,7 @@
   position: sticky; /* или fixed, если нужно закрепить */
   top: 0;
   z-index: 100;
-  padding: 1rem 2rem;
+  padding: 1rem 20px 1rem 15px;
 
   /* матовое стекло */
   background: rgba(255, 255, 255, 0.2); /* полупрозрачный белый */

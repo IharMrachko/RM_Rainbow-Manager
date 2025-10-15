@@ -29,7 +29,7 @@
 
 <script lang="ts">
 import { defineComponent, nextTick, onMounted, ref, watch } from 'vue';
-import { FrameColorSegment } from '@/types/frame-color-segment';
+import { FrameColorSegmentType } from '@/types/frame-color-segment.type';
 import AppButton from '@/shared/components/AppButton.vue';
 
 export default defineComponent({
@@ -38,7 +38,7 @@ export default defineComponent({
   props: {
     size: { type: Number, required: true },
     thickness: { type: Number, required: true },
-    segments: { type: Array as () => FrameColorSegment[], required: true },
+    segments: { type: Array as () => FrameColorSegmentType[], required: true },
     startAngle: { type: [Number, null], default: null },
     imageUrl: { type: [String, null], default: null },
     rotation: { type: Number, required: true },

@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, defineComponent, onBeforeMount, ref } from 'vue';
 import AppEditorCanvas from '@/shared/components/AppEditorCanvas.vue';
 import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppColorCard from '@/views/main/views/color-view/components/AppColorCard.vue';
@@ -38,6 +38,7 @@ import {
   ColorCard,
   colorCards,
 } from '@/views/main/views/color-view/components/color-card.constanst';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   components: {
@@ -46,8 +47,8 @@ export default defineComponent({
     AppFileUploader,
   },
   setup() {
+    const store = useStore();
     const cards: ColorCard[] = colorCards;
-    const windowWidth = ref(document.documentElement.clientWidth);
     const rotation = ref(0);
     const filter = ref('none');
     const cropMode = ref(false);
@@ -57,27 +58,16 @@ export default defineComponent({
     const frameColors = ref();
     const imageUrl = ref<string | null>(null);
 
-    const updateWidth = () => {
-      windowWidth.value = document.documentElement.clientWidth;
-    };
-
-    onMounted(() => {
-      window.addEventListener('resize', updateWidth);
-    });
-    onBeforeUnmount(() => {
-      window.removeEventListener('resize', updateWidth);
-    });
-
     // вычисляем size и thickness в зависимости от ширины
     const size = computed(() => {
-      if (windowWidth.value < 600) return 300;
-      if (windowWidth.value < 1024) return 450;
+      if (store.getters['mobile/clientWidth'] < 600) return 300;
+      if (store.getters['mobile/clientWidth'] < 1024) return 450;
       return 550;
     });
 
     const thickness = computed(() => {
-      if (windowWidth.value < 600) return 50;
-      if (windowWidth.value < 1024) return 80;
+      if (store.getters['mobile/clientWidth'] < 600) return 50;
+      if (store.getters['mobile/clientWidth'] < 1024) return 80;
       return 100;
     });
 
@@ -122,7 +112,7 @@ export default defineComponent({
 <style scoped>
 .color-container {
   padding: 10px 20px 5px 20px;
-  max-height: calc(100vh - var(--header-height));
+  height: calc(100vh - var(--header-height));
   overflow: auto;
 
   & .color-wrapper {
