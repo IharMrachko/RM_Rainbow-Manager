@@ -1,5 +1,5 @@
 <template>
-  <div class="burger" :class="{ open: isOpen }" @click="toggle">
+  <div data-burger-test-id class="burger" :class="{ open: isOpen }" @click="toggle">
     <span></span>
     <span></span>
     <span></span>
