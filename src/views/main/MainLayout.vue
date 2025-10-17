@@ -17,7 +17,7 @@
       </section>
     </app-header>
     <section>
-      <app-sidedar></app-sidedar>
+      <app-sidebar></app-sidebar>
       <main class="main">
         <router-view />
       </main>
@@ -32,11 +32,18 @@ import AppOption from '@/shared/components/dropdown/AppOption.vue';
 import AppHeader from '@/shared/components/AppHeader.vue';
 import { computed, defineComponent, ref, watch } from 'vue';
 import { useStore } from 'vuex';
-import AppSidedar from '@/shared/components/AppSidedar.vue';
+import AppSidebar from '@/shared/components/AppSidebar.vue';
 import AppBurgerMenu from '@/shared/components/AppBurgerMenu.vue';
 
 export default defineComponent({
-  components: { AppBurgerMenu, AppSidedar, AppOption, AppDropdown, AppHeader, AppToggle },
+  components: {
+    AppBurgerMenu,
+    AppSidebar,
+    AppOption,
+    AppDropdown,
+    AppHeader,
+    AppToggle,
+  },
   setup() {
     const store = useStore();
     const containerRef = ref<HTMLElement | null>(null);
