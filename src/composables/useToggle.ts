@@ -1,9 +1,7 @@
 import { onMounted, ref } from 'vue';
 
 interface ToggleComposableEmit {
-  // eslint-disable-next-line no-unused-vars
   (event: 'update:modelValue', value: boolean): void;
-  // eslint-disable-next-line no-unused-vars
   (event: 'toggled', value: boolean): void;
 }
 export function useToggle(

@@ -15,13 +15,7 @@
           <section class="editor">
             <app-editor-canvas
               v-model:image-url="imageUrl"
-              :size="size"
-              :thickness="thickness"
               :segments="frameColors"
-              :rotation="rotation"
-              :filter="filter"
-              :offset-x="offsetX"
-              :offset-y="offsetY"
             ></app-editor-canvas>
           </section>
           <section class="buttons">
@@ -30,12 +24,7 @@
       ></app-tab>
       <app-tab title="Collage">
         <div class="collage-wrapper">
-          <app-collage
-            v-model:image-url="imageUrl"
-            :thickness="30"
-            :row-gap="10"
-            :photo-scale="1"
-          ></app-collage>
+          <app-collage v-model:image-url="imageUrl"></app-collage>
         </div>
       </app-tab>
     </app-tabs>
@@ -43,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onBeforeMount, ref } from 'vue';
+import { defineComponent, onBeforeMount, ref } from 'vue';
 import AppEditorCanvas from '@/views/main/views/color-view/components/AppEditorCanvas.vue';
 import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppColorCard from '@/views/main/views/color-view/components/AppColorCard.vue';
@@ -51,7 +40,6 @@ import {
   ColorCard,
   colorCards,
 } from '@/views/main/views/color-view/components/color-card.constanst';
-import { useStore } from 'vuex';
 import AppTabs from '@/shared/components/tabs/AppTabs.vue';
 import AppTab from '@/shared/components/tabs/AppTab.vue';
 import AppCollage from '@/views/main/views/color-view/components/AppCollage.vue';
@@ -66,29 +54,10 @@ export default defineComponent({
     AppFileUploader,
   },
   setup() {
-    const store = useStore();
     const cards: ColorCard[] = colorCards;
-    const rotation = ref(0);
-    const filter = ref('none');
-    const cropMode = ref(false);
-    const offsetX = ref(0);
-    const offsetY = ref(0);
     const selectedCard = ref<null | { id: number; segments: any[] }>(null);
     const frameColors = ref();
     const imageUrl = ref<string | null>(null);
-
-    // вычисляем size и thickness в зависимости от ширины
-    const size = computed(() => {
-      if (store.getters['mobile/clientWidth'] < 600) return 280;
-      if (store.getters['mobile/clientWidth'] < 1024) return 400;
-      return 480;
-    });
-
-    const thickness = computed(() => {
-      if (store.getters['mobile/clientWidth'] < 600) return 40;
-      if (store.getters['mobile/clientWidth'] < 1024) return 70;
-      return 90;
-    });
 
     onBeforeMount(() => {
       const [first] = cards;
@@ -110,13 +79,6 @@ export default defineComponent({
     };
 
     return {
-      size,
-      thickness,
-      rotation,
-      filter,
-      cropMode,
-      offsetX,
-      offsetY,
       frameColors,
       imageUrl,
       onFileSelected,

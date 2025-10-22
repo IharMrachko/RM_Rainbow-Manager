@@ -1,9 +1,9 @@
 <template>
   <div>
     <canvas
-      ref="canvas"
-      :width="size"
-      :height="size"
+      ref="canvasRef"
+      :width="sizeRef"
+      :height="sizeRef"
       @mousedown="startSelection"
       @mousemove="moveSelection"
       @mouseup="endSelection"
@@ -31,75 +31,75 @@
 import { defineComponent, nextTick, onMounted, ref, watch } from 'vue';
 import { FrameColorSegmentType } from '@/types/frame-color-segment.type';
 import AppButton from '@/shared/components/AppButton.vue';
+import { useCanvasSaver } from '@/composables/useCanvasSaver';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   name: 'AppEditorCanvas',
   components: { AppButton },
   props: {
-    size: { type: Number, required: true },
-    thickness: { type: Number, required: true },
     segments: { type: Array as () => FrameColorSegmentType[], required: true },
-    startAngle: { type: [Number, null], default: null },
     imageUrl: { type: [String, null], default: null },
-    rotation: { type: Number, required: true },
-    offsetX: { type: Number, required: true },
-    offsetY: { type: Number, required: true },
   },
   emits: ['update:imageUrl'],
   setup(props, { emit }) {
-    const canvas = ref<HTMLCanvasElement | null>(null);
+    const store = useStore();
+    const canvasRef = ref<HTMLCanvasElement | null>(null);
     const imageRef = ref<HTMLImageElement | null>(null);
-    const originalUrl = ref<string | null>(null);
+    const originalUrlRef = ref<string | null>(null);
+    const thicknessRef = ref(90);
+    const sizeRef = ref(480);
+    const rotationRef = ref(0); // поворот изображения
+    const startAngleRef = ref<number | null>(null); // начало отрисовки сегментов, например, начало по часовой стрелке с 12 часов
+    const offsetXRef = ref(0); // смещение изображения по оси X
+    const offsetYRef = ref(0); // смещение изображения по оси Y
     // --- Crop selection ---
     let isSelecting = false;
     let startX = 0,
       startY = 0,
       currentX = 0,
       currentY = 0;
-    let zoom = 1;
-    function loadImage(url: string): Promise<HTMLImageElement> {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        img.src = url;
-      });
-    }
-
-    async function render() {
-      if (!canvas.value) return;
-      const ctx = canvas.value.getContext('2d')!;
-      ctx.clearRect(0, 0, props.size, props.size);
-
-      if (props.imageUrl) {
+    let isLoadImage = false;
+    const render = async () => {
+      if (!canvasRef.value) return;
+      const ctx = canvasRef.value.getContext('2d')!;
+      ctx.clearRect(0, 0, sizeRef.value, sizeRef.value);
+      if (props.imageUrl && !isLoadImage) {
         imageRef.value = await loadImage(props.imageUrl);
+        isLoadImage = true;
       }
       drawBaseImage(ctx);
       drawFrame(ctx);
-    }
+    };
 
-    function startSelection(e: MouseEvent) {
-      if (!canvas.value) return;
+    const { saveImage, loadImage, resetImage, zoomPlus, zoomMinus, zoom } = useCanvasSaver(
+      canvasRef,
+      render,
+      emit,
+      originalUrlRef
+    );
+
+    const startSelection = (e: MouseEvent) => {
+      if (!canvasRef.value) return;
       isSelecting = true;
-      const rect = canvas.value.getBoundingClientRect();
+      const rect = canvasRef.value.getBoundingClientRect();
       startX = e.clientX - rect.left;
       startY = e.clientY - rect.top;
       currentX = startX;
       currentY = startY;
       draw();
-    }
+    };
 
-    function moveSelection(e: MouseEvent) {
-      if (!isSelecting || !canvas.value) return;
-      const rect = canvas.value.getBoundingClientRect();
+    const moveSelection = (e: MouseEvent) => {
+      if (!isSelecting || !canvasRef.value) return;
+      const rect = canvasRef.value.getBoundingClientRect();
       currentX = e.clientX - rect.left;
       currentY = e.clientY - rect.top;
       draw();
-    }
+    };
 
-    function endSelection() {
-      if (!canvas.value) return;
+    const endSelection = () => {
+      if (!canvasRef.value) return;
       isSelecting = false;
       draw();
 
@@ -115,16 +115,16 @@ export default defineComponent({
       cropCanvas.height = h;
       const cropCtx = cropCanvas.getContext('2d')!;
 
-      cropCtx.drawImage(canvas.value, x, y, w, h, 0, 0, w, h);
+      cropCtx.drawImage(canvasRef.value, x, y, w, h, 0, 0, w, h);
 
       const croppedUrl = cropCanvas.toDataURL('image/png');
       emit('update:imageUrl', croppedUrl);
-    }
+    };
 
-    function draw() {
-      if (!canvas.value) return;
-      const ctx = canvas.value.getContext('2d')!;
-      ctx.clearRect(0, 0, props.size, props.size);
+    const draw = () => {
+      if (!canvasRef.value) return;
+      const ctx = canvasRef.value.getContext('2d')!;
+      ctx.clearRect(0, 0, sizeRef.value, sizeRef.value);
       drawBaseImage(ctx);
       drawFrame(ctx);
 
@@ -133,11 +133,11 @@ export default defineComponent({
         ctx.lineWidth = 2;
         ctx.strokeRect(startX, startY, currentX - startX, currentY - startY);
       }
-    }
+    };
 
-    function drawBaseImage(ctx: CanvasRenderingContext2D) {
-      const radius = props.size / 2; // Вычисляем радиус круга, исходя из размера компонента
-      const thickness = props.thickness; // Толщина рамки (обводка вокруг изображения)
+    const drawBaseImage = (ctx: CanvasRenderingContext2D) => {
+      const radius = sizeRef.value / 2; // Вычисляем радиус круга, исходя из размера компонента
+      const thickness = thicknessRef.value; // Толщина рамки (обводка вокруг изображения)
       const img = imageRef.value;
       if (!img) return;
 
@@ -148,12 +148,12 @@ export default defineComponent({
       ctx.closePath(); // Закрываем путь
       ctx.clip(); // Ограничиваем область рисования кругом (всё вне круга будет обрезано)
       // Перемещаем начало координат в центр круга + возможные смещения
-      ctx.translate(radius + (props.offsetX ?? 0), radius + (props.offsetY ?? 0));
-      ctx.rotate((props.rotation * Math.PI) / 180); // Поворачиваем канвас на заданный угол (в градусах → радианы)
+      ctx.translate(radius + (offsetXRef.value ?? 0), radius + (offsetYRef.value ?? 0));
+      ctx.rotate((rotationRef.value * Math.PI) / 180); // Поворачиваем канвас на заданный угол (в градусах → радианы)
 
-      const baseSize = props.size - thickness * 2; // Вычисляем базовый размер изображения (с учётом толщины рамки)
+      const baseSize = sizeRef.value - thickness * 2; // Вычисляем базовый размер изображения (с учётом толщины рамки)
       const minSide = Math.min(img.width, img.height); // Находим меньшую сторону изображения (для обрезки по центру)
-      const targetSize = baseSize * zoom; // Итоговый размер изображения после масштабирования
+      const targetSize = baseSize * zoom.value; // Итоговый размер изображения после масштабирования
       // Рисуем изображение:
       // - обрезаем его по центру до квадратной области minSide × minSide
       // - размещаем его по центру канваса
@@ -171,14 +171,14 @@ export default defineComponent({
       );
       // Восстанавливаем сохранённое состояние канваса
       ctx.restore();
-    }
+    };
 
-    function drawFrame(ctx: CanvasRenderingContext2D) {
-      const radius = props.size / 2; // Вычисляем радиус круга (половина размера компонента)
-      const thickness = props.thickness; // Толщина линии, которая будет использоваться для рисования дуг
+    const drawFrame = (ctx: CanvasRenderingContext2D) => {
+      const radius = sizeRef.value / 2; // Вычисляем радиус круга (половина размера компонента)
+      const thickness = thicknessRef.value; // Толщина линии, которая будет использоваться для рисования дуг
       const step = (2 * Math.PI) / props.segments.length; // Угол одного сегмента (в радианах), равный 2π / количество сегментов
       // Начальный угол смещения (если не задан — по умолчанию вверх, то есть -π/2)
-      const startOffset = props.startAngle ?? -Math.PI / 2;
+      const startOffset = startAngleRef.value ?? -Math.PI / 2;
 
       ctx.lineWidth = thickness; // Устанавливаем толщину линии для всех дуг
       // Перебираем все сегменты и рисуем каждый как дугу
@@ -193,24 +193,51 @@ export default defineComponent({
         ctx.arc(radius, radius, radius - thickness / 2, start, end);
         ctx.stroke(); // Отрисовываем дугу на канвасе
       });
-    }
+    };
 
     onMounted(render);
     watch(
       () => props.imageUrl,
       (url) => {
-        if (url && !originalUrl.value) {
-          originalUrl.value = url;
+        if (url && !originalUrlRef.value) {
+          originalUrlRef.value = url;
         }
+
+        if (url && originalUrlRef.value) {
+          isLoadImage = false;
+          zoom.value = 1;
+          originalUrlRef.value = url;
+        }
+
         render();
       }
     );
 
     watch(
-      () => [props.size, props.thickness],
-      () => {
-        nextTick(() => render());
-      }
+      () => store.getters['mobile/clientWidth'],
+      (value) => {
+        if (value < 600) {
+          thicknessRef.value = 40;
+          sizeRef.value = 280;
+          nextTick(() => render());
+          return;
+        }
+
+        if (value < 1024) {
+          thicknessRef.value = 70;
+          sizeRef.value = 400;
+          nextTick(() => render());
+          return;
+        }
+
+        if (value > 1024) {
+          thicknessRef.value = 90;
+          sizeRef.value = 480;
+          nextTick(() => render());
+          return;
+        }
+      },
+      { immediate: true }
     );
 
     watch(
@@ -220,41 +247,8 @@ export default defineComponent({
       }
     );
 
-    function resetImage() {
-      if (originalUrl.value) {
-        emit('update:imageUrl', originalUrl.value);
-        zoom = 1;
-        render();
-      } else {
-        zoom = 1;
-        render();
-      }
-    }
-
-    function saveImage() {
-      if (!canvas.value) return;
-      const url = canvas.value.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'avatar.png';
-      link.click();
-    }
-
-    function zoomPlus() {
-      zoom++;
-      render();
-    }
-
-    function zoomMinus() {
-      if (zoom === 1) {
-        return;
-      }
-      zoom--;
-      render();
-    }
-
     return {
-      canvas,
+      canvasRef,
       startSelection,
       moveSelection,
       endSelection,
@@ -262,6 +256,7 @@ export default defineComponent({
       saveImage,
       zoomPlus,
       zoomMinus,
+      sizeRef,
     };
   },
 });
