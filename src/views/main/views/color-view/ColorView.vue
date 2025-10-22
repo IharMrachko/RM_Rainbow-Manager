@@ -178,6 +178,7 @@ export default defineComponent({
   .color-container .color-wrapper {
     height: 100%;
   }
+
   .color-container .color-wrapper .buttons {
     justify-content: center;
   }
