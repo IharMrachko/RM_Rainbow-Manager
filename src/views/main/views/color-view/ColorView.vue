@@ -79,7 +79,7 @@ export default defineComponent({
 
     // вычисляем size и thickness в зависимости от ширины
     const size = computed(() => {
-      if (store.getters['mobile/clientWidth'] < 600) return 200;
+      if (store.getters['mobile/clientWidth'] < 600) return 280;
       if (store.getters['mobile/clientWidth'] < 1024) return 400;
       return 480;
     });
@@ -169,12 +169,15 @@ export default defineComponent({
       justify-content: right;
     }
   }
-  @media (max-width: 768px) {
+  @media (max-width: 600px) {
     padding: 5px;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
+  .color-container .color-wrapper {
+    height: 100%;
+  }
   .color-container .color-wrapper .buttons {
     justify-content: center;
   }

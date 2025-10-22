@@ -65,9 +65,9 @@ export default defineComponent({
 }
 
 /* телефоны */
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .card {
-    width: 70px;
+    width: 80px;
     height: 50px;
   }
 }

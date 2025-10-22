@@ -81,7 +81,7 @@ export default defineComponent({
       // радиус считаем только от ширины ячейки
       let radius =
         width.value === mobileWidth
-          ? (cellW / 2) * props.photoScale
+          ? (cellW / 2) * props.photoScale - 15
           : (cellW / 2) * props.photoScale - props.thickness;
       if (radius < 1) radius = 1;
 

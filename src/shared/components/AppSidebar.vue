@@ -24,7 +24,7 @@
       </router-link>
     </section>
     <section class="additional-section">
-      <div class="sidebar-item" @click="logout">
+      <div class="sidebar-item logout" @click="logout">
         <div class="icon">
           <font-awesome-icon size="xl" :icon="['fas', 'right-from-bracket']" />
         </div>
@@ -151,5 +151,11 @@ export default defineComponent({
 
 .sidebar-container.mobile-view .active-link .sidebar-item {
   color: #42b983; /* например, зелёный акцент */
+}
+
+@media (max-width: 600px) {
+  .logout {
+    margin-bottom: 45px;
+  }
 }
 </style>
