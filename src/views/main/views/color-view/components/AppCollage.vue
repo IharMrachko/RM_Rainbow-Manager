@@ -21,10 +21,10 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, nextTick, onMounted, ref, watch} from 'vue';
+import { defineComponent, nextTick, onMounted, ref, watch } from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
-import {colorCards} from '@/views/main/views/color-view/components/color-card.constanst';
-import {useStore} from 'vuex';
+import { colorCards } from '@/views/main/views/color-view/components/color-card.constanst';
+import { useStore } from 'vuex';
 
 const mobileHeight = 410;
 const mobileWidth = 330;
