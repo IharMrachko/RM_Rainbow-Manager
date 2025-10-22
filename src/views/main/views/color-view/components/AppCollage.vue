@@ -21,12 +21,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, onMounted, ref, watch } from 'vue';
+import {defineComponent, nextTick, onMounted, ref, watch} from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
-import { colorCards } from '@/views/main/views/color-view/components/color-card.constanst';
-import { useStore } from 'vuex';
+import {colorCards} from '@/views/main/views/color-view/components/color-card.constanst';
+import {useStore} from 'vuex';
 
-const mobileHeight = 330;
+const mobileHeight = 410;
 const mobileWidth = 330;
 const desktopHeight = 489;
 const desktopWidth = 860;
@@ -74,29 +74,28 @@ export default defineComponent({
       }
 
       const isMobile = width.value === mobileWidth;
-
-      // параметры сетки
       const cols = isMobile ? 2 : 3;
       const rows = isMobile ? 3 : 2;
       const gap = 10;
 
-      // ширина ячейки
+      // динамический rowGap и photoScale
+      const rowGap = isMobile ? props.rowGap * 0.6 : props.rowGap;
+      const photoScale = isMobile ? props.photoScale * 1.2 : props.photoScale;
+
       const totalGapX = gap * (cols - 1);
       const cellW = (width.value - totalGapX) / cols;
 
-      // радиус
-      let radius = (cellW / 2) * props.photoScale - props.thickness;
+      let radius = (cellW / 2) * photoScale - props.thickness;
       if (radius < 1) radius = 1;
 
-      // высота ячейки
-      const totalGapY = props.rowGap * (rows - 1);
+      const totalGapY = rowGap * (rows - 1);
       const cellH = (height.value - totalGapY) / rows;
 
       let idx = 0;
       for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
           const cx = col * (cellW + gap) + cellW / 2;
-          const cy = row * (cellH + props.rowGap) + cellH / 2;
+          const cy = row * (cellH + rowGap) + cellH / 2;
 
           const card = colorCards[idx % colorCards.length];
           drawImageWithFrame(ctx, imageRef.value, cx, cy, radius, card.segments);
@@ -114,7 +113,7 @@ export default defineComponent({
       radius: number,
       segmentsArr: { color: string }[]
     ) {
-      const thickness = width.value === mobileWidth ? 15 : props.thickness;
+      const thickness = width.value === mobileWidth ? 20 : props.thickness;
 
       // если есть картинка — рисуем её
       if (img) {
@@ -124,7 +123,27 @@ export default defineComponent({
         ctx.closePath();
         ctx.clip();
 
-        ctx.drawImage(img, cx - radius, cy - radius, radius * 2, radius * 2);
+        // вычисляем квадратную область из центра исходного изображения
+        const minSide = Math.min(img.width, img.height);
+        const sx = (img.width - minSide) / 2;
+        const sy = (img.height - minSide) / 2;
+
+        // итоговый размер (с учётом толщины рамки)
+        const targetSize = radius * 2 - thickness * 2; // можно добавить zoom, если нужно
+
+        // рисуем квадратную область по центру круга
+        ctx.drawImage(
+          img,
+          sx,
+          sy,
+          minSide,
+          minSide, // обрезка по центру
+          cx - targetSize / 2, // x на канвасе
+          cy - targetSize / 2, // y на канвасе
+          targetSize,
+          targetSize // размер на канвасе
+        );
+
         ctx.restore();
       }
       // рамка из 12 сегментов
