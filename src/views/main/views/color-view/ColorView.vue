@@ -90,20 +90,19 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .color-container {
   padding: 10px 20px 5px 20px;
-  height: calc(100vh - var(--header-height));
   overflow: auto;
+  height: calc(100dvh - var(--header-height));
 
   & .color-wrapper {
     padding: 20px;
     display: flex;
     width: 100%;
-    height: calc(100vh - var(--header-height) - 80px);
+    height: calc(100dvh - var(--header-height) - var(--tabs-height-with-padding));
     flex-wrap: wrap;
     background: var(--color-wrap-bg);
-    border-radius: 10px;
     gap: 20px;
 
     & .selected {
@@ -137,17 +136,25 @@ export default defineComponent({
 }
 
 @media (max-width: 600px) {
-  .color-container .color-wrapper {
-    height: 100%;
-  }
-
   .color-container .color-wrapper .buttons {
     justify-content: center;
+  }
+
+  .color-container .color-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-wrap: nowrap;
+    overflow: auto;
+  }
+  .color-container .color-wrapper .selected {
+    flex: 0 1 auto;
+    align-self: flex-start; // не тянется вниз
   }
 }
 
 .collage-wrapper {
-  height: calc(100vh - var(--header-height) - 80px);
+  height: calc(100vh - var(--header-height) - var(--tabs-height-with-padding));
   width: 100%;
   background: var(--color-wrap-bg);
   padding-top: 10px;
