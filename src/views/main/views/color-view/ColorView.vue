@@ -19,9 +19,18 @@
             ></app-editor-canvas>
           </section>
           <section class="buttons">
-            <app-file-uploader @select="onFileSelected"></app-file-uploader>
-          </section></div
-      ></app-tab>
+            <app-file-uploader v-if="!isMobile" @select="onFileSelected"></app-file-uploader>
+            <app-button v-if="!isMobile" severity="warning" title="saveToGallery"></app-button>
+            <app-button v-if="!isMobile" severity="info" title="addSign"></app-button>
+            <font-awesome-icon
+              v-if="isMobile"
+              :icon="['fas', 'ellipsis-h']"
+              size="lg"
+              @click.stop="openPopover"
+            />
+          </section>
+        </div>
+      </app-tab>
       <app-tab title="collage">
         <div class="collage-wrapper">
           <app-collage v-model:image-url="imageUrl"></app-collage>
@@ -29,10 +38,28 @@
       </app-tab>
     </app-tabs>
   </div>
+  <app-popover v-model:visible="visiblePopover">
+    <section class="popover-wrapper">
+      <div class="popover-item" @click="triggerUpload">
+        <font-awesome-icon size="xl" :icon="['fas', 'file-upload']" />
+        <span>{{ t('upload') }}</span>
+        <!-- скрытый uploader -->
+        <app-file-uploader ref="uploader" style="display: none" @select="onFileSelected" />
+      </div>
+      <div class="popover-item">
+        <font-awesome-icon size="xl" :icon="['fas', 'images']" />
+        <span>{{ t('saveToGallery') }}</span>
+      </div>
+      <div class="popover-item">
+        <font-awesome-icon size="xl" :icon="['fas', 'fa-pencil-square']" />
+        <span>{{ t('addSign') }}</span>
+      </div>
+    </section>
+  </app-popover>
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount, ref } from 'vue';
+import { computed, defineComponent, onBeforeMount, ref } from 'vue';
 import AppEditorCanvas from '@/views/main/views/color-view/components/AppEditorCanvas.vue';
 import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppColorCard from '@/views/main/views/color-view/components/AppColorCard.vue';
@@ -43,9 +70,15 @@ import {
 import AppTabs from '@/shared/components/tabs/AppTabs.vue';
 import AppTab from '@/shared/components/tabs/AppTab.vue';
 import AppCollage from '@/views/main/views/color-view/components/AppCollage.vue';
+import AppPopover from '@/shared/components/AppPopover.vue';
+import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
+import AppButton from '@/shared/components/AppButton.vue';
 
 export default defineComponent({
   components: {
+    AppButton,
+    AppPopover,
     AppCollage,
     AppTab,
     AppTabs,
@@ -54,6 +87,10 @@ export default defineComponent({
     AppFileUploader,
   },
   setup() {
+    const { t } = useI18n();
+    const uploader = ref();
+    const store = useStore();
+    const visiblePopover = ref(false);
     const cards: ColorCard[] = colorCards;
     const selectedCard = ref<null | { id: number; segments: any[] }>(null);
     const frameColors = ref();
@@ -78,6 +115,18 @@ export default defineComponent({
       frameColors.value = item.segments;
     };
 
+    const openPopover = () => {
+      visiblePopover.value = true;
+    };
+
+    const triggerUpload = () => {
+      // внутри app-file-uploader обычно есть <input type="file">
+      // у него можно вызвать click()
+      uploader.value?.$el.querySelector('input[type=file]')?.click();
+    };
+
+    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
+
     return {
       frameColors,
       imageUrl,
@@ -85,6 +134,12 @@ export default defineComponent({
       cards,
       selected,
       selectedCard,
+      visiblePopover,
+      isMobile,
+      openPopover,
+      triggerUpload,
+      uploader,
+      t,
     };
   },
 });
@@ -126,8 +181,10 @@ export default defineComponent({
     & .buttons {
       flex: 1;
       display: flex;
-      align-items: start;
-      justify-content: right;
+      gap: 12px;
+      //align-items: start;
+      //justify-content: right;
+      flex-direction: column;
     }
   }
   @media (max-width: 600px) {
@@ -137,7 +194,9 @@ export default defineComponent({
 
 @media (max-width: 600px) {
   .color-container .color-wrapper .buttons {
+    flex-direction: row;
     justify-content: center;
+    align-items: start;
   }
 
   .color-container .color-wrapper {
@@ -158,5 +217,17 @@ export default defineComponent({
   width: 100%;
   background: var(--color-wrap-bg);
   padding-top: 10px;
+}
+
+.popover-wrapper {
+  background-color: #fff;
+  border-radius: 20px;
+  & .popover-item {
+    padding: 15px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #444;
+  }
 }
 </style>

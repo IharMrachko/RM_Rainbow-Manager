@@ -4,8 +4,8 @@
       <span v-if="icon" class="btn-icon">
         <font-awesome-icon size="lg" :icon="icon" />
       </span>
-      <span v-if="!loading">{{ t(title) }}</span>
-      <span v-else class="loader"></span>
+      <span v-if="title && !loading" class="btn-title">{{ t(title) }}</span>
+      <span v-else-if="loading" class="loader"></span>
     </button>
   </div>
 </template>
@@ -61,7 +61,6 @@ button {
   font-size: 15px;
   line-height: 1.5;
   color: #fff;
-  text-transform: uppercase;
   width: 100%;
   height: 50px;
   border-radius: 25px;
@@ -98,7 +97,7 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: auto;
+    width: 100%;
     border: none;
     padding: 10px 18px;
     border-radius: 10px;
@@ -106,9 +105,17 @@ button {
     font-weight: 600;
     transition: all 0.2s ease;
     box-shadow: 2px 2px 6px #c5c5c5, -2px -2px 6px #ffffff;
+    color: #444;
+    gap: 8px;
 
     & .btn-icon {
-      color: #111111;
+      color: #444;
+    }
+
+    & .btn-title {
+      margin-left: 10px;
+      font-weight: 600;
+      font-size: 20px;
     }
   }
 }
