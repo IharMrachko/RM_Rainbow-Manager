@@ -6,7 +6,7 @@
     <!-- Кастомная кнопка -->
     <button type="button" class="upload-btn" @click="triggerInput">
       <font-awesome-icon size="lg" :icon="['fas', 'file-upload']" />
-      <span class="title">Upload</span>
+      <span class="title">{{ t('upload') }}</span>
     </button>
 
     <!-- Отображение выбранного файла -->
@@ -16,11 +16,13 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
   name: 'FileUploader',
   emits: ['select'],
   setup(_, { emit }) {
+    const { t } = useI18n();
     const fileInput = ref<HTMLInputElement | null>(null);
     const fileName = ref<string>('');
 
@@ -42,6 +44,7 @@ export default defineComponent({
       fileName,
       triggerInput,
       onFileChange,
+      t,
     };
   },
 });

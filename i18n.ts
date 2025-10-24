@@ -14,6 +14,12 @@ const messages = {
       email: 'Invalid email address',
       min: 'Minimum {count} characters',
     },
+    colorType: 'Color type',
+    gallery: 'Gallery',
+    upload: 'Upload',
+    mask: 'Mask',
+    collage: 'Collage',
+    logout: 'Logout',
   },
   ru: {
     login: 'Вход',
@@ -28,6 +34,12 @@ const messages = {
       email: 'Некорректный email',
       min: 'Минимум {count} символов',
     },
+    colorType: 'Колористика',
+    gallery: 'Галерея',
+    upload: 'Загрузить',
+    mask: 'Маска',
+    collage: 'Коллаж',
+    logout: 'Выйти',
   },
 };
 

@@ -6,48 +6,21 @@
     :class="{ 'mobile-view': isMobile }"
   >
     <section class="main-section">
-      <router-link to="/main/color" active-class="active-link">
-        <div class="sidebar-item">
-          <div class="icon">
-            <font-awesome-icon size="xl" :icon="['fas', 'rainbow']" />
-          </div>
-          <div v-if="!isShort" class="title">Color type</div>
-        </div>
-      </router-link>
-      <router-link to="/main/gallery" active-class="active-link">
-        <div class="sidebar-item">
-          <div class="icon">
-            <font-awesome-icon size="xl" :icon="['fas', 'images']" />
-          </div>
-          <div v-if="!isShort" class="title">Gallery</div>
-        </div>
-      </router-link>
+      <slot name="main" :is-short="isShort" />
     </section>
-    <section class="additional-section">
-      <div class="sidebar-item logout" @click="logout">
-        <div class="icon">
-          <font-awesome-icon size="xl" :icon="['fas', 'right-from-bracket']" />
-        </div>
-        <div v-if="!isShort" class="title">Logout</div>
-      </div>
 
-      <div v-if="!isMobile" class="sidebar-item" @click="toggle">
-        <font-awesome-icon
-          size="xl"
-          :icon="isShort ? ['fas', 'arrow-left'] : ['fas', 'arrow-right']"
-        />
-      </div>
+    <!-- слот для дополнительной секции -->
+    <section class="additional-section">
+      <slot name="additional" :is-short="isShort" :toggle="toggle" />
     </section>
   </aside>
 </template>
 <script lang="ts">
 import { computed, defineComponent, ref, watch } from 'vue';
 import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
 
 export default defineComponent({
   setup() {
-    const router = useRouter();
     const store = useStore();
     const isShort = ref(true);
 
@@ -65,17 +38,10 @@ export default defineComponent({
       { immediate: true }
     );
 
-    const logout = async () => {
-      await store.dispatch('authFirebase/logout');
-      await store.dispatch('burgerMenu/setBurger', { isOpen: false });
-      await router.push('/login');
-    };
-
     return {
       isMobile,
       isShort,
       toggle,
-      logout,
       isBurgerMenuOpen,
     };
   },
@@ -125,37 +91,5 @@ export default defineComponent({
   backdrop-filter: blur(40px);
   bottom: 0;
   top: var(--header-height);
-}
-
-.sidebar-item {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  margin-bottom: 15px;
-  color: #ffffff;
-}
-
-.sidebar-item:hover {
-  color: #00ffc6;
-}
-
-/* активная ссылка */
-.active-link .sidebar-item {
-  color: #ffd700; /* например, золотой акцент */
-}
-
-/* когда sidebar в режиме mobile-view */
-.sidebar-container.mobile-view .sidebar-item {
-  color: #000000; /* делаем чёрными */
-}
-
-.sidebar-container.mobile-view .active-link .sidebar-item {
-  color: #42b983; /* например, зелёный акцент */
-}
-
-@media (max-width: 600px) {
-  .logout {
-    margin-bottom: 55px;
-  }
 }
 </style>

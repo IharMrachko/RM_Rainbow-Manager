@@ -9,7 +9,7 @@
           @click="setActive(tab.index)"
         >
           <a>
-            {{ tab.title }}
+            {{ t(tab.title) }}
           </a>
         </li>
       </ul>
@@ -21,6 +21,7 @@
 </template>
 <script lang="ts">
 import { defineComponent, provide, reactive, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
   props: {
@@ -29,7 +30,7 @@ export default defineComponent({
   emits: ['update:modelValue', 'change'],
   setup(props, { emit }) {
     const activeIndex = ref(props.modelValue);
-
+    const { t } = useI18n();
     const tabs = reactive<{ title: string; index: number; disabled: boolean }[]>([]);
 
     const register = (title: string, disabled: boolean) => {
@@ -83,7 +84,7 @@ export default defineComponent({
       { immediate: true }
     );
 
-    return { tabs, activeIndex, setActive };
+    return { tabs, activeIndex, setActive, t };
   },
 });
 </script>

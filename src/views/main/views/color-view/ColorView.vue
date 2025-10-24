@@ -1,7 +1,7 @@
 <template>
   <div class="color-container">
     <app-tabs>
-      <app-tab title="Mask"
+      <app-tab title="mask"
         ><div class="color-wrapper">
           <section class="selected">
             <app-color-card
@@ -22,7 +22,7 @@
             <app-file-uploader @select="onFileSelected"></app-file-uploader>
           </section></div
       ></app-tab>
-      <app-tab title="Collage">
+      <app-tab title="collage">
         <div class="collage-wrapper">
           <app-collage v-model:image-url="imageUrl"></app-collage>
         </div>
