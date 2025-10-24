@@ -63,7 +63,10 @@ import { computed, defineComponent, onBeforeMount, ref } from 'vue';
 import AppEditorCanvas from '@/views/main/views/color-view/components/AppEditorCanvas.vue';
 import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppColorCard from '@/views/main/views/color-view/components/AppColorCard.vue';
-import { ColorCard, colorCards, } from '@/views/main/views/color-view/components/color-card.constanst';
+import {
+  ColorCard,
+  colorCards,
+} from '@/views/main/views/color-view/components/color-card.constanst';
 import AppTabs from '@/shared/components/tabs/AppTabs.vue';
 import AppTab from '@/shared/components/tabs/AppTab.vue';
 import AppCollage from '@/views/main/views/color-view/components/AppCollage.vue';
