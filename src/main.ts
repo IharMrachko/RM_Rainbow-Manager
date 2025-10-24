@@ -11,6 +11,8 @@ import {
   faArrowLeft,
   faArrowRight,
   faCheckCircle,
+  faEllipsisH,
+  faEllipsisVertical,
   faEnvelope,
   faExclamationTriangle,
   faFileUpload,
@@ -19,6 +21,7 @@ import {
   faLock,
   faLongArrowAltRight,
   faMinus,
+  faPencilSquare,
   faPlus,
   faRainbow,
   faRightFromBracket,
@@ -49,7 +52,10 @@ library.add(
   faArrowLeft,
   faArrowRight,
   faRainbow,
-  faImages
+  faImages,
+  faEllipsisVertical,
+  faEllipsisH,
+  faPencilSquare
 );
 
 onAuthStateChanged(auth, (user) => {

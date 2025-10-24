@@ -20,6 +20,8 @@ const messages = {
     mask: 'Mask',
     collage: 'Collage',
     logout: 'Logout',
+    saveToGallery: 'Save to Gallery',
+    addSign: 'Add Sign',
   },
   ru: {
     login: 'Вход',
@@ -40,6 +42,8 @@ const messages = {
     mask: 'Маска',
     collage: 'Коллаж',
     logout: 'Выйти',
+    saveToGallery: 'Сохранить в галерею',
+    addSign: 'Добавить подпись',
   },
 };
 
