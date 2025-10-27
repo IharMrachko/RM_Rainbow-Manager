@@ -1,36 +1,71 @@
 <template>
-  <div class="collage-container">
-    <canvas ref="canvas"></canvas>
+  <div class="collage-wrapper">
+    <div class="collage-container">
+      <canvas ref="canvas"></canvas>
+      <div class="actions">
+        <app-button
+          severity="secondary"
+          raised
+          :icon="['fas', 'undo']"
+          @click="resetImage"
+        ></app-button>
+        <app-button
+          severity="secondary"
+          raised
+          :icon="['fas', 'plus']"
+          @click="zoomPlus"
+        ></app-button>
+        <app-button
+          severity="secondary"
+          raised
+          :icon="['fas', 'minus']"
+          @click="zoomMinus"
+        ></app-button>
+        <app-button
+          severity="secondary"
+          raised
+          :icon="['fas', 'save']"
+          @click="saveImage('collage')"
+        ></app-button>
+      </div>
+    </div>
+
+    <section class="buttons">
+      <app-button v-if="!isMobile" severity="warning" title="saveToGallery"></app-button>
+      <app-button v-if="!isMobile" severity="info" title="addSign"></app-button>
+      <font-awesome-icon
+        v-if="isMobile"
+        :icon="['fas', 'ellipsis-h']"
+        size="lg"
+        @click.stop="openPopover"
+      />
+    </section>
   </div>
-  <div class="actions">
-    <app-button
-      severity="secondary"
-      raised
-      :icon="['fas', 'undo']"
-      @click="resetImage"
-    ></app-button>
-    <app-button severity="secondary" raised :icon="['fas', 'plus']" @click="zoomPlus"></app-button>
-    <app-button
-      severity="secondary"
-      raised
-      :icon="['fas', 'minus']"
-      @click="zoomMinus"
-    ></app-button>
-    <app-button
-      severity="secondary"
-      raised
-      :icon="['fas', 'save']"
-      @click="saveImage('collage')"
-    ></app-button>
-  </div>
+
+  <app-popover v-model:visible="visiblePopover">
+    <app-popover-wrapper>
+      <app-popover-item>
+        <font-awesome-icon size="xl" :icon="['fas', 'images']" />
+        <span>{{ t('saveToGallery') }}</span>
+      </app-popover-item>
+      <app-popover-item>
+        <font-awesome-icon size="xl" :icon="['fas', 'fa-pencil-square']" />
+        <span>{{ t('addSign') }}</span>
+      </app-popover-item>
+    </app-popover-wrapper>
+  </app-popover>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, watch } from 'vue';
+import { computed, defineComponent, onMounted, ref, watch } from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import { colorCards } from '@/views/main/views/color-view/components/color-card.constanst';
 import { useStore } from 'vuex';
 import { useCanvasSaver } from '@/composables/useCanvasSaver';
+import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
+import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
+import AppPopover from '@/shared/components/AppPopover.vue';
+import { useI18n } from 'vue-i18n';
 
 const mobileHeight = 410;
 const mobileWidth = 330;
@@ -39,12 +74,14 @@ const desktopWidth = 860;
 const desktopThickness = 30;
 const mobileThickness = 20;
 export default defineComponent({
-  components: { AppButton },
+  components: { AppPopover, AppPopoverWrapper, AppPopoverItem, AppButton },
   props: {
     imageUrl: { type: String, required: true }, // одна фотография
   },
   emits: ['update:imageUrl'],
   setup(props, { emit }) {
+    const { t } = useI18n();
+    const visiblePopover = ref(false);
     const store = useStore();
     const canvas = ref<HTMLCanvasElement | null>(null);
     const imageRef = ref<HTMLImageElement | null>(null);
@@ -201,22 +238,75 @@ export default defineComponent({
       },
       { immediate: true }
     );
-
-    return { canvas, saveImage, resetImage, zoomPlus, zoomMinus };
+    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
+    const openPopover = () => {
+      visiblePopover.value = true;
+    };
+    return {
+      canvas,
+      saveImage,
+      resetImage,
+      zoomPlus,
+      zoomMinus,
+      isMobile,
+      openPopover,
+      visiblePopover,
+      t,
+    };
   },
 });
 </script>
 <style scoped>
-.collage-container {
+.collage-wrapper {
+  height: calc(100vh - var(--header-height) - var(--tabs-height-with-padding));
+  width: 100%;
+  background: var(--color-wrap-bg);
   display: flex;
+  flex-wrap: wrap;
+  padding: 20px;
+  overflow: hidden;
+
+  @media (max-width: 600px) {
+    padding: 10px 5px 5px 5px;
+    overflow: auto;
+  }
+}
+
+.collage-container {
+  flex: 4;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin-left: 280px;
+  @media (max-width: 600px) {
+    margin-left: 0;
+  }
 }
 
 .actions {
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin: 20px;
+  margin: 10px;
+  @media (max-width: 600px) {
+    margin: 20px;
+  }
+}
+
+.buttons {
+  width: 230px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .buttons {
+    flex-direction: row;
+    justify-content: center;
+    align-items: start;
+    width: 100%;
+  }
 }
 </style>
