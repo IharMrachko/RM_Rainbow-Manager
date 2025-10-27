@@ -144,6 +144,9 @@ export default defineComponent({
   background: var(--color-wrap-bg);
   height: calc(100dvh - var(--header-height) - var(--tabs-height-with-padding));
   gap: 20px;
+  @media (max-width: 600px) {
+    height: auto;
+  }
 
   & .selected {
     flex: 1;
