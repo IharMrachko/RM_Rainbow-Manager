@@ -291,7 +291,8 @@ export default defineComponent({
   gap: 12px;
   margin: 10px;
   @media (max-width: 600px) {
-    margin: 20px;
+    margin-top: 22px;
+    margin-bottom: 15px;
   }
 }
 
@@ -308,6 +309,7 @@ export default defineComponent({
     justify-content: center;
     align-items: start;
     width: 100%;
+    margin-bottom: 14px;
   }
 }
 </style>
