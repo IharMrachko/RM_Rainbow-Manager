@@ -1,6 +1,6 @@
 <template>
   <div class="modal-backdrop" @click.self="close">
-    <div class="modal-content">
+    <div ref="modalRef" class="modal-content">
       <!-- Фото -->
       <img :src="images[index].src" alt="" />
       <section class="info-section">
@@ -31,8 +31,9 @@
 </template>
 
 <script>
-import { defineComponent, ref, watch } from 'vue';
+import { defineComponent, onMounted, onUnmounted, ref, watch } from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
+import Hammer from 'hammerjs';
 
 export default defineComponent({
   components: { AppButton },
@@ -43,6 +44,8 @@ export default defineComponent({
   emits: ['close'],
   setup(props, { emit }) {
     const index = ref(props.startIndex);
+    const modalRef = ref(null);
+    let hammer = null;
 
     watch(
       () => props.startIndex,
@@ -61,7 +64,19 @@ export default defineComponent({
       emit('close');
     }
 
-    return { index, next, prev, close };
+    onMounted(() => {
+      if (modalRef.value) {
+        hammer = new Hammer(modalRef.value);
+        hammer.on('swipeleft', next);
+        hammer.on('swiperight', prev);
+      }
+    });
+
+    onUnmounted(() => {
+      hammer?.destroy();
+    });
+
+    return { index, next, prev, close, modalRef };
   },
 });
 </script>
