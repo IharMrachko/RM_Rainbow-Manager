@@ -50,7 +50,7 @@ const routes: Array<RouteRecordRaw> = [
 ];
 
 const router = createRouter({
-  history: createWebHashHistory('/vue3/'),
+  history: createWebHashHistory('/RM_Rainbow-Manager/'),
   routes,
 });
 
