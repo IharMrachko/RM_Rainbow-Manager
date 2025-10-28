@@ -21,6 +21,10 @@ export const authFirebase: Module<AuthState, any> = {
     },
     currentUser: (state: AuthState) => state.user,
     isLoading: (state: AuthState) => state.loading,
+    getUserId: () => {
+      const raw = localStorage.getItem('user');
+      return raw ? JSON.parse(raw).uid : null;
+    },
   },
   mutations: {
     setUser(state, user: User | null) {

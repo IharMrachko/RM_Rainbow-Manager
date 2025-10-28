@@ -31,7 +31,13 @@
     </div>
 
     <section class="buttons">
-      <app-button v-if="!isMobile" severity="warning" title="saveToGallery"></app-button>
+      <app-button
+        v-if="!isMobile"
+        severity="warning"
+        title="saveToGallery"
+        :loading="isSaveToGallery"
+        @click="saveToGallery"
+      ></app-button>
       <app-button v-if="!isMobile" severity="info" title="addSign"></app-button>
       <font-awesome-icon
         v-if="isMobile"
@@ -44,7 +50,7 @@
 
   <app-popover v-model:visible="visiblePopover">
     <app-popover-wrapper>
-      <app-popover-item>
+      <app-popover-item @click="saveToGallery">
         <font-awesome-icon size="xl" :icon="['fas', 'images']" />
         <span>{{ t('saveToGallery') }}</span>
       </app-popover-item>
@@ -66,6 +72,8 @@ import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopover from '@/shared/components/AppPopover.vue';
 import { useI18n } from 'vue-i18n';
+import { addDoc, collection } from 'firebase/firestore';
+import { db } from '@/firebase';
 
 const mobileHeight = 410;
 const mobileWidth = 330;
@@ -78,7 +86,8 @@ export default defineComponent({
   props: {
     imageUrl: { type: String, required: true }, // одна фотография
   },
-  emits: ['update:imageUrl'],
+  emits: ['update:imageUrl', 'isLoading'],
+
   setup(props, { emit }) {
     const { t } = useI18n();
     const visiblePopover = ref(false);
@@ -89,6 +98,8 @@ export default defineComponent({
     const height = ref(desktopHeight);
     const photoScaleRef = ref(1);
     const originalUrlRef = ref<string | null>(null);
+    const currentUser = computed(() => store.getters['authFirebase/currentUser']);
+    const isSaveToGallery = ref(false);
     let isLoadImage = false;
     const render = async () => {
       if (!canvas.value) return;
@@ -140,12 +151,8 @@ export default defineComponent({
       }
     };
 
-    const { saveImage, loadImage, resetImage, zoomPlus, zoomMinus, zoom } = useCanvasSaver(
-      canvas,
-      render,
-      emit,
-      originalUrlRef
-    );
+    const { saveToStorage, saveImage, loadImage, resetImage, zoomPlus, zoomMinus, zoom } =
+      useCanvasSaver(canvas, render, emit, originalUrlRef);
 
     const drawImageWithFrame = (
       ctx: CanvasRenderingContext2D,
@@ -242,6 +249,46 @@ export default defineComponent({
     const openPopover = () => {
       visiblePopover.value = true;
     };
+
+    const saveToGallery = async () => {
+      // сохраняем в Firebase Storage
+      if (!isLoadImage) return;
+      isSaveToGallery.value = true;
+      visiblePopover.value = false;
+      if (isMobile.value) {
+        emit('isLoading', true);
+      }
+
+      try {
+        const url = await saveToStorage(`collage/${Math.random()}.png`);
+        await addDoc(collection(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items'), {
+          userId: currentUser.value?.uid,
+          url,
+          title: 'Подпись',
+          type: 'collage',
+          createdAt: new Date(),
+        });
+        await store.dispatch('toast/addToast', {
+          message: 'Success',
+          severity: 'success',
+        });
+        isSaveToGallery.value = false;
+        if (isMobile.value) {
+          emit('isLoading', false);
+        }
+        // можно сохранить url в store или отправить на сервер
+      } catch (err) {
+        isSaveToGallery.value = false;
+        await store.dispatch('toast/addToast', {
+          message: 'Error',
+          severity: 'error',
+        });
+        if (isMobile.value) {
+          emit('isLoading', false);
+        }
+      }
+    };
+
     return {
       canvas,
       saveImage,
@@ -252,12 +299,15 @@ export default defineComponent({
       openPopover,
       visiblePopover,
       t,
+      isSaveToGallery,
+      saveToGallery,
     };
   },
 });
 </script>
 <style scoped>
 .collage-wrapper {
+  position: relative;
   height: calc(100vh - var(--header-height) - var(--tabs-height-with-padding));
   width: 100%;
   background: var(--color-wrap-bg);

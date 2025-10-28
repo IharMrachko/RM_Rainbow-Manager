@@ -5,6 +5,7 @@ import ForgotView from '@/views/auth/views/ForgotView.vue';
 import MainLayout from '@/views/main/MainLayout.vue';
 import ColorView from '@/views/main/views/color-view/ColorView.vue';
 import store from '@/store';
+import GalleryView from '@/views/main/views/gallery/GalleryView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -36,6 +37,12 @@ const routes: Array<RouteRecordRaw> = [
         path: 'color',
         name: 'color',
         component: ColorView,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'gallery',
+        name: 'gallery',
+        component: GalleryView,
         meta: { requiresAuth: true },
       },
     ],

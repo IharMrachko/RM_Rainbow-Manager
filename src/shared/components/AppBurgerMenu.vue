@@ -6,17 +6,20 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { useStore } from 'vuex';
 
 export default defineComponent({
   setup() {
     const store = useStore();
-    const isOpen = ref(false);
+
+    // реактивно читаем из стора
+    const isOpen = computed(() => store.getters['burgerMenu/isOpen']);
+
     const toggle = () => {
-      isOpen.value = !isOpen.value;
-      store.dispatch('burgerMenu/setBurger', { isOpen: isOpen.value });
+      store.dispatch('burgerMenu/setBurger', { isOpen: !isOpen.value });
     };
+
     return {
       isOpen,
       toggle,

@@ -5,7 +5,7 @@
     :style="{ width: isShort ? '60px' : '220px' }"
     :class="{ 'mobile-view': isMobile }"
   >
-    <section class="main-section">
+    <section class="main-section" @click="setBurgerMenu">
       <slot name="main" :is-short="isShort" />
     </section>
 
@@ -30,6 +30,12 @@ export default defineComponent({
       isShort.value = !isShort.value;
     };
 
+    const setBurgerMenu = () => {
+      if (isMobile.value) {
+        store.dispatch('burgerMenu/setBurger', { isOpen: false });
+      }
+    };
+
     watch(
       () => store.getters['mobile/breakPoint'],
       (breakPoint) => {
@@ -43,6 +49,7 @@ export default defineComponent({
       isShort,
       toggle,
       isBurgerMenuOpen,
+      setBurgerMenu,
     };
   },
 });

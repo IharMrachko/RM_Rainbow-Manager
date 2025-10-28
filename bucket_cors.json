@@ -1,0 +1,19 @@
+[
+  {
+    "origin": [
+      "http://localhost:8080",
+      "https://iharmrachko.github.io/vue3"
+    ],
+    "method": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ],
+    "maxAgeSeconds": 3600,
+    "responseHeader": [
+      "Content-Type",
+      "x-goog-meta-*"
+    ]
+  }
+]
