@@ -10,14 +10,24 @@
       ></app-color-card>
     </section>
     <section class="editor">
-      <app-editor-canvas v-model:image-url="imageUrl" :segments="frameColors"></app-editor-canvas>
+      <app-editor-canvas
+        ref="editorCanvasRef"
+        v-model:image-url="imageUrl"
+        :segments="frameColors"
+      ></app-editor-canvas>
     </section>
     <section class="buttons">
       <div class="btn">
         <app-file-uploader v-if="!isMobile" @select="onFileSelected"></app-file-uploader>
       </div>
       <div class="btn">
-        <app-button v-if="!isMobile" severity="warning" title="saveToGallery"></app-button>
+        <app-button
+          v-if="!isMobile"
+          severity="warning"
+          title="saveToGallery"
+          :loading="isSaveToGallery"
+          @click="saveToGallery"
+        ></app-button>
       </div>
       <div class="btn">
         <app-button v-if="!isMobile" severity="info" title="addSign"></app-button>
@@ -38,7 +48,7 @@
         <!-- скрытый uploader -->
         <app-file-uploader ref="uploader" style="display: none" @select="onFileSelected" />
       </app-popover-item>
-      <app-popover-item>
+      <app-popover-item @click="saveToGallery">
         <font-awesome-icon size="xl" :icon="['fas', 'images']" />
         <span>{{ t('saveToGallery') }}</span>
       </app-popover-item>
@@ -64,6 +74,8 @@ import {
 } from '@/views/main/views/color-view/components/color-card.constanst';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
+import { addDoc, collection } from 'firebase/firestore';
+import { db } from '@/firebase';
 
 export default defineComponent({
   components: {
@@ -75,8 +87,9 @@ export default defineComponent({
     AppColorCard,
     AppFileUploader,
   },
-  emits: ['fileOnLoad'],
+  emits: ['fileOnLoad', 'isLoading'],
   setup(props, { emit }) {
+    const editorCanvasRef = ref<{ saveToGallery: () => Promise<string> } | null>(null);
     const { t } = useI18n();
     const uploader = ref();
     const store = useStore();
@@ -85,6 +98,10 @@ export default defineComponent({
     const selectedCard = ref<null | { id: number; segments: any[] }>(null);
     const frameColors = ref();
     const imageUrl = ref<string | null>(null);
+    const fileRef = ref<File | null>(null);
+    const isSaveToGallery = ref(false);
+
+    const currentUser = computed(() => store.getters['authFirebase/currentUser']);
 
     onBeforeMount(() => {
       const [first] = cards;
@@ -92,13 +109,53 @@ export default defineComponent({
       frameColors.value = first.segments;
     });
 
-    const onFileSelected = (file: File) => {
+    const onFileSelected = async (file: File) => {
+      fileRef.value = file;
       const reader = new FileReader();
       reader.onload = (e) => {
         imageUrl.value = e.target?.result as string;
         emit('fileOnLoad', imageUrl.value);
       };
       reader.readAsDataURL(file);
+    };
+
+    const saveToGallery = async () => {
+      // сохраняем в Firebase Storage
+      if (!fileRef.value) return;
+      isSaveToGallery.value = true;
+      visiblePopover.value = false;
+      if (isMobile.value) {
+        emit('isLoading', true);
+      }
+
+      try {
+        const url = await editorCanvasRef.value?.saveToGallery();
+        await addDoc(collection(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items'), {
+          userId: currentUser.value?.uid,
+          url,
+          title: 'Что-то',
+          type: 'mask',
+          createdAt: new Date(),
+        });
+        await store.dispatch('toast/addToast', {
+          message: 'Success',
+          severity: 'success',
+        });
+        isSaveToGallery.value = false;
+        if (isMobile.value) {
+          emit('isLoading', false);
+        }
+        // можно сохранить url в store или отправить на сервер
+      } catch (err) {
+        isSaveToGallery.value = false;
+        await store.dispatch('toast/addToast', {
+          message: 'Error',
+          severity: 'error',
+        });
+        if (isMobile.value) {
+          emit('isLoading', false);
+        }
+      }
     };
 
     const selected = (item: any) => {
@@ -131,6 +188,9 @@ export default defineComponent({
       triggerUpload,
       uploader,
       t,
+      saveToGallery,
+      isSaveToGallery,
+      editorCanvasRef,
     };
   },
 });

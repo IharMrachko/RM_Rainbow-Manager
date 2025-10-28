@@ -1,0 +1,220 @@
+<template>
+  <div class="gallery-container">
+    <AppLoader v-if="isLoading"></AppLoader>
+    <div class="gallery-wrapper">
+      <section class="gallery-helper">
+        <div class="search">
+          <app-input
+            :placeholder="'Search'"
+            :icon="['fas', 'search']"
+            :is-label="false"
+          ></app-input>
+        </div>
+        <div><app-button severity="secondary" raised :icon="['fas', 'filter']"></app-button></div>
+      </section>
+      <section class="images">
+        <app-image-card
+          v-for="(img, index) in images"
+          :key="img.id || index"
+          :src="img.src"
+          @click="openModal(index)"
+        >
+          <template #default> Фото {{ index + 1 }} </template>
+        </app-image-card>
+        <app-image-modal
+          v-if="currentIndex !== null"
+          :images="images"
+          :start-index="currentIndex"
+          @close="closeModal"
+        />
+      </section>
+    </div>
+  </div>
+  <footer class="footer">Загружено: 100</footer>
+</template>
+<script lang="ts">
+import AppImageCard from '@/views/main/views/gallery/components/AppImageCard.vue';
+import AppImageModal from '@/shared/components/AppImageModal.vue';
+import { defineComponent, onMounted, ref } from 'vue';
+import AppInput from '@/shared/components/AppInput.vue';
+import AppButton from '@/shared/components/AppButton.vue';
+import {
+  collection,
+  DocumentData,
+  endAt,
+  getDocs,
+  getFirestore,
+  limit,
+  orderBy,
+  query,
+  QueryDocumentSnapshot,
+  startAfter,
+  startAt,
+  where,
+} from 'firebase/firestore';
+import { useStore } from 'vuex';
+import AppLoader from '@/shared/components/AppLoader.vue';
+
+export default defineComponent({
+  components: { AppLoader, AppButton, AppInput, AppImageModal, AppImageCard },
+  setup() {
+    const store = useStore();
+    const images = ref<any[]>([]);
+    const db = getFirestore();
+    const currentIndex = ref<number | null>(null);
+    const isLoading = ref(false);
+    async function getUserGalleryItems(
+      userId: string,
+      options?: {
+        type?: string;
+        title?: string;
+        pageSize?: number;
+        lastDoc?: QueryDocumentSnapshot<DocumentData>;
+      }
+    ) {
+      const { type, title, pageSize = 20, lastDoc } = options || {};
+
+      let q: any;
+
+      const itemsRef = collection(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items');
+
+      // базовый запрос
+      const constraints: any[] = [where('userId', '==', userId)];
+
+      // фильтр по type
+      if (type) {
+        constraints.push(where('type', '==', type));
+      }
+
+      // фильтр по title (префиксный поиск)
+      if (title) {
+        constraints.push(orderBy('title'));
+        constraints.push(startAt(title));
+        constraints.push(endAt(title + '\uf8ff'));
+      } else {
+        // если title не фильтруем, всё равно нужен orderBy для пагинации
+        constraints.push(orderBy('createdAt', 'desc'));
+      }
+
+      // пагинация
+      constraints.push(limit(pageSize));
+      if (lastDoc) {
+        constraints.push(startAfter(lastDoc));
+      }
+
+      q = query(itemsRef, ...constraints);
+
+      const snapshot = await getDocs(q);
+
+      const items = snapshot.docs.map((doc: any) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // вернём и lastDoc для следующей страницы
+      return {
+        items,
+        lastDoc: snapshot.docs.length > 0 ? snapshot.docs[snapshot.docs.length - 1] : null,
+      };
+    }
+
+    onMounted(async () => {
+      isLoading.value = true;
+      const userId = store.getters['authFirebase/getUserId'];
+      if (userId) {
+        const { items } = await getUserGalleryItems(userId);
+        images.value = items.map((item: any) => ({
+          src: item.url,
+          title: item.title,
+          type: item.type,
+        }));
+        isLoading.value = false;
+      }
+    });
+
+    function openModal(index: number) {
+      currentIndex.value = index;
+    }
+    function closeModal() {
+      currentIndex.value = null;
+    }
+
+    return { images, currentIndex, openModal, closeModal, isLoading };
+  },
+});
+</script>
+<style scoped lang="scss">
+.gallery-helper {
+  padding: 5px 20px 20px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  & .search {
+    width: 350px;
+  }
+
+  @media (max-width: 600px) {
+    padding: 0;
+    margin-bottom: 20px;
+
+    .search {
+      width: 250px;
+    }
+  }
+}
+.gallery-container {
+  position: relative;
+  overflow: auto;
+  height: calc(100dvh - var(--header-height));
+  width: 100%;
+  display: flex;
+  padding: 10px 20px 5px 20px;
+
+  .gallery-wrapper {
+    background: var(--color-wrap-bg);
+    width: 100%;
+    padding: 20px;
+
+    & .images {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 10px;
+      padding: 0 0 0 20px; /* контролируем поля */
+      overflow: auto;
+      height: calc(100dvh - var(--header-height) - 145px);
+      /* Скрыть скроллбар в разных браузерах */
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE и Edge */
+
+      @media (max-width: 600px) {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        padding: 0;
+      }
+
+      &::-webkit-scrollbar {
+        /* Chrome, Safari, Opera */
+        display: none;
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    padding: 5px;
+  }
+}
+
+.footer {
+  height: 40px;
+  position: fixed; /* или fixed, если нужно закрепить */
+  bottom: 0;
+  z-index: 100;
+  padding: 9px 20px 5px 15px;
+  width: 100%;
+
+  /* матовое стекло */
+  background: rgba(255, 255, 255, 0.2); /* полупрозрачный белый */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* для Safari */
+}
+</style>

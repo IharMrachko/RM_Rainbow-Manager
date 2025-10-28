@@ -171,6 +171,10 @@ export default defineComponent({
   color: #000000; /* делаем чёрными */
 }
 
+.dark .sidebar-container.mobile-view .active-link .sidebar-item {
+  color: #ffd700; /* например, зелёный акцент */
+}
+
 .sidebar-container.mobile-view .active-link .sidebar-item {
   color: #42b983; /* например, зелёный акцент */
 }

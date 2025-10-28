@@ -1,4 +1,6 @@
 import { Ref, ref } from 'vue';
+import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
+import { storage } from '@/firebase';
 
 export function useCanvasSaver(
   canvas: Ref<HTMLCanvasElement | null>,
@@ -15,6 +17,26 @@ export function useCanvasSaver(
     link.href = url;
     link.download = filename;
     link.click();
+  };
+
+  // 🔥 новый метод — сохранить в Firebase Storage
+  const saveToStorage = async (path = 'mask.png') => {
+    if (!canvas.value) return;
+
+    return new Promise<string>((resolve, reject) => {
+      canvas.value!.toBlob(async (blob) => {
+        if (!blob) return reject(new Error('Не удалось получить Blob из canvas'));
+
+        try {
+          const fileRef = storageRef(storage, path);
+          await uploadBytes(fileRef, blob);
+          const downloadURL = await getDownloadURL(fileRef);
+          resolve(downloadURL);
+        } catch (err) {
+          reject(err);
+        }
+      }, 'image/png');
+    });
   };
 
   const loadImage = (url: string): Promise<HTMLImageElement> => {
@@ -46,5 +68,5 @@ export function useCanvasSaver(
     render();
   };
 
-  return { saveImage, loadImage, resetImage, zoomPlus, zoomMinus, zoom };
+  return { saveImage, loadImage, resetImage, zoomPlus, zoomMinus, zoom, saveToStorage };
 }

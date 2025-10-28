@@ -16,6 +16,7 @@ import {
   faEnvelope,
   faExclamationTriangle,
   faFileUpload,
+  faFilter,
   faImages,
   faInfoCircle,
   faLock,
@@ -26,6 +27,7 @@ import {
   faRainbow,
   faRightFromBracket,
   faSave,
+  faSearch,
   faTimesCircle,
   faUndo,
 } from '@fortawesome/free-solid-svg-icons';
@@ -36,6 +38,8 @@ import { auth } from '@/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
 library.add(
+  faSearch,
+  faFilter,
   faCheckCircle,
   faTimesCircle,
   faInfoCircle,

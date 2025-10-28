@@ -7,12 +7,21 @@ describe('AppBurger', () => {
   let setBurgerMock: jest.Mock;
 
   beforeEach(() => {
-    setBurgerMock = jest.fn();
+    setBurgerMock = jest.fn((ctx, payload) => {
+      // имитируем мутацию стора
+      ctx.state.isOpen = payload.isOpen;
+    });
 
     const store = createStore({
       modules: {
         burgerMenu: {
           namespaced: true,
+          state: () => ({
+            isOpen: false,
+          }),
+          getters: {
+            isOpen: (state) => state.isOpen,
+          },
           actions: {
             setBurger: setBurgerMock,
           },
