@@ -10,7 +10,7 @@
     </button>
 
     <!-- Отображение выбранного файла -->
-    <div v-if="fileName" class="file-name">{{ fileName }}</div>
+    <div v-if="fileName && isShowSign" class="file-name">{{ fileName }}</div>
   </div>
 </template>
 
@@ -22,6 +22,10 @@ export default defineComponent({
   name: 'FileUploader',
   props: {
     isTitle: {
+      type: Boolean,
+      default: true,
+    },
+    isShowSign: {
       type: Boolean,
       default: true,
     },

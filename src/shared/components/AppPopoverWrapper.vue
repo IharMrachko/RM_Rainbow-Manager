@@ -10,5 +10,6 @@
 .popover-wrapper {
   background-color: #fff;
   border-radius: 20px;
+  margin-bottom: 20px;
 }
 </style>

@@ -163,7 +163,7 @@ export default defineComponent({
 
 /* активная ссылка */
 .active-link .sidebar-item {
-  color: #ffd700; /* например, золотой акцент */
+  color: var(--active-doing); /* например, золотой акцент */
 }
 
 /* когда sidebar в режиме mobile-view */
@@ -172,7 +172,7 @@ export default defineComponent({
 }
 
 .dark .sidebar-container.mobile-view .active-link .sidebar-item {
-  color: #ffd700; /* например, зелёный акцент */
+  color: var(--active-doing);
 }
 
 .sidebar-container.mobile-view .active-link .sidebar-item {

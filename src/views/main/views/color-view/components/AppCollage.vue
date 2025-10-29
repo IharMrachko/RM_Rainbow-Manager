@@ -31,6 +31,9 @@
     </div>
 
     <section class="buttons">
+      <div v-if="!isMobile" class="btn">
+        <app-file-uploader :is-show-sign="false" @select="onFileSelected"></app-file-uploader>
+      </div>
       <app-button
         v-if="!isMobile"
         severity="warning"
@@ -45,11 +48,23 @@
         size="lg"
         @click.stop="openPopover"
       />
+      <div v-if="!isMobile" class="checkbox">
+        <AppCheckbox v-model="sharedWithMask" label="Share image with mask"></AppCheckbox>
+      </div>
+      <div v-if="!isMobile" class="checkbox">
+        <AppCheckbox v-model="rememberChoose" label="Remember choose"></AppCheckbox>
+      </div>
     </section>
   </div>
 
   <app-popover v-model:visible="visiblePopover">
     <app-popover-wrapper>
+      <app-popover-item @click="triggerUpload">
+        <font-awesome-icon size="xl" :icon="['fas', 'file-upload']" />
+        <span>{{ t('upload') }}</span>
+        <!-- скрытый uploader -->
+        <app-file-uploader ref="uploader" style="display: none" @select="onFileSelected" />
+      </app-popover-item>
       <app-popover-item @click="saveToGallery">
         <font-awesome-icon size="xl" :icon="['fas', 'images']" />
         <span>{{ t('saveToGallery') }}</span>
@@ -57,6 +72,16 @@
       <app-popover-item>
         <font-awesome-icon size="xl" :icon="['fas', 'fa-pencil-square']" />
         <span>{{ t('addSign') }}</span>
+      </app-popover-item>
+    </app-popover-wrapper>
+    <app-popover-wrapper>
+      <app-popover-item>
+        <AppCheckbox v-model="sharedWithMask"></AppCheckbox>
+        <span>Share image with mask</span>
+      </app-popover-item>
+      <app-popover-item>
+        <AppCheckbox v-model="rememberChoose"></AppCheckbox>
+        <span>Remember choose</span>
       </app-popover-item>
     </app-popover-wrapper>
   </app-popover>
@@ -74,6 +99,9 @@ import AppPopover from '@/shared/components/AppPopover.vue';
 import { useI18n } from 'vue-i18n';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '@/firebase';
+import AppFileUploader from '@/shared/components/AppFileUploader.vue';
+import AppCheckbox from '@/shared/components/AppCheckbox.vue';
+import { readFileAsDataURL } from '@/helpers/read-file-as-data-url';
 
 const mobileHeight = 410;
 const mobileWidth = 330;
@@ -82,13 +110,18 @@ const desktopWidth = 860;
 const desktopThickness = 30;
 const mobileThickness = 20;
 export default defineComponent({
-  components: { AppPopover, AppPopoverWrapper, AppPopoverItem, AppButton },
-  props: {
-    imageUrl: { type: String, required: true }, // одна фотография
+  components: {
+    AppCheckbox,
+    AppFileUploader,
+    AppPopover,
+    AppPopoverWrapper,
+    AppPopoverItem,
+    AppButton,
   },
+
   emits: ['update:imageUrl', 'isLoading'],
 
-  setup(props, { emit }) {
+  setup(_, { emit }) {
     const { t } = useI18n();
     const visiblePopover = ref(false);
     const store = useStore();
@@ -98,9 +131,21 @@ export default defineComponent({
     const height = ref(desktopHeight);
     const photoScaleRef = ref(1);
     const originalUrlRef = ref<string | null>(null);
+    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
     const currentUser = computed(() => store.getters['authFirebase/currentUser']);
+    const imageUrl = ref<string | null>(null);
+    const uploader = ref();
     const isSaveToGallery = ref(false);
+    const sharedWithMask = ref(store.getters['imageColor/shareImgMask']);
+    const rememberChoose = ref(store.getters['imageColor/rememberImgCollage']);
     let isLoadImage = false;
+
+    const onFileSelected = async (file: File) => {
+      isLoadImage = false;
+      imageUrl.value = await readFileAsDataURL(file);
+      await store.dispatch('imageColor/uploadImgCollage', { file });
+      await render();
+    };
     const render = async () => {
       if (!canvas.value) return;
       const ctx = canvas.value.getContext('2d')!;
@@ -116,8 +161,8 @@ export default defineComponent({
 
       ctx.clearRect(0, 0, width.value, height.value);
 
-      if (props.imageUrl && !isLoadImage) {
-        imageRef.value = await loadImage(props.imageUrl);
+      if (imageUrl.value && !isLoadImage) {
+        imageRef.value = await loadImage(imageUrl.value);
         isLoadImage = true;
       }
 
@@ -210,25 +255,6 @@ export default defineComponent({
       }
     };
 
-    onMounted(render);
-
-    watch(
-      () => props.imageUrl,
-      (url) => {
-        if (url && !originalUrlRef.value) {
-          originalUrlRef.value = url;
-        }
-
-        if (url && originalUrlRef.value) {
-          isLoadImage = false;
-          zoom.value = 1;
-          originalUrlRef.value = url;
-        }
-
-        render();
-      }
-    );
-
     watch(
       () => store.getters['mobile/clientWidth'],
       (value) => {
@@ -245,14 +271,20 @@ export default defineComponent({
       },
       { immediate: true }
     );
-    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
+
     const openPopover = () => {
       visiblePopover.value = true;
     };
 
     const saveToGallery = async () => {
       // сохраняем в Firebase Storage
-      if (!isLoadImage) return;
+      if (!isLoadImage) {
+        await store.dispatch('toast/addToast', {
+          message: 'Upload image',
+          severity: 'warning',
+        });
+        return;
+      }
       isSaveToGallery.value = true;
       visiblePopover.value = false;
       if (isMobile.value) {
@@ -289,6 +321,47 @@ export default defineComponent({
       }
     };
 
+    watch(
+      () => sharedWithMask.value,
+      (value: boolean) => {
+        store.dispatch('imageColor/setShareImgMask', {
+          share: value,
+        });
+      }
+    );
+
+    watch(
+      () => rememberChoose.value,
+      (value: boolean) => {
+        store.dispatch('imageColor/setRememberImgCollage', {
+          remember: value,
+        });
+      }
+    );
+
+    watch(
+      () => store.getters['imageColor/imgMask'],
+      (file: File) => {
+        if (store.getters['imageColor/shareImgCollage']) {
+          onFileSelected(file);
+        }
+      }
+    );
+
+    onMounted(() => {
+      render();
+      if (store.getters['imageColor/rememberImgCollage']) {
+        const file = store.getters['imageColor/imgCollage'];
+        if (file) {
+          onFileSelected(file);
+        }
+      }
+    });
+    const triggerUpload = () => {
+      // внутри app-file-uploader обычно есть <input type="file">
+      // у него можно вызвать click()
+      uploader.value?.$el.querySelector('input[type=file]')?.click();
+    };
     return {
       canvas,
       saveImage,
@@ -301,6 +374,11 @@ export default defineComponent({
       t,
       isSaveToGallery,
       saveToGallery,
+      sharedWithMask,
+      rememberChoose,
+      onFileSelected,
+      triggerUpload,
+      uploader,
     };
   },
 });
@@ -329,10 +407,6 @@ export default defineComponent({
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-left: 280px;
-  @media (max-width: 600px) {
-    margin-left: 0;
-  }
 }
 
 .actions {
@@ -351,6 +425,12 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  .checkbox {
+    width: 230px;
+    display: flex;
+    padding-left: 20px;
+  }
 }
 
 @media (max-width: 600px) {
