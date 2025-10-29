@@ -5,6 +5,7 @@ import { language } from '@/store/modules/language';
 import { authFirebase } from '@/store/modules/auth';
 import { mobile } from '@/store/modules/mobile-view';
 import { burgerMenu } from '@/store/modules/burger-menu';
+import { imageColor } from '@/store/modules/image-color';
 
 export default createStore({
   state: {},
@@ -18,6 +19,7 @@ export default createStore({
     authFirebase,
     mobile,
     burgerMenu,
+    imageColor,
   },
   plugins: [createLogger()],
 });

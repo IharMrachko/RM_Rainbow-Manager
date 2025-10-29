@@ -3,13 +3,10 @@
     <AppLoader v-if="isLoading"></AppLoader>
     <app-tabs>
       <app-tab title="mask">
-        <app-color-mask
-          @is-loading="isLoading = $event"
-          @file-on-load="fileOnLoad"
-        ></app-color-mask>
+        <app-color-mask @is-loading="isLoading = $event"></app-color-mask>
       </app-tab>
       <app-tab title="collage">
-        <app-collage v-model:image-url="imageUrl" @is-loading="isLoading = $event"></app-collage>
+        <app-collage @is-loading="isLoading = $event"></app-collage>
       </app-tab>
     </app-tabs>
   </div>

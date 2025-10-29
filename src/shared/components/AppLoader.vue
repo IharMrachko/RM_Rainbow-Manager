@@ -24,7 +24,7 @@
   width: 60px;
   height: 60px;
   border: 5px solid rgba(256, 256, 256, 0.5);
-  border-top-color: #ffd700;
+  border-top-color: var(--active-doing);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
