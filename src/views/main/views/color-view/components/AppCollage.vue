@@ -74,7 +74,7 @@
         <font-awesome-icon size="xl" :icon="['fas', 'images']" />
         <span>{{ t('saveToGallery') }}</span>
       </app-popover-item>
-      <app-popover-item>
+      <app-popover-item @click="openImageModal">
         <font-awesome-icon size="xl" :icon="['fas', 'fa-pencil-square']" />
         <span>{{ t('addSign') }}</span>
       </app-popover-item>
