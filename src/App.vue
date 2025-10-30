@@ -1,5 +1,6 @@
 <template>
   <app-toaster></app-toaster>
+  <app-dialog></app-dialog>
   <router-view />
 </template>
 
@@ -8,9 +9,10 @@ import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import AppToaster from '@/shared/components/AppToaster.vue';
+import AppDialog from '@/shared/components/dialog/AppDialog.vue';
 
 export default defineComponent({
-  components: { AppToaster },
+  components: { AppDialog, AppToaster },
   setup() {
     const windowWidth = ref(document.documentElement.clientWidth);
     const store = useStore();

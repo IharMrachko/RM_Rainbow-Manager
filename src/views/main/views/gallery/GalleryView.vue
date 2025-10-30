@@ -40,14 +40,12 @@ import AppInput from '@/shared/components/AppInput.vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import {
   collection,
-  DocumentData,
   endAt,
   getDocs,
   getFirestore,
   limit,
   orderBy,
   query,
-  QueryDocumentSnapshot,
   startAfter,
   startAt,
   where,
@@ -55,6 +53,12 @@ import {
 import { useStore } from 'vuex';
 import AppLoader from '@/shared/components/AppLoader.vue';
 
+type Options = {
+  coloristicType?: string;
+  title?: string;
+  pageSize?: number;
+  lastDoc?: any;
+};
 export default defineComponent({
   components: { AppLoader, AppButton, AppInput, AppImageModal, AppImageCard },
   setup() {
@@ -63,55 +67,41 @@ export default defineComponent({
     const db = getFirestore();
     const currentIndex = ref<number | null>(null);
     const isLoading = ref(false);
-    async function getUserGalleryItems(
-      userId: string,
-      options?: {
-        type?: string;
-        title?: string;
-        pageSize?: number;
-        lastDoc?: QueryDocumentSnapshot<DocumentData>;
-      }
-    ) {
-      const { type, title, pageSize = 20, lastDoc } = options || {};
-
-      let q: any;
+    async function getUserGalleryItems(userId: string, options: Options = {}) {
+      const { coloristicType, title, pageSize = 20, lastDoc } = options;
 
       const itemsRef = collection(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items');
 
-      // базовый запрос
       const constraints: any[] = [where('userId', '==', userId)];
 
-      // фильтр по type
-      if (type) {
-        constraints.push(where('type', '==', type));
+      if (coloristicType) {
+        constraints.push(where('coloristicType', '==', coloristicType));
       }
 
-      // фильтр по title (префиксный поиск)
       if (title) {
+        // префиксный поиск по title
         constraints.push(orderBy('title'));
         constraints.push(startAt(title));
         constraints.push(endAt(title + '\uf8ff'));
       } else {
-        // если title не фильтруем, всё равно нужен orderBy для пагинации
+        // сортировка по дате создания
         constraints.push(orderBy('createdAt', 'desc'));
       }
 
-      // пагинация
-      constraints.push(limit(pageSize));
       if (lastDoc) {
         constraints.push(startAfter(lastDoc));
       }
 
-      q = query(itemsRef, ...constraints);
+      constraints.push(limit(pageSize));
 
+      const q = query(itemsRef, ...constraints);
       const snapshot = await getDocs(q);
 
-      const items = snapshot.docs.map((doc: any) => ({
+      const items = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
 
-      // вернём и lastDoc для следующей страницы
       return {
         items,
         lastDoc: snapshot.docs.length > 0 ? snapshot.docs[snapshot.docs.length - 1] : null,
@@ -126,7 +116,8 @@ export default defineComponent({
         images.value = items.map((item: any) => ({
           src: item.url,
           title: item.title,
-          type: item.type,
+          coloristicType: item.coloristicType,
+          maskType: item.maskType,
         }));
         isLoading.value = false;
       }

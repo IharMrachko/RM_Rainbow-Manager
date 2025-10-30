@@ -8,7 +8,8 @@
           <!-- Информация -->
           <div class="info">
             <h3>{{ images[index].title }}</h3>
-            <span class="badge">{{ images[index].type }}</span>
+            <span class="badge">{{ images[index].maskType }}</span>
+            <span class="badge">{{ images[index].coloristicType }}</span>
           </div>
 
           <!-- Действия -->
@@ -168,10 +169,10 @@ button.next {
 }
 
 .info-section {
-  width: 100%;
   margin-top: 16px;
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 .info-section-wrapper {

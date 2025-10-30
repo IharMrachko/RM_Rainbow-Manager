@@ -41,7 +41,12 @@
         :loading="isSaveToGallery"
         @click="saveToGallery"
       ></app-button>
-      <app-button v-if="!isMobile" severity="info" title="addSign"></app-button>
+      <app-button
+        v-if="!isMobile"
+        severity="info"
+        title="addSign"
+        @click="openImageModal"
+      ></app-button>
       <font-awesome-icon
         v-if="isMobile"
         :icon="['fas', 'ellipsis-h']"
@@ -49,10 +54,10 @@
         @click.stop="openPopover"
       />
       <div v-if="!isMobile" class="checkbox">
-        <AppCheckbox v-model="sharedWithMask" label="Share image with mask"></AppCheckbox>
+        <AppCheckbox v-model="sharedWithMask" label="shareImageWithMask"></AppCheckbox>
       </div>
       <div v-if="!isMobile" class="checkbox">
-        <AppCheckbox v-model="rememberChoose" label="Remember choose"></AppCheckbox>
+        <AppCheckbox v-model="rememberChoose" label="rememberChoose"></AppCheckbox>
       </div>
     </section>
   </div>
@@ -77,11 +82,11 @@
     <app-popover-wrapper>
       <app-popover-item>
         <AppCheckbox v-model="sharedWithMask"></AppCheckbox>
-        <span>Share image with mask</span>
+        <span>{{ t('shareImageWithMask') }}</span>
       </app-popover-item>
       <app-popover-item>
         <AppCheckbox v-model="rememberChoose"></AppCheckbox>
-        <span>Remember choose</span>
+        <span>{{ t('rememberChoose') }}</span>
       </app-popover-item>
     </app-popover-wrapper>
   </app-popover>
@@ -97,11 +102,11 @@ import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopover from '@/shared/components/AppPopover.vue';
 import { useI18n } from 'vue-i18n';
-import { addDoc, collection } from 'firebase/firestore';
-import { db } from '@/firebase';
 import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppCheckbox from '@/shared/components/AppCheckbox.vue';
 import { readFileAsDataURL } from '@/helpers/read-file-as-data-url';
+import { openDialog } from '@/shared/components/dialog/services/dialog.service';
+import AppImageSignInModal from '@/views/main/views/color-view/components/AppImageSignInModal.vue';
 
 const mobileHeight = 410;
 const mobileWidth = 330;
@@ -196,7 +201,7 @@ export default defineComponent({
       }
     };
 
-    const { saveToStorage, saveImage, loadImage, resetImage, zoomPlus, zoomMinus, zoom } =
+    const { getCanvasSrc, saveImage, loadImage, resetImage, zoomPlus, zoomMinus, zoom } =
       useCanvasSaver(canvas, render, emit, originalUrlRef);
 
     const drawImageWithFrame = (
@@ -290,34 +295,17 @@ export default defineComponent({
       if (isMobile.value) {
         emit('isLoading', true);
       }
-
       try {
-        const url = await saveToStorage(`collage/${Math.random()}.png`);
-        await addDoc(collection(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items'), {
+        await store.dispatch('gallery/saveImageToGallery', {
+          canvas: canvas.value,
+          title: '',
+          coloristicType: 'collage',
+          maskType: '',
           userId: currentUser.value?.uid,
-          url,
-          title: 'Подпись',
-          type: 'collage',
-          createdAt: new Date(),
-        });
-        await store.dispatch('toast/addToast', {
-          message: 'Success',
-          severity: 'success',
-        });
+        }); // вернет URL
+      } finally {
         isSaveToGallery.value = false;
-        if (isMobile.value) {
-          emit('isLoading', false);
-        }
-        // можно сохранить url в store или отправить на сервер
-      } catch (err) {
-        isSaveToGallery.value = false;
-        await store.dispatch('toast/addToast', {
-          message: 'Error',
-          severity: 'error',
-        });
-        if (isMobile.value) {
-          emit('isLoading', false);
-        }
+        if (isMobile.value) emit('isLoading', false);
       }
     };
 
@@ -362,6 +350,17 @@ export default defineComponent({
       // у него можно вызвать click()
       uploader.value?.$el.querySelector('input[type=file]')?.click();
     };
+
+    const openImageModal = async () => {
+      const url = getCanvasSrc();
+
+      await openDialog(AppImageSignInModal, {
+        url,
+        coloristicType: 'mask',
+        currentUserId: currentUser.value?.uid,
+        canvas: canvas.value,
+      });
+    };
     return {
       canvas,
       saveImage,
@@ -379,6 +378,7 @@ export default defineComponent({
       onFileSelected,
       triggerUpload,
       uploader,
+      openImageModal,
     };
   },
 });

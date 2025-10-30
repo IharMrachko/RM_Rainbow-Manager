@@ -22,6 +22,11 @@ const messages = {
     logout: 'Logout',
     saveToGallery: 'Save to Gallery',
     addSign: 'Add Sign',
+    shareImageWithCollage: 'Share image with collage',
+    shareImageWithMask: 'Share image with mask',
+    rememberChoose: 'Remember choose',
+    successImage: 'Image uploaded',
+    errorImage: 'Error image uploaded',
   },
   ru: {
     login: 'Вход',
@@ -44,6 +49,11 @@ const messages = {
     logout: 'Выйти',
     saveToGallery: 'Сохранить в галерею',
     addSign: 'Добавить подпись',
+    shareImageWithCollage: 'Показывать в коллаже',
+    shareImageWithMask: 'Показывать в маске',
+    rememberChoose: 'Запомнить',
+    successImage: 'Изображение загружено',
+    errorImage: 'Ошибка при загрузке изображения',
   },
 };
 

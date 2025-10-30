@@ -1,9 +1,11 @@
 import { FrameColorSegmentType } from '@/types/frame-color-segment.type';
+import { MaskType } from '@/types/mask.type';
 
-export type ColorCard = { id: number; segments: FrameColorSegmentType[] };
+export type ColorCard = { id: number; segments: FrameColorSegmentType[]; type: MaskType };
 export const colorCards: ColorCard[] = [
   {
     id: 1,
+    type: 'cold',
     segments: [
       { color: '#979DAF' },
       { color: '#C21E56' },
@@ -20,6 +22,7 @@ export const colorCards: ColorCard[] = [
   },
   {
     id: 2,
+    type: 'warm',
     segments: [
       { color: '#E1BD88' },
       { color: '#DB3844' },
@@ -36,6 +39,7 @@ export const colorCards: ColorCard[] = [
   },
   {
     id: 3,
+    type: 'dark',
     segments: [
       { color: '#413433' },
       { color: '#BC243C' },
@@ -52,6 +56,7 @@ export const colorCards: ColorCard[] = [
   },
   {
     id: 4,
+    type: 'light',
     segments: [
       { color: '#CBB7A2' },
       { color: '#E63E62' },
@@ -68,6 +73,7 @@ export const colorCards: ColorCard[] = [
   },
   {
     id: 5,
+    type: 'soft',
     segments: [
       { color: '#53677A' },
       { color: '#856088' },
@@ -84,6 +90,7 @@ export const colorCards: ColorCard[] = [
   },
   {
     id: 6,
+    type: 'unforgettable',
     segments: [
       { color: '#433D42' },
       { color: '#E5003C' },

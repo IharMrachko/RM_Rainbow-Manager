@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, watch } from 'vue';
+import { defineComponent, onMounted, PropType, ref, watch } from 'vue';
 import { InputType } from '@/types/input.type';
 import AppInputErrorOverlay from '@/shared/components/AppInputErrorOverlay.vue';
 import { useI18n } from 'vue-i18n';
@@ -79,6 +79,10 @@ export default defineComponent({
       type: String as PropType<string>,
       default: '50px',
     },
+    isFocused: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['update:modelValue', 'blur', 'change', 'focus'],
   setup(props, { emit }) {
@@ -111,6 +115,12 @@ export default defineComponent({
     const updateErrorVisibility = () => {
       showError.value = !isFocused.value && Boolean(props.error);
     };
+
+    onMounted(() => {
+      if (props.isFocused) {
+        inputRef.value?.focus();
+      }
+    });
 
     watch(
       () => props.error, // реактивный геттер

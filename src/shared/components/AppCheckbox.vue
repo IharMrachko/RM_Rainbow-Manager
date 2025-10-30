@@ -28,7 +28,7 @@
       <span class="rc__mark" />
     </span>
 
-    <span v-if="label" class="rc__label">{{ label }}</span>
+    <span v-if="label" class="rc__label">{{ t(label) }}</span>
 
     <!-- Нативный input для форм/автозаполнения, визуально скрыт -->
     <input
@@ -47,6 +47,7 @@
 <script lang="ts">
 import { computed, defineComponent, onBeforeUnmount, onMounted, ref, toRefs } from 'vue';
 import Hammer from 'hammerjs';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
   props: {
@@ -61,6 +62,7 @@ export default defineComponent({
   },
   emits: ['update:modelValue', 'change', 'focus', 'blur'],
   setup(props, { emit }) {
+    const { t } = useI18n();
     const { modelValue, disabled, readonly, indeterminate, size } = toRefs(props);
     const controlEl = ref<HTMLElement | null>(null);
     // eslint-disable-next-line no-undef
@@ -104,6 +106,7 @@ export default defineComponent({
       ariaChecked,
       styles,
       controlEl,
+      t,
     };
   },
 });

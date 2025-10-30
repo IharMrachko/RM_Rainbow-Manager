@@ -22,6 +22,7 @@ import {
   faLock,
   faLongArrowAltRight,
   faMinus,
+  faPencil,
   faPencilSquare,
   faPlus,
   faRainbow,
@@ -59,7 +60,8 @@ library.add(
   faImages,
   faEllipsisVertical,
   faEllipsisH,
-  faPencilSquare
+  faPencilSquare,
+  faPencil
 );
 
 onAuthStateChanged(auth, (user) => {
