@@ -9,7 +9,10 @@ export function useCanvasSaver(
   originalUrl?: Ref<string | null>
 ) {
   const zoom = ref(1);
-
+  const getCanvasSrc = () => {
+    if (!canvas.value) return null;
+    return canvas.value.toDataURL('image/png');
+  };
   const saveImage = (filename = 'avatar.png') => {
     if (!canvas.value) return;
     const url = canvas.value.toDataURL('image/png');
@@ -68,5 +71,14 @@ export function useCanvasSaver(
     render();
   };
 
-  return { saveImage, loadImage, resetImage, zoomPlus, zoomMinus, zoom, saveToStorage };
+  return {
+    saveImage,
+    loadImage,
+    resetImage,
+    zoomPlus,
+    zoomMinus,
+    zoom,
+    saveToStorage,
+    getCanvasSrc,
+  };
 }

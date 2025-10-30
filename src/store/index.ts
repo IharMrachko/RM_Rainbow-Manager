@@ -6,6 +6,7 @@ import { authFirebase } from '@/store/modules/auth';
 import { mobile } from '@/store/modules/mobile-view';
 import { burgerMenu } from '@/store/modules/burger-menu';
 import { imageColor } from '@/store/modules/image-color';
+import { gallery } from '@/store/modules/firebase-gallery';
 
 export default createStore({
   state: {},
@@ -20,6 +21,7 @@ export default createStore({
     mobile,
     burgerMenu,
     imageColor,
+    gallery,
   },
   plugins: [createLogger()],
 });

@@ -29,13 +29,13 @@
         ></app-button>
       </div>
       <div v-if="!isMobile" class="btn">
-        <app-button severity="info" title="addSign"></app-button>
+        <app-button severity="info" title="addSign" @click="openImageModal"></app-button>
       </div>
       <div v-if="!isMobile" class="checkbox">
-        <AppCheckbox v-model="sharedWithCollage" label="Share image with collage"></AppCheckbox>
+        <AppCheckbox v-model="sharedWithCollage" label="shareImageWithCollage"></AppCheckbox>
       </div>
       <div v-if="!isMobile" class="checkbox">
-        <AppCheckbox v-model="rememberChoose" label="Remember choose"></AppCheckbox>
+        <AppCheckbox v-model="rememberChoose" label="rememberChoose"></AppCheckbox>
       </div>
       <font-awesome-icon
         v-if="isMobile"
@@ -57,7 +57,7 @@
         <font-awesome-icon size="xl" :icon="['fas', 'images']" />
         <span>{{ t('saveToGallery') }}</span>
       </app-popover-item>
-      <app-popover-item>
+      <app-popover-item @click="openImageModal">
         <font-awesome-icon size="xl" :icon="['fas', 'fa-pencil-square']" />
         <span>{{ t('addSign') }}</span>
       </app-popover-item>
@@ -65,11 +65,11 @@
     <app-popover-wrapper>
       <app-popover-item>
         <AppCheckbox v-model="sharedWithCollage"></AppCheckbox>
-        <span>Share image with collage</span>
+        <span>{{ t('shareImageWithCollage') }}</span>
       </app-popover-item>
       <app-popover-item>
         <AppCheckbox v-model="rememberChoose"></AppCheckbox>
-        <span>Remember choose</span>
+        <span>{{ t('rememberChoose') }}</span>
       </app-popover-item>
     </app-popover-wrapper>
   </app-popover>
@@ -89,10 +89,10 @@ import {
 } from '@/views/main/views/color-view/components/color-card.constanst';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
-import { addDoc, collection } from 'firebase/firestore';
-import { db } from '@/firebase';
 import AppCheckbox from '@/shared/components/AppCheckbox.vue';
 import { readFileAsDataURL } from '@/helpers/read-file-as-data-url';
+import { openDialog } from '@/shared/components/dialog/services/dialog.service';
+import AppImageSignInModal from '@/views/main/views/color-view/components/AppImageSignInModal.vue';
 
 export default defineComponent({
   components: {
@@ -107,16 +107,18 @@ export default defineComponent({
   },
   emits: ['fileOnLoad', 'isLoading'],
   setup(_, { emit }) {
-    const editorCanvasRef = ref<{ saveToGallery: () => Promise<string> } | null>(null);
+    const editorCanvasRef = ref<{
+      getCanvasValue: () => HTMLCanvasElement;
+      getImageSrc: () => string;
+    } | null>(null);
     const { t } = useI18n();
     const uploader = ref();
     const store = useStore();
     const visiblePopover = ref(false);
     const cards: ColorCard[] = colorCards;
-    const selectedCard = ref<null | { id: number; segments: any[] }>(null);
+    const selectedCard = ref<null | ColorCard>(null);
     const frameColors = ref();
     const imageUrl = ref<string | null>(null);
-    const fileRef = ref<File | null>(null);
     const isSaveToGallery = ref(false);
     const sharedWithCollage = ref(store.getters['imageColor/shareImgCollage']);
     const rememberChoose = ref(store.getters['imageColor/rememberImgMask']);
@@ -143,47 +145,22 @@ export default defineComponent({
     };
 
     const saveToGallery = async () => {
-      // сохраняем в Firebase Storage
-      if (!fileRef.value) {
-        await store.dispatch('toast/addToast', {
-          message: 'Upload image',
-          severity: 'warning',
-        });
-        return;
-      }
+      if (!editorCanvasRef.value?.getCanvasValue()) return;
       isSaveToGallery.value = true;
       visiblePopover.value = false;
-      if (isMobile.value) {
-        emit('isLoading', true);
-      }
+      if (isMobile.value) emit('isLoading', true);
 
       try {
-        const url = await editorCanvasRef.value?.saveToGallery();
-        await addDoc(collection(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items'), {
+        await store.dispatch('gallery/saveImageToGallery', {
+          canvas: editorCanvasRef.value?.getCanvasValue(),
+          title: '',
+          coloristicType: 'mask',
+          maskType: selectedCard.value?.type,
           userId: currentUser.value?.uid,
-          url,
-          title: 'Что-то',
-          type: 'mask',
-          createdAt: new Date(),
-        });
-        await store.dispatch('toast/addToast', {
-          message: 'Success',
-          severity: 'success',
-        });
+        }); // вернет URL
+      } finally {
         isSaveToGallery.value = false;
-        if (isMobile.value) {
-          emit('isLoading', false);
-        }
-        // можно сохранить url в store или отправить на сервер
-      } catch (err) {
-        isSaveToGallery.value = false;
-        await store.dispatch('toast/addToast', {
-          message: 'Error',
-          severity: 'error',
-        });
-        if (isMobile.value) {
-          emit('isLoading', false);
-        }
+        if (isMobile.value) emit('isLoading', false);
       }
     };
 
@@ -200,6 +177,17 @@ export default defineComponent({
       // внутри app-file-uploader обычно есть <input type="file">
       // у него можно вызвать click()
       uploader.value?.$el.querySelector('input[type=file]')?.click();
+    };
+
+    const openImageModal = async () => {
+      const url = editorCanvasRef.value?.getImageSrc();
+      await openDialog(AppImageSignInModal, {
+        url,
+        coloristicType: 'mask',
+        maskType: selectedCard.value?.type,
+        currentUserId: currentUser.value?.uid,
+        canvas: editorCanvasRef.value?.getCanvasValue(),
+      });
     };
 
     watch(
@@ -245,6 +233,7 @@ export default defineComponent({
       editorCanvasRef,
       sharedWithCollage,
       rememberChoose,
+      openImageModal,
     };
   },
 });

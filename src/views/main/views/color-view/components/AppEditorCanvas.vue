@@ -72,11 +72,15 @@ export default defineComponent({
       drawFrame(ctx);
     };
 
-    const { saveToStorage, saveImage, loadImage, resetImage, zoomPlus, zoomMinus, zoom } =
+    const { getCanvasSrc, saveImage, loadImage, resetImage, zoomPlus, zoomMinus, zoom } =
       useCanvasSaver(canvasRef, render, emit, originalUrlRef);
 
-    const saveToGallery = async () => {
-      return await saveToStorage(`avatar/${Math.random()}.png`);
+    const getCanvasValue = () => {
+      return canvasRef.value;
+    };
+
+    const getImageSrc = () => {
+      return getCanvasSrc();
     };
 
     const startSelection = (e: MouseEvent) => {
@@ -257,7 +261,8 @@ export default defineComponent({
       zoomPlus,
       zoomMinus,
       sizeRef,
-      saveToGallery,
+      getCanvasValue,
+      getImageSrc,
     };
   },
 });
