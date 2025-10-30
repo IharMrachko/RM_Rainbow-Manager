@@ -11,12 +11,7 @@
 
         <!-- Информация -->
         <div class="info">
-          <app-input
-            v-model="signIn"
-            :is-focused="true"
-            :icon="['fas', 'fa-pencil']"
-            :is-label="false"
-          ></app-input>
+          <app-input v-model="signIn" :icon="['fas', 'fa-pencil']" :is-label="false"></app-input>
         </div>
 
         <!-- Действия -->

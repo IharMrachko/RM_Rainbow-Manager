@@ -181,6 +181,7 @@ export default defineComponent({
       @media (max-width: 600px) {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
         padding: 0;
+        align-content: start;
       }
 
       &::-webkit-scrollbar {
