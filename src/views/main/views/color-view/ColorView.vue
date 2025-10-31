@@ -51,7 +51,7 @@ export default defineComponent({
   height: calc(100dvh - var(--header-height));
 
   @media (max-width: 600px) {
-    padding: 5px;
+    padding: 5px 0;
   }
 }
 </style>

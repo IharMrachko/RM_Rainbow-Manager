@@ -157,6 +157,10 @@ export default defineComponent({
   cursor: pointer;
   top: 10px;
   right: 10px;
+
+  @media (max-width: 600px) {
+    right: 0;
+  }
 }
 
 .info-section {
