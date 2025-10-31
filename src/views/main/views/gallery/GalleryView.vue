@@ -114,6 +114,7 @@ export default defineComponent({
       if (userId) {
         const { items } = await getUserGalleryItems(userId);
         images.value = items.map((item: any) => ({
+          id: item.id,
           src: item.url,
           title: item.title,
           coloristicType: item.coloristicType,
@@ -136,7 +137,7 @@ export default defineComponent({
 </script>
 <style scoped lang="scss">
 .gallery-helper {
-  padding: 5px 20px 20px 20px;
+  padding: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -146,8 +147,8 @@ export default defineComponent({
   }
 
   @media (max-width: 600px) {
-    padding: 0;
-    margin-bottom: 20px;
+    padding: 15px;
+    margin-bottom: 10px;
 
     .search {
       width: 250px;
@@ -165,7 +166,6 @@ export default defineComponent({
   .gallery-wrapper {
     background: var(--color-wrap-bg);
     width: 100%;
-    padding: 20px;
 
     & .images {
       display: grid;
@@ -179,9 +179,10 @@ export default defineComponent({
       -ms-overflow-style: none; /* IE и Edge */
 
       @media (max-width: 600px) {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
         padding: 0;
         align-content: start;
+        gap: 3px;
       }
 
       &::-webkit-scrollbar {

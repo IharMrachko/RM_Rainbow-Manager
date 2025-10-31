@@ -29,6 +29,7 @@ import {
   faRightFromBracket,
   faSave,
   faSearch,
+  faTimes,
   faTimesCircle,
   faUndo,
 } from '@fortawesome/free-solid-svg-icons';
@@ -61,7 +62,9 @@ library.add(
   faEllipsisVertical,
   faEllipsisH,
   faPencilSquare,
-  faPencil
+  faPencil,
+  faTimes,
+  faTimesCircle
 );
 
 onAuthStateChanged(auth, (user) => {

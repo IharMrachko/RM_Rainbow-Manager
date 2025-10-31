@@ -17,6 +17,9 @@
         <!-- Действия -->
         <div class="actions">
           <div class="btn">
+            <app-button severity="info" title="Add folder"></app-button>
+          </div>
+          <div class="btn">
             <app-button
               :loading="isSaveToGallery"
               severity="warning"
@@ -27,7 +30,9 @@
         </div>
       </div>
     </section>
-    <button class="close" @click="close">✖</button>
+    <div class="close" @click="close">
+      <font-awesome-icon size="lg" :icon="['fas', 'fa-times']" />
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -105,6 +110,11 @@ export default defineComponent({
 
   border: 1px solid #c5c5c5;
   box-shadow: 0 0 5px #c5c5c5, 0 0 5px #c5c5c5, 0 0 5px #c5c5c5, 0 0 25px #c5c5c5;
+
+  @media (max-width: 600px) {
+    width: 98vw;
+    height: auto;
+  }
 }
 
 .dark .neon {
@@ -113,7 +123,7 @@ export default defineComponent({
   box-shadow: 0 0 5px #0ff, 0 0 5px #0ff, 0 0 5px #0ff, 0 0 25px #0ff;
 }
 .modal-content img {
-  max-height: 70%;
+  max-height: 60%;
   width: 100%;
   max-width: 100%;
   object-fit: contain;
@@ -141,17 +151,10 @@ export default defineComponent({
   text-align: center;
 }
 
-button.close {
+.close {
   position: absolute;
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  border: none;
-  font-size: 24px;
   padding: 8px 12px;
   cursor: pointer;
-}
-
-.close {
   top: 10px;
   right: 10px;
 }
@@ -166,5 +169,11 @@ button.close {
     flex-direction: column;
     gap: 12px;
   }
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 </style>

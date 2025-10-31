@@ -63,7 +63,7 @@ export default defineComponent({
   height: 300px;
 
   @media (max-width: 600px) {
-    width: 100px;
+    width: 100%;
     height: 150px;
   }
 }

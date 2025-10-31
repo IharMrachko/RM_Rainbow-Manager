@@ -356,7 +356,7 @@ export default defineComponent({
 
       await openDialog(AppImageSignInModal, {
         url,
-        coloristicType: 'mask',
+        coloristicType: 'collage',
         currentUserId: currentUser.value?.uid,
         canvas: canvas.value,
       });
