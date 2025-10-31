@@ -31,6 +31,7 @@ import {
   faSearch,
   faTimes,
   faTimesCircle,
+  faTrash,
   faUndo,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -64,7 +65,8 @@ library.add(
   faPencilSquare,
   faPencil,
   faTimes,
-  faTimesCircle
+  faTimesCircle,
+  faTrash
 );
 
 onAuthStateChanged(auth, (user) => {

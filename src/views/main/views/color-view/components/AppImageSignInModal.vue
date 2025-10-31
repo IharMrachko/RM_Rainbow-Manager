@@ -1,6 +1,5 @@
 <template>
   <div ref="modalRef" class="modal-content neon">
-    <!-- Фото -->
     <img :src="url" alt="" />
     <section class="info-section">
       <div class="info-section-wrapper">
@@ -9,12 +8,8 @@
           <span v-if="maskType" class="badge">{{ maskType }}</span>
         </div>
 
-        <!-- Информация -->
-        <div class="info">
-          <app-input v-model="signIn" :icon="['fas', 'fa-pencil']" :is-label="false"></app-input>
-        </div>
+        <app-input v-model="signIn" :icon="['fas', 'fa-pencil']" :is-label="false"></app-input>
 
-        <!-- Действия -->
         <div class="actions">
           <div class="btn">
             <app-button severity="info" title="Add folder"></app-button>
@@ -127,10 +122,6 @@ export default defineComponent({
   width: 100%;
   max-width: 100%;
   object-fit: contain;
-}
-.info {
-  color: white;
-  text-align: center;
 }
 
 .badge-wrapper {

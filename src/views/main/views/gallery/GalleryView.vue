@@ -21,12 +21,6 @@
         >
           <template #default> Фото {{ index + 1 }} </template>
         </app-image-card>
-        <app-image-modal
-          v-if="currentIndex !== null"
-          :images="images"
-          :start-index="currentIndex"
-          @close="closeModal"
-        />
       </section>
     </div>
   </div>
@@ -34,7 +28,7 @@
 </template>
 <script lang="ts">
 import AppImageCard from '@/views/main/views/gallery/components/AppImageCard.vue';
-import AppImageModal from '@/shared/components/AppImageModal.vue';
+import AppImageModal from '@/views/main/views/gallery/components/AppImageModal.vue';
 import { defineComponent, onMounted, ref } from 'vue';
 import AppInput from '@/shared/components/AppInput.vue';
 import AppButton from '@/shared/components/AppButton.vue';
@@ -52,6 +46,7 @@ import {
 } from 'firebase/firestore';
 import { useStore } from 'vuex';
 import AppLoader from '@/shared/components/AppLoader.vue';
+import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 
 type Options = {
   coloristicType?: string;
@@ -60,7 +55,7 @@ type Options = {
   lastDoc?: any;
 };
 export default defineComponent({
-  components: { AppLoader, AppButton, AppInput, AppImageModal, AppImageCard },
+  components: { AppLoader, AppButton, AppInput, AppImageCard },
   setup() {
     const store = useStore();
     const images = ref<any[]>([]);
@@ -124,14 +119,14 @@ export default defineComponent({
       }
     });
 
-    function openModal(index: number) {
-      currentIndex.value = index;
-    }
-    function closeModal() {
-      currentIndex.value = null;
-    }
+    const openModal = async (index: number) => {
+      await openDialog(AppImageModal, {
+        images: images.value,
+        startIndex: index,
+      });
+    };
 
-    return { images, currentIndex, openModal, closeModal, isLoading };
+    return { images, currentIndex, openModal, isLoading };
   },
 });
 </script>
