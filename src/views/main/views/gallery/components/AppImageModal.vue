@@ -137,6 +137,8 @@ export default defineComponent({
     flex-direction: column; /* вертикально */
     justify-content: flex-start;
     border-radius: 0;
+    box-shadow: none;
+    border: none;
   }
 }
 .dark .neon {

@@ -108,6 +108,8 @@ export default defineComponent({
     width: 100vw;
     height: 100%;
     border-radius: 0;
+    box-shadow: none;
+    border: none;
   }
 }
 
