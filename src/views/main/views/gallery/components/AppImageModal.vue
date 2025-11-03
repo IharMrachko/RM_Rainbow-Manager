@@ -1,5 +1,7 @@
 <template>
   <div ref="modalRef" class="modal-content neon">
+    <app-modal-header @close="close"></app-modal-header>
+
     <!-- Фото -->
     <img :src="images[index].src" alt="" />
     <section class="info-section">
@@ -18,7 +20,7 @@
               :icon="['fas', 'fa-pencil']"
               @click="toggleTitle(images[index].title)"
             />
-            <span v-if="images[index].title"> {{ images[index].title }}</span>
+            <span> {{ images[index].title ? images[index].title : 'No name' }}</span>
           </div>
           <div v-if="isEditTitle" class="edit-title">
             <app-input v-model="sign" :icon="['fas', 'fa-pencil']" :is-label="false"></app-input>
@@ -37,9 +39,6 @@
       </div>
     </section>
 
-    <div class="close" @click="close">
-      <font-awesome-icon size="lg" :icon="['fas', 'fa-times']" />
-    </div>
     <div v-if="!isMobile" class="next" @click="next">
       <font-awesome-icon :icon="['fas', 'fa-arrow-right']" />
     </div>
@@ -55,9 +54,10 @@ import AppButton from '@/shared/components/AppButton.vue';
 import Hammer from 'hammerjs';
 import { useStore } from 'vuex';
 import AppInput from '@/shared/components/AppInput.vue';
+import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 
 export default defineComponent({
-  components: { AppInput, AppButton },
+  components: { AppModalHeader, AppInput, AppButton },
   props: {
     images: { type: Array, required: true },
     startIndex: { type: Number, required: true },
@@ -118,22 +118,25 @@ export default defineComponent({
 
 <style scoped>
 .modal-content {
+  background: var(--color-bg);
   position: relative;
   width: 90vw;
   height: 90vh;
-  background: var(--color-wrap-bg);
   display: flex;
   flex-direction: column; /* вертикально */
   align-items: center;
   justify-content: flex-start;
-  padding: 16px;
   border-radius: 20px;
 
   border: 1px solid #c5c5c5;
   box-shadow: 0 0 5px #c5c5c5, 0 0 5px #c5c5c5, 0 0 5px #c5c5c5, 0 0 25px #c5c5c5;
 
   @media (max-width: 600px) {
-    width: 98vw;
+    width: 100vw;
+    height: 100%;
+    flex-direction: column; /* вертикально */
+    justify-content: flex-start;
+    border-radius: 0;
   }
 }
 .dark .neon {
@@ -142,11 +145,13 @@ export default defineComponent({
   box-shadow: 0 0 5px #0ff, 0 0 5px #0ff, 0 0 5px #0ff, 0 0 25px #0ff;
 }
 .modal-content img {
-  max-height: 75%;
+  background: var(--color-wrap-bg);
+  max-height: 65%;
   width: 100%;
   max-width: 100%;
   object-fit: contain;
-  flex: 1.5;
+  flex: 6;
+  padding: 16px;
 
   @media (max-width: 600px) {
     max-height: 65%;
@@ -209,12 +214,6 @@ export default defineComponent({
   cursor: pointer;
 }
 
-.close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-}
 .prev {
   top: 50%;
   left: 10px;
@@ -227,10 +226,22 @@ export default defineComponent({
 }
 
 .info-section {
-  margin-top: 16px;
   display: flex;
   justify-content: center;
+  align-items: center;
   width: 100%;
+  flex-grow: 1;
+  background: var(--color-bg);
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* для Safari */
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(256, 256, 256, 0.2);
+
+  @media (max-width: 600px) {
+    border-radius: 0;
+  }
 }
 
 .info-section-wrapper {
@@ -242,13 +253,6 @@ export default defineComponent({
 
 /* 📱 Мобильная адаптация */
 @media (max-width: 600px) {
-  .modal-content {
-    width: 98vw;
-    padding: 12px;
-    flex-direction: column; /* вертикально */
-    justify-content: flex-start;
-  }
-
   .badge {
     font-size: 12px;
     padding: 2px 6px;

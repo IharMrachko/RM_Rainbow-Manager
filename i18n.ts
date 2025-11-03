@@ -27,6 +27,7 @@ const messages = {
     rememberChoose: 'Remember choose',
     successImage: 'Image uploaded',
     errorImage: 'Error image uploaded',
+    addFolder: 'Add folder',
   },
   ru: {
     login: 'Вход',
@@ -54,6 +55,7 @@ const messages = {
     rememberChoose: 'Запомнить',
     successImage: 'Изображение загружено',
     errorImage: 'Ошибка при загрузке изображения',
+    addFolder: 'Добавить папку',
   },
 };
 
