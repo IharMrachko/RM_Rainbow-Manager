@@ -83,7 +83,10 @@ import AppButton from '@/shared/components/AppButton.vue';
 import AppPopover from '@/shared/components/AppPopover.vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
-import { ColorCard, colorCards, } from '@/views/main/views/color-view/components/color-card.constanst';
+import {
+  ColorCard,
+  colorCards,
+} from '@/views/main/views/color-view/components/color-card.constanst';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
 import AppCheckbox from '@/shared/components/AppCheckbox.vue';
