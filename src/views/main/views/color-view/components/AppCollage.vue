@@ -397,7 +397,7 @@ export default defineComponent({
   @media (max-width: 600px) {
     padding: 10px 5px 5px 5px;
     overflow: auto;
-    height: auto;
+    align-content: flex-start;
   }
 }
 
@@ -406,7 +406,6 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
 }
 
 .actions {
@@ -440,6 +439,7 @@ export default defineComponent({
     align-items: start;
     width: 100%;
     margin-bottom: 14px;
+    flex-grow: 1;
   }
 }
 </style>

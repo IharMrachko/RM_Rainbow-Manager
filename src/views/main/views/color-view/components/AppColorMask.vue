@@ -83,10 +83,7 @@ import AppButton from '@/shared/components/AppButton.vue';
 import AppPopover from '@/shared/components/AppPopover.vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
-import {
-  ColorCard,
-  colorCards,
-} from '@/views/main/views/color-view/components/color-card.constanst';
+import { ColorCard, colorCards, } from '@/views/main/views/color-view/components/color-card.constanst';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
 import AppCheckbox from '@/shared/components/AppCheckbox.vue';
@@ -247,9 +244,6 @@ export default defineComponent({
   background: var(--color-wrap-bg);
   height: calc(100dvh - var(--header-height) - var(--tabs-height-with-padding));
   gap: 20px;
-  @media (max-width: 600px) {
-    height: auto;
-  }
 
   & .selected {
     flex: 1;
@@ -293,6 +287,7 @@ export default defineComponent({
     align-items: center;
     width: 100%;
     gap: 0;
+    flex-grow: 1;
   }
 
   .color-container .color-wrapper {
