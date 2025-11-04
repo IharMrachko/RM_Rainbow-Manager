@@ -13,7 +13,7 @@
 
         <div class="actions">
           <div class="btn">
-            <app-button severity="info" title="addFolder"></app-button>
+            <app-button severity="info" title="addFolder" @click="openFolderModal"></app-button>
           </div>
           <div class="btn">
             <app-button
@@ -38,6 +38,8 @@ import { MaskType } from '@/types/mask.type';
 
 import { ColoristicType } from '@/types/coloristic.type';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
+import { openDialog } from '@/shared/components/dialog/services/dialog.service';
+import AppFolderModal from '@/shared/components/folder-modal/AppFolderModal.vue';
 
 export default defineComponent({
   components: { AppModalHeader, AppInput, AppButton },
@@ -80,11 +82,22 @@ export default defineComponent({
         isSaveToGallery.value = false;
       }
     };
+
+    const openFolderModal = async () => {
+      await openDialog(
+        AppFolderModal,
+        {},
+        {
+          transparent: true,
+        }
+      );
+    };
     return {
       close,
       signIn,
       saveToGallery,
       isSaveToGallery,
+      openFolderModal,
     };
   },
 });

@@ -293,10 +293,6 @@ export default defineComponent({
     flex-grow: 1;
   }
 
-  .color-wrapper .editor {
-    flex: 0;
-  }
-
   .color-container .color-wrapper {
     display: flex;
     flex-direction: column;
