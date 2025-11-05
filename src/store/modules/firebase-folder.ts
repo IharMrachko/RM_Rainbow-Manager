@@ -20,6 +20,7 @@ export interface Folder {
 
 export interface FolderState {
   items: Folder[];
+  filterItems: Folder[];
   isLoading: boolean;
 }
 
@@ -27,26 +28,40 @@ export const folder: Module<FolderState, any> = {
   namespaced: true,
   state: (): FolderState => ({
     items: [],
+    filterItems: [],
     isLoading: false,
   }),
   mutations: {
     SET_FOLDERS(state, folders: Folder[]) {
       state.items = folders;
+      state.filterItems = folders;
     },
     ADD_FOLDERS(state, folder: Folder) {
       state.items.push(folder);
+      state.filterItems.push(folder);
     },
     SET_LOADING(state, value: boolean) {
       state.isLoading = value;
     },
     REMOVE_FOLDER(state, folderId: string) {
       state.items = state.items.filter((f) => f.id !== folderId);
+      state.filterItems = state.items;
     },
     UPDATE_FOLDER(state, updated: Folder) {
       const idx = state.items.findIndex((f) => f.id === updated.id);
       if (idx !== -1) {
         state.items[idx] = { ...state.items[idx], ...updated };
+        state.filterItems[idx] = { ...state.items[idx], ...updated };
       }
+    },
+    FILTER_FOLDER(state, search: string) {
+      if (!search) {
+        state.filterItems = state.items;
+        return;
+      }
+      state.filterItems = state.items.filter((f) =>
+        f.name.toLowerCase().trim().includes(search.toLowerCase().trim())
+      );
     },
   },
   actions: {
@@ -157,10 +172,16 @@ export const folder: Module<FolderState, any> = {
         commit('SET_LOADING', false);
       }
     },
+    filterFolder(ctx, search: string) {
+      ctx.commit('FILTER_FOLDER', search);
+    },
   },
   getters: {
     getFolders(state: FolderState): Folder[] {
       return state.items;
+    },
+    getFilterFolders(state: FolderState): Folder[] {
+      return state.filterItems;
     },
     isLoading(state: FolderState): boolean {
       return state.isLoading;

@@ -6,6 +6,7 @@
       <div class="folder-section-create">
         <div class="search">
           <app-input
+            v-model="search"
             :placeholder="'Search'"
             :icon="['fas', 'search']"
             :is-label="false"
@@ -35,7 +36,7 @@
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref, watch } from 'vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import AppInput from '@/shared/components/AppInput.vue';
@@ -57,10 +58,11 @@ export default defineComponent({
   emits: ['resolve', 'reject', 'close'],
   setup(props, { emit }) {
     const store = useStore();
-    const folders = computed(() => store.getters['folder/getFolders']);
+    const folders = computed(() => store.getters['folder/getFilterFolders']);
     const selectedFolder = ref<null | Folder>(null);
     const currentUserId = computed(() => store.getters['authFirebase/getUserId']);
     const isLoading = computed(() => store.getters['folder/isLoading']);
+    const search = ref('');
     const selected = (item: Folder) => {
       selectedFolder.value = item;
     };
@@ -84,6 +86,10 @@ export default defineComponent({
     const choose = () => {
       emit('resolve', selectedFolder.value);
     };
+
+    watch(search, (value) => {
+      store.dispatch('folder/filterFolder', value);
+    });
     return {
       close,
       folders,
@@ -92,6 +98,7 @@ export default defineComponent({
       openCreateFolderModal,
       isLoading,
       choose,
+      search,
     };
   },
 });
