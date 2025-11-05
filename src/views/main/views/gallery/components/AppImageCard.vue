@@ -1,29 +1,3 @@
-<script>
-import { defineComponent, ref } from 'vue';
-
-export default defineComponent({
-  props: {
-    src: { type: String, required: true },
-    alt: { type: String, default: '' },
-    fit: { type: String, default: 'cover' }, // cover | contain
-    rounded: { type: Boolean, default: true },
-  },
-  setup() {
-    const error = ref(false);
-    const loaded = ref(false);
-
-    function onError() {
-      error.value = true;
-    }
-    function onLoad() {
-      loaded.value = true;
-    }
-
-    return { error, loaded, onError, onLoad };
-  },
-});
-</script>
-
 <template>
   <div
     class="image-card"
@@ -49,7 +23,31 @@ export default defineComponent({
     </div>
   </div>
 </template>
+<script>
+import { defineComponent, ref } from 'vue';
 
+export default defineComponent({
+  props: {
+    src: { type: String, required: true },
+    alt: { type: String, default: '' },
+    fit: { type: String, default: 'cover' }, // cover | contain
+    rounded: { type: Boolean, default: true },
+  },
+  setup() {
+    const error = ref(false);
+    const loaded = ref(false);
+
+    function onError() {
+      error.value = true;
+    }
+    function onLoad() {
+      loaded.value = true;
+    }
+
+    return { error, loaded, onError, onLoad };
+  },
+});
+</script>
 <style scoped>
 .image-card {
   position: relative;

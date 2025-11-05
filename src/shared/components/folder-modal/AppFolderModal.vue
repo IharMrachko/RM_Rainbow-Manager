@@ -1,8 +1,8 @@
 <template>
   <div ref="modalRef" class="modal-content">
     <app-modal-header @close="close"></app-modal-header>
-
     <section class="folder-section">
+      <app-loader v-if="isLoading"></app-loader>
       <div class="folder-section-create">
         <div class="search">
           <app-input
@@ -11,7 +11,11 @@
             :is-label="false"
           ></app-input>
         </div>
-        <app-button :icon="['fas', 'plus']" severity="info"></app-button>
+        <app-button
+          :icon="['fas', 'plus']"
+          severity="info"
+          @click="openCreateFolderModal"
+        ></app-button>
       </div>
       <div class="folder-section-folders">
         <app-folder-card
@@ -23,7 +27,7 @@
         ></app-folder-card>
       </div>
       <div class="folder-section-actions">
-        <div class="btn">
+        <div class="btn" @click="choose">
           <app-button :disabled="!selectedFolder" title="Choose" severity="warning"></app-button>
         </div>
       </div>
@@ -31,14 +35,20 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import AppInput from '@/shared/components/AppInput.vue';
 import AppFolderCard from '@/shared/components/folder-modal/components/AppFolderCard.vue';
+import { openDialog } from '@/shared/components/dialog/services/dialog.service';
+import AppFolderCreate from '@/shared/components/folder-modal/components/AppFolderCreate.vue';
+import { useStore } from 'vuex';
+import AppLoader from '@/shared/components/AppLoader.vue';
+import { Folder } from '@/store/modules/firebase-folder';
 
 export default defineComponent({
   components: {
+    AppLoader,
     AppFolderCard,
     AppInput,
     AppButton,
@@ -46,23 +56,42 @@ export default defineComponent({
   },
   emits: ['resolve', 'reject', 'close'],
   setup(props, { emit }) {
-    const folders = ref([
-      { id: Math.random(), title: 'Название папки' },
-      { id: Math.random(), title: 'Название папки w' },
-    ]);
-    const selectedFolder = ref<null | any>(null);
-
-    const selected = (item: any) => {
+    const store = useStore();
+    const folders = computed(() => store.getters['folder/getFolders']);
+    const selectedFolder = ref<null | Folder>(null);
+    const currentUserId = computed(() => store.getters['authFirebase/getUserId']);
+    const isLoading = computed(() => store.getters['folder/isLoading']);
+    const selected = (item: Folder) => {
       selectedFolder.value = item;
     };
     const close = () => {
       emit('close');
+    };
+
+    onMounted(() => {
+      store.dispatch('folder/getFolders', currentUserId.value);
+    });
+
+    const openCreateFolderModal = async () => {
+      await openDialog(AppFolderCreate, {}).then((name) => {
+        store.dispatch('folder/saveFolder', {
+          userId: currentUserId.value,
+          name,
+        });
+      });
+    };
+
+    const choose = () => {
+      emit('resolve', selectedFolder.value);
     };
     return {
       close,
       folders,
       selected,
       selectedFolder,
+      openCreateFolderModal,
+      isLoading,
+      choose,
     };
   },
 });
@@ -100,6 +129,13 @@ export default defineComponent({
       display: flex;
       justify-content: space-between;
       align-items: center;
+
+      @media (max-width: 600px) {
+        padding: 10px;
+        .search {
+          width: 250px;
+        }
+      }
     }
 
     & .folder-section-folders {
@@ -115,8 +151,10 @@ export default defineComponent({
       -ms-overflow-style: none; /* IE и Edge */
 
       @media (max-width: 600px) {
+        align-content: start;
         justify-content: space-between;
         grid-template-columns: repeat(auto-fit, minmax(150px, 150px));
+        gap: 12px;
       }
     }
 
@@ -136,7 +174,7 @@ export default defineComponent({
       @media (max-width: 600px) {
         flex: 0.6;
         border-radius: 0;
-        padding: 0 10px;
+        padding: 10px;
         justify-content: center;
       }
 

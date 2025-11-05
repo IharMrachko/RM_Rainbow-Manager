@@ -12,7 +12,7 @@ interface SaveOptions {
   title?: string;
   coloristicType?: ColoristicType;
   maskType?: MaskType;
-  folder?: string;
+  folderId?: string;
   userId: string;
 }
 
@@ -28,7 +28,7 @@ export const gallery: Module<any, any> = {
         coloristicType,
         maskType,
         userId,
-        folder = '',
+        folderId = '',
       }: SaveOptions
     ) {
       return new Promise<string>((resolve, reject) => {
@@ -48,7 +48,7 @@ export const gallery: Module<any, any> = {
               title,
               coloristicType,
               maskType,
-              folder,
+              folderId,
               createdAt: new Date(),
             });
 

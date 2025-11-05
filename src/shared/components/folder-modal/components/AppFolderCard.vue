@@ -6,7 +6,7 @@
     <div class="folder-card" :class="{ cardSelected: isSelected }" @click="selected">
       <img src="/rainbow-folder.png" alt="Rainbow Folder" />
       <div class="title">
-        <span>{{ folder.title }}</span>
+        <span>{{ folder.name }}</span>
       </div>
 
       <app-overlay-panel
@@ -20,11 +20,11 @@
         }"
       >
         <div class="overlay-folder">
-          <div class="overlay-folder-item">
+          <div class="overlay-folder-item" @click="openCreateFolderModal">
             <font-awesome-icon size="sm" :icon="['fas', 'fa-pencil']" />
             <span>Edit</span>
           </div>
-          <div class="overlay-folder-item">
+          <div class="overlay-folder-item" @click="deleteFolder">
             <font-awesome-icon size="sm" :icon="['fas', 'fa-trash']" />
             <span>Delete</span>
           </div>
@@ -34,8 +34,12 @@
   </section>
 </template>
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, PropType, ref } from 'vue';
 import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
+import { Folder } from '@/store/modules/firebase-folder';
+import { useStore } from 'vuex';
+import { openDialog } from '@/shared/components/dialog/services/dialog.service';
+import AppFolderCreate from '@/shared/components/folder-modal/components/AppFolderCreate.vue';
 
 export default defineComponent({
   components: { AppOverlayPanel },
@@ -45,12 +49,13 @@ export default defineComponent({
       default: false,
     },
     folder: {
-      type: Object,
+      type: Object as PropType<Folder>,
       required: true,
     },
   },
   emits: ['selected'],
   setup(props, { emit }) {
+    const store = useStore();
     const targetRef = ref<HTMLElement | null>(null);
     const visible = ref(false);
     const selected = () => {
@@ -60,11 +65,29 @@ export default defineComponent({
     const toggleCardOverlayPanel = () => {
       visible.value = !visible.value;
     };
+
+    const deleteFolder = () => {
+      store.dispatch('folder/deleteFolder', props.folder.id);
+    };
+
+    const openCreateFolderModal = async () => {
+      toggleCardOverlayPanel();
+      await openDialog(AppFolderCreate, {
+        name: props.folder.name,
+      }).then((name) => {
+        store.dispatch('folder/updateFolder', {
+          id: props.folder.id,
+          name,
+        });
+      });
+    };
     return {
       targetRef,
       toggleCardOverlayPanel,
       visible,
       selected,
+      deleteFolder,
+      openCreateFolderModal,
     };
   },
 });

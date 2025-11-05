@@ -5,6 +5,7 @@
     <section class="info-section">
       <div class="info-section-wrapper">
         <div class="badge-wrapper">
+          <span v-if="folder" class="badge">{{ folder?.name }}</span>
           <span v-if="coloristicType" class="badge">{{ coloristicType }}</span>
           <span v-if="maskType" class="badge">{{ maskType }}</span>
         </div>
@@ -40,6 +41,7 @@ import { ColoristicType } from '@/types/coloristic.type';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppFolderModal from '@/shared/components/folder-modal/AppFolderModal.vue';
+import { Folder } from '@/store/modules/firebase-folder';
 
 export default defineComponent({
   components: { AppModalHeader, AppInput, AppButton },
@@ -55,18 +57,26 @@ export default defineComponent({
     },
     canvas: HTMLCanvasElement,
     currentUserId: string,
+    imageUrl: string,
   },
   emits: ['resolve', 'reject', 'close'],
   setup(props, { emit }) {
     const store = useStore();
     const signIn = ref('');
     const isSaveToGallery = ref(false);
+    const folder = ref<Folder | null>(null);
     const close = () => {
       emit('close');
     };
 
     const saveToGallery = async () => {
-      if (!props.canvas) return;
+      if (!props.imageUrl) {
+        await store.dispatch('toast/addToast', {
+          message: 'Upload image',
+          severity: 'warning',
+        });
+        return;
+      }
       isSaveToGallery.value = true;
 
       try {
@@ -76,6 +86,7 @@ export default defineComponent({
           coloristicType: props.coloristicType,
           maskType: props.maskType,
           userId: props.currentUserId,
+          folderId: folder.value?.id ? folder.value?.id : '',
         }); // возвращает URL
         emit('close');
       } finally {
@@ -90,7 +101,9 @@ export default defineComponent({
         {
           transparent: true,
         }
-      );
+      ).then((item: Folder) => {
+        folder.value = item;
+      });
     };
     return {
       close,
@@ -98,6 +111,7 @@ export default defineComponent({
       saveToGallery,
       isSaveToGallery,
       openFolderModal,
+      folder,
     };
   },
 });

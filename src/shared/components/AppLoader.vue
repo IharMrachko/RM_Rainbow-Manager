@@ -1,9 +1,20 @@
 <template>
-  <div class="loader-container">
+  <div class="loader-container" :class="{ transparent: transparent }">
     <div class="loader"></div>
   </div>
 </template>
-<script setup lang="ts"></script>
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+  props: {
+    transparent: {
+      type: Boolean,
+      default: false,
+    },
+  },
+});
+</script>
 <style scoped lang="scss">
 /* Лоадер */
 .loader-container {
@@ -27,6 +38,10 @@
   border-top-color: var(--active-doing);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
+}
+
+.transparent {
+  background: transparent;
 }
 
 @keyframes spin {
