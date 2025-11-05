@@ -9,6 +9,7 @@
         <!-- Информация -->
         <div class="info">
           <div class="badge-wrapper">
+            <span v-if="images[index].folder" class="badge">{{ images[index].folder.name }}</span>
             <span v-if="images[index].maskType" class="badge">{{ images[index].maskType }}</span>
             <span v-if="images[index].coloristicType" class="badge">{{
               images[index].coloristicType

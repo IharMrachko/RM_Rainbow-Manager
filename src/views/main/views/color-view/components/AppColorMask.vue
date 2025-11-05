@@ -145,7 +145,13 @@ export default defineComponent({
     };
 
     const saveToGallery = async () => {
-      if (!editorCanvasRef.value?.getCanvasValue()) return;
+      if (!imageUrl.value) {
+        await store.dispatch('toast/addToast', {
+          message: 'Upload image',
+          severity: 'warning',
+        });
+        return;
+      }
       isSaveToGallery.value = true;
       visiblePopover.value = false;
       if (isMobile.value) emit('isLoading', true);
@@ -187,6 +193,7 @@ export default defineComponent({
         maskType: selectedCard.value?.type,
         currentUserId: currentUser.value?.uid,
         canvas: editorCanvasRef.value?.getCanvasValue(),
+        imageUrl: imageUrl.value,
       });
     };
 

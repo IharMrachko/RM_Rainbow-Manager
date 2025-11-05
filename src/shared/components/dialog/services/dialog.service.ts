@@ -6,6 +6,11 @@ export interface DialogItem {
   props?: Record<string, any>;
   resolve: (value: any) => void;
   reject: (reason?: any) => void;
+  options?: DialogOptions;
+}
+
+export interface DialogOptions {
+  transparent: boolean;
 }
 let idCounter = 0;
 
@@ -13,10 +18,14 @@ export const dialogsStore = reactive<{ dialogs: DialogItem[] }>({
   dialogs: [],
 });
 
-export function openDialog<T = any>(component: Component, props = {}): Promise<T> {
+export function openDialog<T = any>(
+  component: Component,
+  props = {},
+  options?: DialogOptions
+): Promise<T> {
   return new Promise((resolve, reject) => {
     const id = ++idCounter;
-    dialogsStore.dialogs.push({ id, component, props, resolve, reject });
+    dialogsStore.dialogs.push({ id, component, props, resolve, reject, options });
   });
 }
 

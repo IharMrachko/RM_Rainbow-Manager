@@ -29,7 +29,7 @@
 <script lang="ts">
 import AppImageCard from '@/views/main/views/gallery/components/AppImageCard.vue';
 import AppImageModal from '@/views/main/views/gallery/components/AppImageModal.vue';
-import { defineComponent, onMounted, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 import AppInput from '@/shared/components/AppInput.vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import {
@@ -61,6 +61,7 @@ export default defineComponent({
     const images = ref<any[]>([]);
     const db = getFirestore();
     const currentIndex = ref<number | null>(null);
+    const currentUserId = computed(() => store.getters['authFirebase/getUserId']);
     const isLoading = ref(false);
     async function getUserGalleryItems(userId: string, options: Options = {}) {
       const { coloristicType, title, pageSize = 20, lastDoc } = options;
@@ -105,6 +106,7 @@ export default defineComponent({
 
     onMounted(async () => {
       isLoading.value = true;
+      await store.dispatch('folder/getFolders', currentUserId.value);
       const userId = store.getters['authFirebase/getUserId'];
       if (userId) {
         const { items } = await getUserGalleryItems(userId);
@@ -114,6 +116,7 @@ export default defineComponent({
           title: item.title,
           coloristicType: item.coloristicType,
           maskType: item.maskType,
+          folder: store.getters['folder/getFolderById'](item.folderId),
         }));
         isLoading.value = false;
       }

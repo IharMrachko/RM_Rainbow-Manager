@@ -359,6 +359,7 @@ export default defineComponent({
         coloristicType: 'collage',
         currentUserId: currentUser.value?.uid,
         canvas: canvas.value,
+        imageUrl: imageUrl.value,
       });
     };
     return {

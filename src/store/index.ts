@@ -7,6 +7,7 @@ import { mobile } from '@/store/modules/mobile-view';
 import { burgerMenu } from '@/store/modules/burger-menu';
 import { imageColor } from '@/store/modules/image-color';
 import { gallery } from '@/store/modules/firebase-gallery';
+import { folder } from '@/store/modules/firebase-folder';
 
 export default createStore({
   state: {},
@@ -22,6 +23,7 @@ export default createStore({
     burgerMenu,
     imageColor,
     gallery,
+    folder,
   },
   plugins: [createLogger()],
 });

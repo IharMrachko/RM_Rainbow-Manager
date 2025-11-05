@@ -4,6 +4,7 @@
       v-for="dlg in dialogsSt.dialogs"
       :key="dlg.id"
       class="dialog-backdrop"
+      :class="{ 'dialog-backdrop-transparent': dlg.options?.transparent }"
       @click.self="close(dlg.id)"
     >
       <component
@@ -34,6 +35,7 @@ import { closeDialog, dialogsStore } from '@/shared/components/dialog/services/d
 export default defineComponent({
   setup() {
     const dialogsSt = dialogsStore;
+
     const close = closeDialog;
     return {
       dialogsSt,
@@ -52,5 +54,9 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   z-index: 200;
+}
+
+.dialog-backdrop-transparent {
+  background: transparent;
 }
 </style>
