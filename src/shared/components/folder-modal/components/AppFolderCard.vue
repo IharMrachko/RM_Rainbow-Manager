@@ -4,7 +4,7 @@
       <font-awesome-icon size="sm" :icon="['fas', 'ellipsis-v']" />
     </div>
     <div class="folder-card" :class="{ cardSelected: isSelected }" @click="selected">
-      <img src="/rainbow-folder.png" alt="Rainbow Folder" />
+      <img :src="require('@/assets/rainbow-folder.png')" alt="Rainbow Folder" />
       <div class="title">
         <span>{{ folder.name }}</span>
       </div>
