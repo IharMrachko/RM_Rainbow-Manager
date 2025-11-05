@@ -1,9 +1,5 @@
 <template>
-  <div
-    class="image-card"
-    :style="{ width: width + 'px', height: height + 'px' }"
-    :class="{ rounded }"
-  >
+  <div class="image-card" :class="{ rounded }">
     <img
       v-if="!error"
       :src="src"

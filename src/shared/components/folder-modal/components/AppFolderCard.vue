@@ -4,7 +4,12 @@
       <font-awesome-icon size="sm" :icon="['fas', 'ellipsis-v']" />
     </div>
     <div class="folder-card" :class="{ cardSelected: isSelected }" @click="selected">
-      <img :src="require('@/assets/rainbow-folder.png')" alt="Rainbow Folder" />
+      <img
+        loading="lazy"
+        :class="{ 'fade-in': loaded }"
+        :src="require('@/assets/rainbow-folder.png')"
+        alt="Rainbow Folder"
+      />
       <div class="title">
         <span>{{ folder.name }}</span>
       </div>
@@ -112,6 +117,9 @@ export default defineComponent({
 
   & img {
     object-fit: contain;
+    & .fade-in {
+      opacity: 1;
+    }
   }
 
   & .title {
