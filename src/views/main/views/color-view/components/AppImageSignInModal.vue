@@ -5,9 +5,9 @@
     <section class="info-section">
       <div class="info-section-wrapper">
         <div class="badge-wrapper">
-          <span v-if="folder" class="badge">{{ folder?.name }}</span>
-          <span v-if="coloristicType" class="badge">{{ coloristicType }}</span>
-          <span v-if="maskType" class="badge">{{ maskType }}</span>
+          <span v-if="folder" class="badge darkBadge">{{ folder?.name }}</span>
+          <span v-if="coloristicType" class="badge darkBadge">{{ coloristicType }}</span>
+          <span v-if="maskType" class="badge darkBadge">{{ maskType }}</span>
         </div>
 
         <app-input v-model="signIn" :icon="['fas', 'fa-pencil']" :is-label="false"></app-input>
@@ -148,6 +148,10 @@ export default defineComponent({
     box-shadow: none;
     border: none;
   }
+}
+
+.dark .darkBadge {
+  border: 1px solid #fff;
 }
 .modal-content img {
   background: var(--color-wrap-bg);

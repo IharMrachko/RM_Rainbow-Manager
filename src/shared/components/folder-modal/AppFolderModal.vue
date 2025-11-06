@@ -7,7 +7,7 @@
         <div class="search">
           <app-input
             v-model="search"
-            :placeholder="'Search'"
+            placeholder="search"
             :icon="['fas', 'search']"
             :is-label="false"
           ></app-input>
@@ -29,7 +29,7 @@
       </div>
       <div class="folder-section-actions">
         <div class="btn" @click="choose">
-          <app-button :disabled="!selectedFolder" title="Choose" severity="warning"></app-button>
+          <app-button :disabled="!selectedFolder" title="choose" severity="warning"></app-button>
         </div>
       </div>
     </section>

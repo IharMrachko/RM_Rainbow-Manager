@@ -6,9 +6,10 @@
     <div class="folder-card" :class="{ cardSelected: isSelected }" @click="selected">
       <img
         loading="lazy"
-        :class="{ 'fade-in': loaded }"
+        :class="{ 'fade-in': onLoad }"
         :src="require('@/assets/rainbow-folder.png')"
         alt="Rainbow Folder"
+        @load="onLoad"
       />
       <div class="title">
         <span>{{ folder.name }}</span>
@@ -27,11 +28,11 @@
         <div class="overlay-folder">
           <div class="overlay-folder-item" @click="openCreateFolderModal">
             <font-awesome-icon size="sm" :icon="['fas', 'fa-pencil']" />
-            <span>Edit</span>
+            <span>{{ t('edit') }}</span>
           </div>
           <div class="overlay-folder-item" @click="deleteFolder">
             <font-awesome-icon size="sm" :icon="['fas', 'fa-trash']" />
-            <span>Delete</span>
+            <span>{{ t('delete') }}</span>
           </div>
         </div>
       </app-overlay-panel>
@@ -45,6 +46,8 @@ import { Folder } from '@/store/modules/firebase-folder';
 import { useStore } from 'vuex';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppFolderCreate from '@/shared/components/folder-modal/components/AppFolderCreate.vue';
+import AppConfirmModal from '@/shared/components/AppConfirmModal.vue';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
   components: { AppOverlayPanel },
@@ -60,9 +63,16 @@ export default defineComponent({
   },
   emits: ['selected'],
   setup(props, { emit }) {
+    const { t } = useI18n();
     const store = useStore();
     const targetRef = ref<HTMLElement | null>(null);
     const visible = ref(false);
+    const loaded = ref(false);
+
+    const onLoad = () => {
+      loaded.value = true;
+    };
+
     const selected = () => {
       emit('selected', props.folder);
     };
@@ -71,8 +81,16 @@ export default defineComponent({
       visible.value = !visible.value;
     };
 
-    const deleteFolder = () => {
-      store.dispatch('folder/deleteFolder', props.folder.id);
+    const deleteFolder = async () => {
+      toggleCardOverlayPanel();
+      await openDialog(AppConfirmModal, {
+        text: t('dywDelete'),
+        title: t('delete'),
+      }).then((isDeleted) => {
+        if (isDeleted) {
+          store.dispatch('folder/deleteFolder', props.folder.id);
+        }
+      });
     };
 
     const openCreateFolderModal = async () => {
@@ -93,6 +111,8 @@ export default defineComponent({
       selected,
       deleteFolder,
       openCreateFolderModal,
+      onLoad,
+      t,
     };
   },
 });
@@ -117,9 +137,8 @@ export default defineComponent({
 
   & img {
     object-fit: contain;
-    & .fade-in {
-      opacity: 1;
-    }
+    opacity: 0;
+    transition: opacity 0.3s ease-in;
   }
 
   & .title {
@@ -155,5 +174,9 @@ export default defineComponent({
 .folder-card.cardSelected {
   outline: 4px solid #4caf50; /* зелёная рамка */
   box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+}
+
+img.fade-in {
+  opacity: 1;
 }
 </style>

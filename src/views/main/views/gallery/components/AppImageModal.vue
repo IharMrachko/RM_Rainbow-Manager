@@ -9,9 +9,13 @@
         <!-- Информация -->
         <div class="info">
           <div class="badge-wrapper">
-            <span v-if="images[index].folder" class="badge">{{ images[index].folder.name }}</span>
-            <span v-if="images[index].maskType" class="badge">{{ images[index].maskType }}</span>
-            <span v-if="images[index].coloristicType" class="badge">{{
+            <span v-if="images[index].folder" class="badge darkBadge">{{
+              images[index].folder.name
+            }}</span>
+            <span v-if="images[index].maskType" class="badge darkBadge">{{
+              images[index].maskType
+            }}</span>
+            <span v-if="images[index].coloristicType" class="badge darkBadge">{{
               images[index].coloristicType
             }}</span>
           </div>
@@ -195,6 +199,10 @@ export default defineComponent({
   font-size: 12px;
   background: #444;
   color: #fff;
+}
+
+.dark .darkBadge {
+  border: 1px solid #fff;
 }
 .actions {
   margin-top: 12px;

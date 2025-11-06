@@ -1,57 +1,51 @@
 <template>
   <div ref="modalRef" class="modal-content neon">
     <header class="header">
-      <span>{{ t('newFolder') }}</span>
+      <span>{{ title }}</span>
     </header>
-    <div class="input">
-      <app-input
-        v-model="folderName"
-        :is-focused="true"
-        :is-label="false"
-        placeholder="nameFolder"
-      ></app-input>
+    <div class="text">
+      <span>{{ text }}</span>
     </div>
 
     <div class="actions">
       <div class="btn" @click="close">
         <app-button title="cancel" severity="error"></app-button>
       </div>
-      <div class="btn" @click="setName">
-        <app-button :disabled="!folderName" title="ok" severity="info"></app-button>
+      <div class="btn" @click="ok">
+        <app-button title="ok" severity="info"></app-button>
       </div>
     </div>
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import AppInput from '@/shared/components/AppInput.vue';
+import { defineComponent } from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
-import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
-  components: { AppButton, AppInput },
+  components: { AppButton },
   props: {
-    name: {
+    text: {
+      type: String,
+      default: '',
+    },
+    title: {
       type: String,
       default: '',
     },
   },
   emits: ['resolve', 'reject', 'close'],
   setup(props, { emit }) {
-    const { t } = useI18n();
-    const folderName = ref(props.name);
     const close = () => {
       emit('close');
     };
 
-    const setName = () => {
-      emit('resolve', folderName.value);
+    const ok = () => {
+      emit('resolve', true);
     };
+
     return {
-      folderName,
       close,
-      setName,
-      t,
+      ok,
     };
   },
 });
@@ -81,11 +75,12 @@ export default defineComponent({
     flex: 1;
   }
 
-  & .input {
+  & .text {
     flex: 3;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
   }
 
   & .actions {
@@ -100,6 +95,7 @@ export default defineComponent({
     }
   }
 }
+
 .dark .neon {
   /* 🎇 Неоновая подсветка */
   border: 1px solid #0ff;
