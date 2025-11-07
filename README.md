@@ -27,3 +27,13 @@ npm run test:unit
 ### Customize configuration
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+## Demo & Test Login
+
+Для входа используйте тестовый аккаунт:
+
+- **Email:** `test@gmail.com`
+- **Password:** `123456`
+
+Посмотреть проект можно по ссылке:  
+[RM_RAINBOW_MANAGER Demo](https://iharmrachko.github.io/RM_Rainbow-Manager)
