@@ -24,6 +24,7 @@ type GalleryOptions = {
   pageSize?: number;
   lastDoc?: unknown;
   maskType?: MaskType | null;
+  folderId?: string;
 };
 interface SaveOptions {
   userId: string;
@@ -150,7 +151,7 @@ export const gallery: Module<GalleryState, any> = {
         if (reset) {
           commit('RESET_IMAGES');
         }
-        const { maskType, coloristicType, title, pageSize = 20, lastDoc } = options;
+        const { maskType, coloristicType, title, pageSize = 20, lastDoc, folderId } = options;
         const itemsRef = collection(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items');
 
         const constraints: any[] = [where('userId', '==', userId)];
@@ -163,6 +164,11 @@ export const gallery: Module<GalleryState, any> = {
         if (maskType) {
           constraints.push(where('maskType', '==', maskType));
           constraintsForCount.push(where('maskType', '==', maskType));
+        }
+
+        if (folderId) {
+          constraints.push(where('folderId', '==', folderId));
+          constraintsForCount.push(where('folderId', '==', folderId));
         }
 
         if (title) {

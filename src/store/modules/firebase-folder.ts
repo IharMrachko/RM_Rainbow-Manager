@@ -38,7 +38,6 @@ export const folder: Module<FolderState, any> = {
     },
     ADD_FOLDERS(state, folder: Folder) {
       state.items.push(folder);
-      state.filterItems.push(folder);
     },
     SET_LOADING(state, value: boolean) {
       state.isLoading = value;
