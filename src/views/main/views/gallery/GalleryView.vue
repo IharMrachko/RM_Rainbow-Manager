@@ -5,6 +5,7 @@
       <section class="gallery-helper">
         <div class="search">
           <app-input
+            v-model="search"
             :placeholder="'Search'"
             :icon="['fas', 'search']"
             :is-label="false"
@@ -12,7 +13,7 @@
         </div>
         <div><app-button severity="secondary" raised :icon="['fas', 'filter']"></app-button></div>
       </section>
-      <section class="images">
+      <section ref="imagesContainer" class="images" @scroll="onScroll">
         <app-image-card
           v-for="(img, index) in images"
           :key="img.id || index"
@@ -22,104 +23,42 @@
           <template #default> Фото {{ index + 1 }} </template>
         </app-image-card>
       </section>
+      <footer class="footer">Всего: {{ totalImages }} Загружено: {{ images.length }}</footer>
     </div>
   </div>
-  <footer class="footer">Загружено: 100</footer>
 </template>
 <script lang="ts">
 import AppImageCard from '@/views/main/views/gallery/components/AppImageCard.vue';
 import AppImageModal from '@/views/main/views/gallery/components/AppImageModal.vue';
-import { computed, defineComponent, onMounted, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref, watch } from 'vue';
 import AppInput from '@/shared/components/AppInput.vue';
 import AppButton from '@/shared/components/AppButton.vue';
-import {
-  collection,
-  endAt,
-  getDocs,
-  getFirestore,
-  limit,
-  orderBy,
-  query,
-  startAfter,
-  startAt,
-  where,
-} from 'firebase/firestore';
 import { useStore } from 'vuex';
 import AppLoader from '@/shared/components/AppLoader.vue';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 
-type Options = {
-  coloristicType?: string;
-  title?: string;
-  pageSize?: number;
-  lastDoc?: any;
-};
 export default defineComponent({
   components: { AppLoader, AppButton, AppInput, AppImageCard },
   setup() {
     const store = useStore();
-    const images = ref<any[]>([]);
-    const db = getFirestore();
+    const search = ref('');
+    const imagesContainer = ref<HTMLElement | null>(null);
+    const images = computed(() => store.getters['gallery/getImages']);
     const currentIndex = ref<number | null>(null);
     const currentUserId = computed(() => store.getters['authFirebase/getUserId']);
-    const isLoading = ref(false);
-    async function getUserGalleryItems(userId: string, options: Options = {}) {
-      const { coloristicType, title, pageSize = 20, lastDoc } = options;
-
-      const itemsRef = collection(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items');
-
-      const constraints: any[] = [where('userId', '==', userId)];
-
-      if (coloristicType) {
-        constraints.push(where('coloristicType', '==', coloristicType));
-      }
-
-      if (title) {
-        // префиксный поиск по title
-        constraints.push(orderBy('title'));
-        constraints.push(startAt(title));
-        constraints.push(endAt(title + '\uf8ff'));
-      } else {
-        // сортировка по дате создания
-        constraints.push(orderBy('createdAt', 'desc'));
-      }
-
-      if (lastDoc) {
-        constraints.push(startAfter(lastDoc));
-      }
-
-      constraints.push(limit(pageSize));
-
-      const q = query(itemsRef, ...constraints);
-      const snapshot = await getDocs(q);
-
-      const items = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      return {
-        items,
-        lastDoc: snapshot.docs.length > 0 ? snapshot.docs[snapshot.docs.length - 1] : null,
-      };
-    }
-
+    const totalImages = computed(() => store.getters['gallery/getTotalImages']);
+    const lastDoc = computed(() => store.getters['gallery/getLastDoc']);
+    const isLoading = computed(() => store.getters['gallery/isLoading']);
+    let timeout: ReturnType<typeof setTimeout> | null = null;
     onMounted(async () => {
-      isLoading.value = true;
       await store.dispatch('folder/getFolders', currentUserId.value);
-      const userId = store.getters['authFirebase/getUserId'];
-      if (userId) {
-        const { items } = await getUserGalleryItems(userId);
-        images.value = items.map((item: any) => ({
-          id: item.id,
-          src: item.url,
-          title: item.title,
-          coloristicType: item.coloristicType,
-          maskType: item.maskType,
-          folder: store.getters['folder/getFolderById'](item.folderId),
-        }));
-        isLoading.value = false;
-      }
+      await store.dispatch('gallery/getUserGalleryItems', {
+        userId: currentUserId.value,
+        options: {
+          title: search.value,
+        },
+        reset: true,
+      });
     });
 
     const openModal = async (index: number) => {
@@ -129,7 +68,46 @@ export default defineComponent({
       });
     };
 
-    return { images, currentIndex, openModal, isLoading };
+    const onScroll = async (e: Event) => {
+      const target = e.target as HTMLElement;
+      const scrollBottom = Math.ceil(target.scrollTop + target.clientHeight);
+      const isEndReached = scrollBottom >= target.scrollHeight;
+      if (isEndReached) {
+        if (totalImages.value > images.value.length && !isLoading.value) {
+          await store.dispatch('gallery/getUserGalleryItems', {
+            userId: currentUserId.value,
+            options: {
+              title: search.value,
+              lastDoc: lastDoc.value,
+            },
+          });
+        }
+      }
+    };
+
+    watch(search, (newVal) => {
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        store.dispatch('gallery/getUserGalleryItems', {
+          userId: currentUserId.value,
+          options: {
+            title: newVal,
+          },
+          reset: true,
+        });
+      }, 300);
+    });
+
+    return {
+      images,
+      currentIndex,
+      openModal,
+      isLoading,
+      totalImages,
+      imagesContainer,
+      onScroll,
+      search,
+    };
   },
 });
 </script>
@@ -159,10 +137,9 @@ export default defineComponent({
   height: calc(100dvh - var(--header-height));
   width: 100%;
   display: flex;
-  padding: 10px 20px 5px 20px;
+  background: var(--color-wrap-bg);
 
   .gallery-wrapper {
-    background: var(--color-wrap-bg);
     width: 100%;
 
     & .images {
@@ -196,16 +173,16 @@ export default defineComponent({
 }
 
 .footer {
-  height: 40px;
-  position: fixed; /* или fixed, если нужно закрепить */
-  bottom: 0;
-  z-index: 100;
+  height: 55px;
   padding: 9px 20px 5px 15px;
   width: 100%;
+  display: flex;
+  align-items: center;
 
   /* матовое стекло */
   background: rgba(255, 255, 255, 0.2); /* полупрозрачный белый */
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px); /* для Safari */
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
 }
 </style>

@@ -1,23 +1,88 @@
 // store/modules/gallery.ts
 import { db, storage } from '@/firebase';
 import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
-import { addDoc, collection } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  getCountFromServer,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+  where,
+} from 'firebase/firestore';
 import { Module } from 'vuex';
 import { ColoristicType } from '@/types/coloristic.type';
 import { MaskType } from '@/types/mask.type';
+import { tokenizeTitle } from '@/helpers/tokenize-title.helper';
+import { Folder } from '@/store/modules/firebase-folder';
 
+type GalleryOptions = {
+  coloristicType?: ColoristicType | null;
+  title?: string;
+  pageSize?: number;
+  lastDoc?: unknown;
+  maskType?: MaskType | null;
+};
 interface SaveOptions {
+  userId: string;
   canvas: HTMLCanvasElement;
   path?: string;
   title?: string;
   coloristicType?: ColoristicType;
   maskType?: MaskType;
   folderId?: string;
-  userId: string;
+  deprecated?: boolean;
 }
 
-export const gallery: Module<any, any> = {
+export interface Image {
+  id: string;
+  src: string;
+  title: string;
+  coloristicType: ColoristicType;
+  maskType: MaskType;
+  folder: Folder;
+}
+
+interface GalleryState {
+  images: Image[];
+  isLoading: boolean;
+  lastDoc: unknown | null;
+  totalImages: number;
+}
+
+export const gallery: Module<GalleryState, any> = {
   namespaced: true,
+  state: (): GalleryState => ({
+    images: [],
+    isLoading: false,
+    lastDoc: null,
+    totalImages: 0,
+  }),
+  mutations: {
+    SET_IMAGES(
+      state: GalleryState,
+      payload: {
+        items: any[];
+        lastDoc: unknown;
+        totalImages: number;
+      }
+    ) {
+      state.images = [...state.images, ...payload.items];
+      state.lastDoc = payload.lastDoc;
+      state.totalImages = payload.totalImages;
+    },
+    RESET_IMAGES(state: GalleryState) {
+      state.images = [];
+      state.lastDoc = null;
+      state.totalImages = 0;
+    },
+    SET_LOADING(state, value: boolean) {
+      state.isLoading = value;
+    },
+  },
+
   actions: {
     async saveImageToGallery(
       { dispatch },
@@ -29,6 +94,7 @@ export const gallery: Module<any, any> = {
         maskType,
         userId,
         folderId = '',
+        deprecated = false,
       }: SaveOptions
     ) {
       return new Promise<string>((resolve, reject) => {
@@ -50,6 +116,8 @@ export const gallery: Module<any, any> = {
               maskType,
               folderId,
               createdAt: new Date(),
+              deprecated,
+              tokens: tokenizeTitle(title),
             });
 
             await dispatch(
@@ -68,6 +136,91 @@ export const gallery: Module<any, any> = {
           }
         }, 'image/png');
       });
+    },
+    async getUserGalleryItems(
+      { dispatch, commit, rootGetters },
+      {
+        userId,
+        options = {},
+        reset = false,
+      }: { userId: string; options?: GalleryOptions; reset: boolean }
+    ) {
+      commit('SET_LOADING', true);
+      try {
+        if (reset) {
+          commit('RESET_IMAGES');
+        }
+        const { maskType, coloristicType, title, pageSize = 20, lastDoc } = options;
+        const itemsRef = collection(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items');
+
+        const constraints: any[] = [where('userId', '==', userId)];
+        const constraintsForCount: any[] = [where('userId', '==', userId)];
+        if (coloristicType) {
+          constraints.push(where('coloristicType', '==', coloristicType));
+          constraintsForCount.push(where('coloristicType', '==', coloristicType));
+        }
+
+        if (maskType) {
+          constraints.push(where('maskType', '==', maskType));
+          constraintsForCount.push(where('maskType', '==', maskType));
+        }
+
+        if (title) {
+          // префиксный поиск по title
+          constraints.push(where('tokens', 'array-contains', title.toLowerCase()));
+          constraintsForCount.push(where('tokens', 'array-contains', title.toLowerCase()));
+        }
+        constraints.push(orderBy('createdAt', 'desc'));
+        if (lastDoc) {
+          constraints.push(startAfter(lastDoc));
+        }
+
+        constraints.push(limit(pageSize));
+
+        const q = query(itemsRef, ...constraints);
+        const q2 = query(itemsRef, ...constraintsForCount);
+
+        const totalImages = await getCountFromServer(q2);
+        const snapshot = await getDocs(q);
+        const items = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            src: data.url,
+            title: data.title,
+            coloristicType: data.coloristicType,
+            maskType: data.maskType,
+            folder: rootGetters['folder/getFolderById'](data.folderId), // здесь доступен rootGetters
+          };
+        });
+        commit('SET_IMAGES', {
+          items,
+          lastDoc: snapshot.docs.length > 0 ? snapshot.docs[snapshot.docs.length - 1] : null,
+          totalImages: totalImages.data().count,
+        });
+      } catch (e) {
+        await dispatch(
+          'toast/addToast',
+          { message: 'Ошибка загрузки', severity: 'error' },
+          { root: true }
+        );
+      } finally {
+        commit('SET_LOADING', false);
+      }
+    },
+  },
+  getters: {
+    getImages(state: GalleryState): Image[] {
+      return state.images;
+    },
+    getTotalImages(state: GalleryState): number {
+      return state.totalImages;
+    },
+    getLastDoc(state: GalleryState): unknown | null {
+      return state.lastDoc;
+    },
+    isLoading(state: GalleryState): boolean {
+      return state.isLoading;
     },
   },
 };
