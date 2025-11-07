@@ -21,6 +21,7 @@ import {
   faInfoCircle,
   faLock,
   faLongArrowAltRight,
+  faMask,
   faMinus,
   faPencil,
   faPencilSquare,
@@ -66,7 +67,8 @@ library.add(
   faPencil,
   faTimes,
   faTimesCircle,
-  faTrash
+  faTrash,
+  faMask
 );
 
 onAuthStateChanged(auth, (user) => {

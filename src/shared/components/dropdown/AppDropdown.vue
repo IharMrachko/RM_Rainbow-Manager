@@ -3,20 +3,32 @@
     <div ref="targetRef" class="dropdown-container" @click="toggle">
       <app-input
         v-model="valueRef"
-        height="32px"
-        :is-label="false"
+        :height="height"
+        :is-label="isTitle"
         :readonly="true"
         :disabled="disabled"
+        :label="title"
       ></app-input>
-      <button :disabled="disabled" type="button" class="toggle-btn">▼</button>
+      <button :disabled="disabled" type="button" class="toggle-btn" :class="{ withTitle: isTitle }">
+        ▼
+      </button>
       <app-overlay-panel v-if="targetRef" v-model:visible="visible" :target="targetRef">
+        <div v-if="isSearch" class="search">
+          <app-input
+            v-model="searchValue"
+            placeholder="search"
+            :icon="['fas', 'search']"
+            :is-label="false"
+          ></app-input>
+        </div>
+
         <slot></slot>
       </app-overlay-panel>
     </div>
   </section>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onMounted, PropType, provide, ref } from 'vue';
+import { computed, defineComponent, onMounted, PropType, provide, ref, watch } from 'vue';
 import AppInput from '@/shared/components/AppInput.vue';
 import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
 
@@ -35,13 +47,30 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    height: {
+      type: String,
+      default: '32px',
+    },
+    isSearch: {
+      type: Boolean,
+      default: false,
+    },
+    isTitle: {
+      type: Boolean,
+      default: false,
+    },
+    title: {
+      type: String,
+      default: '',
+    },
   },
-  emits: ['update:modelValue'],
+  emits: ['update:modelValue', 'search'],
   setup(props, { emit }) {
     const modelValueRef = computed(() => props.modelValue);
     const valueRef = ref<any>(null);
     const targetRef = ref<HTMLElement | null>(null);
     const visible = ref(false);
+    const searchValue = ref('');
     const toggle = () => {
       visible.value = !visible.value;
     };
@@ -71,12 +100,29 @@ export default defineComponent({
 
     provide('select', select);
     provide('selected', modelValueRef);
+    watch(searchValue, (value) => {
+      emit('search', value);
+    });
 
+    watch(
+      () => props.modelValue,
+      (newVal) => {
+        if (typeof newVal === 'string') {
+          valueRef.value = newVal;
+        } else if (typeof newVal === 'object' && newVal !== null) {
+          valueRef.value = (newVal as Record<string, any>)[props.label] as string;
+        } else {
+          valueRef.value = null;
+        }
+      },
+      { immediate: true }
+    );
     return {
       targetRef,
       visible,
       toggle,
       valueRef,
+      searchValue,
     };
   },
 });
@@ -102,5 +148,13 @@ export default defineComponent({
   &:hover {
     color: #333;
   }
+}
+
+.withTitle {
+  top: 70%;
+}
+
+.search {
+  padding: 20px;
 }
 </style>

@@ -11,14 +11,16 @@
             :is-label="false"
           ></app-input>
         </div>
-        <div><app-button severity="secondary" raised :icon="['fas', 'filter']"></app-button></div>
+        <div @click="openFilterModal">
+          <app-button severity="secondary" raised :icon="['fas', 'filter']"></app-button>
+        </div>
       </section>
       <section ref="imagesContainer" class="images" @scroll="onScroll">
         <app-image-card
           v-for="(img, index) in images"
           :key="img.id || index"
           :src="img.src"
-          @click="openModal(index)"
+          @click="openCardModal(index)"
         >
           <template #default> Фото {{ index + 1 }} </template>
         </app-image-card>
@@ -36,6 +38,7 @@ import AppButton from '@/shared/components/AppButton.vue';
 import { useStore } from 'vuex';
 import AppLoader from '@/shared/components/AppLoader.vue';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
+import AppGalleryFilterModal from '@/views/main/views/gallery/components/AppGalleryFilterModal.vue';
 
 export default defineComponent({
   components: { AppLoader, AppButton, AppInput, AppImageCard },
@@ -49,6 +52,7 @@ export default defineComponent({
     const totalImages = computed(() => store.getters['gallery/getTotalImages']);
     const lastDoc = computed(() => store.getters['gallery/getLastDoc']);
     const isLoading = computed(() => store.getters['gallery/isLoading']);
+    let filter = {};
     let timeout: ReturnType<typeof setTimeout> | null = null;
     onMounted(async () => {
       await store.dispatch('folder/getFolders', currentUserId.value);
@@ -61,10 +65,26 @@ export default defineComponent({
       });
     });
 
-    const openModal = async (index: number) => {
+    const openCardModal = async (index: number) => {
       await openDialog(AppImageModal, {
         images: images.value,
         startIndex: index,
+      });
+    };
+
+    const openFilterModal = async () => {
+      await openDialog(AppGalleryFilterModal, {}).then((value) => {
+        filter = value;
+        store.dispatch('gallery/getUserGalleryItems', {
+          userId: currentUserId.value,
+          options: {
+            title: search.value,
+            coloristicType: value.coloristicType,
+            maskType: value.maskType,
+            folderId: value.folderId,
+          },
+          reset: true,
+        });
       });
     };
 
@@ -92,6 +112,7 @@ export default defineComponent({
           userId: currentUserId.value,
           options: {
             title: newVal,
+            ...filter,
           },
           reset: true,
         });
@@ -101,12 +122,13 @@ export default defineComponent({
     return {
       images,
       currentIndex,
-      openModal,
+      openCardModal,
       isLoading,
       totalImages,
       imagesContainer,
       onScroll,
       search,
+      openFilterModal,
     };
   },
 });
