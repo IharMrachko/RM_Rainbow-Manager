@@ -6,13 +6,14 @@
         <div class="search">
           <app-input
             v-model="search"
-            :placeholder="'Search'"
+            placeholder="search"
             :icon="['fas', 'search']"
             :is-label="false"
           ></app-input>
         </div>
-        <div @click="openFilterModal">
+        <div class="filter-btn" @click="openFilterModal">
           <app-button severity="secondary" raised :icon="['fas', 'filter']"></app-button>
+          <div v-if="!isFilterEmpty" class="filter-fill"></div>
         </div>
       </section>
       <section ref="imagesContainer" class="images" @scroll="onScroll">
@@ -22,10 +23,10 @@
           :src="img.src"
           @click="openCardModal(index)"
         >
-          <template #default> Фото {{ index + 1 }} </template>
+          <template #default> {{ t('photo') }} {{ index + 1 }} </template>
         </app-image-card>
       </section>
-      <footer class="footer">Всего: {{ totalImages }} Загружено: {{ images.length }}</footer>
+      <footer class="footer">{{ t('total') }}: {{ totalImages }}</footer>
     </div>
   </div>
 </template>
@@ -39,10 +40,13 @@ import { useStore } from 'vuex';
 import AppLoader from '@/shared/components/AppLoader.vue';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppGalleryFilterModal from '@/views/main/views/gallery/components/AppGalleryFilterModal.vue';
+import { useI18n } from 'vue-i18n';
+import { filterObjectForEmpty, isObjectEmpty } from '@/helpers/object-empty.helper';
 
 export default defineComponent({
   components: { AppLoader, AppButton, AppInput, AppImageCard },
   setup() {
+    const { t } = useI18n();
     const store = useStore();
     const search = ref('');
     const imagesContainer = ref<HTMLElement | null>(null);
@@ -52,14 +56,21 @@ export default defineComponent({
     const totalImages = computed(() => store.getters['gallery/getTotalImages']);
     const lastDoc = computed(() => store.getters['gallery/getLastDoc']);
     const isLoading = computed(() => store.getters['gallery/isLoading']);
-    let filter = {};
+    const filter = computed(() => store.getters['gallery/getFilter']);
+    const isFilterEmpty = computed(() => {
+      const val = filter.value;
+      return !val || isObjectEmpty(filterObjectForEmpty(val));
+    });
     let timeout: ReturnType<typeof setTimeout> | null = null;
     onMounted(async () => {
       await store.dispatch('folder/getFolders', currentUserId.value);
-      await store.dispatch('gallery/getUserGalleryItems', {
+      await store.dispatch('gallery/initUserGalleryItems', {
         userId: currentUserId.value,
         options: {
           title: search.value,
+          coloristicType: filter.value?.coloristicType?.id,
+          maskType: filter.value?.maskType?.type,
+          folderId: filter.value?.folder?.id,
         },
         reset: true,
       });
@@ -73,18 +84,19 @@ export default defineComponent({
     };
 
     const openFilterModal = async () => {
-      await openDialog(AppGalleryFilterModal, {}).then((value) => {
-        filter = value;
-        store.dispatch('gallery/getUserGalleryItems', {
-          userId: currentUserId.value,
-          options: {
-            title: search.value,
-            coloristicType: value.coloristicType,
-            maskType: value.maskType,
-            folderId: value.folderId,
-          },
-          reset: true,
-        });
+      await openDialog(AppGalleryFilterModal, {}).then((isSetFilter) => {
+        if (isSetFilter) {
+          store.dispatch('gallery/initUserGalleryItems', {
+            userId: currentUserId.value,
+            options: {
+              title: search.value,
+              coloristicType: filter.value?.coloristicType?.id,
+              maskType: filter.value?.maskType?.type,
+              folderId: filter.value?.folder?.id,
+            },
+            reset: true,
+          });
+        }
       });
     };
 
@@ -94,10 +106,13 @@ export default defineComponent({
       const isEndReached = scrollBottom >= target.scrollHeight;
       if (isEndReached) {
         if (totalImages.value > images.value.length && !isLoading.value) {
-          await store.dispatch('gallery/getUserGalleryItems', {
+          await store.dispatch('gallery/initUserGalleryItems', {
             userId: currentUserId.value,
             options: {
               title: search.value,
+              coloristicType: filter.value?.coloristicType?.id,
+              maskType: filter.value?.maskType?.type,
+              folderId: filter.value?.folder?.id,
               lastDoc: lastDoc.value,
             },
           });
@@ -108,7 +123,7 @@ export default defineComponent({
     watch(search, (newVal) => {
       if (timeout) clearTimeout(timeout);
       timeout = setTimeout(() => {
-        store.dispatch('gallery/getUserGalleryItems', {
+        store.dispatch('gallery/initUserGalleryItems', {
           userId: currentUserId.value,
           options: {
             title: newVal,
@@ -129,6 +144,8 @@ export default defineComponent({
       onScroll,
       search,
       openFilterModal,
+      isFilterEmpty,
+      t,
     };
   },
 });
@@ -206,5 +223,17 @@ export default defineComponent({
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px); /* для Safari */
   border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+.filter-btn {
+  position: relative;
+  & .filter-fill {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: red;
+    top: 6px;
+    right: 10px;
+  }
 }
 </style>

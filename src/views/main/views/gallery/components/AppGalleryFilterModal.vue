@@ -7,7 +7,7 @@
           v-model="folder"
           :is-search="true"
           is-title
-          title="Folders"
+          title="folder"
           label="name"
           height="48px"
           @search="searchFolder"
@@ -33,7 +33,7 @@
         </app-dropdown>
       </div>
       <div class="filter-dropdown">
-        <app-dropdown v-model="maskType" height="48px" label="type" is-title title="Mask type">
+        <app-dropdown v-model="maskType" height="48px" label="type" is-title title="mask">
           <app-option v-for="card in cards" :key="card" :value="card">
             <div class="mask-type-wrapper">
               <div class="segments">
@@ -55,7 +55,7 @@
           height="48px"
           label="name"
           is-title
-          title="Color Type"
+          title="colorType"
         >
           <app-option v-for="c in coloristicTypes" :key="c" :value="c">
             <font-awesome-icon :icon="['fa', c.icon]" />
@@ -66,10 +66,10 @@
     </section>
     <footer class="footer">
       <div class="btn" @click="clearFilter">
-        <app-button severity="info" title="Очистить"></app-button>
+        <app-button severity="info" title="clear"></app-button>
       </div>
       <div class="btn" @click="applyFilter">
-        <app-button severity="warning" title="Применить"></app-button>
+        <app-button severity="warning" title="apply"></app-button>
       </div>
     </footer>
   </div>
@@ -92,16 +92,19 @@ export default defineComponent({
 
   emits: ['resolve', 'reject', 'close'],
   setup(props, { emit }) {
+    const store = useStore();
     const cards = ref<ColorCard[]>(colorCards);
-    const maskType = ref<ColorCard | null>(null);
-    const coloristicType = ref<{ id: string; name: string } | null>(null);
+    const maskType = ref<ColorCard | null>(store.getters['gallery/getFilter']?.maskType);
+    const coloristicType = ref<{ id: string; name: string } | null>(
+      store.getters['gallery/getFilter']?.coloristicType
+    );
     const coloristicTypes = ref([
       { id: 'mask', name: 'mask', icon: 'mask' },
       { id: 'collage', name: 'collage', icon: 'images' },
     ]);
-    const store = useStore();
+
     const folders = computed(() => store.getters['folder/getFilterFolders']);
-    const folder = ref<Folder | null>(null);
+    const folder = ref<Folder | null>(store.getters['gallery/getFilter']?.folder);
     const close = () => {
       emit('close');
     };
@@ -111,17 +114,19 @@ export default defineComponent({
     };
 
     const applyFilter = () => {
-      emit('resolve', {
-        folderId: folder.value?.id,
-        coloristicType: coloristicType.value?.id,
-        maskType: maskType.value?.type,
+      store.dispatch('gallery/setFilter', {
+        folder: folder.value,
+        coloristicType: coloristicType.value,
+        maskType: maskType.value,
       });
+      emit('resolve', true);
     };
 
     const clearFilter = () => {
       folder.value = null;
       coloristicType.value = null;
       maskType.value = null;
+      store.dispatch('gallery/setFilter', null);
     };
 
     return {

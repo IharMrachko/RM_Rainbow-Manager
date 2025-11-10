@@ -1,4 +1,3 @@
-// store/modules/gallery.ts
 import { db, storage } from '@/firebase';
 import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
 import {
@@ -17,6 +16,7 @@ import { ColoristicType } from '@/types/coloristic.type';
 import { MaskType } from '@/types/mask.type';
 import { tokenizeTitle } from '@/helpers/tokenize-title.helper';
 import { Folder } from '@/store/modules/firebase-folder';
+import { ColorCard } from '@/views/main/views/color-view/components/color-card.constanst';
 
 type GalleryOptions = {
   coloristicType?: ColoristicType | null;
@@ -46,11 +46,18 @@ export interface Image {
   folder: Folder;
 }
 
+export interface GalleryFilter {
+  maskType: ColorCard | null;
+  coloristicType: { id: string; name: string } | null;
+  folder: Folder | null;
+}
+
 interface GalleryState {
   images: Image[];
   isLoading: boolean;
   lastDoc: unknown | null;
   totalImages: number;
+  filter: Partial<GalleryFilter> | null;
 }
 
 export const gallery: Module<GalleryState, any> = {
@@ -60,6 +67,7 @@ export const gallery: Module<GalleryState, any> = {
     isLoading: false,
     lastDoc: null,
     totalImages: 0,
+    filter: null,
   }),
   mutations: {
     SET_IMAGES(
@@ -81,6 +89,9 @@ export const gallery: Module<GalleryState, any> = {
     },
     SET_LOADING(state, value: boolean) {
       state.isLoading = value;
+    },
+    SET_FILTER(state, filter: Partial<GalleryFilter> | null) {
+      state.filter = filter;
     },
   },
 
@@ -138,7 +149,7 @@ export const gallery: Module<GalleryState, any> = {
         }, 'image/png');
       });
     },
-    async getUserGalleryItems(
+    async initUserGalleryItems(
       { dispatch, commit, rootGetters },
       {
         userId,
@@ -214,6 +225,9 @@ export const gallery: Module<GalleryState, any> = {
         commit('SET_LOADING', false);
       }
     },
+    setFilter(ctx, payload: Partial<GalleryFilter> | null) {
+      ctx.commit('SET_FILTER', payload);
+    },
   },
   getters: {
     getImages(state: GalleryState): Image[] {
@@ -227,6 +241,9 @@ export const gallery: Module<GalleryState, any> = {
     },
     isLoading(state: GalleryState): boolean {
       return state.isLoading;
+    },
+    getFilter(state: GalleryState): Partial<GalleryFilter> | null {
+      return state.filter;
     },
   },
 };

@@ -37,6 +37,11 @@ const messages = {
     ok: 'Ок',
     search: 'search',
     dywDelete: 'Do you want delete 1 element?',
+    clear: 'Clear',
+    apply: 'Apply',
+    folder: 'Folder',
+    total: 'Total',
+    photo: 'Photo',
   },
   ru: {
     login: 'Вход',
@@ -74,6 +79,11 @@ const messages = {
     search: 'поиск',
     nameFolder: 'название папки',
     dywDelete: 'Удалить 1 элемент?',
+    clear: 'Очистить',
+    apply: 'Применить',
+    folder: 'Папка',
+    total: 'Всего',
+    photo: 'Фото',
   },
 };
 

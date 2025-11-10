@@ -14,10 +14,15 @@
 
     <div class="actions">
       <div class="btn" @click="close">
-        <app-button title="cancel" severity="error"></app-button>
+        <app-button title="cancel" severity="error" @click="close"></app-button>
       </div>
-      <div class="btn" @click="setName">
-        <app-button :disabled="!folderName" title="ok" severity="info"></app-button>
+      <div class="btn">
+        <app-button
+          :disabled="!folderName"
+          title="ok"
+          severity="info"
+          @click="setName"
+        ></app-button>
       </div>
     </div>
   </div>
