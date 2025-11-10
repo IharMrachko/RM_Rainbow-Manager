@@ -7,7 +7,7 @@
     <app-overlay-panel
       v-if="targetRef"
       v-model:visible="visible"
-      :width="150"
+      :width="250"
       :target="targetRef"
       :position="{
         x: 'left',
@@ -81,17 +81,18 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, onUnmounted, PropType, ref, watch } from 'vue';
+import {computed, defineComponent, onMounted, onUnmounted, PropType, ref, watch} from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
-import Hammer from 'hammerjs';
-import { useStore } from 'vuex';
+
+import {useStore} from 'vuex';
 import AppInput from '@/shared/components/AppInput.vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
-import { openDialog } from '@/shared/components/dialog/services/dialog.service';
+import {openDialog} from '@/shared/components/dialog/services/dialog.service';
 import AppConfirmModal from '@/shared/components/AppConfirmModal.vue';
-import { useI18n } from 'vue-i18n';
-import { Image } from '@/store/modules/firebase-gallery';
+import {useI18n} from 'vue-i18n';
+import {Image} from '@/store/modules/firebase-gallery';
 import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
+import Hammer from 'hammerjs';
 
 export default defineComponent({
   components: { AppOverlayPanel, AppModalHeader, AppInput, AppButton },
@@ -111,7 +112,8 @@ export default defineComponent({
     const currentImage = computed(() => props.images[index.value]);
     const visible = ref(false);
     const targetRef = ref<HTMLElement | null>(null);
-    let hammer = null;
+    // eslint-disable-next-line no-undef
+    let hammer: HammerManager | null = null;
 
     watch(
       () => props.startIndex,
@@ -134,7 +136,7 @@ export default defineComponent({
       emit('close');
     };
 
-    const toggleTitle = (title) => {
+    const toggleTitle = (title: string) => {
       isEditTitle.value = true;
       sign.value = title;
     };
