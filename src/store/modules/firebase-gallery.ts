@@ -3,12 +3,15 @@ import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   getCountFromServer,
   getDocs,
   limit,
   orderBy,
   query,
   startAfter,
+  updateDoc,
   where,
 } from 'firebase/firestore';
 import { Module } from 'vuex';
@@ -92,6 +95,17 @@ export const gallery: Module<GalleryState, any> = {
     },
     SET_FILTER(state, filter: Partial<GalleryFilter> | null) {
       state.filter = filter;
+    },
+    UPDATE_IMAGE(state: GalleryState, payload: { id: string; updates: Partial<Image> }) {
+      const index = state.images.findIndex((img) => img.id === payload.id);
+      if (index !== -1) {
+        state.images[index] = { ...state.images[index], ...payload.updates };
+      }
+    },
+
+    DELETE_IMAGE(state: GalleryState, id: string) {
+      state.images = state.images.filter((img) => img.id !== id);
+      state.totalImages = Math.max(0, state.totalImages - 1);
     },
   },
 
@@ -223,6 +237,53 @@ export const gallery: Module<GalleryState, any> = {
         );
       } finally {
         commit('SET_LOADING', false);
+      }
+    },
+    async updateImageInGallery(
+      { dispatch, commit },
+      { id, updates }: { id: string; updates: Partial<Image> }
+    ) {
+      try {
+        const itemRef = doc(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items', id);
+        await updateDoc(itemRef, {
+          ...updates,
+          updatedAt: new Date(),
+          tokens: updates?.title ? tokenizeTitle(updates.title) : [],
+        });
+        commit('UPDATE_IMAGE', { id, updates });
+
+        await dispatch(
+          'toast/addToast',
+          { message: 'successUpdate', severity: 'success' },
+          { root: true }
+        );
+      } catch (err) {
+        await dispatch(
+          'toast/addToast',
+          { message: 'errorUpdate', severity: 'error' },
+          { root: true }
+        );
+        throw err;
+      }
+    },
+    async deleteImageFromGallery({ dispatch, commit }, { id }: { id: string }) {
+      try {
+        // 1. Удаляем документ из Firestore
+        const itemRef = doc(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items', id);
+        await deleteDoc(itemRef);
+        commit('DELETE_IMAGE', id);
+        await dispatch(
+          'toast/addToast',
+          { message: 'successDelete', severity: 'success' },
+          { root: true }
+        );
+      } catch (err) {
+        await dispatch(
+          'toast/addToast',
+          { message: 'errorDelete', severity: 'error' },
+          { root: true }
+        );
+        throw err;
       }
     },
     setFilter(ctx, payload: Partial<GalleryFilter> | null) {

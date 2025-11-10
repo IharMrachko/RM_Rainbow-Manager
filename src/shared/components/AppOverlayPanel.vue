@@ -53,7 +53,6 @@ function resolveX(
   const fitsLeft = anchor - panelW >= 0;
   const fitsRight = anchor + panelW <= viewportW;
   const fitsCenter = anchor - panelW / 2 >= 0 && anchor + panelW / 2 <= viewportW;
-
   if (x === 'left') return fitsLeft ? 'left' : fitsCenter ? 'center' : 'right';
   if (x === 'right') return fitsRight ? 'right' : fitsCenter ? 'center' : 'left';
   return 'center';
@@ -179,7 +178,7 @@ export default defineComponent({
       if (translateY) transforms.push(`translateY(${translateY}%)`);
 
       return {
-        position: 'absolute',
+        position: 'fixed',
         top: `${Math.round(top)}px`,
         left: `${Math.round(left)}px`,
         transform: transforms.length ? transforms.join(' ') : undefined,

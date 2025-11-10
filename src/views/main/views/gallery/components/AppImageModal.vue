@@ -1,35 +1,58 @@
 <template>
   <div ref="modalRef" class="modal-content neon">
     <app-modal-header @close="close"></app-modal-header>
-
+    <div ref="targetRef" class="ellipsis-vertical" @click="toggleImageOverlayPanel">
+      <font-awesome-icon size="lg" :icon="['fas', 'fa-ellipsis-vertical']" />
+    </div>
+    <app-overlay-panel
+      v-if="targetRef"
+      v-model:visible="visible"
+      :width="150"
+      :target="targetRef"
+      :position="{
+        x: 'left',
+        y: 'center',
+      }"
+    >
+      <div class="overlay-image">
+        <div class="overlay-image-item" @click="openCreateFolderModal">
+          <font-awesome-icon size="sm" :icon="['fas', 'fa-pencil']" />
+          Доабаытвт
+        </div>
+        <div class="overlay-image-item" @click="deleteFolder">
+          <font-awesome-icon size="sm" :icon="['fas', 'fa-trash']" />
+          лаоыоаоыа
+        </div>
+      </div>
+    </app-overlay-panel>
     <!-- Фото -->
-    <img :src="images[index].src" alt="" />
+    <img :src="currentImage.src" alt="" />
     <section class="info-section">
       <div class="info-section-wrapper">
         <!-- Информация -->
         <div class="info">
           <div class="badge-wrapper">
-            <span v-if="images[index].folder" class="badge darkBadge">{{
-              images[index].folder.name
+            <span v-if="currentImage.folder" class="badge darkBadge">{{
+              currentImage.folder.name
             }}</span>
-            <span v-if="images[index].maskType" class="badge darkBadge">{{
-              images[index].maskType
+            <span v-if="currentImage.maskType" class="badge darkBadge">{{
+              currentImage.maskType
             }}</span>
-            <span v-if="images[index].coloristicType" class="badge darkBadge">{{
-              images[index].coloristicType
+            <span v-if="currentImage.coloristicType" class="badge darkBadge">{{
+              currentImage.coloristicType
             }}</span>
           </div>
           <div v-if="!isEditTitle" class="info-title">
             <font-awesome-icon
               size="xs"
               :icon="['fas', 'fa-pencil']"
-              @click="toggleTitle(images[index].title)"
+              @click="toggleTitle(currentImage.title)"
             />
-            <span> {{ images[index].title ? images[index].title : 'No name' }}</span>
+            <span> {{ currentImage.title ? currentImage.title : 'No name' }}</span>
           </div>
           <div v-if="isEditTitle" class="edit-title">
             <app-input v-model="sign" :icon="['fas', 'fa-pencil']" :is-label="false"></app-input>
-            <div class="edit-title-save-icon">
+            <div class="edit-title-save-icon" @click="updateImage">
               <font-awesome-icon size="sm" :icon="['fas', 'undo']" />
             </div>
           </div>
@@ -38,7 +61,11 @@
         <!-- Действия -->
         <div class="actions">
           <div class="btn">
-            <app-button severity="error" :icon="['fas', 'fa-trash']"></app-button>
+            <app-button
+              severity="error"
+              :icon="['fas', 'fa-trash']"
+              @click="deleteImage"
+            ></app-button>
           </div>
         </div>
       </div>
@@ -53,27 +80,37 @@
   </div>
 </template>
 
-<script>
-import { computed, defineComponent, onMounted, onUnmounted, ref, watch } from 'vue';
+<script lang="ts">
+import { computed, defineComponent, onMounted, onUnmounted, PropType, ref, watch } from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import Hammer from 'hammerjs';
 import { useStore } from 'vuex';
 import AppInput from '@/shared/components/AppInput.vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
+import { openDialog } from '@/shared/components/dialog/services/dialog.service';
+import AppConfirmModal from '@/shared/components/AppConfirmModal.vue';
+import { useI18n } from 'vue-i18n';
+import { Image } from '@/store/modules/firebase-gallery';
+import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
 
 export default defineComponent({
-  components: { AppModalHeader, AppInput, AppButton },
+  components: { AppOverlayPanel, AppModalHeader, AppInput, AppButton },
   props: {
-    images: { type: Array, required: true },
+    images: { type: Array as PropType<Image[]>, required: true },
     startIndex: { type: Number, required: true },
   },
   emits: ['close'],
   setup(props, { emit }) {
+    const { t } = useI18n();
     const store = useStore();
     const index = ref(props.startIndex);
     const modalRef = ref(null);
     const isEditTitle = ref(false);
     const sign = ref('');
+    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
+    const currentImage = computed(() => props.images[index.value]);
+    const visible = ref(false);
+    const targetRef = ref<HTMLElement | null>(null);
     let hammer = null;
 
     watch(
@@ -102,7 +139,35 @@ export default defineComponent({
       sign.value = title;
     };
 
-    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
+    const deleteImage = async () => {
+      await openDialog(AppConfirmModal, {
+        text: t('dywDelete'),
+        title: t('delete'),
+      }).then((isDeleted) => {
+        if (isDeleted) {
+          store.dispatch('gallery/deleteImageFromGallery', {
+            id: props.images[index.value].id,
+          });
+          emit('close');
+        }
+      });
+    };
+
+    const updateImage = () => {
+      const image: Image = props.images[index.value];
+      isEditTitle.value = false;
+      if (image?.title === sign.value) {
+        return;
+      }
+      store.dispatch('gallery/updateImageInGallery', {
+        id: image.id,
+        updates: {
+          ...image,
+          folder: image.folder ?? null,
+          title: sign.value,
+        },
+      });
+    };
 
     onMounted(() => {
       if (modalRef.value) {
@@ -116,7 +181,27 @@ export default defineComponent({
       hammer?.destroy();
     });
 
-    return { index, next, prev, close, modalRef, isMobile, isEditTitle, toggleTitle, sign };
+    const toggleImageOverlayPanel = () => {
+      visible.value = !visible.value;
+    };
+
+    return {
+      index,
+      next,
+      prev,
+      close,
+      modalRef,
+      isMobile,
+      isEditTitle,
+      toggleTitle,
+      sign,
+      deleteImage,
+      updateImage,
+      currentImage,
+      toggleImageOverlayPanel,
+      targetRef,
+      visible,
+    };
   },
 });
 </script>
@@ -300,6 +385,28 @@ export default defineComponent({
     color: black;
   }
   @media (max-width: 600px) {
+  }
+}
+
+.ellipsis-vertical {
+  position: absolute;
+  top: 100px;
+  right: 20px;
+  cursor: pointer;
+}
+
+.overlay-image {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  & .overlay-image-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid #eaeaeb;
+    cursor: pointer;
   }
 }
 </style>
