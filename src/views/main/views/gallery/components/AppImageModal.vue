@@ -81,16 +81,16 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, onMounted, onUnmounted, PropType, ref, watch} from 'vue';
+import { computed, defineComponent, onMounted, onUnmounted, PropType, ref, watch } from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
 
-import {useStore} from 'vuex';
+import { useStore } from 'vuex';
 import AppInput from '@/shared/components/AppInput.vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
-import {openDialog} from '@/shared/components/dialog/services/dialog.service';
+import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppConfirmModal from '@/shared/components/AppConfirmModal.vue';
-import {useI18n} from 'vue-i18n';
-import {Image} from '@/store/modules/firebase-gallery';
+import { useI18n } from 'vue-i18n';
+import { Image } from '@/store/modules/firebase-gallery';
 import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
 import Hammer from 'hammerjs';
 
