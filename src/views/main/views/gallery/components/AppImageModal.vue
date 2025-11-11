@@ -212,14 +212,16 @@ export default defineComponent({
       //   hammer.on('swiperight', prev);
       // }
       let startX = 0;
-      modalRef.value?.addEventListener('touchstart', (e: TouchEvent) => {
-        startX = e.touches[0].clientX;
-      });
-      modalRef.value?.addEventListener('touchend', (e: TouchEvent) => {
-        const endX = e.changedTouches[0].clientX;
-        if (startX - endX > 50) next(); // свайп влево
-        if (endX - startX > 50) prev(); // свайп вправо
-      });
+      if (modalRef.value) {
+        modalRef.value.addEventListener('touchstart', (e: TouchEvent) => {
+          startX = e.touches[0].clientX;
+        });
+        modalRef.value.addEventListener('touchend', (e: TouchEvent) => {
+          const endX = e.changedTouches[0].clientX;
+          if (startX - endX > 50) next(); // свайп влево
+          if (endX - startX > 50) prev(); // свайп вправо
+        });
+      }
     });
 
     onUnmounted(() => {
