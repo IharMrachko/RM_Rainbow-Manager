@@ -111,7 +111,6 @@ import AppConfirmModal from '@/shared/components/AppConfirmModal.vue';
 import { useI18n } from 'vue-i18n';
 import { Image, ImageUpdate } from '@/store/modules/firebase-gallery';
 import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
-import Hammer from 'hammerjs';
 import AppFolderModal from '@/shared/components/folder-modal/AppFolderModal.vue';
 import { Folder } from '@/store/modules/firebase-folder';
 
@@ -207,11 +206,20 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      if (modalRef.value) {
-        hammer = new Hammer(modalRef.value);
-        hammer.on('swipeleft', next);
-        hammer.on('swiperight', prev);
-      }
+      // if (modalRef.value) {
+      //   hammer = new Hammer(modalRef.value);
+      //   hammer.on('swipeleft', next);
+      //   hammer.on('swiperight', prev);
+      // }
+      let startX = 0;
+      modalRef.value?.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+      });
+      modalRef.value?.addEventListener('touchend', (e) => {
+        const endX = e.changedTouches[0].clientX;
+        if (startX - endX > 50) next(); // свайп влево
+        if (endX - startX > 50) prev(); // свайп вправо
+      });
     });
 
     onUnmounted(() => {

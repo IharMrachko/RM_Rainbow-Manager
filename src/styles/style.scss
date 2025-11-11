@@ -6,6 +6,7 @@ $type-colors: (
         secondary: #E5E5E5
 );
 
+
 :root {
   --color-bg: linear-gradient(-135deg, #c850c0, #4158d0);
   --color-text: #000;
@@ -46,6 +47,7 @@ body {
   font-family: system-ui, sans-serif;
   background: var(--color-bg);
   color: var(--color-text);
+  height: -webkit-fill-available;
 }
 
 a {
