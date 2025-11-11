@@ -85,5 +85,6 @@ createApp(App)
   .use(store)
   .use(router)
   .use(i18n)
+
   .component('font-awesome-icon', FontAwesomeIcon)
   .mount('#app');
