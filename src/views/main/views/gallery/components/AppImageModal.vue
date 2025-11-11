@@ -236,6 +236,12 @@ export default defineComponent({
         modalRef.value.removeEventListener('touchstart', handleTouchStart);
         modalRef.value.removeEventListener('touchend', handleTouchEnd);
       }
+      const setVh = () => {
+        document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+      };
+      setVh();
+      window.addEventListener('resize', setVh);
+      window.removeEventListener('resize', () => {});
     });
 
     const toggleImageOverlayPanel = () => {
@@ -334,13 +340,13 @@ export default defineComponent({
 
   @media (max-width: 600px) {
     width: 100vw;
-    height: 100%;
     flex-direction: column; /* вертикально */
     justify-content: flex-start;
     border-radius: 0;
     box-shadow: none;
     border: none;
     overflow: hidden;
+    height: calc(var(--vh) * 100); /* учитываем клавиатуру */
   }
 }
 .dark .neon {
