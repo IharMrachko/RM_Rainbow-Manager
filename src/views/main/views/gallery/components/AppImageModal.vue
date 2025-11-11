@@ -230,7 +230,8 @@ export default defineComponent({
       }
 
       const setVh = () => {
-        document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+        const vh = window.visualViewport?.height || window.innerHeight;
+        document.documentElement.style.setProperty('--vh', `${vh * 0.01}px`);
       };
       setVh();
       window.addEventListener('resize', setVh);
