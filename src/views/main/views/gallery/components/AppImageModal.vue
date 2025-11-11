@@ -254,18 +254,22 @@ export default defineComponent({
       }
     };
 
-    watch(index, async (newIndex) => {
-      await nextTick();
-      const dots = document.querySelectorAll('.slider-dots .dot');
-      const activeDot = dots[newIndex] as HTMLElement;
-      if (activeDot) {
-        activeDot.scrollIntoView({
-          behavior: 'smooth',
-          inline: 'center',
-          block: 'nearest',
-        });
-      }
-    });
+    watch(
+      index,
+      async (newIndex) => {
+        await nextTick();
+        const dots = document.querySelectorAll('.slider-dots .dot');
+        const activeDot = dots[newIndex] as HTMLElement;
+        if (activeDot) {
+          activeDot.scrollIntoView({
+            behavior: 'smooth',
+            inline: 'center',
+            block: 'nearest',
+          });
+        }
+      },
+      { immediate: true }
+    );
 
     return {
       index,
