@@ -213,7 +213,7 @@ export default defineComponent({
 
 .footer {
   height: 55px;
-  padding: 9px 20px 5px 25px;
+  padding: 9px 20px 15px 25px;
   width: 100%;
   display: flex;
   align-items: center;

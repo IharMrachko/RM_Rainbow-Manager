@@ -229,12 +229,21 @@ export default defineComponent({
         (modalRef.value as any)._touchHandlers = { handleTouchStart, handleTouchEnd };
       }
 
-      const setVh = () => {
-        const vh = window.visualViewport?.height || window.innerHeight;
-        document.documentElement.style.setProperty('--vh', `${vh * 0.01}px`);
-      };
-      setVh();
-      window.addEventListener('resize', setVh);
+      if (window.visualViewport) {
+        const resizeHandler = () => {
+          const height = window.visualViewport?.height || window.innerHeight;
+          // применяем высоту к модалке
+          if (modalRef.value) {
+            (modalRef.value as HTMLElement).style.height = `${height}px`;
+          }
+        };
+
+        resizeHandler(); // вызвать сразу при монтировании
+        window.visualViewport.addEventListener('resize', resizeHandler);
+
+        // сохраним для удаления
+        (modalRef.value as any)._resizeHandler = resizeHandler;
+      }
     });
 
     onUnmounted(() => {
@@ -243,7 +252,9 @@ export default defineComponent({
         modalRef.value.removeEventListener('touchstart', handleTouchStart);
         modalRef.value.removeEventListener('touchend', handleTouchEnd);
       }
-      window.removeEventListener('resize', () => {});
+      if (window.visualViewport && (modalRef.value as any)?._resizeHandler) {
+        window.visualViewport.removeEventListener('resize', (modalRef.value as any)._resizeHandler);
+      }
     });
 
     const toggleImageOverlayPanel = () => {
@@ -348,7 +359,7 @@ export default defineComponent({
     box-shadow: none;
     border: none;
     overflow: hidden;
-    height: calc(var(--vh) * 100); /* учитываем клавиатуру */
+    height: auto; /* учитываем клавиатуру */
   }
 }
 .dark .neon {
