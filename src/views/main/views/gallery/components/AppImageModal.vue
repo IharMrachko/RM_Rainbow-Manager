@@ -1,100 +1,98 @@
 <template>
-  <section class="modal-wrapper">
-    <div ref="modalRef" class="modal-content neon">
-      <app-modal-header @close="close"></app-modal-header>
-      <div ref="targetRef" class="ellipsis-vertical" @click="toggleImageOverlayPanel">
-        <font-awesome-icon size="lg" :icon="['fas', 'fa-ellipsis-vertical']" />
-      </div>
-      <app-overlay-panel
-        v-if="targetRef"
-        v-model:visible="visible"
-        :width="250"
-        :target="targetRef"
-        :position="{
-          x: 'left',
-          y: 'center',
-        }"
-      >
-        <div class="overlay-image">
-          <div class="overlay-image-item" @click="openFolderModal">
-            <font-awesome-icon size="sm" :icon="['fas', 'fa-folder']" />
-            {{ t('addFolder') }}
-          </div>
-          <div class="overlay-image-item" @click="updateFolder">
-            <font-awesome-icon size="sm" :icon="['fas', 'undo']" />
-            {{ t('update') }}
-          </div>
-          <div class="overlay-image-item" @click="copyLink">
-            <font-awesome-icon size="sm" :icon="['fas', 'fa-link']" />
-            {{ t('copyLink') }}
-          </div>
-        </div>
-      </app-overlay-panel>
-      <!-- Фото -->
-      <img :src="currentImage.src" alt="" />
-      <section class="info-section">
-        <div class="info-section-wrapper">
-          <div class="slider-dots">
-            <div
-              v-for="(img, i) in images"
-              :key="img.id"
-              class="dot"
-              :class="{ active: i === index }"
-            ></div>
-          </div>
-          <div class="info">
-            <div class="badge-wrapper">
-              <span v-if="localImages[index].folder" class="badge darkBadge">{{
-                localImages[index].folder.name
-              }}</span>
-              <span v-if="currentImage.maskType" class="badge darkBadge">{{
-                currentImage.maskType
-              }}</span>
-              <span v-if="currentImage.coloristicType" class="badge darkBadge">{{
-                currentImage.coloristicType
-              }}</span>
-            </div>
-            <div v-if="!isEditTitle" class="info-title">
-              <font-awesome-icon
-                size="xs"
-                :icon="['fas', 'fa-pencil']"
-                @click="toggleTitle(currentImage.title)"
-              />
-              <span> {{ currentImage.title ? currentImage.title : t('noName') }}</span>
-            </div>
-            <div v-if="isEditTitle" class="edit-title">
-              <app-input
-                v-model="sign"
-                :icon="['fas', 'fa-pencil']"
-                :is-label="false"
-                is-focused
-              ></app-input>
-              <div class="edit-title-save-icon" @click="updateSign">
-                <font-awesome-icon size="sm" :icon="['fas', 'undo']" />
-              </div>
-            </div>
-          </div>
-
-          <div class="actions">
-            <div class="btn">
-              <app-button
-                severity="error"
-                :icon="['fas', 'fa-trash']"
-                @click="deleteImage"
-              ></app-button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div v-if="!isMobile" class="next" @click="next">
-        <font-awesome-icon :icon="['fas', 'fa-arrow-right']" />
-      </div>
-      <div v-if="!isMobile" class="prev" @click="prev">
-        <font-awesome-icon :icon="['fas', 'fa-arrow-left']" />
-      </div>
+  <div ref="modalRef" class="modal-content neon">
+    <app-modal-header @close="close"></app-modal-header>
+    <div ref="targetRef" class="ellipsis-vertical" @click="toggleImageOverlayPanel">
+      <font-awesome-icon size="lg" :icon="['fas', 'fa-ellipsis-vertical']" />
     </div>
-  </section>
+    <app-overlay-panel
+      v-if="targetRef"
+      v-model:visible="visible"
+      :width="250"
+      :target="targetRef"
+      :position="{
+        x: 'left',
+        y: 'center',
+      }"
+    >
+      <div class="overlay-image">
+        <div class="overlay-image-item" @click="openFolderModal">
+          <font-awesome-icon size="sm" :icon="['fas', 'fa-folder']" />
+          {{ t('addFolder') }}
+        </div>
+        <div class="overlay-image-item" @click="updateFolder">
+          <font-awesome-icon size="sm" :icon="['fas', 'undo']" />
+          {{ t('update') }}
+        </div>
+        <div class="overlay-image-item" @click="copyLink">
+          <font-awesome-icon size="sm" :icon="['fas', 'fa-link']" />
+          {{ t('copyLink') }}
+        </div>
+      </div>
+    </app-overlay-panel>
+    <!-- Фото -->
+    <img :src="currentImage.src" alt="" />
+    <section class="info-section">
+      <div class="info-section-wrapper">
+        <div class="slider-dots">
+          <div
+            v-for="(img, i) in images"
+            :key="img.id"
+            class="dot"
+            :class="{ active: i === index }"
+          ></div>
+        </div>
+        <div class="info">
+          <div class="badge-wrapper">
+            <span v-if="localImages[index].folder" class="badge darkBadge">{{
+              localImages[index].folder.name
+            }}</span>
+            <span v-if="currentImage.maskType" class="badge darkBadge">{{
+              currentImage.maskType
+            }}</span>
+            <span v-if="currentImage.coloristicType" class="badge darkBadge">{{
+              currentImage.coloristicType
+            }}</span>
+          </div>
+          <div v-if="!isEditTitle" class="info-title">
+            <font-awesome-icon
+              size="xs"
+              :icon="['fas', 'fa-pencil']"
+              @click="toggleTitle(currentImage.title)"
+            />
+            <span> {{ currentImage.title ? currentImage.title : t('noName') }}</span>
+          </div>
+          <div v-if="isEditTitle" class="edit-title">
+            <app-input
+              v-model="sign"
+              :icon="['fas', 'fa-pencil']"
+              :is-label="false"
+              is-focused
+            ></app-input>
+            <div class="edit-title-save-icon" @click="updateSign">
+              <font-awesome-icon size="sm" :icon="['fas', 'undo']" />
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <div class="btn">
+            <app-button
+              severity="error"
+              :icon="['fas', 'fa-trash']"
+              @click="deleteImage"
+            ></app-button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div v-if="!isMobile" class="next" @click="next">
+      <font-awesome-icon :icon="['fas', 'fa-arrow-right']" />
+    </div>
+    <div v-if="!isMobile" class="prev" @click="prev">
+      <font-awesome-icon :icon="['fas', 'fa-arrow-left']" />
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -209,30 +207,8 @@ export default defineComponent({
         folderId: image?.folder?.id ?? null,
       };
     };
-    const getViewportHeight = () => {
-      if (window.visualViewport) {
-        return window.visualViewport.height;
-      }
-      return window.innerHeight;
-    };
+
     onMounted(() => {
-      const resizeHandler = () => {
-        const height = getViewportHeight();
-        if (modalRef.value) {
-          if (window.innerWidth <= 600) {
-            modalRef.value.style.height = `${height}px`;
-            modalRef.value.style.width = '100vw';
-          } else {
-            modalRef.value.style.height = '90vh';
-            modalRef.value.style.width = '90vw';
-          }
-        }
-      };
-
-      resizeHandler();
-      window.addEventListener('resize', resizeHandler);
-      window.addEventListener('orientationchange', resizeHandler);
-
       let startX = 0;
 
       const handleTouchStart = (e: TouchEvent) => {
@@ -342,22 +318,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.modal-wrapper {
-  position: fixed;
-  inset: 0; /* занимает весь экран */
-  display: flex; /* включаем flex */
-  align-items: center; /* вертикальное центрирование */
-  justify-content: center; /* горизонтальное центрирование */
-  overflow: hidden;
-  touch-action: pan-y;
-}
-
-@supports (-webkit-touch-callout: none) {
-  /* iOS-специфика, помогает с высотой */
-  .modal-wrapper {
-    height: -webkit-fill-available;
-  }
-}
 .modal-content {
   background: var(--color-bg);
   position: relative;
@@ -371,7 +331,10 @@ export default defineComponent({
 
   border: 1px solid #c5c5c5;
   box-shadow: 0 0 5px #c5c5c5, 0 0 5px #c5c5c5, 0 0 5px #c5c5c5, 0 0 25px #c5c5c5;
-
+  @supports (-webkit-touch-callout: none) {
+    /* iOS-специфика, помогает с высотой */
+    height: -webkit-fill-available;
+  }
   @media (max-width: 600px) {
     width: 100vw;
     flex-direction: column; /* вертикально */
