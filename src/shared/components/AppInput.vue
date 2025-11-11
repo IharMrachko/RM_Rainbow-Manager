@@ -162,7 +162,7 @@ input {
 
 .input100 {
   font-family: Poppins-Medium, sans-serif;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.5;
   color: #666;
   display: block;
