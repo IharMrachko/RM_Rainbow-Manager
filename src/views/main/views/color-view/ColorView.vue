@@ -46,12 +46,7 @@ export default defineComponent({
 <style scoped lang="scss">
 .color-container {
   position: relative;
-  padding: 10px 20px 5px 20px;
   overflow: auto;
   height: calc(100dvh - var(--header-height));
-
-  @media (max-width: 600px) {
-    padding: 5px 0;
-  }
 }
 </style>

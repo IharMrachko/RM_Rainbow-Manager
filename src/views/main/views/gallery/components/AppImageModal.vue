@@ -228,6 +228,12 @@ export default defineComponent({
         // сохраняем ссылки, чтобы удалить потом
         (modalRef.value as any)._touchHandlers = { handleTouchStart, handleTouchEnd };
       }
+
+      const setVh = () => {
+        document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+      };
+      setVh();
+      window.addEventListener('resize', setVh);
     });
 
     onUnmounted(() => {
@@ -236,11 +242,6 @@ export default defineComponent({
         modalRef.value.removeEventListener('touchstart', handleTouchStart);
         modalRef.value.removeEventListener('touchend', handleTouchEnd);
       }
-      const setVh = () => {
-        document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
-      };
-      setVh();
-      window.addEventListener('resize', setVh);
       window.removeEventListener('resize', () => {});
     });
 
