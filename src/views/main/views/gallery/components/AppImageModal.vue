@@ -15,13 +15,17 @@
       }"
     >
       <div class="overlay-image">
-        <div class="overlay-image-item" @click="openCreateFolderModal">
-          <font-awesome-icon size="sm" :icon="['fas', 'fa-pencil']" />
-          Доабаытвт
+        <div class="overlay-image-item" @click="openFolderModal">
+          <font-awesome-icon size="sm" :icon="['fas', 'fa-folder']" />
+          {{ t('addFolder') }}
         </div>
-        <div class="overlay-image-item" @click="deleteFolder">
-          <font-awesome-icon size="sm" :icon="['fas', 'fa-trash']" />
-          лаоыоаоыа
+        <div class="overlay-image-item" @click="updateFolder">
+          <font-awesome-icon size="sm" :icon="['fas', 'undo']" />
+          {{ t('update') }}
+        </div>
+        <div class="overlay-image-item" @click="copyLink">
+          <font-awesome-icon size="sm" :icon="['fas', 'fa-link']" />
+          {{ t('copyLink') }}
         </div>
       </div>
     </app-overlay-panel>
@@ -29,11 +33,18 @@
     <img :src="currentImage.src" alt="" />
     <section class="info-section">
       <div class="info-section-wrapper">
-        <!-- Информация -->
+        <div class="slider-dots">
+          <div
+            v-for="(img, i) in images"
+            :key="img.id"
+            class="dot"
+            :class="{ active: i === index }"
+          ></div>
+        </div>
         <div class="info">
           <div class="badge-wrapper">
-            <span v-if="currentImage.folder" class="badge darkBadge">{{
-              currentImage.folder.name
+            <span v-if="localImages[index].folder" class="badge darkBadge">{{
+              localImages[index].folder.name
             }}</span>
             <span v-if="currentImage.maskType" class="badge darkBadge">{{
               currentImage.maskType
@@ -48,17 +59,16 @@
               :icon="['fas', 'fa-pencil']"
               @click="toggleTitle(currentImage.title)"
             />
-            <span> {{ currentImage.title ? currentImage.title : 'No name' }}</span>
+            <span> {{ currentImage.title ? currentImage.title : t('noName') }}</span>
           </div>
           <div v-if="isEditTitle" class="edit-title">
             <app-input v-model="sign" :icon="['fas', 'fa-pencil']" :is-label="false"></app-input>
-            <div class="edit-title-save-icon" @click="updateImage">
+            <div class="edit-title-save-icon" @click="updateSign">
               <font-awesome-icon size="sm" :icon="['fas', 'undo']" />
             </div>
           </div>
         </div>
 
-        <!-- Действия -->
         <div class="actions">
           <div class="btn">
             <app-button
@@ -81,7 +91,16 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, onUnmounted, PropType, ref, watch } from 'vue';
+import {
+  computed,
+  defineComponent,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  PropType,
+  ref,
+  watch,
+} from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
 
 import { useStore } from 'vuex';
@@ -90,9 +109,11 @@ import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppConfirmModal from '@/shared/components/AppConfirmModal.vue';
 import { useI18n } from 'vue-i18n';
-import { Image } from '@/store/modules/firebase-gallery';
+import { Image, ImageUpdate } from '@/store/modules/firebase-gallery';
 import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
 import Hammer from 'hammerjs';
+import AppFolderModal from '@/shared/components/folder-modal/AppFolderModal.vue';
+import { Folder } from '@/store/modules/firebase-folder';
 
 export default defineComponent({
   components: { AppOverlayPanel, AppModalHeader, AppInput, AppButton },
@@ -112,6 +133,7 @@ export default defineComponent({
     const currentImage = computed(() => props.images[index.value]);
     const visible = ref(false);
     const targetRef = ref<HTMLElement | null>(null);
+    const localImages = ref<Image[]>([...props.images]);
     // eslint-disable-next-line no-undef
     let hammer: HammerManager | null = null;
 
@@ -155,20 +177,33 @@ export default defineComponent({
       });
     };
 
-    const updateImage = () => {
+    const updateSign = () => {
       const image: Image = props.images[index.value];
       isEditTitle.value = false;
       if (image?.title === sign.value) {
         return;
       }
       store.dispatch('gallery/updateImageInGallery', {
-        id: image.id,
-        updates: {
-          ...image,
-          folder: image.folder ?? null,
-          title: sign.value,
-        },
+        ...getImageUpdate(image, sign.value),
       });
+    };
+
+    const updateFolder = () => {
+      toggleImageOverlayPanel();
+      store.dispatch('gallery/updateImageInGallery', {
+        ...getImageUpdate(props.images[index.value]),
+      });
+    };
+
+    const getImageUpdate = (image: Image, title?: string): ImageUpdate => {
+      return {
+        id: image.id,
+        src: image.src,
+        title: title ? title : image.title,
+        coloristicType: image.coloristicType,
+        maskType: image.maskType,
+        folderId: image?.folder?.id ?? null,
+      };
     };
 
     onMounted(() => {
@@ -187,6 +222,51 @@ export default defineComponent({
       visible.value = !visible.value;
     };
 
+    const openFolderModal = async () => {
+      toggleImageOverlayPanel();
+      await openDialog(
+        AppFolderModal,
+        {
+          folder: props.images[index.value].folder,
+        },
+        {
+          transparent: true,
+        }
+      ).then((item: Folder) => {
+        localImages.value[index.value].folder = item;
+      });
+    };
+
+    const copyLink = async () => {
+      toggleImageOverlayPanel();
+      const link = props.images[index.value].src;
+      try {
+        await navigator.clipboard.writeText(link);
+        await store.dispatch('toast/addToast', {
+          message: 'Ссылка скопирована!',
+          severity: 'success',
+        });
+      } catch (err) {
+        await store.dispatch('toast/addToast', {
+          message: 'Ошибка копирования!',
+          severity: 'error',
+        });
+      }
+    };
+
+    watch(index, async (newIndex) => {
+      await nextTick();
+      const dots = document.querySelectorAll('.slider-dots .dot');
+      const activeDot = dots[newIndex] as HTMLElement;
+      if (activeDot) {
+        activeDot.scrollIntoView({
+          behavior: 'smooth',
+          inline: 'center',
+          block: 'nearest',
+        });
+      }
+    });
+
     return {
       index,
       next,
@@ -198,11 +278,16 @@ export default defineComponent({
       toggleTitle,
       sign,
       deleteImage,
-      updateImage,
+      updateSign,
       currentImage,
       toggleImageOverlayPanel,
       targetRef,
       visible,
+      t,
+      openFolderModal,
+      localImages,
+      updateFolder,
+      copyLink,
     };
   },
 });
@@ -353,7 +438,6 @@ export default defineComponent({
   text-align: center;
 }
 
-/* 📱 Мобильная адаптация */
 @media (max-width: 600px) {
   .badge {
     font-size: 12px;
@@ -395,6 +479,10 @@ export default defineComponent({
   top: 100px;
   right: 20px;
   cursor: pointer;
+
+  @media (max-width: 600px) {
+    top: 24px;
+  }
 }
 
 .overlay-image {
@@ -410,5 +498,36 @@ export default defineComponent({
     border-bottom: 1px solid #eaeaeb;
     cursor: pointer;
   }
+}
+.slider-dots {
+  position: relative;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* чтобы точки шли подряд */
+  gap: 5px;
+  width: 75px;
+  overflow-x: auto; /* включаем горизонтальный скролл */
+  scrollbar-width: none; /* скрыть скроллбар в Firefox */
+}
+.slider-dots::-webkit-scrollbar {
+  display: none; /* скрыть скроллбар в Chrome/Safari */
+}
+
+.slider-dots .dot {
+  flex-shrink: 0; /* запрещаем сжатие точек */
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+}
+.dot.active {
+  background: var(--active-doing);
+  width: 9px;
+  height: 9px;
 }
 </style>

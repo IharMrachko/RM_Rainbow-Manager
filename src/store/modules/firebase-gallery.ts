@@ -48,6 +48,14 @@ export interface Image {
   maskType: MaskType;
   folder: Folder;
 }
+export interface ImageUpdate {
+  id: string;
+  src: string;
+  title: string;
+  coloristicType: ColoristicType;
+  maskType: MaskType;
+  folderId: string | null;
+}
 
 export interface GalleryFilter {
   maskType: ColorCard | null;
@@ -96,10 +104,10 @@ export const gallery: Module<GalleryState, any> = {
     SET_FILTER(state, filter: Partial<GalleryFilter> | null) {
       state.filter = filter;
     },
-    UPDATE_IMAGE(state: GalleryState, payload: { id: string; updates: Partial<Image> }) {
+    UPDATE_IMAGE(state: GalleryState, payload: ImageUpdate) {
       const index = state.images.findIndex((img) => img.id === payload.id);
       if (index !== -1) {
-        state.images[index] = { ...state.images[index], ...payload.updates };
+        state.images[index] = { ...state.images[index], ...payload };
       }
     },
 
@@ -208,11 +216,11 @@ export const gallery: Module<GalleryState, any> = {
 
         constraints.push(limit(pageSize));
 
-        const q = query(itemsRef, ...constraints);
-        const q2 = query(itemsRef, ...constraintsForCount);
+        const queryForGallery = query(itemsRef, ...constraints);
+        const queryForCount = query(itemsRef, ...constraintsForCount);
 
-        const totalImages = await getCountFromServer(q2);
-        const snapshot = await getDocs(q);
+        const totalImages = await getCountFromServer(queryForCount);
+        const snapshot = await getDocs(queryForGallery);
         const items = snapshot.docs.map((doc) => {
           const data = doc.data();
           return {
@@ -221,7 +229,7 @@ export const gallery: Module<GalleryState, any> = {
             title: data.title,
             coloristicType: data.coloristicType,
             maskType: data.maskType,
-            folder: rootGetters['folder/getFolderById'](data.folderId), // здесь доступен rootGetters
+            folder: rootGetters['folder/getFolderById'](data.folderId),
           };
         });
         commit('SET_IMAGES', {
@@ -239,18 +247,15 @@ export const gallery: Module<GalleryState, any> = {
         commit('SET_LOADING', false);
       }
     },
-    async updateImageInGallery(
-      { dispatch, commit },
-      { id, updates }: { id: string; updates: Partial<Image> }
-    ) {
+    async updateImageInGallery({ dispatch, commit }, payload: ImageUpdate) {
       try {
-        const itemRef = doc(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items', id);
+        const itemRef = doc(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items', payload.id);
         await updateDoc(itemRef, {
-          ...updates,
+          ...payload,
           updatedAt: new Date(),
-          tokens: updates?.title ? tokenizeTitle(updates.title) : [],
+          tokens: payload?.title ? tokenizeTitle(payload.title) : [],
         });
-        commit('UPDATE_IMAGE', { id, updates });
+        commit('UPDATE_IMAGE', payload);
 
         await dispatch(
           'toast/addToast',
