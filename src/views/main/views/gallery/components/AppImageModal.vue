@@ -125,7 +125,7 @@ export default defineComponent({
     const { t } = useI18n();
     const store = useStore();
     const index = ref(props.startIndex);
-    const modalRef = ref(null);
+    const modalRef = ref<HTMLElement | null>(null);
     const isEditTitle = ref(false);
     const sign = ref('');
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
