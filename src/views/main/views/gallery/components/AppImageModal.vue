@@ -1,44 +1,81 @@
 <template>
   <div ref="modalRef" class="modal-content neon">
     <app-modal-header @close="close"></app-modal-header>
-
+    <div ref="targetRef" class="ellipsis-vertical" @click="toggleImageOverlayPanel">
+      <font-awesome-icon size="lg" :icon="['fas', 'fa-ellipsis-vertical']" />
+    </div>
+    <app-overlay-panel
+      v-if="targetRef"
+      v-model:visible="visible"
+      :width="250"
+      :target="targetRef"
+      :position="{
+        x: 'left',
+        y: 'center',
+      }"
+    >
+      <div class="overlay-image">
+        <div class="overlay-image-item" @click="openFolderModal">
+          <font-awesome-icon size="sm" :icon="['fas', 'fa-folder']" />
+          {{ t('addFolder') }}
+        </div>
+        <div class="overlay-image-item" @click="updateFolder">
+          <font-awesome-icon size="sm" :icon="['fas', 'undo']" />
+          {{ t('update') }}
+        </div>
+        <div class="overlay-image-item" @click="copyLink">
+          <font-awesome-icon size="sm" :icon="['fas', 'fa-link']" />
+          {{ t('copyLink') }}
+        </div>
+      </div>
+    </app-overlay-panel>
     <!-- Фото -->
-    <img :src="images[index].src" alt="" />
+    <img :src="currentImage.src" alt="" />
     <section class="info-section">
       <div class="info-section-wrapper">
-        <!-- Информация -->
+        <div class="slider-dots">
+          <div
+            v-for="(img, i) in images"
+            :key="img.id"
+            class="dot"
+            :class="{ active: i === index }"
+          ></div>
+        </div>
         <div class="info">
           <div class="badge-wrapper">
-            <span v-if="images[index].folder" class="badge darkBadge">{{
-              images[index].folder.name
+            <span v-if="localImages[index].folder" class="badge darkBadge">{{
+              localImages[index].folder.name
             }}</span>
-            <span v-if="images[index].maskType" class="badge darkBadge">{{
-              images[index].maskType
+            <span v-if="currentImage.maskType" class="badge darkBadge">{{
+              currentImage.maskType
             }}</span>
-            <span v-if="images[index].coloristicType" class="badge darkBadge">{{
-              images[index].coloristicType
+            <span v-if="currentImage.coloristicType" class="badge darkBadge">{{
+              currentImage.coloristicType
             }}</span>
           </div>
           <div v-if="!isEditTitle" class="info-title">
             <font-awesome-icon
               size="xs"
               :icon="['fas', 'fa-pencil']"
-              @click="toggleTitle(images[index].title)"
+              @click="toggleTitle(currentImage.title)"
             />
-            <span> {{ images[index].title ? images[index].title : 'No name' }}</span>
+            <span> {{ currentImage.title ? currentImage.title : t('noName') }}</span>
           </div>
           <div v-if="isEditTitle" class="edit-title">
             <app-input v-model="sign" :icon="['fas', 'fa-pencil']" :is-label="false"></app-input>
-            <div class="edit-title-save-icon">
+            <div class="edit-title-save-icon" @click="updateSign">
               <font-awesome-icon size="sm" :icon="['fas', 'undo']" />
             </div>
           </div>
         </div>
 
-        <!-- Действия -->
         <div class="actions">
           <div class="btn">
-            <app-button severity="error" :icon="['fas', 'fa-trash']"></app-button>
+            <app-button
+              severity="error"
+              :icon="['fas', 'fa-trash']"
+              @click="deleteImage"
+            ></app-button>
           </div>
         </div>
       </div>
@@ -53,28 +90,52 @@
   </div>
 </template>
 
-<script>
-import { computed, defineComponent, onMounted, onUnmounted, ref, watch } from 'vue';
+<script lang="ts">
+import {
+  computed,
+  defineComponent,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  PropType,
+  ref,
+  watch,
+} from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
-import Hammer from 'hammerjs';
+
 import { useStore } from 'vuex';
 import AppInput from '@/shared/components/AppInput.vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
+import { openDialog } from '@/shared/components/dialog/services/dialog.service';
+import AppConfirmModal from '@/shared/components/AppConfirmModal.vue';
+import { useI18n } from 'vue-i18n';
+import { Image, ImageUpdate } from '@/store/modules/firebase-gallery';
+import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
+import Hammer from 'hammerjs';
+import AppFolderModal from '@/shared/components/folder-modal/AppFolderModal.vue';
+import { Folder } from '@/store/modules/firebase-folder';
 
 export default defineComponent({
-  components: { AppModalHeader, AppInput, AppButton },
+  components: { AppOverlayPanel, AppModalHeader, AppInput, AppButton },
   props: {
-    images: { type: Array, required: true },
+    images: { type: Array as PropType<Image[]>, required: true },
     startIndex: { type: Number, required: true },
   },
   emits: ['close'],
   setup(props, { emit }) {
+    const { t } = useI18n();
     const store = useStore();
     const index = ref(props.startIndex);
     const modalRef = ref(null);
     const isEditTitle = ref(false);
     const sign = ref('');
-    let hammer = null;
+    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
+    const currentImage = computed(() => props.images[index.value]);
+    const visible = ref(false);
+    const targetRef = ref<HTMLElement | null>(null);
+    const localImages = ref<Image[]>([...props.images]);
+    // eslint-disable-next-line no-undef
+    let hammer: HammerManager | null = null;
 
     watch(
       () => props.startIndex,
@@ -97,12 +158,53 @@ export default defineComponent({
       emit('close');
     };
 
-    const toggleTitle = (title) => {
+    const toggleTitle = (title: string) => {
       isEditTitle.value = true;
       sign.value = title;
     };
 
-    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
+    const deleteImage = async () => {
+      await openDialog(AppConfirmModal, {
+        text: t('dywDelete'),
+        title: t('delete'),
+      }).then((isDeleted) => {
+        if (isDeleted) {
+          store.dispatch('gallery/deleteImageFromGallery', {
+            id: props.images[index.value].id,
+          });
+          emit('close');
+        }
+      });
+    };
+
+    const updateSign = () => {
+      const image: Image = props.images[index.value];
+      isEditTitle.value = false;
+      if (image?.title === sign.value) {
+        return;
+      }
+      store.dispatch('gallery/updateImageInGallery', {
+        ...getImageUpdate(image, sign.value),
+      });
+    };
+
+    const updateFolder = () => {
+      toggleImageOverlayPanel();
+      store.dispatch('gallery/updateImageInGallery', {
+        ...getImageUpdate(props.images[index.value]),
+      });
+    };
+
+    const getImageUpdate = (image: Image, title?: string): ImageUpdate => {
+      return {
+        id: image.id,
+        src: image.src,
+        title: title ? title : image.title,
+        coloristicType: image.coloristicType,
+        maskType: image.maskType,
+        folderId: image?.folder?.id ?? null,
+      };
+    };
 
     onMounted(() => {
       if (modalRef.value) {
@@ -116,7 +218,81 @@ export default defineComponent({
       hammer?.destroy();
     });
 
-    return { index, next, prev, close, modalRef, isMobile, isEditTitle, toggleTitle, sign };
+    const toggleImageOverlayPanel = () => {
+      visible.value = !visible.value;
+    };
+
+    const openFolderModal = async () => {
+      toggleImageOverlayPanel();
+      await openDialog(
+        AppFolderModal,
+        {
+          folder: props.images[index.value].folder,
+        },
+        {
+          transparent: true,
+        }
+      ).then((item: Folder) => {
+        localImages.value[index.value].folder = item;
+      });
+    };
+
+    const copyLink = async () => {
+      toggleImageOverlayPanel();
+      const link = props.images[index.value].src;
+      try {
+        await navigator.clipboard.writeText(link);
+        await store.dispatch('toast/addToast', {
+          message: 'Ссылка скопирована!',
+          severity: 'success',
+        });
+      } catch (err) {
+        await store.dispatch('toast/addToast', {
+          message: 'Ошибка копирования!',
+          severity: 'error',
+        });
+      }
+    };
+
+    watch(
+      index,
+      async (newIndex) => {
+        await nextTick();
+        const dots = document.querySelectorAll('.slider-dots .dot');
+        const activeDot = dots[newIndex] as HTMLElement;
+        if (activeDot) {
+          activeDot.scrollIntoView({
+            behavior: 'smooth',
+            inline: 'center',
+            block: 'nearest',
+          });
+        }
+      },
+      { immediate: true }
+    );
+
+    return {
+      index,
+      next,
+      prev,
+      close,
+      modalRef,
+      isMobile,
+      isEditTitle,
+      toggleTitle,
+      sign,
+      deleteImage,
+      updateSign,
+      currentImage,
+      toggleImageOverlayPanel,
+      targetRef,
+      visible,
+      t,
+      openFolderModal,
+      localImages,
+      updateFolder,
+      copyLink,
+    };
   },
 });
 </script>
@@ -266,7 +442,6 @@ export default defineComponent({
   text-align: center;
 }
 
-/* 📱 Мобильная адаптация */
 @media (max-width: 600px) {
   .badge {
     font-size: 12px;
@@ -301,5 +476,62 @@ export default defineComponent({
   }
   @media (max-width: 600px) {
   }
+}
+
+.ellipsis-vertical {
+  position: absolute;
+  top: 100px;
+  right: 20px;
+  cursor: pointer;
+
+  @media (max-width: 600px) {
+    top: 24px;
+  }
+}
+
+.overlay-image {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  & .overlay-image-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid #eaeaeb;
+    cursor: pointer;
+  }
+}
+.slider-dots {
+  position: relative;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* чтобы точки шли подряд */
+  gap: 5px;
+  width: 75px;
+  overflow-x: auto; /* включаем горизонтальный скролл */
+  scrollbar-width: none; /* скрыть скроллбар в Firefox */
+}
+.slider-dots::-webkit-scrollbar {
+  display: none; /* скрыть скроллбар в Chrome/Safari */
+}
+
+.slider-dots .dot {
+  flex-shrink: 0; /* запрещаем сжатие точек */
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+}
+.dot.active {
+  background: var(--active-doing);
+  width: 9px;
+  height: 9px;
 }
 </style>

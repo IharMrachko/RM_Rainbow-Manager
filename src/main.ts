@@ -11,14 +11,17 @@ import {
   faArrowLeft,
   faArrowRight,
   faCheckCircle,
+  faCopy,
   faEllipsisH,
   faEllipsisVertical,
   faEnvelope,
   faExclamationTriangle,
   faFileUpload,
   faFilter,
+  faFolder,
   faImages,
   faInfoCircle,
+  faLink,
   faLock,
   faLongArrowAltRight,
   faMask,
@@ -68,7 +71,10 @@ library.add(
   faTimes,
   faTimesCircle,
   faTrash,
-  faMask
+  faMask,
+  faFolder,
+  faCopy,
+  faLink
 );
 
 onAuthStateChanged(auth, (user) => {

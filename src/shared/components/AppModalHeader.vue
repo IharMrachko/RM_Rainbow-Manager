@@ -33,7 +33,7 @@ export default defineComponent({
   -webkit-backdrop-filter: blur(10px); /* для Safari */
   display: flex;
   align-items: center;
-  padding: 0 10px;
+  padding: 0 20px;
 
   & .close {
     display: flex;

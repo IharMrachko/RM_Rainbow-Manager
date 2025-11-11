@@ -36,7 +36,7 @@
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref, watch } from 'vue';
+import { computed, defineComponent, onMounted, PropType, ref, watch } from 'vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import AppInput from '@/shared/components/AppInput.vue';
@@ -55,11 +55,17 @@ export default defineComponent({
     AppButton,
     AppModalHeader,
   },
+  props: {
+    folder: {
+      type: Object as PropType<Folder | null>,
+      default: null,
+    },
+  },
   emits: ['resolve', 'reject', 'close'],
   setup(props, { emit }) {
     const store = useStore();
     const folders = computed(() => store.getters['folder/getFilterFolders']);
-    const selectedFolder = ref<null | Folder>(null);
+    const selectedFolder = ref<null | Folder>(props.folder);
     const currentUserId = computed(() => store.getters['authFirebase/getUserId']);
     const isLoading = computed(() => store.getters['folder/isLoading']);
     const search = ref('');

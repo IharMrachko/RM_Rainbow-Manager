@@ -42,6 +42,9 @@ const messages = {
     folder: 'Folder',
     total: 'Total',
     photo: 'Photo',
+    update: 'Update',
+    copyLink: 'Copy link',
+    noName: 'No name',
   },
   ru: {
     login: 'Вход',
@@ -84,6 +87,9 @@ const messages = {
     folder: 'Папка',
     total: 'Всего',
     photo: 'Фото',
+    update: 'Обновить',
+    copyLink: 'Скопировать ссылку',
+    noName: 'Без названия',
   },
 };
 

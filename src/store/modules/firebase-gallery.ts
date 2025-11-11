@@ -3,12 +3,15 @@ import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   getCountFromServer,
   getDocs,
   limit,
   orderBy,
   query,
   startAfter,
+  updateDoc,
   where,
 } from 'firebase/firestore';
 import { Module } from 'vuex';
@@ -44,6 +47,14 @@ export interface Image {
   coloristicType: ColoristicType;
   maskType: MaskType;
   folder: Folder;
+}
+export interface ImageUpdate {
+  id: string;
+  src: string;
+  title: string;
+  coloristicType: ColoristicType;
+  maskType: MaskType;
+  folderId: string | null;
 }
 
 export interface GalleryFilter {
@@ -92,6 +103,17 @@ export const gallery: Module<GalleryState, any> = {
     },
     SET_FILTER(state, filter: Partial<GalleryFilter> | null) {
       state.filter = filter;
+    },
+    UPDATE_IMAGE(state: GalleryState, payload: ImageUpdate) {
+      const index = state.images.findIndex((img) => img.id === payload.id);
+      if (index !== -1) {
+        state.images[index] = { ...state.images[index], ...payload };
+      }
+    },
+
+    DELETE_IMAGE(state: GalleryState, id: string) {
+      state.images = state.images.filter((img) => img.id !== id);
+      state.totalImages = Math.max(0, state.totalImages - 1);
     },
   },
 
@@ -194,11 +216,11 @@ export const gallery: Module<GalleryState, any> = {
 
         constraints.push(limit(pageSize));
 
-        const q = query(itemsRef, ...constraints);
-        const q2 = query(itemsRef, ...constraintsForCount);
+        const queryForGallery = query(itemsRef, ...constraints);
+        const queryForCount = query(itemsRef, ...constraintsForCount);
 
-        const totalImages = await getCountFromServer(q2);
-        const snapshot = await getDocs(q);
+        const totalImages = await getCountFromServer(queryForCount);
+        const snapshot = await getDocs(queryForGallery);
         const items = snapshot.docs.map((doc) => {
           const data = doc.data();
           return {
@@ -207,7 +229,7 @@ export const gallery: Module<GalleryState, any> = {
             title: data.title,
             coloristicType: data.coloristicType,
             maskType: data.maskType,
-            folder: rootGetters['folder/getFolderById'](data.folderId), // здесь доступен rootGetters
+            folder: rootGetters['folder/getFolderById'](data.folderId),
           };
         });
         commit('SET_IMAGES', {
@@ -223,6 +245,50 @@ export const gallery: Module<GalleryState, any> = {
         );
       } finally {
         commit('SET_LOADING', false);
+      }
+    },
+    async updateImageInGallery({ dispatch, commit }, payload: ImageUpdate) {
+      try {
+        const itemRef = doc(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items', payload.id);
+        await updateDoc(itemRef, {
+          ...payload,
+          updatedAt: new Date(),
+          tokens: payload?.title ? tokenizeTitle(payload.title) : [],
+        });
+        commit('UPDATE_IMAGE', payload);
+
+        await dispatch(
+          'toast/addToast',
+          { message: 'successUpdate', severity: 'success' },
+          { root: true }
+        );
+      } catch (err) {
+        await dispatch(
+          'toast/addToast',
+          { message: 'errorUpdate', severity: 'error' },
+          { root: true }
+        );
+        throw err;
+      }
+    },
+    async deleteImageFromGallery({ dispatch, commit }, { id }: { id: string }) {
+      try {
+        // 1. Удаляем документ из Firestore
+        const itemRef = doc(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items', id);
+        await deleteDoc(itemRef);
+        commit('DELETE_IMAGE', id);
+        await dispatch(
+          'toast/addToast',
+          { message: 'successDelete', severity: 'success' },
+          { root: true }
+        );
+      } catch (err) {
+        await dispatch(
+          'toast/addToast',
+          { message: 'errorDelete', severity: 'error' },
+          { root: true }
+        );
+        throw err;
       }
     },
     setFilter(ctx, payload: Partial<GalleryFilter> | null) {

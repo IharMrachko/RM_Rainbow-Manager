@@ -66,7 +66,7 @@ describe('AppOverlayPanel', () => {
     });
 
     const style = (document.body.querySelector('.overlay') as HTMLElement).style;
-    expect(style.position).toBe('absolute');
+    expect(style.position).toBe('fixed');
     expect(style.top).toBe('100px'); // например, если позиция bottom
     expect(style.left).toBe('125px');
     expect(style.transform).toContain('translateX(-50%)');
