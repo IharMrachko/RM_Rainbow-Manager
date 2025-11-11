@@ -31,8 +31,8 @@
         </div>
       </app-overlay-panel>
       <!-- Фото -->
-      <img :src="currentImage.src" alt="" />
-      <section class="info-section">
+      <img :src="currentImage.src" alt="" class="modal-image" />
+      <section class="info-section scroll-area">
         <div class="info-section-wrapper">
           <div class="slider-dots">
             <div
@@ -641,5 +641,20 @@ textarea {
 /* Для «чёлки» и нижней зоны */
 .modal-content {
   padding-bottom: calc(var(--kb, 0px) + env(safe-area-inset-bottom, 0px));
+}
+
+/* зона, где разрешён скролл — только она */
+.scroll-area {
+  flex: 1 1 auto;
+  min-height: 0; /* очень важно для корректного flex + overflow */
+  overflow: auto;
+  -webkit-overflow-scrolling: touch; /* плавный скролл на iOS */
+}
+/* изображение не должно «ломать» высоту */
+.modal-image {
+  flex: 0 0 auto;
+  max-height: 65%;
+  width: 100%;
+  object-fit: contain;
 }
 </style>
