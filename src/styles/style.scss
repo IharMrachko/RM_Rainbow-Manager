@@ -48,6 +48,7 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   height: -webkit-fill-available;
+  overflow: hidden;
 }
 
 a {

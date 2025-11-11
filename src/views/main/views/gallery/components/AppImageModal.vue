@@ -62,7 +62,12 @@
             <span> {{ currentImage.title ? currentImage.title : t('noName') }}</span>
           </div>
           <div v-if="isEditTitle" class="edit-title">
-            <app-input v-model="sign" :icon="['fas', 'fa-pencil']" :is-label="false"></app-input>
+            <app-input
+              v-model="sign"
+              :icon="['fas', 'fa-pencil']"
+              :is-label="false"
+              is-focused
+            ></app-input>
             <div class="edit-title-save-icon" @click="updateSign">
               <font-awesome-icon size="sm" :icon="['fas', 'undo']" />
             </div>
@@ -133,8 +138,6 @@ export default defineComponent({
     const visible = ref(false);
     const targetRef = ref<HTMLElement | null>(null);
     const localImages = ref<Image[]>([...props.images]);
-    // eslint-disable-next-line no-undef
-    let hammer: HammerManager | null = null;
 
     watch(
       () => props.startIndex,
@@ -206,26 +209,33 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      // if (modalRef.value) {
-      //   hammer = new Hammer(modalRef.value);
-      //   hammer.on('swipeleft', next);
-      //   hammer.on('swiperight', prev);
-      // }
       let startX = 0;
+
+      const handleTouchStart = (e: TouchEvent) => {
+        startX = e.touches[0].clientX;
+      };
+
+      const handleTouchEnd = (e: TouchEvent) => {
+        const endX = e.changedTouches[0].clientX;
+        if (startX - endX > 50) next(); // свайп влево
+        if (endX - startX > 50) prev(); // свайп вправо
+      };
+
       if (modalRef.value) {
-        modalRef.value.addEventListener('touchstart', (e: TouchEvent) => {
-          startX = e.touches[0].clientX;
-        });
-        modalRef.value.addEventListener('touchend', (e: TouchEvent) => {
-          const endX = e.changedTouches[0].clientX;
-          if (startX - endX > 50) next(); // свайп влево
-          if (endX - startX > 50) prev(); // свайп вправо
-        });
+        modalRef.value.addEventListener('touchstart', handleTouchStart);
+        modalRef.value.addEventListener('touchend', handleTouchEnd);
+
+        // сохраняем ссылки, чтобы удалить потом
+        (modalRef.value as any)._touchHandlers = { handleTouchStart, handleTouchEnd };
       }
     });
 
     onUnmounted(() => {
-      hammer?.destroy();
+      if (modalRef.value && (modalRef.value as any)._touchHandlers) {
+        const { handleTouchStart, handleTouchEnd } = (modalRef.value as any)._touchHandlers;
+        modalRef.value.removeEventListener('touchstart', handleTouchStart);
+        modalRef.value.removeEventListener('touchend', handleTouchEnd);
+      }
     });
 
     const toggleImageOverlayPanel = () => {
@@ -330,6 +340,7 @@ export default defineComponent({
     border-radius: 0;
     box-shadow: none;
     border: none;
+    overflow: hidden;
   }
 }
 .dark .neon {
