@@ -11,22 +11,71 @@
             :is-label="false"
           ></app-input>
         </div>
-        <div class="filter-btn" @click="openFilterModal">
-          <app-button severity="secondary" raised :icon="['fas', 'filter']"></app-button>
+
+        <section class="actions-mode">
+          <div v-if="!isMobile" class="choose-checkbox">
+            <AppCheckbox v-model="isSelectedMode" label="choose"></AppCheckbox>
+          </div>
+          <div v-if="isSelectedMode && !isMobile" class="choose-checkbox">
+            <AppCheckbox v-model="chooseAll" label="Выбрать все"></AppCheckbox>
+          </div>
+          <app-button
+            severity="secondary"
+            raised
+            :icon="['fas', 'filter']"
+            @click="openFilterModal"
+          ></app-button>
           <div v-if="!isFilterEmpty" class="filter-fill"></div>
-        </div>
+        </section>
       </section>
       <section ref="imagesContainer" class="images" @scroll="onScroll">
         <app-image-card
           v-for="(img, index) in images"
           :key="img.id || index"
           :src="img.src"
+          :image="img"
           @click="openCardModal(index)"
         >
           <template #default> {{ t('photo') }} {{ index + 1 }} </template>
         </app-image-card>
       </section>
-      <footer class="footer">{{ t('total') }}: {{ totalImages }}</footer>
+      <footer class="footer">
+        <div class="icon-list-ol">
+          <font-awesome-icon size="sm" :icon="['fas', 'list-ol']" /> {{ totalImages }}
+        </div>
+        <div class="icon-ellipsis-h">
+          <font-awesome-icon
+            v-if="isMobile"
+            :icon="['fas', 'ellipsis-h']"
+            size="lg"
+            @click.stop="openPopover"
+          />
+        </div>
+        <section class="selected-section" :class="{ mobile: isMobile }">
+          <div v-if="isSelectedMode && selected.length" class="icon">
+            <font-awesome-icon size="sm" :icon="['fas', 'check']" /> {{ selected.length }}
+          </div>
+
+          <div v-if="isSelectedMode && selected.length" class="icon" @click="openDeleteModal">
+            <font-awesome-icon size="sm" :icon="['fas', 'fa-trash']" />
+          </div>
+          <div v-if="isSelectedMode && selected.length" class="icon" @click="clearSelected">
+            <font-awesome-icon size="sm" :icon="['fas', 'broom']" />
+          </div>
+        </section>
+      </footer>
+      <app-popover v-model:visible="visiblePopover">
+        <app-popover-wrapper>
+          <app-popover-item>
+            <AppCheckbox v-model="isSelectedMode"></AppCheckbox>
+            <span>{{ t('choose') }}</span>
+          </app-popover-item>
+          <app-popover-item v-if="isSelectedMode">
+            <AppCheckbox v-model="chooseAll"></AppCheckbox>
+            <span>{{ t('chooseAll') }}</span>
+          </app-popover-item>
+        </app-popover-wrapper>
+      </app-popover>
     </div>
   </div>
 </template>
@@ -42,9 +91,24 @@ import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppGalleryFilterModal from '@/views/main/views/gallery/components/AppGalleryFilterModal.vue';
 import { useI18n } from 'vue-i18n';
 import { filterObjectForEmpty, isObjectEmpty } from '@/helpers/object-empty.helper';
+import AppCheckbox from '@/shared/components/AppCheckbox.vue';
+import AppConfirmModal from '@/shared/components/AppConfirmModal.vue';
+import { Image } from '@/store/modules/firebase-gallery';
+import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
+import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
+import AppPopover from '@/shared/components/AppPopover.vue';
 
 export default defineComponent({
-  components: { AppLoader, AppButton, AppInput, AppImageCard },
+  components: {
+    AppPopover,
+    AppPopoverWrapper,
+    AppPopoverItem,
+    AppCheckbox,
+    AppLoader,
+    AppButton,
+    AppInput,
+    AppImageCard,
+  },
   setup() {
     const { t } = useI18n();
     const store = useStore();
@@ -57,10 +121,16 @@ export default defineComponent({
     const lastDoc = computed(() => store.getters['gallery/getLastDoc']);
     const isLoading = computed(() => store.getters['gallery/isLoading']);
     const filter = computed(() => store.getters['gallery/getFilter']);
+    const selected = computed<Image[]>(() => store.getters['gallery/getSelected']);
     const isFilterEmpty = computed(() => {
       const val = filter.value;
       return !val || isObjectEmpty(filterObjectForEmpty(val));
     });
+    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
+    const isSelectedMode = ref(false);
+    const chooseAll = ref(false);
+    const visiblePopover = ref(false);
+
     let timeout: ReturnType<typeof setTimeout> | null = null;
     onMounted(async () => {
       await store.dispatch('folder/getFolders', currentUserId.value);
@@ -134,6 +204,41 @@ export default defineComponent({
       }, 300);
     });
 
+    watch(isSelectedMode, (isSelectedMode) => {
+      store.dispatch('gallery/setSelectedMode', isSelectedMode);
+    });
+
+    watch(chooseAll, (isChooseAll) => {
+      if (isChooseAll) {
+        store.dispatch('gallery/setSelectedMode', true);
+        store.dispatch('gallery/setSelectedAll', images.value);
+      } else {
+        store.dispatch('gallery/clearSelected');
+      }
+    });
+
+    const openDeleteModal = async () => {
+      await openDialog(AppConfirmModal, {
+        text: t('dyrAllDeleted'),
+        title: t('delete'),
+      }).then((isDeleted) => {
+        if (isDeleted) {
+          store.dispatch(
+            'gallery/deleteImagesFromGallery',
+            selected.value.map((v) => v.id)
+          );
+        }
+      });
+    };
+
+    const clearSelected = () => {
+      store.dispatch('gallery/clearSelected');
+    };
+
+    const openPopover = () => {
+      visiblePopover.value = true;
+    };
+
     return {
       images,
       currentIndex,
@@ -146,6 +251,14 @@ export default defineComponent({
       openFilterModal,
       isFilterEmpty,
       t,
+      isSelectedMode,
+      selected,
+      openDeleteModal,
+      clearSelected,
+      chooseAll,
+      isMobile,
+      openPopover,
+      visiblePopover,
     };
   },
 });
@@ -217,15 +330,52 @@ export default defineComponent({
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 
   /* матовое стекло */
   background: rgba(255, 255, 255, 0.2); /* полупрозрачный белый */
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px); /* для Safari */
   border-top: 1px solid rgba(255, 255, 255, 0.3);
+
+  & .icon-list-ol {
+    flex: 1;
+  }
+
+  & .icon-ellipsis-h {
+    cursor: pointer;
+    display: flex;
+    flex: 1.2;
+    align-items: center;
+    justify-content: center;
+  }
+
+  & .selected-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    & .selected {
+      font-weight: bold;
+    }
+
+    & .icon {
+      cursor: pointer;
+    }
+  }
+  & .selected-section.mobile {
+    flex: 1;
+  }
 }
-.filter-btn {
+.actions-mode {
   position: relative;
+  display: flex;
+  align-items: center;
+  & .choose-checkbox {
+    width: 120px;
+    margin-right: 20px;
+  }
+
   & .filter-fill {
     position: absolute;
     width: 10px;

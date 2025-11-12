@@ -69,6 +69,8 @@ interface GalleryState {
   lastDoc: unknown | null;
   totalImages: number;
   filter: Partial<GalleryFilter> | null;
+  isSelectedMode: boolean;
+  selectedImages: Map<string, Image>;
 }
 
 export const gallery: Module<GalleryState, any> = {
@@ -79,6 +81,8 @@ export const gallery: Module<GalleryState, any> = {
     lastDoc: null,
     totalImages: 0,
     filter: null,
+    isSelectedMode: false,
+    selectedImages: new Map<string, Image>(),
   }),
   mutations: {
     SET_IMAGES(
@@ -114,6 +118,35 @@ export const gallery: Module<GalleryState, any> = {
     DELETE_IMAGE(state: GalleryState, id: string) {
       state.images = state.images.filter((img) => img.id !== id);
       state.totalImages = Math.max(0, state.totalImages - 1);
+    },
+    DELETE_IMAGES(state, ids: string[]) {
+      const idSet = new Set(ids);
+      state.images = state.images.filter((img) => !idSet.has(img.id));
+      state.totalImages = Math.max(0, state.totalImages - ids.length);
+      const selected = state.selectedImages;
+      ids.forEach((id) => selected.delete(id));
+      state.selectedImages = selected;
+    },
+
+    SET_SELECTED_MODE(state: GalleryState, isSelectedMode: boolean) {
+      state.isSelectedMode = isSelectedMode;
+    },
+    SET_SELECTED(state: GalleryState, image: Image) {
+      const selected: Map<string, Image> = state.selectedImages;
+      if (selected.has(image.id)) {
+        selected.delete(image.id);
+      } else {
+        selected.set(image.id, image);
+      }
+      state.selectedImages = selected;
+    },
+    SET_SELECTED_ALL(state: GalleryState, images: Image[]) {
+      const selected: Map<string, Image> = state.selectedImages;
+      images.forEach((it) => selected.set(it.id, it));
+      state.selectedImages = selected;
+    },
+    CLEAR_SELECTED(state: GalleryState) {
+      state.selectedImages = new Map<string, Image>();
     },
   },
 
@@ -291,8 +324,49 @@ export const gallery: Module<GalleryState, any> = {
         throw err;
       }
     },
+    async deleteImagesFromGallery({ dispatch, commit }, ids: string[]) {
+      try {
+        // 1. Удаляем все документы параллельно
+        await Promise.all(
+          ids.map((id) => {
+            const itemRef = doc(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items', id);
+            return deleteDoc(itemRef);
+          })
+        );
+
+        // 2. Коммитим удаление в state
+        commit('DELETE_IMAGES', ids);
+
+        // 3. Показываем тост
+        await dispatch(
+          'toast/addToast',
+          { message: 'successDelete', severity: 'success' },
+          { root: true }
+        );
+      } catch (err) {
+        await dispatch(
+          'toast/addToast',
+          { message: 'errorDelete', severity: 'error' },
+          { root: true }
+        );
+        throw err;
+      }
+    },
+
     setFilter(ctx, payload: Partial<GalleryFilter> | null) {
       ctx.commit('SET_FILTER', payload);
+    },
+    setSelectedMode(ctx, isSelectedMode: boolean) {
+      ctx.commit('SET_SELECTED_MODE', isSelectedMode);
+    },
+    setSelected(ctx, image: Image) {
+      ctx.commit('SET_SELECTED', image);
+    },
+    setSelectedAll(ctx, images: Image[]) {
+      ctx.commit('SET_SELECTED_ALL', images);
+    },
+    clearSelected(ctx) {
+      ctx.commit('CLEAR_SELECTED');
     },
   },
   getters: {
@@ -311,5 +385,16 @@ export const gallery: Module<GalleryState, any> = {
     getFilter(state: GalleryState): Partial<GalleryFilter> | null {
       return state.filter;
     },
+    getSelectedMode(state: GalleryState): boolean {
+      return state.isSelectedMode;
+    },
+    getSelected(state: GalleryState): Image[] {
+      return [...state.selectedImages.values()];
+    },
+    isSelected:
+      (state: GalleryState) =>
+      (id: string): boolean => {
+        return state.selectedImages.has(id);
+      },
   },
 };
