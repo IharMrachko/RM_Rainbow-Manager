@@ -10,6 +10,8 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import {
   faArrowLeft,
   faArrowRight,
+  faBroom,
+  faCheck,
   faCheckCircle,
   faCopy,
   faEllipsisH,
@@ -22,6 +24,7 @@ import {
   faImages,
   faInfoCircle,
   faLink,
+  faListOl,
   faLock,
   faLongArrowAltRight,
   faMask,
@@ -74,7 +77,10 @@ library.add(
   faMask,
   faFolder,
   faCopy,
-  faLink
+  faLink,
+  faBroom,
+  faCheck,
+  faListOl
 );
 
 onAuthStateChanged(auth, (user) => {

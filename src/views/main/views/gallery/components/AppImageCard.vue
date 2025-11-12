@@ -1,5 +1,8 @@
 <template>
   <div class="image-card">
+    <div class="checkbox" @click.stop="selected">
+      <AppCheckbox v-if="isSelectedMode" v-model="selectedImage"></AppCheckbox>
+    </div>
     <img
       v-if="!error"
       :src="src"
@@ -19,20 +22,30 @@
     </div>
   </div>
 </template>
-<script>
-import { defineComponent, ref } from 'vue';
+<script lang="ts">
+import { computed, defineComponent, PropType, ref } from 'vue';
+import { useStore } from 'vuex';
+import AppCheckbox from '@/shared/components/AppCheckbox.vue';
+import { Image } from '@/store/modules/firebase-gallery';
 
 export default defineComponent({
+  components: { AppCheckbox },
   props: {
     src: { type: String, required: true },
     alt: { type: String, default: '' },
     fit: { type: String, default: 'cover' }, // cover | contain
     rounded: { type: Boolean, default: true },
+    image: { type: Object as PropType<Image>, required: true },
   },
-  setup() {
+  setup(props) {
+    const store = useStore();
     const error = ref(false);
     const loaded = ref(false);
-
+    const isSelectedMode = computed(() => store.getters['gallery/getSelectedMode']);
+    const selectedImage = computed(() => store.getters['gallery/isSelected'](props.image.id));
+    const selected = () => {
+      store.dispatch('gallery/setSelected', props.image);
+    };
     function onError() {
       error.value = true;
     }
@@ -40,7 +53,7 @@ export default defineComponent({
       loaded.value = true;
     }
 
-    return { error, loaded, onError, onLoad };
+    return { error, loaded, onError, onLoad, isSelectedMode, selected, selectedImage };
   },
 });
 </script>
@@ -55,6 +68,14 @@ export default defineComponent({
   cursor: pointer;
   width: 250px;
   height: 300px;
+
+  & .checkbox {
+    position: absolute;
+    bottom: -2px;
+    right: 10px;
+    z-index: 5;
+    cursor: pointer;
+  }
 
   @media (max-width: 600px) {
     width: 100%;

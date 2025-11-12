@@ -4,6 +4,9 @@
     <div ref="targetRef" class="ellipsis-vertical" @click="toggleImageOverlayPanel">
       <font-awesome-icon size="lg" :icon="['fas', 'fa-ellipsis-vertical']" />
     </div>
+    <div class="modal-image-choose-checkbox" @click.stop="selected">
+      <AppCheckbox v-if="isSelectedMode" v-model="selectedImage"></AppCheckbox>
+    </div>
     <app-overlay-panel
       v-if="targetRef"
       v-model:visible="visible"
@@ -118,9 +121,10 @@ import { Image, ImageUpdate } from '@/store/modules/firebase-gallery';
 import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
 import AppFolderModal from '@/shared/components/folder-modal/AppFolderModal.vue';
 import { Folder } from '@/store/modules/firebase-folder';
+import AppCheckbox from '@/shared/components/AppCheckbox.vue';
 
 export default defineComponent({
-  components: { AppOverlayPanel, AppModalHeader, AppInput, AppButton },
+  components: { AppCheckbox, AppOverlayPanel, AppModalHeader, AppInput, AppButton },
   props: {
     images: { type: Array as PropType<Image[]>, required: true },
     startIndex: { type: Number, required: true },
@@ -138,7 +142,10 @@ export default defineComponent({
     const visible = ref(false);
     const targetRef = ref<HTMLElement | null>(null);
     const localImages = ref<Image[]>([...props.images]);
-
+    const isSelectedMode = computed(() => store.getters['gallery/getSelectedMode']);
+    const selectedImage = computed(() =>
+      store.getters['gallery/isSelected'](props.images[index.value].id)
+    );
     watch(
       () => props.startIndex,
       (val) => {
@@ -291,6 +298,10 @@ export default defineComponent({
       { immediate: true }
     );
 
+    const selected = () => {
+      store.dispatch('gallery/setSelected', props.images[index.value]);
+    };
+
     return {
       index,
       next,
@@ -312,6 +323,9 @@ export default defineComponent({
       localImages,
       updateFolder,
       copyLink,
+      isSelectedMode,
+      selectedImage,
+      selected,
     };
   },
 });
@@ -345,6 +359,18 @@ export default defineComponent({
     border: none;
     overflow: hidden;
     height: 100%;
+  }
+
+  & .modal-image-choose-checkbox {
+    position: absolute;
+    left: 20px;
+    top: 100px;
+    cursor: pointer;
+
+    @media (max-width: 600px) {
+      left: auto !important;
+      right: 20px !important;
+    }
   }
 }
 .dark .neon {
