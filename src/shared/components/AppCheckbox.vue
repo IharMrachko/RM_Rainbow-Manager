@@ -11,7 +11,6 @@
     :for="id || undefined"
   >
     <span
-      ref="controlEl"
       class="rc__control"
       role="checkbox"
       :aria-checked="ariaChecked"
@@ -21,6 +20,7 @@
       @keydown="onKeydown"
       @focus="$emit('focus')"
       @blur="$emit('blur')"
+      @click="toggle"
     >
       <!-- Внутренние слои: внешний круг, заполнение, символ -->
       <span class="rc__ring" />
@@ -45,8 +45,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onBeforeUnmount, onMounted, ref, toRefs } from 'vue';
-import Hammer from 'hammerjs';
+import { computed, defineComponent, toRefs } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
@@ -64,9 +63,6 @@ export default defineComponent({
   setup(props, { emit }) {
     const { t } = useI18n();
     const { modelValue, disabled, readonly, indeterminate, size } = toRefs(props);
-    const controlEl = ref<HTMLElement | null>(null);
-    // eslint-disable-next-line no-undef
-    let hammer: HammerManager | null = null;
     const ariaChecked = computed(() =>
       indeterminate.value ? 'mixed' : modelValue.value ? 'true' : 'false'
     );
@@ -89,23 +85,11 @@ export default defineComponent({
       '--rc-size': `${size.value}px`,
     }));
 
-    onMounted(() => {
-      if (controlEl.value) {
-        hammer = new Hammer(controlEl.value);
-        hammer.on('tap', toggle); // вместо @click
-      }
-    });
-
-    onBeforeUnmount(() => {
-      hammer?.destroy();
-    });
-
     return {
       toggle,
       onKeydown,
       ariaChecked,
       styles,
-      controlEl,
       t,
     };
   },

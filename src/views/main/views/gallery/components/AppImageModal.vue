@@ -118,7 +118,6 @@ import { Image, ImageUpdate } from '@/store/modules/firebase-gallery';
 import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
 import AppFolderModal from '@/shared/components/folder-modal/AppFolderModal.vue';
 import { Folder } from '@/store/modules/firebase-folder';
-import { useScrollLock } from '@vueuse/core';
 
 export default defineComponent({
   components: { AppOverlayPanel, AppModalHeader, AppInput, AppButton },
@@ -140,8 +139,6 @@ export default defineComponent({
     const targetRef = ref<HTMLElement | null>(null);
     const localImages = ref<Image[]>([...props.images]);
 
-    // создаём реактивный флаг блокировки
-    const isLocked = useScrollLock(modalRef);
     watch(
       () => props.startIndex,
       (val) => {
@@ -212,7 +209,6 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      isLocked.value = true;
       let startX = 0;
 
       const handleTouchStart = (e: TouchEvent) => {
