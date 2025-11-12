@@ -2,7 +2,7 @@
   <div class="gallery-container">
     <AppLoader v-if="isLoading"></AppLoader>
     <div class="gallery-wrapper">
-      <section class="gallery-helper">
+      <section class="gallery-helper" :class="{ hidden: isHidden }">
         <div class="search">
           <app-input
             v-model="search"
@@ -28,7 +28,12 @@
           <div v-if="!isFilterEmpty" class="filter-fill"></div>
         </section>
       </section>
-      <section ref="imagesContainer" class="images" @scroll="onScroll">
+      <section
+        ref="imagesContainer"
+        class="images"
+        :class="{ hidden: isHidden }"
+        @scroll="onScroll"
+      >
         <app-image-card
           v-for="(img, index) in images"
           :key="img.id || index"
@@ -39,7 +44,7 @@
           <template #default> {{ t('photo') }} {{ index + 1 }} </template>
         </app-image-card>
       </section>
-      <footer class="footer">
+      <footer class="footer" :class="{ hidden: isHidden }">
         <div class="icon-list-ol">
           <font-awesome-icon size="sm" :icon="['fas', 'list-ol']" /> {{ totalImages }}
         </div>
@@ -130,7 +135,8 @@ export default defineComponent({
     const isSelectedMode = ref(false);
     const chooseAll = ref(false);
     const visiblePopover = ref(false);
-
+    const isHidden = ref(false);
+    let lastScrollTop = 0;
     let timeout: ReturnType<typeof setTimeout> | null = null;
     onMounted(async () => {
       await store.dispatch('folder/getFolders', currentUserId.value);
@@ -173,6 +179,7 @@ export default defineComponent({
     const onScroll = async (e: Event) => {
       const target = e.target as HTMLElement;
       const scrollBottom = Math.ceil(target.scrollTop + target.clientHeight);
+      const scrollTop = target.scrollTop;
       const isEndReached = scrollBottom >= target.scrollHeight;
       if (isEndReached) {
         if (totalImages.value > images.value.length && !isLoading.value) {
@@ -188,6 +195,14 @@ export default defineComponent({
           });
         }
       }
+      if (scrollTop > lastScrollTop) {
+        // скроллим вниз
+        isHidden.value = true;
+      } else {
+        // скроллим вверх
+        isHidden.value = false;
+      }
+      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
     };
 
     watch(search, (newVal) => {
@@ -259,6 +274,7 @@ export default defineComponent({
       isMobile,
       openPopover,
       visiblePopover,
+      isHidden,
     };
   },
 });
@@ -276,7 +292,7 @@ export default defineComponent({
 
   @media (max-width: 600px) {
     padding: 15px;
-    margin-bottom: 10px;
+    margin-bottom: 0;
 
     .search {
       width: 250px;
@@ -293,6 +309,7 @@ export default defineComponent({
 
   .gallery-wrapper {
     width: 100%;
+    overflow: hidden;
 
     & .images {
       display: grid;
@@ -384,6 +401,35 @@ export default defineComponent({
     background: red;
     top: 6px;
     right: 10px;
+  }
+}
+
+.gallery-helper,
+.footer {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+
+  &.hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+    height: 0;
+    margin: 0;
+    padding-bottom: 2px;
+
+    @media (max-width: 600px) {
+      padding: 0;
+    }
+  }
+}
+
+.footer.hidden {
+  transform: translateY(100%);
+}
+
+.images.hidden {
+  height: calc(100dvh - var(--header-height) - 25px) !important;
+  @media (max-width: 600px) {
+    height: calc(100dvh - var(--header-height)) !important;
   }
 }
 </style>
