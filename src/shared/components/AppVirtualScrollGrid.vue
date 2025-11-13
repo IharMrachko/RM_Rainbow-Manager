@@ -115,13 +115,11 @@ export default defineComponent({
     const onScroll = (e: Event) => {
       emit('scroll', e);
       const el = e.target as HTMLElement;
-      const next = el.scrollTop;
-      if (next > maxScroll.value) {
-        el.scrollTop = maxScroll.value;
-        scrollTop.value = maxScroll.value;
-      } else {
-        scrollTop.value = next;
-      }
+      let next = el.scrollTop;
+      if (next < 0) next = 0; // iOS bounce fix
+      if (next > maxScroll.value) next = maxScroll.value;
+      el.scrollTop = next;
+      scrollTop.value = next;
     };
 
     onMounted(() => {

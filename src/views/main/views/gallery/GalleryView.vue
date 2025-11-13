@@ -29,7 +29,7 @@
         </section>
       </section>
       <section ref="imagesContainer" class="images" :class="{ hidden: isHidden }">
-        <VirtualScrollGrid
+        <app-virtual-scroll-grid
           :items="images"
           :item-key="(item: Image) => item.id"
           :min-column-width="isMobile ? 100 : 250"
@@ -42,7 +42,7 @@
               <template #default> {{ t('photo') }} {{ getCurrentIndex(item) + 1 }} </template>
             </app-image-card>
           </template>
-        </VirtualScrollGrid>
+        </app-virtual-scroll-grid>
       </section>
       <footer class="footer" :class="{ hidden: isHidden }">
         <div class="icon-list-ol">
@@ -102,11 +102,11 @@ import { Image } from '@/store/modules/firebase-gallery';
 import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopover from '@/shared/components/AppPopover.vue';
-import VirtualScrollGrid from '@/shared/components/VirtualScrollGrid.vue';
+import AppVirtualScrollGrid from '@/shared/components/AppVirtualScrollGrid.vue';
 
 export default defineComponent({
   components: {
-    VirtualScrollGrid,
+    AppVirtualScrollGrid,
     AppPopover,
     AppPopoverWrapper,
     AppPopoverItem,
