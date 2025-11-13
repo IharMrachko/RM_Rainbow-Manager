@@ -42,7 +42,7 @@ export default defineComponent({
     const scrollTop = ref(0);
     const containerHeight = ref(0);
     const containerWidth = ref(0);
-
+    let ro: ResizeObserver | null = null;
     const containerStyle = computed(() => ({
       height: typeof props.height === 'number' ? `${props.height}px` : String(props.height),
     }));
@@ -127,12 +127,13 @@ export default defineComponent({
     onMounted(() => {
       nextTick(() => measure());
       if (container.value && 'ResizeObserver' in window) {
-        const ro = new ResizeObserver(() => measure());
+        ro = new ResizeObserver(() => measure());
         ro.observe(container.value);
       }
       window.addEventListener('resize', measure);
     });
     onBeforeUnmount(() => {
+      ro?.disconnect();
       window.removeEventListener('resize', measure);
     });
 
