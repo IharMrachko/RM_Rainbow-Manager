@@ -13,15 +13,7 @@
   </div>
 </template>
 <script lang="ts">
-import {
-  computed,
-  defineComponent,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  PropType,
-  ref,
-} from 'vue';
+import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, PropType, ref, } from 'vue';
 
 export default defineComponent({
   props: {
@@ -157,18 +149,11 @@ export default defineComponent({
   overscroll-behavior-y: contain; /* снижает bounce */
   -webkit-overflow-scrolling: touch; /* плавность на iOS */
   overflow-anchor: none; /* отключить scroll anchoring */
-  padding: 0 0 0 20px; /* контролируем поля */
 
   /* Скрыть скроллбар в разных браузерах */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE и Edge */
   overscroll-behavior: contain; /* или none */
-
-  @media (max-width: 600px) {
-    padding: 0;
-    align-content: start;
-    gap: 3px;
-  }
 
   &::-webkit-scrollbar {
     /* Chrome, Safari, Opera */

@@ -122,7 +122,6 @@ export default defineComponent({
     const search = ref('');
     const imagesContainer = ref<HTMLElement | null>(null);
     const images = computed(() => store.getters['gallery/getImages']);
-
     const currentIndex = ref<number | null>(null);
     const currentUserId = computed(() => store.getters['authFirebase/getUserId']);
     const totalImages = computed(() => store.getters['gallery/getTotalImages']);
@@ -331,6 +330,13 @@ export default defineComponent({
   .gallery-wrapper {
     width: 100%;
     overflow: hidden;
+  }
+
+  .images {
+    padding: 0 0 0 20px;
+    @media (max-width: 600px) {
+      padding: 0;
+    }
   }
 
   @media (max-width: 600px) {
