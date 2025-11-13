@@ -118,10 +118,7 @@ export default defineComponent({
       const raw = el.scrollTop;
       if (rafId != null) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
-        let next = raw;
-        if (next < 0) next = 0;
-        if (next > maxScroll.value) next = maxScroll.value;
-        scrollTop.value = next;
+        scrollTop.value = Math.max(0, Math.min(raw, maxScroll.value));
         rafId = null;
       });
     };
