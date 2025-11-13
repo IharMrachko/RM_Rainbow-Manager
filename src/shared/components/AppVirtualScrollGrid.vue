@@ -111,15 +111,19 @@ export default defineComponent({
         height: `${props.rowHeight}px`,
       };
     };
-
+    let rafId: number | null = null;
     const onScroll = (e: Event) => {
       emit('scroll', e);
       const el = e.target as HTMLElement;
-      let next = el.scrollTop;
-      if (next < 0) next = 0; // iOS bounce fix
-      if (next > maxScroll.value) next = maxScroll.value;
-      el.scrollTop = next;
-      scrollTop.value = next;
+      const raw = el.scrollTop;
+      if (rafId != null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        let next = raw;
+        if (next < 0) next = 0;
+        if (next > maxScroll.value) next = maxScroll.value;
+        scrollTop.value = next;
+        rafId = null;
+      });
     };
 
     onMounted(() => {
