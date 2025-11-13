@@ -46,12 +46,12 @@ export default defineComponent({
     const selected = () => {
       store.dispatch('gallery/setSelected', props.image);
     };
-    function onError() {
+    const onError = () => {
       error.value = true;
-    }
-    function onLoad() {
+    };
+    const onLoad = () => {
       loaded.value = true;
-    }
+    };
 
     return { error, loaded, onError, onLoad, isSelectedMode, selected, selectedImage };
   },
