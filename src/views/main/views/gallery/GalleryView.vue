@@ -28,21 +28,21 @@
           <div v-if="!isFilterEmpty" class="filter-fill"></div>
         </section>
       </section>
-      <section
-        ref="imagesContainer"
-        class="images"
-        :class="{ hidden: isHidden }"
-        @scroll="onScroll"
-      >
-        <app-image-card
-          v-for="(img, index) in images"
-          :key="img.id || index"
-          :src="img.src"
-          :image="img"
-          @click="openCardModal(index)"
+      <section ref="imagesContainer" class="images" :class="{ hidden: isHidden }">
+        <VirtualScrollGrid
+          :items="images"
+          :item-key="(item: Image) => item.id"
+          :min-column-width="isMobile ? 100 : 250"
+          :row-height="isMobile ? 150 : 300"
+          :height="heightImagesContainer"
+          @scroll="onScroll"
         >
-          <template #default> {{ t('photo') }} {{ index + 1 }} </template>
-        </app-image-card>
+          <template #default="{ item, index }">
+            <app-image-card :src="item.src" :image="item" @click="openCardModal(index)">
+              <template #default> {{ t('photo') }} {{ getCurrentIndex(item) + 1 }} </template>
+            </app-image-card>
+          </template>
+        </VirtualScrollGrid>
       </section>
       <footer class="footer" :class="{ hidden: isHidden }">
         <div class="icon-list-ol">
@@ -102,9 +102,11 @@ import { Image } from '@/store/modules/firebase-gallery';
 import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopover from '@/shared/components/AppPopover.vue';
+import VirtualScrollGrid from '@/shared/components/VirtualScrollGrid.vue';
 
 export default defineComponent({
   components: {
+    VirtualScrollGrid,
     AppPopover,
     AppPopoverWrapper,
     AppPopoverItem,
@@ -120,6 +122,7 @@ export default defineComponent({
     const search = ref('');
     const imagesContainer = ref<HTMLElement | null>(null);
     const images = computed(() => store.getters['gallery/getImages']);
+
     const currentIndex = ref<number | null>(null);
     const currentUserId = computed(() => store.getters['authFirebase/getUserId']);
     const totalImages = computed(() => store.getters['gallery/getTotalImages']);
@@ -256,6 +259,20 @@ export default defineComponent({
       visiblePopover.value = true;
     };
 
+    const getCurrentIndex = (image: Image) => {
+      return images.value.findIndex((v: any) => v.id === image.id);
+    };
+
+    const heightImagesContainer = computed(() => {
+      if (isMobile.value && isHidden.value) {
+        return 'calc(100dvh - var(--header-height) - 5px)';
+      }
+
+      return isHidden.value
+        ? 'calc(100dvh - var(--header-height) - 25px)'
+        : 'calc(100dvh - var(--header-height) - 135px)';
+    });
+
     return {
       images,
       currentIndex,
@@ -277,6 +294,8 @@ export default defineComponent({
       openPopover,
       visiblePopover,
       isHidden,
+      getCurrentIndex,
+      heightImagesContainer,
     };
   },
 });
@@ -312,32 +331,6 @@ export default defineComponent({
   .gallery-wrapper {
     width: 100%;
     overflow: hidden;
-
-    & .images {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 10px;
-      padding: 0 0 0 20px; /* контролируем поля */
-      overflow: auto;
-      height: calc(100dvh - var(--header-height) - 135px);
-      /* Скрыть скроллбар в разных браузерах */
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE и Edge */
-      overscroll-behavior: contain; /* или none */
-      overscroll-behavior-y: none;
-      -webkit-overflow-scrolling: touch;
-      @media (max-width: 600px) {
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-        padding: 0;
-        align-content: start;
-        gap: 3px;
-      }
-
-      &::-webkit-scrollbar {
-        /* Chrome, Safari, Opera */
-        display: none;
-      }
-    }
   }
 
   @media (max-width: 600px) {
@@ -428,12 +421,5 @@ export default defineComponent({
 
 .footer.hidden {
   transform: translateY(100%);
-}
-
-.images.hidden {
-  height: calc(100dvh - var(--header-height) - 25px) !important;
-  @media (max-width: 600px) {
-    height: calc(100dvh - var(--header-height)) !important;
-  }
 }
 </style>
