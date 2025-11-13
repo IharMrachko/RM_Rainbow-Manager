@@ -196,10 +196,13 @@ export default defineComponent({
           });
         }
       }
-      if (scrollTop > lastScrollTop) {
-        isHidden.value = true;
-      } else {
-        isHidden.value = false;
+      const nearBottom = scrollBottom >= target.scrollHeight - 20; // порог 20px
+      if (!nearBottom) {
+        if (scrollTop > lastScrollTop) {
+          isHidden.value = true;
+        } else if (scrollTop < lastScrollTop) {
+          isHidden.value = false;
+        }
       }
       lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
     };
@@ -316,12 +319,13 @@ export default defineComponent({
       gap: 10px;
       padding: 0 0 0 20px; /* контролируем поля */
       overflow: auto;
-      height: calc(100dvh - var(--header-height) - 145px);
+      height: calc(100dvh - var(--header-height) - 135px);
       /* Скрыть скроллбар в разных браузерах */
       scrollbar-width: none; /* Firefox */
       -ms-overflow-style: none; /* IE и Edge */
       overscroll-behavior: contain; /* или none */
-      -webkit-overflow-scrolling: touch; /* плавный скролл */
+      overscroll-behavior-y: none;
+      -webkit-overflow-scrolling: touch;
       @media (max-width: 600px) {
         grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
         padding: 0;
@@ -337,7 +341,7 @@ export default defineComponent({
   }
 
   @media (max-width: 600px) {
-    padding: 5px 0;
+    padding: 0;
   }
 }
 
