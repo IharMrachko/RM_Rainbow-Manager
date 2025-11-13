@@ -60,13 +60,6 @@ export default defineComponent({
       return (containerWidth.value - (cols - 1) * props.gap) / cols;
     });
 
-    function measure() {
-      const el = container.value;
-      if (!el) return;
-      containerHeight.value = el.clientHeight;
-      containerWidth.value = el.clientWidth;
-    }
-
     const totalRows = computed(() => Math.ceil(props.items.length / columnsCount.value));
     const totalHeight = computed(
       () => totalRows.value * props.rowHeight + Math.max(0, totalRows.value - 1) * props.gap
@@ -99,7 +92,14 @@ export default defineComponent({
       return remainingRows * (props.rowHeight + props.gap);
     });
 
-    function cellStyle(index: number) {
+    const measure = () => {
+      const el = container.value;
+      if (!el) return;
+      containerHeight.value = el.clientHeight;
+      containerWidth.value = el.clientWidth;
+    };
+
+    const cellStyle = (index: number) => {
       const row = Math.floor(index / columnsCount.value);
       const col = index % columnsCount.value;
       const x = col * (colWidth.value + props.gap);
@@ -110,9 +110,9 @@ export default defineComponent({
         width: `${Math.round(colWidth.value)}px`,
         height: `${props.rowHeight}px`,
       };
-    }
+    };
 
-    function onScroll(e: Event) {
+    const onScroll = (e: Event) => {
       emit('scroll', e);
       const el = e.target as HTMLElement;
       const next = el.scrollTop;
@@ -122,7 +122,7 @@ export default defineComponent({
       } else {
         scrollTop.value = next;
       }
-    }
+    };
 
     onMounted(() => {
       nextTick(() => measure());
