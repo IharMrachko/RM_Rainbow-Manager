@@ -138,6 +138,7 @@ export default defineComponent({
     const isHidden = ref(false);
     let lastScrollTop = 0;
     let timeout: ReturnType<typeof setTimeout> | null = null;
+
     onMounted(async () => {
       await store.dispatch('folder/getFolders', currentUserId.value);
       await store.dispatch('gallery/initUserGalleryItems', {
@@ -196,10 +197,8 @@ export default defineComponent({
         }
       }
       if (scrollTop > lastScrollTop) {
-        // скроллим вниз
         isHidden.value = true;
       } else {
-        // скроллим вверх
         isHidden.value = false;
       }
       lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
@@ -321,7 +320,8 @@ export default defineComponent({
       /* Скрыть скроллбар в разных браузерах */
       scrollbar-width: none; /* Firefox */
       -ms-overflow-style: none; /* IE и Edge */
-
+      overscroll-behavior: contain; /* или none */
+      -webkit-overflow-scrolling: touch; /* плавный скролл */
       @media (max-width: 600px) {
         grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
         padding: 0;
