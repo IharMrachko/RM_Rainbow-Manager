@@ -53,7 +53,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const MARGIN = 12;
     let size = 360;
-    const originalUrlRef = ref<string | null>(props.imageUrl);
+    const originalUrlRef = ref<string>(props.imageUrl);
     const originalFileRef = ref<File | null>(null);
     const fileInput = ref<HTMLInputElement | null>(null);
     const canvas = ref<HTMLCanvasElement | null>(null);
@@ -63,7 +63,7 @@ export default defineComponent({
     let clientH = 0;
     const dprCap = 2;
 
-    const image = ref<string | null>(props.imageUrl);
+    const image = ref<string>(props.imageUrl);
     const imgObj = ref<HTMLImageElement | null>(null);
     const exportedImageUrl = ref<string | null>(null); // <- сюда сохраняется результат (dataURL)
     const state = reactive<any>({
@@ -215,7 +215,7 @@ export default defineComponent({
       if (state.pointers.has(e.pointerId)) state.pointers.set(e.pointerId, copyPointer(e));
 
       if (state.pointers.size === 2) {
-        const pts = Array.from(state.pointers.values());
+        const pts: any = Array.from(state.pointers.values());
         const curDist = distance(pts[0], pts[1]);
         if (state._pinchStartDist == null) {
           state._pinchStartDist = curDist;
