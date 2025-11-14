@@ -29,6 +29,13 @@
         ></app-button>
       </div>
       <div v-if="!isMobile" class="btn">
+        <app-button
+          severity="info"
+          title="open settings"
+          @click="openImageSettingsModal"
+        ></app-button>
+      </div>
+      <div v-if="!isMobile" class="btn">
         <app-button severity="info" title="addSign" @click="openImageModal"></app-button>
       </div>
       <div v-if="!isMobile" class="checkbox">
@@ -47,6 +54,10 @@
   </div>
   <app-popover v-model:visible="visiblePopover">
     <app-popover-wrapper>
+      <app-popover-item @click="openImageSettingsModal">
+        <font-awesome-icon size="xl" :icon="['fas', 'cog']" />
+        <span>{{ t('settings') }}</span>
+      </app-popover-item>
       <app-popover-item @click="triggerUpload">
         <font-awesome-icon size="xl" :icon="['fas', 'file-upload']" />
         <span>{{ t('upload') }}</span>
@@ -93,6 +104,7 @@ import AppCheckbox from '@/shared/components/AppCheckbox.vue';
 import { readFileAsDataURL } from '@/helpers/read-file-as-data-url';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppImageSignInModal from '@/views/main/views/color-view/components/AppImageSignInModal.vue';
+import AppImageSettingsModal from '@/shared/components/AppImageSettingsModal.vue';
 
 export default defineComponent({
   components: {
@@ -119,6 +131,7 @@ export default defineComponent({
     const selectedCard = ref<null | ColorCard>(null);
     const frameColors = ref();
     const imageUrl = ref<string | null>(null);
+    let originImageUrl: string | null = null;
     const isSaveToGallery = ref(false);
     const sharedWithCollage = ref(store.getters['imageColor/shareImgCollage']);
     const rememberChoose = ref(store.getters['imageColor/rememberImgMask']);
@@ -141,6 +154,7 @@ export default defineComponent({
     });
     const onFileSelected = async (file: File) => {
       imageUrl.value = await readFileAsDataURL(file);
+      originImageUrl = imageUrl.value;
       await store.dispatch('imageColor/uploadImgMask', { file });
     };
 
@@ -196,6 +210,14 @@ export default defineComponent({
         imageUrl: imageUrl.value,
       });
     };
+    const openImageSettingsModal = async () => {
+      visiblePopover.value = false;
+      await openDialog(AppImageSettingsModal, {
+        imageUrl: originImageUrl,
+      }).then((value) => {
+        store.dispatch('imageColor/uploadImgMask', { file: value.file });
+      });
+    };
 
     watch(
       () => sharedWithCollage.value,
@@ -216,9 +238,9 @@ export default defineComponent({
     );
     watch(
       () => store.getters['imageColor/imgCollage'],
-      (file: File) => {
+      async (file: File) => {
         if (store.getters['imageColor/shareImgMask']) {
-          onFileSelected(file);
+          imageUrl.value = await readFileAsDataURL(file);
         }
       }
     );
@@ -241,6 +263,7 @@ export default defineComponent({
       sharedWithCollage,
       rememberChoose,
       openImageModal,
+      openImageSettingsModal,
     };
   },
 });
@@ -269,7 +292,6 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     flex: 2;
   }
 

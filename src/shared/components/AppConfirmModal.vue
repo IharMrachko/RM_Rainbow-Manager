@@ -95,10 +95,4 @@ export default defineComponent({
     }
   }
 }
-
-.dark .neon {
-  /* 🎇 Неоновая подсветка */
-  border: 1px solid #0ff;
-  box-shadow: 0 0 5px #0ff, 0 0 5px #0ff, 0 0 5px #0ff, 0 0 25px #0ff;
-}
 </style>

@@ -13,6 +13,7 @@ import {
   faBroom,
   faCheck,
   faCheckCircle,
+  faCog,
   faCopy,
   faEllipsisH,
   faEllipsisVertical,
@@ -36,6 +37,7 @@ import {
   faRightFromBracket,
   faSave,
   faSearch,
+  faShare,
   faTimes,
   faTimesCircle,
   faTrash,
@@ -80,7 +82,9 @@ library.add(
   faLink,
   faBroom,
   faCheck,
-  faListOl
+  faListOl,
+  faShare,
+  faCog
 );
 
 onAuthStateChanged(auth, (user) => {

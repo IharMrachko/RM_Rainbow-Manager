@@ -78,6 +78,7 @@ export default defineComponent({
   /* выпуклый эффект */
   box-shadow: 2px 2px 6px #c5c5c5, -2px -2px 6px #ffffff;
   transition: all 0.2s ease;
+  height: 50px;
 }
 
 .upload-btn:active {
