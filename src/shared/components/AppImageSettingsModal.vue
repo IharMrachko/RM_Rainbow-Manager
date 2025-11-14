@@ -42,12 +42,15 @@ import { defineComponent, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import AppButton from '@/shared/components/AppButton.vue';
-import { string } from 'yup';
 
 export default defineComponent({
   components: { AppButton, AppModalHeader, AppFileUploader },
   props: {
-    imageUrl: string,
+    imageUrl: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
   emits: ['resolve', 'reject', 'close'],
   setup(props, { emit }) {
