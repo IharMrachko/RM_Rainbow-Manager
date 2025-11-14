@@ -1,42 +1,17 @@
 <template>
   <div>
-    <canvas
-      ref="canvasRef"
-      :width="sizeRef"
-      :height="sizeRef"
-      @mousedown="startSelection"
-      @mousemove="moveSelection"
-      @mouseup="endSelection"
-    ></canvas>
-  </div>
-  <div class="actions">
-    <app-button
-      severity="secondary"
-      raised
-      :icon="['fas', 'undo']"
-      @click="resetImage"
-    ></app-button>
-    <app-button severity="secondary" raised :icon="['fas', 'plus']" @click="zoomPlus"></app-button>
-    <app-button
-      severity="secondary"
-      raised
-      :icon="['fas', 'minus']"
-      @click="zoomMinus"
-    ></app-button>
-    <app-button severity="secondary" raised :icon="['fas', 'save']" @click="saveImage"></app-button>
+    <canvas ref="canvasRef" :width="sizeRef" :height="sizeRef"></canvas>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, nextTick, onMounted, ref, watch } from 'vue';
 import { FrameColorSegmentType } from '@/types/frame-color-segment.type';
-import AppButton from '@/shared/components/AppButton.vue';
 import { useCanvasSaver } from '@/composables/useCanvasSaver';
 import { useStore } from 'vuex';
 
 export default defineComponent({
   name: 'AppEditorCanvas',
-  components: { AppButton },
   props: {
     segments: { type: Array as () => FrameColorSegmentType[], required: true },
     imageUrl: { type: [String, null], default: null },
@@ -53,12 +28,7 @@ export default defineComponent({
     const startAngleRef = ref<number | null>(null); // начало отрисовки сегментов, например, начало по часовой стрелке с 12 часов
     const offsetXRef = ref(0); // смещение изображения по оси X
     const offsetYRef = ref(0); // смещение изображения по оси Y
-    // --- Crop selection ---
-    let isSelecting = false;
-    let startX = 0,
-      startY = 0,
-      currentX = 0,
-      currentY = 0;
+
     let isLoadImage = false;
     const render = async () => {
       if (!canvasRef.value) return;
@@ -73,7 +43,7 @@ export default defineComponent({
     };
 
     const { getCanvasSrc, saveImage, loadImage, resetImage, zoomPlus, zoomMinus, zoom } =
-      useCanvasSaver(canvasRef, render, emit, originalUrlRef);
+      useCanvasSaver(canvasRef, render, emit);
 
     const getCanvasValue = () => {
       return canvasRef.value;
@@ -81,62 +51,6 @@ export default defineComponent({
 
     const getImageSrc = () => {
       return getCanvasSrc();
-    };
-
-    const startSelection = (e: MouseEvent) => {
-      if (!canvasRef.value) return;
-      isSelecting = true;
-      const rect = canvasRef.value.getBoundingClientRect();
-      startX = e.clientX - rect.left;
-      startY = e.clientY - rect.top;
-      currentX = startX;
-      currentY = startY;
-      draw();
-    };
-
-    const moveSelection = (e: MouseEvent) => {
-      if (!isSelecting || !canvasRef.value) return;
-      const rect = canvasRef.value.getBoundingClientRect();
-      currentX = e.clientX - rect.left;
-      currentY = e.clientY - rect.top;
-      draw();
-    };
-
-    const endSelection = () => {
-      if (!canvasRef.value) return;
-      isSelecting = false;
-      draw();
-
-      const x = Math.min(startX, currentX);
-      const y = Math.min(startY, currentY);
-      const w = Math.abs(currentX - startX);
-      const h = Math.abs(currentY - startY);
-
-      if (w < 2 || h < 2) return;
-
-      const cropCanvas = document.createElement('canvas');
-      cropCanvas.width = w;
-      cropCanvas.height = h;
-      const cropCtx = cropCanvas.getContext('2d')!;
-
-      cropCtx.drawImage(canvasRef.value, x, y, w, h, 0, 0, w, h);
-
-      const croppedUrl = cropCanvas.toDataURL('image/png');
-      emit('update:imageUrl', croppedUrl);
-    };
-
-    const draw = () => {
-      if (!canvasRef.value) return;
-      const ctx = canvasRef.value.getContext('2d')!;
-      ctx.clearRect(0, 0, sizeRef.value, sizeRef.value);
-      drawBaseImage(ctx);
-      drawFrame(ctx);
-
-      if (isSelecting) {
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(startX, startY, currentX - startX, currentY - startY);
-      }
     };
 
     const drawBaseImage = (ctx: CanvasRenderingContext2D) => {
@@ -253,9 +167,7 @@ export default defineComponent({
 
     return {
       canvasRef,
-      startSelection,
-      moveSelection,
-      endSelection,
+
       resetImage,
       saveImage,
       zoomPlus,
@@ -267,10 +179,4 @@ export default defineComponent({
   },
 });
 </script>
-<style scoped>
-.actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 10px;
-}
-</style>
+<style scoped></style>

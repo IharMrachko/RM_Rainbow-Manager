@@ -204,15 +204,6 @@ export default defineComponent({
     }
   }
 }
-.dark .neon {
-  /* 🎇 Неоновая подсветка */
-  border: 1px solid #0ff;
-  box-shadow: 0 0 5px #0ff, 0 0 5px #0ff, 0 0 5px #0ff, 0 0 25px #0ff;
-  @media (max-width: 600px) {
-    box-shadow: none;
-    border: none;
-  }
-}
 
 img {
   width: 40px;

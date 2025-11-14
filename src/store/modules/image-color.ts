@@ -26,6 +26,7 @@ export const imageColor: Module<ImageColorState, any> = {
     UPLOAD_IMG_COLLAGE(state: ImageColorState, payload: { file: File }): void {
       state.imgCollage = payload.file;
     },
+
     SET_REMEMBER_IMG_MASK(state: ImageColorState, payload: { remember: boolean }): void {
       state.rememberImgMask = payload.remember;
     },
