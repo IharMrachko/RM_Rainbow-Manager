@@ -136,7 +136,7 @@ export default defineComponent({
       (value) => {
         if (value < 600) {
           thicknessRef.value = 40;
-          sizeRef.value = 280;
+          sizeRef.value = 320;
           nextTick(() => render());
           return;
         }
@@ -150,7 +150,7 @@ export default defineComponent({
 
         if (value > 1024) {
           thicknessRef.value = 90;
-          sizeRef.value = 480;
+          sizeRef.value = 520;
           nextTick(() => render());
           return;
         }

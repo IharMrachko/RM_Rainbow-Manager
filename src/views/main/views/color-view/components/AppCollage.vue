@@ -86,10 +86,10 @@ import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppImageSignInModal from '@/views/main/views/color-view/components/AppImageSignInModal.vue';
 import AppImageSettingsModal from '@/shared/components/AppImageSettingsModal.vue';
 
-const mobileHeight = 410;
-const mobileWidth = 330;
-const desktopHeight = 489;
-const desktopWidth = 860;
+const mobileHeight = 480;
+const mobileWidth = 340;
+const desktopHeight = 550;
+const desktopWidth = 960;
 const desktopThickness = 30;
 const mobileThickness = 20;
 export default defineComponent({
