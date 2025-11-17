@@ -65,7 +65,9 @@ export default defineComponent({
     let clientW = 0;
     let clientH = 0;
     const dprCap = 2;
-
+    const ZOOM_STEP = 1.15;
+    // cached canvas center client coords
+    let canvasCenterClient = { x: 0, y: 0 };
     const image = ref<string>(props.imageUrl);
     const imgObj = ref<HTMLImageElement | null>(null);
     const exportedImageUrl = ref<string | null>(null); // <- сюда сохраняется результат (dataURL)
@@ -83,7 +85,7 @@ export default defineComponent({
       _pinchStartDist: null as number | null,
       _pinchStartScale: null as number | null,
     });
-    function updateCanvasSize() {
+    const updateCanvasSize = () => {
       if (!canvas.value) return;
       const rect = canvas.value.getBoundingClientRect();
       clientW = rect.width;
@@ -97,9 +99,9 @@ export default defineComponent({
       const ctx = canvas.value.getContext('2d')!;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // сбрасываем и масштабируем
       ctxRef.value = ctx;
-    }
+    };
     // общий загрузчик: принимает либо File, либо URL
-    async function loadImage(src: string) {
+    const loadImage = async (src: string) => {
       const img = new Image();
       await new Promise<void>((resolve, reject) => {
         img.onload = () => resolve();
@@ -111,7 +113,7 @@ export default defineComponent({
       state.naturalH = img.naturalHeight;
       fitImage();
       draw();
-    }
+    };
     // метод для uploader
     const onFileSelected = async (file: File) => {
       if (!file) return;
@@ -122,7 +124,7 @@ export default defineComponent({
       URL.revokeObjectURL(url);
     };
 
-    function fitImage() {
+    const fitImage = () => {
       if (!imgObj.value) return;
       const img = imgObj.value;
       const area = size;
@@ -134,9 +136,9 @@ export default defineComponent({
       state.x = 0;
       state.y = 0;
       constrainPosition();
-    }
+    };
 
-    function draw() {
+    const draw = () => {
       const ctx = ctxRef.value;
       if (!ctx || !canvas.value) return;
       ctx.clearRect(0, 0, clientW, clientH);
@@ -186,14 +188,14 @@ export default defineComponent({
       ctx.restore();
 
       drawMaskOutline(ctx, radius, cx, cy);
-    }
+    };
 
-    function drawMaskOutline(
+    const drawMaskOutline = (
       ctx: CanvasRenderingContext2D,
       radius: number,
       cx: number,
       cy: number
-    ) {
+    ) => {
       ctx.save();
       ctx.strokeStyle = 'rgba(255,215,0,1)';
       ctx.lineWidth = 2;
@@ -201,18 +203,18 @@ export default defineComponent({
       ctx.arc(cx, cy, radius, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
-    }
+    };
 
-    function startPan(e: PointerEvent) {
+    const startPan = (e: PointerEvent) => {
       wrap.value?.setPointerCapture(e.pointerId);
       state.pointers.set(e.pointerId, copyPointer(e));
       if (state.pointers.size === 1) {
         state.dragging = true;
         state.lastPointer = copyPointer(e);
       }
-    }
+    };
 
-    function onPointerMove(e: PointerEvent) {
+    const onPointerMove = (e: PointerEvent) => {
       if (!imgObj.value) return;
 
       if (state.pointers.has(e.pointerId)) state.pointers.set(e.pointerId, copyPointer(e));
@@ -244,9 +246,9 @@ export default defineComponent({
       }
 
       draw();
-    }
+    };
 
-    function endPan(e: PointerEvent) {
+    const endPan = (e: PointerEvent) => {
       wrap.value?.releasePointerCapture?.(e.pointerId);
       state.pointers.delete(e.pointerId);
       if (state.pointers.size < 2) {
@@ -259,19 +261,19 @@ export default defineComponent({
       }
       constrainPosition();
       draw();
-    }
+    };
 
-    function copyPointer(e: PointerEvent) {
+    const copyPointer = (e: PointerEvent) => {
       return { clientX: e.clientX, clientY: e.clientY, pointerId: e.pointerId };
-    }
+    };
 
-    function distance(a: any, b: any) {
+    const distance = (a: any, b: any) => {
       const dx = a.clientX - b.clientX;
       const dy = a.clientY - b.clientY;
       return Math.sqrt(dx * dx + dy * dy);
-    }
+    };
 
-    function panBy(dx: number, dy: number) {
+    const panBy = (dx: number, dy: number) => {
       if (!canvas.value) return;
       const rect = canvas.value.getBoundingClientRect();
       const ratioX = size / rect.width;
@@ -279,9 +281,9 @@ export default defineComponent({
       state.x += dx * ratioX;
       state.y += dy * ratioY;
       constrainPosition();
-    }
+    };
 
-    function setScale(newScale: number, focalPoint: { x: number; y: number } | null = null) {
+    const setScale = (newScale: number, focalPoint: { x: number; y: number } | null = null) => {
       const prev = state.scale;
       newScale = Math.max(state.minScale, Math.min(state.maxScale, newScale));
       if (!focalPoint) {
@@ -301,17 +303,17 @@ export default defineComponent({
       state.y = fy + (state.y - fy) * (newScale / prev);
       state.scale = newScale;
       constrainPosition();
-    }
+    };
 
-    function onWheel(e: WheelEvent) {
+    const onWheel = (e: WheelEvent) => {
       if (!imgObj.value) return;
       const delta = -e.deltaY;
       const zoomFactor = Math.exp(delta * 0.0012);
       setScale(state.scale * zoomFactor, { x: e.clientX, y: e.clientY });
       draw();
-    }
+    };
 
-    function constrainPosition() {
+    const constrainPosition = () => {
       if (!imgObj.value) return;
       const img = imgObj.value;
       const drawW = img.naturalWidth * state.scale;
@@ -330,7 +332,7 @@ export default defineComponent({
       else state.x = Math.max(minX, Math.min(maxX, state.x));
       if (minY > maxY) state.y = 0;
       else state.y = Math.max(minY, Math.min(maxY, state.y));
-    }
+    };
 
     // export: сохраняет base64 dataURL в exportedImageUrl и возвращает Blob через Promise если нужно
     const exportImage = async () => {
@@ -370,6 +372,7 @@ export default defineComponent({
       const file = new File([blob], 'avatar.png', { type: 'image/png', lastModified: Date.now() });
       emit('resolve', {
         file,
+        originalFile: originalFileRef.value,
       });
     };
 
@@ -389,14 +392,15 @@ export default defineComponent({
     let rafId = 0;
     let dirty = false;
 
-    function scheduleDraw() {
+    const scheduleDraw = () => {
       if (dirty) return;
       dirty = true;
       rafId = requestAnimationFrame(() => {
         dirty = false;
         draw();
       });
-    }
+    };
+
     onMounted(() => {
       updateCanvasSize();
       scheduleDraw();
@@ -427,26 +431,23 @@ export default defineComponent({
       state.pointers.clear();
     });
 
-    const ZOOM_STEP = 1.15;
-    function zoomIn() {
+    const zoomIn = () => {
       updateCanvasCenterClient();
       setScale(state.scale * ZOOM_STEP, { x: canvasCenterClient.x, y: canvasCenterClient.y });
       draw();
-    }
+    };
 
-    function zoomOut() {
+    const zoomOut = () => {
       updateCanvasCenterClient();
       setScale(state.scale / ZOOM_STEP, { x: canvasCenterClient.x, y: canvasCenterClient.y });
       draw();
-    }
+    };
 
-    // cached canvas center client coords
-    let canvasCenterClient = { x: 0, y: 0 };
-    function updateCanvasCenterClient() {
+    const updateCanvasCenterClient = () => {
       if (!canvas.value) return;
       const rect = canvas.value.getBoundingClientRect();
       canvasCenterClient = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-    }
+    };
 
     const close = () => {
       emit('close');

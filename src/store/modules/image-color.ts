@@ -6,7 +6,9 @@ interface ImageColorState {
   shareImgMask: boolean;
   shareImgCollage: boolean;
   imgMask: File | null;
+  originalImgMask: File | null;
   imgCollage: File | null;
+  originalImgCollage: File | null;
 }
 
 export const imageColor: Module<ImageColorState, any> = {
@@ -18,13 +20,21 @@ export const imageColor: Module<ImageColorState, any> = {
     shareImgCollage: true,
     imgMask: null,
     imgCollage: null,
+    originalImgMask: null,
+    originalImgCollage: null,
   }),
   mutations: {
     UPLOAD_IMG_MASK(state: ImageColorState, payload: { file: File }): void {
       state.imgMask = payload.file;
     },
+    SET_ORIGINAL_IMG_MASK(state: ImageColorState, payload: { file: File }): void {
+      state.originalImgMask = payload.file;
+    },
     UPLOAD_IMG_COLLAGE(state: ImageColorState, payload: { file: File }): void {
       state.imgCollage = payload.file;
+    },
+    SET_ORIGINAL_IMG_COLLAGE(state: ImageColorState, payload: { file: File }): void {
+      state.originalImgCollage = payload.file;
     },
 
     SET_REMEMBER_IMG_MASK(state: ImageColorState, payload: { remember: boolean }): void {
@@ -44,8 +54,14 @@ export const imageColor: Module<ImageColorState, any> = {
     uploadImgMask({ commit }, payload: { file: File }): void {
       commit('UPLOAD_IMG_MASK', payload);
     },
+    setOriginalImgMask({ commit }, payload: { file: File }): void {
+      commit('SET_ORIGINAL_IMG_MASK', payload);
+    },
     uploadImgCollage({ commit }, payload: { file: File }): void {
       commit('UPLOAD_IMG_COLLAGE', payload);
+    },
+    setOriginalImgCollage({ commit }, payload: { file: File }): void {
+      commit('SET_ORIGINAL_IMG_COLLAGE', payload);
     },
     setRememberImgCollage({ commit }, payload: { remember: boolean }): void {
       commit('SET_REMEMBER_IMG_COLLAGE', payload);
@@ -78,6 +94,12 @@ export const imageColor: Module<ImageColorState, any> = {
     },
     imgCollage(state: ImageColorState): File | null {
       return state.imgCollage;
+    },
+    getOriginalImgMask(state: ImageColorState): File | null {
+      return state.originalImgMask;
+    },
+    getOriginalImgCollage(state: ImageColorState): File | null {
+      return state.originalImgCollage;
     },
   },
 };

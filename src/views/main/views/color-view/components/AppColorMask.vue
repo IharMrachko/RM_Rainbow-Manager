@@ -16,9 +16,15 @@
         :segments="frameColors"
       ></app-editor-canvas>
     </section>
-    <section class="buttons">
+    <section class="buttons" :class="{ isMobile: isMobile }">
       <div v-if="!isMobile" class="btn">
-        <app-file-uploader :is-show-sign="false" @select="onFileSelected"></app-file-uploader>
+        <app-button
+          raised
+          title="settings"
+          severity="secondary"
+          :icon="['fas', 'sliders']"
+          @click="openImageSettingsModal"
+        ></app-button>
       </div>
       <div v-if="!isMobile" class="btn">
         <app-button
@@ -28,13 +34,7 @@
           @click="saveToGallery"
         ></app-button>
       </div>
-      <div v-if="!isMobile" class="btn">
-        <app-button
-          severity="info"
-          title="open settings"
-          @click="openImageSettingsModal"
-        ></app-button>
-      </div>
+
       <div v-if="!isMobile" class="btn">
         <app-button severity="info" title="addSign" @click="openImageModal"></app-button>
       </div>
@@ -55,14 +55,8 @@
   <app-popover v-model:visible="visiblePopover">
     <app-popover-wrapper>
       <app-popover-item @click="openImageSettingsModal">
-        <font-awesome-icon size="xl" :icon="['fas', 'cog']" />
+        <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
         <span>{{ t('settings') }}</span>
-      </app-popover-item>
-      <app-popover-item @click="triggerUpload">
-        <font-awesome-icon size="xl" :icon="['fas', 'file-upload']" />
-        <span>{{ t('upload') }}</span>
-        <!-- скрытый uploader -->
-        <app-file-uploader ref="uploader" style="display: none" @select="onFileSelected" />
       </app-popover-item>
       <app-popover-item @click="saveToGallery">
         <font-awesome-icon size="xl" :icon="['fas', 'images']" />
@@ -87,7 +81,6 @@
 </template>
 <script lang="ts">
 import { computed, defineComponent, onBeforeMount, onMounted, ref, watch } from 'vue';
-import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppColorCard from '@/views/main/views/color-view/components/AppColorCard.vue';
 import AppEditorCanvas from '@/views/main/views/color-view/components/AppEditorCanvas.vue';
 import AppButton from '@/shared/components/AppButton.vue';
@@ -115,7 +108,6 @@ export default defineComponent({
     AppButton,
     AppEditorCanvas,
     AppColorCard,
-    AppFileUploader,
   },
   emits: ['fileOnLoad', 'isLoading'],
   setup(_, { emit }) {
@@ -131,7 +123,6 @@ export default defineComponent({
     const selectedCard = ref<null | ColorCard>(null);
     const frameColors = ref();
     const imageUrl = ref<string | null>(null);
-    let originImageUrl: string | null = null;
     const isSaveToGallery = ref(false);
     const sharedWithCollage = ref(store.getters['imageColor/shareImgCollage']);
     const rememberChoose = ref(store.getters['imageColor/rememberImgMask']);
@@ -154,7 +145,6 @@ export default defineComponent({
     });
     const onFileSelected = async (file: File) => {
       imageUrl.value = await readFileAsDataURL(file);
-      originImageUrl = imageUrl.value;
       await store.dispatch('imageColor/uploadImgMask', { file });
     };
 
@@ -193,12 +183,6 @@ export default defineComponent({
       visiblePopover.value = true;
     };
 
-    const triggerUpload = () => {
-      // внутри app-file-uploader обычно есть <input type="file">
-      // у него можно вызвать click()
-      uploader.value?.$el.querySelector('input[type=file]')?.click();
-    };
-
     const openImageModal = async () => {
       const url = editorCanvasRef.value?.getImageSrc();
       await openDialog(AppImageSignInModal, {
@@ -212,10 +196,20 @@ export default defineComponent({
     };
     const openImageSettingsModal = async () => {
       visiblePopover.value = false;
+      const originalFile = store.getters['imageColor/getOriginalImgMask'];
+      let url = null;
+      if (originalFile) {
+        url = await readFileAsDataURL(originalFile);
+      }
+
       await openDialog(AppImageSettingsModal, {
-        imageUrl: originImageUrl,
+        imageUrl: url,
       }).then((value) => {
+        if (value.originalFile) {
+          store.dispatch('imageColor/setOriginalImgMask', { file: value.originalFile });
+        }
         store.dispatch('imageColor/uploadImgMask', { file: value.file });
+        onFileSelected(value.file);
       });
     };
 
@@ -254,7 +248,6 @@ export default defineComponent({
       visiblePopover,
       isMobile,
       openPopover,
-      triggerUpload,
       uploader,
       t,
       saveToGallery,
@@ -295,7 +288,7 @@ export default defineComponent({
     flex: 2;
   }
 
-  & .buttons {
+  & .buttons:not(.isMobile) {
     width: 301px;
     display: flex;
     gap: 12px;
@@ -316,10 +309,10 @@ export default defineComponent({
 
 @media (max-width: 600px) {
   .color-wrapper .buttons {
-    align-items: center;
-    width: 100%;
-    gap: 0;
-    flex-grow: 1;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .color-container .color-wrapper {

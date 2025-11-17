@@ -22,6 +22,7 @@ import {
   faFileUpload,
   faFilter,
   faFolder,
+  faGear,
   faImages,
   faInfoCircle,
   faLink,
@@ -38,6 +39,7 @@ import {
   faSave,
   faSearch,
   faShare,
+  faSliders,
   faTimes,
   faTimesCircle,
   faTrash,
@@ -84,7 +86,9 @@ library.add(
   faCheck,
   faListOl,
   faShare,
-  faCog
+  faCog,
+  faGear,
+  faSliders
 );
 
 onAuthStateChanged(auth, (user) => {

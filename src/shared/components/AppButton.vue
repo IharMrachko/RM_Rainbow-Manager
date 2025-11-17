@@ -91,6 +91,7 @@ button {
   }
   &.secondary {
     background-color: map-get($type-colors, secondary);
+    color: #111111;
   }
 
   &.raised {

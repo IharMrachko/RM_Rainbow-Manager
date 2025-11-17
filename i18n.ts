@@ -47,6 +47,7 @@ const messages = {
     update: 'Update',
     copyLink: 'Copy link',
     noName: 'No name',
+    settings: 'Settings',
   },
   ru: {
     login: 'Вход',
@@ -94,6 +95,7 @@ const messages = {
     update: 'Обновить',
     copyLink: 'Скопировать ссылку',
     noName: 'Без названия',
+    settings: 'Настройки',
   },
 };
 

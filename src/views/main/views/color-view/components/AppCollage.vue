@@ -2,37 +2,17 @@
   <div class="collage-wrapper">
     <div class="collage-container">
       <canvas ref="canvas"></canvas>
-      <div class="actions">
-        <app-button
-          severity="secondary"
-          raised
-          :icon="['fas', 'undo']"
-          @click="resetImage"
-        ></app-button>
-        <app-button
-          severity="secondary"
-          raised
-          :icon="['fas', 'plus']"
-          @click="zoomPlus"
-        ></app-button>
-        <app-button
-          severity="secondary"
-          raised
-          :icon="['fas', 'minus']"
-          @click="zoomMinus"
-        ></app-button>
-        <app-button
-          severity="secondary"
-          raised
-          :icon="['fas', 'save']"
-          @click="saveImage('collage')"
-        ></app-button>
-      </div>
     </div>
 
-    <section class="buttons">
+    <section class="buttons" :class="{ isMobile: isMobile }">
       <div v-if="!isMobile" class="btn">
-        <app-file-uploader :is-show-sign="false" @select="onFileSelected"></app-file-uploader>
+        <app-button
+          raised
+          title="settings"
+          severity="secondary"
+          :icon="['fas', 'sliders']"
+          @click="openImageSettingsModal"
+        ></app-button>
       </div>
       <app-button
         v-if="!isMobile"
@@ -64,11 +44,9 @@
 
   <app-popover v-model:visible="visiblePopover">
     <app-popover-wrapper>
-      <app-popover-item @click="triggerUpload">
-        <font-awesome-icon size="xl" :icon="['fas', 'file-upload']" />
-        <span>{{ t('upload') }}</span>
-        <!-- скрытый uploader -->
-        <app-file-uploader ref="uploader" style="display: none" @select="onFileSelected" />
+      <app-popover-item @click="openImageSettingsModal">
+        <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
+        <span>{{ t('settings') }}</span>
       </app-popover-item>
       <app-popover-item @click="saveToGallery">
         <font-awesome-icon size="xl" :icon="['fas', 'images']" />
@@ -102,11 +80,11 @@ import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopover from '@/shared/components/AppPopover.vue';
 import { useI18n } from 'vue-i18n';
-import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppCheckbox from '@/shared/components/AppCheckbox.vue';
 import { readFileAsDataURL } from '@/helpers/read-file-as-data-url';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppImageSignInModal from '@/views/main/views/color-view/components/AppImageSignInModal.vue';
+import AppImageSettingsModal from '@/shared/components/AppImageSettingsModal.vue';
 
 const mobileHeight = 410;
 const mobileWidth = 330;
@@ -117,7 +95,6 @@ const mobileThickness = 20;
 export default defineComponent({
   components: {
     AppCheckbox,
-    AppFileUploader,
     AppPopover,
     AppPopoverWrapper,
     AppPopoverItem,
@@ -345,11 +322,6 @@ export default defineComponent({
         }
       }
     });
-    const triggerUpload = () => {
-      // внутри app-file-uploader обычно есть <input type="file">
-      // у него можно вызвать click()
-      uploader.value?.$el.querySelector('input[type=file]')?.click();
-    };
 
     const openImageModal = async () => {
       const url = getCanvasSrc();
@@ -360,6 +332,25 @@ export default defineComponent({
         currentUserId: currentUser.value?.uid,
         canvas: canvas.value,
         imageUrl: imageUrl.value,
+      });
+    };
+
+    const openImageSettingsModal = async () => {
+      visiblePopover.value = false;
+      const originalFile = store.getters['imageColor/getOriginalImgCollage'];
+      let url = null;
+      if (originalFile) {
+        url = await readFileAsDataURL(originalFile);
+      }
+
+      await openDialog(AppImageSettingsModal, {
+        imageUrl: url,
+      }).then((value) => {
+        if (value.originalFile) {
+          store.dispatch('imageColor/setOriginalImgCollage', { file: value.originalFile });
+        }
+        store.dispatch('imageColor/uploadImgCollage', { file: value.file });
+        onFileSelected(value.file);
       });
     };
     return {
@@ -377,9 +368,9 @@ export default defineComponent({
       sharedWithMask,
       rememberChoose,
       onFileSelected,
-      triggerUpload,
       uploader,
       openImageModal,
+      openImageSettingsModal,
     };
   },
 });
@@ -409,18 +400,7 @@ export default defineComponent({
   align-items: center;
 }
 
-.actions {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin: 10px;
-  @media (max-width: 600px) {
-    margin-top: 22px;
-    margin-bottom: 15px;
-  }
-}
-
-.buttons {
+.buttons:not(.isMobile) {
   width: 230px;
   display: flex;
   flex-direction: column;
@@ -435,12 +415,10 @@ export default defineComponent({
 
 @media (max-width: 600px) {
   .buttons {
-    flex-direction: row;
-    justify-content: center;
-    align-items: start;
-    width: 100%;
-    margin-bottom: 14px;
-    flex-grow: 1;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 </style>
