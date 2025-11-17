@@ -126,6 +126,9 @@ export default defineComponent({
     const isSaveToGallery = ref(false);
     const sharedWithCollage = ref(store.getters['imageColor/shareImgCollage']);
     const rememberChoose = ref(store.getters['imageColor/rememberImgMask']);
+    const imgCollage = computed(() => store.getters['imageColor/imgCollage']);
+    const imgMask = computed(() => store.getters['imageColor/imgMask']);
+    const originalImgMask = computed(() => store.getters['imageColor/getOriginalImgMask']);
     const currentUser = computed(() => store.getters['authFirebase/currentUser']);
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
 
@@ -136,8 +139,8 @@ export default defineComponent({
     });
 
     onMounted(() => {
-      if (store.getters['imageColor/rememberImgMask']) {
-        const file = store.getters['imageColor/imgMask'];
+      if (sharedWithCollage.value) {
+        const file = imgMask.value;
         if (file) {
           onFileSelected(file);
         }
@@ -196,7 +199,7 @@ export default defineComponent({
     };
     const openImageSettingsModal = async () => {
       visiblePopover.value = false;
-      const originalFile = store.getters['imageColor/getOriginalImgMask'];
+      const originalFile = originalImgMask.value;
       let url = null;
       if (originalFile) {
         url = await readFileAsDataURL(originalFile);
@@ -213,31 +216,22 @@ export default defineComponent({
       });
     };
 
-    watch(
-      () => sharedWithCollage.value,
-      (value: boolean) => {
-        store.dispatch('imageColor/setShareImgCollage', {
-          share: value,
-        });
-      }
-    );
+    watch(sharedWithCollage, (value: boolean) => {
+      store.dispatch('imageColor/setShareImgCollage', {
+        share: value,
+      });
+    });
 
-    watch(
-      () => rememberChoose.value,
-      (value: boolean) => {
-        store.dispatch('imageColor/setRememberImgMask', {
-          remember: value,
-        });
+    watch(rememberChoose, (value: boolean) => {
+      store.dispatch('imageColor/setRememberImgMask', {
+        remember: value,
+      });
+    });
+    watch(imgCollage, async (file: File) => {
+      if (store.getters['imageColor/shareImgMask']) {
+        imageUrl.value = await readFileAsDataURL(file);
       }
-    );
-    watch(
-      () => store.getters['imageColor/imgCollage'],
-      async (file: File) => {
-        if (store.getters['imageColor/shareImgMask']) {
-          imageUrl.value = await readFileAsDataURL(file);
-        }
-      }
-    );
+    });
     return {
       frameColors,
       imageUrl,
