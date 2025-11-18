@@ -27,6 +27,9 @@
         ></app-button>
       </div>
       <div v-if="!isMobile" class="btn">
+        <app-button severity="success" title="download" @click="saveToDevice"></app-button>
+      </div>
+      <div v-if="!isMobile" class="btn">
         <app-button
           severity="warning"
           title="saveToGallery"
@@ -34,7 +37,6 @@
           @click="saveToGallery"
         ></app-button>
       </div>
-
       <div v-if="!isMobile" class="btn">
         <app-button severity="info" title="addSign" @click="openImageModal"></app-button>
       </div>
@@ -57,6 +59,10 @@
       <app-popover-item @click="openImageSettingsModal">
         <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
         <span>{{ t('settings') }}</span>
+      </app-popover-item>
+      <app-popover-item @click="saveToDevice">
+        <font-awesome-icon size="xl" :icon="['fas', 'download']" />
+        <span>{{ t('download') }}</span>
       </app-popover-item>
       <app-popover-item @click="saveToGallery">
         <font-awesome-icon size="xl" :icon="['fas', 'images']" />
@@ -114,6 +120,7 @@ export default defineComponent({
     const editorCanvasRef = ref<{
       getCanvasValue: () => HTMLCanvasElement;
       getImageSrc: () => string;
+      triggerSaveImage: () => void;
     } | null>(null);
     const { t } = useI18n();
     const uploader = ref();
@@ -227,11 +234,16 @@ export default defineComponent({
         remember: value,
       });
     });
+
     watch(imgCollage, async (file: File) => {
       if (store.getters['imageColor/shareImgMask']) {
         imageUrl.value = await readFileAsDataURL(file);
       }
     });
+
+    const saveToDevice = () => {
+      editorCanvasRef.value?.triggerSaveImage();
+    };
     return {
       frameColors,
       imageUrl,
@@ -251,6 +263,7 @@ export default defineComponent({
       rememberChoose,
       openImageModal,
       openImageSettingsModal,
+      saveToDevice,
     };
   },
 });

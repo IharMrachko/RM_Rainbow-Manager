@@ -15,6 +15,7 @@ import {
   faCheckCircle,
   faCog,
   faCopy,
+  faDownload,
   faEllipsisH,
   faEllipsisVertical,
   faEnvelope,
@@ -88,7 +89,8 @@ library.add(
   faShare,
   faCog,
   faGear,
-  faSliders
+  faSliders,
+  faDownload
 );
 
 onAuthStateChanged(auth, (user) => {

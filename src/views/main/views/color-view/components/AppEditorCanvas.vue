@@ -53,6 +53,10 @@ export default defineComponent({
       return getCanvasSrc();
     };
 
+    const triggerSaveImage = () => {
+      saveImage();
+    };
+
     const drawBaseImage = (ctx: CanvasRenderingContext2D) => {
       const radius = sizeRef.value / 2; // Вычисляем радиус круга, исходя из размера компонента
       const thickness = thicknessRef.value; // Толщина рамки (обводка вокруг изображения)
@@ -135,7 +139,7 @@ export default defineComponent({
       () => store.getters['mobile/clientWidth'],
       (value) => {
         if (value < 600) {
-          thicknessRef.value = 40;
+          thicknessRef.value = 60;
           sizeRef.value = 320;
           nextTick(() => render());
           return;
@@ -167,9 +171,8 @@ export default defineComponent({
 
     return {
       canvasRef,
-
       resetImage,
-      saveImage,
+      triggerSaveImage,
       zoomPlus,
       zoomMinus,
       sizeRef,

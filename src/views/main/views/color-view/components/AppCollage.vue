@@ -14,6 +14,9 @@
           @click="openImageSettingsModal"
         ></app-button>
       </div>
+      <div v-if="!isMobile" class="btn">
+        <app-button severity="success" title="download" @click="saveImage('collage')"></app-button>
+      </div>
       <app-button
         v-if="!isMobile"
         severity="warning"
@@ -47,6 +50,10 @@
       <app-popover-item @click="openImageSettingsModal">
         <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
         <span>{{ t('settings') }}</span>
+      </app-popover-item>
+      <app-popover-item @click="saveImage('collage')">
+        <font-awesome-icon size="xl" :icon="['fas', 'download']" />
+        <span>{{ t('download') }}</span>
       </app-popover-item>
       <app-popover-item @click="saveToGallery">
         <font-awesome-icon size="xl" :icon="['fas', 'images']" />
@@ -86,8 +93,8 @@ import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppImageSignInModal from '@/views/main/views/color-view/components/AppImageSignInModal.vue';
 import AppImageSettingsModal from '@/shared/components/AppImageSettingsModal.vue';
 
-const mobileHeight = 480;
-const mobileWidth = 340;
+const mobileHeight = 410;
+const mobileWidth = 320;
 const desktopHeight = 550;
 const desktopWidth = 960;
 const desktopThickness = 30;

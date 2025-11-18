@@ -384,7 +384,8 @@ export default defineComponent({
   padding: 16px;
 
   @media (max-width: 600px) {
-    max-height: 65%;
+    height: 65%;
+    flex: none;
   }
 }
 .info-title {
