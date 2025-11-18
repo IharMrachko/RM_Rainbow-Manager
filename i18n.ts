@@ -49,6 +49,8 @@ const messages = {
     copyLink: 'Copy link',
     noName: 'No name',
     settings: 'Settings',
+    successFolderCreate: 'Create folder',
+    successDeleteFolder: 'Delete folder',
   },
   ru: {
     login: 'Вход',
@@ -98,6 +100,8 @@ const messages = {
     copyLink: 'Скопировать ссылку',
     noName: 'Без названия',
     settings: 'Настройки',
+    successFolderCreate: 'Папка добавлена',
+    successDeleteFolder: 'Папка удалена',
   },
 };
 

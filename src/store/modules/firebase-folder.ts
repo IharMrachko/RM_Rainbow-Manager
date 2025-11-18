@@ -85,7 +85,7 @@ export const folder: Module<FolderState, any> = {
 
         await dispatch(
           'toast/addToast',
-          { message: 'successFolder', severity: 'success' },
+          { message: 'successFolderCreate', severity: 'success' },
           { root: true }
         );
       } catch (e) {

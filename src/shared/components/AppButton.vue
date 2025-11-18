@@ -1,6 +1,6 @@
 <template>
   <div class="container-btn">
-    <button :disabled="disabled || loading" :class="classes">
+    <button :disabled="disabled || loading" :class="classes" @click="clickBtn">
       <span v-if="icon" class="btn-icon">
         <font-awesome-icon size="lg" :icon="icon" />
       </span>
@@ -41,10 +41,15 @@ export default defineComponent({
       default: '',
     },
   },
-  setup(props) {
+  emits: ['click'],
+  setup(props, { emit }) {
     const { t } = useI18n();
     const classes = computed(() => ['btn', `${props.severity}`, { raised: props.raised }]);
-    return { t, classes };
+
+    const clickBtn = () => {
+      emit('click');
+    };
+    return { t, classes, clickBtn };
   },
 });
 </script>
