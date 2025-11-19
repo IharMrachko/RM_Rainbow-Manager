@@ -32,7 +32,7 @@
 
       <AppShutterButton @capture="takePhotoWithFrameMasked"></AppShutterButton>
       <div ref="modalRef" class="settings" @click="openOverlayPanel">
-        И7
+        И8
         <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
       </div>
     </footer>
@@ -202,7 +202,7 @@ export default defineComponent({
       }
 
       // apply zoom (scale) and optional pan offsets
-      const zoom = isMobile.value ? 1.9 : 1.2; // пример scale
+      const zoom = isMobile.value ? 2 : 1.2; // пример scale
       const offsetX = 0; // -0.5..+0.5
       const offsetY = 0; // -0.5..+0.5
 
@@ -296,7 +296,7 @@ export default defineComponent({
   & .cam-wrap {
     position: relative;
     display: block;
-    flex: 6;
+    flex: 5;
     & .overlay {
       position: absolute;
       inset: 0;
@@ -324,7 +324,7 @@ footer {
   align-items: center;
   width: 100%;
   padding: 10px 20px;
-  flex: 0 0 auto;
+  flex: 1;
 
   & .image {
     width: 70px;
