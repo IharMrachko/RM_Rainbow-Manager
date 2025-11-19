@@ -32,7 +32,7 @@
 
       <AppShutterButton @capture="takePhotoWithFrameMasked"></AppShutterButton>
       <div ref="modalRef" class="settings" @click="openOverlayPanel">
-        И6
+        И7
         <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
       </div>
     </footer>
@@ -117,7 +117,7 @@ export default defineComponent({
       // параметры в CSS-пикселях
       const padding = Math.max(6, Math.round(Math.min(cssW, cssH) * 0.02));
       const thickness = isMobile.value ? 15 : 80; // для компа 80;
-      const overSize = isMobile.value ? 0.5 : 2; // для компа 2
+      const overSize = isMobile.value ? 0.4 : 2; // для компа 2
       const cx = cssW / 2;
       const cy = cssH / 2;
       const radius = Math.min(cssW, cssH) / 2 - padding - thickness / overSize;
@@ -356,7 +356,7 @@ footer {
 
 video {
   @media (max-width: 600px) {
-    height: calc(100% - 76px);
+    height: 100%;
   }
 }
 </style>
