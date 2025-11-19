@@ -51,6 +51,7 @@ const messages = {
     settings: 'Settings',
     successFolderCreate: 'Create folder',
     successDeleteFolder: 'Delete folder',
+    takePhoto: 'Take a photo',
   },
   ru: {
     login: 'Вход',
@@ -102,6 +103,7 @@ const messages = {
     settings: 'Настройки',
     successFolderCreate: 'Папка добавлена',
     successDeleteFolder: 'Папка удалена',
+    takePhoto: 'Фото',
   },
 };
 

@@ -27,6 +27,15 @@
         ></app-button>
       </div>
       <div v-if="!isMobile" class="btn">
+        <app-button
+          raised
+          :icon="['fas', 'camera']"
+          severity="secondary"
+          title="takePhoto"
+          @click="openCameraModal"
+        ></app-button>
+      </div>
+      <div v-if="!isMobile" class="btn">
         <app-button severity="success" title="download" @click="saveToDevice"></app-button>
       </div>
       <div v-if="!isMobile" class="btn">
@@ -60,10 +69,16 @@
         <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
         <span>{{ t('settings') }}</span>
       </app-popover-item>
+      <app-popover-item @click="openCameraModal">
+        <font-awesome-icon size="xl" :icon="['fas', 'camera']" />
+        <span>{{ t('takePhoto') }}</span>
+      </app-popover-item>
       <app-popover-item @click="saveToDevice">
         <font-awesome-icon size="xl" :icon="['fas', 'download']" />
         <span>{{ t('download') }}</span>
       </app-popover-item>
+    </app-popover-wrapper>
+    <app-popover-wrapper>
       <app-popover-item @click="saveToGallery">
         <font-awesome-icon size="xl" :icon="['fas', 'images']" />
         <span>{{ t('saveToGallery') }}</span>
@@ -104,6 +119,7 @@ import { readFileAsDataURL } from '@/helpers/read-file-as-data-url';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppImageSignInModal from '@/views/main/views/color-view/components/AppImageSignInModal.vue';
 import AppImageSettingsModal from '@/shared/components/AppImageSettingsModal.vue';
+import AppCameraModal from '@/shared/components/AppCameraModal.vue';
 
 export default defineComponent({
   components: {
@@ -184,7 +200,7 @@ export default defineComponent({
       }
     };
 
-    const selected = (item: any) => {
+    const selected = (item: ColorCard) => {
       selectedCard.value = item;
       frameColors.value = item.segments;
     };
@@ -244,6 +260,14 @@ export default defineComponent({
     const saveToDevice = () => {
       editorCanvasRef.value?.triggerSaveImage();
     };
+
+    const openCameraModal = async () => {
+      await openDialog(AppCameraModal, {}).then((value) => {
+        store.dispatch('imageColor/uploadImgMask', { file: value.file });
+        onFileSelected(value.file);
+        selected(value.selectedCard);
+      });
+    };
     return {
       frameColors,
       imageUrl,
@@ -264,6 +288,7 @@ export default defineComponent({
       openImageModal,
       openImageSettingsModal,
       saveToDevice,
+      openCameraModal,
     };
   },
 });

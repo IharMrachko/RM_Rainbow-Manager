@@ -121,7 +121,7 @@ button {
     & .btn-title {
       margin-left: 10px;
       font-weight: 600;
-      font-size: 20px;
+      font-size: 15px;
     }
   }
 }
