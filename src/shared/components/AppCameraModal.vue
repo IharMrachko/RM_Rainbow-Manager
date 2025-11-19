@@ -32,7 +32,7 @@
 
       <AppShutterButton @capture="takePhotoWithFrameMasked"></AppShutterButton>
       <div ref="modalRef" class="settings" @click="openOverlayPanel">
-        И10
+        И11
         <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
       </div>
     </footer>
@@ -296,7 +296,6 @@ export default defineComponent({
   & .cam-wrap {
     position: relative;
     display: block;
-    flex: 5;
     & .overlay {
       position: absolute;
       inset: 0;
@@ -356,7 +355,7 @@ footer {
 
 video {
   @media (max-width: 600px) {
-    height: 60%;
+    height: 100%;
   }
 }
 </style>
