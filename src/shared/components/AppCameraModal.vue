@@ -34,6 +34,7 @@
 
       <AppShutterButton @capture="takePhotoWithFrameMasked"></AppShutterButton>
       <div ref="modalRef" class="settings" @click="openOverlayPanel">
+        И
         <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
       </div>
     </footer>
