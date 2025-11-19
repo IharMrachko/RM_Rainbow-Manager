@@ -34,7 +34,7 @@
 
       <AppShutterButton @capture="takePhotoWithFrameMasked"></AppShutterButton>
       <div ref="modalRef" class="settings" @click="openOverlayPanel">
-        И1
+        И2
         <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
       </div>
     </footer>
@@ -118,8 +118,8 @@ export default defineComponent({
 
       // параметры в CSS-пикселях
       const padding = Math.max(6, Math.round(Math.min(cssW, cssH) * 0.02));
-      const thickness = isMobile.value ? 15 : 80; // для компа 80;
-      const overSize = isMobile.value ? 0.5 : 2; // для компа 2
+      const thickness = isMobile.value ? 12 : 80; // для компа 80;
+      const overSize = isMobile.value ? 0.4 : 2; // для компа 2
       const cx = cssW / 2;
       const cy = cssH / 2;
       const radius = Math.min(cssW, cssH) / 2 - padding - thickness / overSize;
@@ -204,7 +204,7 @@ export default defineComponent({
       }
 
       // apply zoom (scale) and optional pan offsets
-      const zoom = isMobile.value ? 1.6 : 1.5; // пример scale
+      const zoom = isMobile.value ? 1.4 : 1.5; // пример scale
       const offsetX = 0; // -0.5..+0.5
       const offsetY = 0; // -0.5..+0.5
 
