@@ -29,8 +29,10 @@
       <div class="image" @click="goBackWithResult">
         <img v-if="photo" :src="photo" alt="photo" />
       </div>
+      <div class="btn">
+        <AppShutterButton @capture="takePhotoWithFrameMasked"></AppShutterButton>
+      </div>
 
-      <AppShutterButton @capture="takePhotoWithFrameMasked"></AppShutterButton>
       <div ref="modalRef" class="settings" @click="openOverlayPanel">
         <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
       </div>
@@ -201,7 +203,7 @@ export default defineComponent({
       }
 
       // apply zoom (scale) and optional pan offsets
-      const zoom = isMobile.value ? 1.5 : 1.2; // пример scale
+      const zoom = isMobile.value ? 1.7 : 1.2; // пример scale
       const offsetX = 0; // -0.5..+0.5
       const offsetY = 0; // -0.5..+0.5
 
@@ -356,5 +358,12 @@ video {
   @media (max-width: 600px) {
     width: 100vw;
   }
+}
+
+.btn {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex: 6;
 }
 </style>
