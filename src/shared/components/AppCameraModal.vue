@@ -1,5 +1,6 @@
 <template>
   <div class="modal-content neon">
+    <app-loader v-if="isLoader"></app-loader>
     <app-overlay-panel
       v-if="modalRef"
       v-model:visible="visible"
@@ -25,7 +26,7 @@
       <video ref="video" autoplay playsinline muted></video>
       <canvas ref="overlay" class="overlay"></canvas>
     </div>
-    <footer>
+    <footer v-if="!isLoader">
       <div class="image" @click="goBackWithResult">
         <img v-if="photo" :src="photo" alt="photo" />
       </div>
@@ -50,9 +51,10 @@ import {
 import { useStore } from 'vuex';
 import AppShutterButton from '@/shared/components/AppShutterButton.vue';
 import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
+import AppLoader from '@/shared/components/AppLoader.vue';
 
 export default defineComponent({
-  components: { AppOverlayPanel, AppShutterButton, AppColorCard, AppModalHeader },
+  components: { AppLoader, AppOverlayPanel, AppShutterButton, AppColorCard, AppModalHeader },
   emits: ['resolve', 'reject', 'close'],
   setup(_, { emit }) {
     const store = useStore();
@@ -69,6 +71,7 @@ export default defineComponent({
     const visible = ref(false);
     const selectedCard = ref<null | ColorCard>(null);
     const frameColors = ref();
+    const isLoader = ref(false);
     onBeforeMount(() => {
       const [first] = cards;
       selectedCard.value = first;
@@ -141,6 +144,7 @@ export default defineComponent({
     };
 
     const start = async () => {
+      isLoader.value = true;
       try {
         stream.value = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'environment' },
@@ -157,9 +161,11 @@ export default defineComponent({
           video.value.addEventListener('loadedmetadata', onLoaded);
         });
         await video.value.play();
+        isLoader.value = false;
         resizeAndDrawOverlay();
       } catch (e) {
         console.error('Camera error', e);
+        isLoader.value = false;
       }
     };
 
@@ -203,7 +209,7 @@ export default defineComponent({
       }
 
       // apply zoom (scale) and optional pan offsets
-      const zoom = isMobile.value ? 1.6 : 1.2; // пример scale
+      const zoom = isMobile.value ? 1.6 : 1.6; // пример scale
       const offsetX = 0; // -0.5..+0.5
       const offsetY = 0; // -0.5..+0.5
 
@@ -266,6 +272,7 @@ export default defineComponent({
       visible,
       openOverlayPanel,
       isMobile,
+      isLoader,
     };
   },
 });
@@ -365,6 +372,6 @@ video {
   display: flex;
   justify-content: center;
   flex: 6;
-  margin-right: 10px;
+  margin-right: 15px;
 }
 </style>
