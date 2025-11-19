@@ -32,7 +32,7 @@
 
       <AppShutterButton @capture="takePhotoWithFrameMasked"></AppShutterButton>
       <div ref="modalRef" class="settings" @click="openOverlayPanel">
-        И12
+        И13
         <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
       </div>
     </footer>
@@ -355,7 +355,7 @@ footer {
 
 video {
   @media (max-width: 600px) {
-    width: 200vw;
+    width: 100vw;
   }
 }
 </style>
