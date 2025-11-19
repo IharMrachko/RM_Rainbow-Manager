@@ -60,11 +60,11 @@ export default defineComponent({
     const store = useStore();
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
     const cards: ColorCard[] = colorCards;
-    const video: any = ref(null);
+    const video = ref<HTMLVideoElement | null>(null);
     const overlay = ref<HTMLCanvasElement | null>(null);
     const canvas = ref<HTMLCanvasElement | null>(null);
     const outCanvas = ref<HTMLCanvasElement | null>(null);
-    const stream: any = ref(null);
+    const stream = ref<MediaStream | null>(null);
     const photo = ref<string | null>(null);
     const viewer = ref<HTMLElement | null>(null);
     const modalRef = ref<HTMLElement | null>(null);
@@ -158,7 +158,7 @@ export default defineComponent({
             video.value?.removeEventListener('loadedmetadata', onLoaded);
             resolve();
           };
-          video.value.addEventListener('loadedmetadata', onLoaded);
+          video.value?.addEventListener('loadedmetadata', onLoaded);
         });
         await video.value.play();
         isLoader.value = false;
