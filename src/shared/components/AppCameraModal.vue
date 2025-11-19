@@ -372,6 +372,6 @@ video {
   display: flex;
   justify-content: center;
   flex: 6;
-  margin-right: 15px;
+  margin-right: 20px;
 }
 </style>
