@@ -118,7 +118,7 @@ export default defineComponent({
       // параметры в CSS-пикселях
       const padding = Math.max(6, Math.round(Math.min(cssW, cssH) * 0.02));
       const thickness = isMobile.value ? 15 : 80; // для компа 80;
-      const overSize = isMobile.value ? 0.6 : 2; // для компа 2
+      const overSize = isMobile.value ? 1 : 2; // для компа 2
       const cx = cssW / 2;
       const cy = cssH / 2;
       const radius = Math.min(cssW, cssH) / 2 - padding - thickness / overSize;
@@ -297,6 +297,10 @@ export default defineComponent({
   & .cam-wrap {
     position: relative;
     min-height: 70%;
+
+    @media (max-width: 600px) {
+      min-height: 50%;
+    }
 
     & .overlay {
       position: absolute;
