@@ -11,6 +11,7 @@ import {
   faArrowLeft,
   faArrowRight,
   faBroom,
+  faCamera,
   faCheck,
   faCheckCircle,
   faCog,
@@ -90,7 +91,8 @@ library.add(
   faCog,
   faGear,
   faSliders,
-  faDownload
+  faDownload,
+  faCamera
 );
 
 onAuthStateChanged(auth, (user) => {

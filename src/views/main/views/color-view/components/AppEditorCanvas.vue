@@ -101,7 +101,6 @@ export default defineComponent({
       const step = (2 * Math.PI) / props.segments.length; // Угол одного сегмента (в радианах), равный 2π / количество сегментов
       // Начальный угол смещения (если не задан — по умолчанию вверх, то есть -π/2)
       const startOffset = startAngleRef.value ?? -Math.PI / 2;
-
       ctx.lineWidth = thickness; // Устанавливаем толщину линии для всех дуг
       // Перебираем все сегменты и рисуем каждый как дугу
       props.segments.forEach((seg, i) => {
