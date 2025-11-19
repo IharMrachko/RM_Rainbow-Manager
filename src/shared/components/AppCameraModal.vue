@@ -203,7 +203,7 @@ export default defineComponent({
       }
 
       // apply zoom (scale) and optional pan offsets
-      const zoom = isMobile.value ? 1.7 : 1.2; // пример scale
+      const zoom = isMobile.value ? 1.6 : 1.2; // пример scale
       const offsetX = 0; // -0.5..+0.5
       const offsetY = 0; // -0.5..+0.5
 
@@ -365,5 +365,6 @@ video {
   display: flex;
   justify-content: center;
   flex: 6;
+  margin-right: 10px;
 }
 </style>
