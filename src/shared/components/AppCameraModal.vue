@@ -34,7 +34,7 @@
 
       <AppShutterButton @capture="takePhotoWithFrameMasked"></AppShutterButton>
       <div ref="modalRef" class="settings" @click="openOverlayPanel">
-        И3
+        И4
         <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
       </div>
     </footer>
@@ -204,7 +204,7 @@ export default defineComponent({
       }
 
       // apply zoom (scale) and optional pan offsets
-      const zoom = isMobile.value ? 1.5 : 1.2; // пример scale
+      const zoom = isMobile.value ? 1.7 : 1.2; // пример scale
       const offsetX = 0; // -0.5..+0.5
       const offsetY = 0; // -0.5..+0.5
 
