@@ -10,17 +10,15 @@
         y: 'center',
       }"
     >
-      <div class="overlay-folder">
-        <section class="cards">
-          <app-color-card
-            v-for="card in cards"
-            :key="card.id"
-            :card="card"
-            :is-selected="selectedCard?.id === card?.id"
-            @selected="selected"
-          ></app-color-card>
-        </section>
-      </div>
+      <section class="cards">
+        <app-color-card
+          v-for="card in cards"
+          :key="card.id"
+          :card="card"
+          :is-selected="selectedCard?.id === card?.id"
+          @selected="selected"
+        ></app-color-card>
+      </section>
     </app-overlay-panel>
     <app-modal-header @close="close"></app-modal-header>
     <div ref="viewer" class="cam-wrap">
@@ -34,7 +32,7 @@
 
       <AppShutterButton @capture="takePhotoWithFrameMasked"></AppShutterButton>
       <div ref="modalRef" class="settings" @click="openOverlayPanel">
-        И5
+        И6
         <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
       </div>
     </footer>
@@ -297,10 +295,8 @@ export default defineComponent({
 
   & .cam-wrap {
     position: relative;
-    flex: 1 1 auto; /* растягиваемся */
     display: block;
-    min-height: 0; /* важно для корректной работы flex-children */
-
+    flex: 6;
     & .overlay {
       position: absolute;
       inset: 0;
@@ -329,7 +325,6 @@ footer {
   width: 100%;
   padding: 10px 20px;
   flex: 0 0 auto;
-  height: 300px;
 
   & .image {
     width: 70px;
@@ -356,6 +351,12 @@ footer {
 
   & .settings {
     cursor: pointer;
+  }
+}
+
+video {
+  @media (max-width: 600px) {
+    height: calc(100% - 76px);
   }
 }
 </style>
