@@ -74,8 +74,8 @@ export default defineComponent({
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
     // опции
     // фиксированный CSS размер canvas (в пикселях CSS)
-    const CANVAS_CSS_W = isMobile.value ? 320 : 400;
-    const CANVAS_CSS_H = isMobile.value ? 400 : 500;
+    const CANVAS_CSS_W = isMobile.value ? 360 : 400;
+    const CANVAS_CSS_H = isMobile.value ? 450 : 500;
     // внутренние флаги
     let imageActive = false;
     let activePointerId: number | null = null;
