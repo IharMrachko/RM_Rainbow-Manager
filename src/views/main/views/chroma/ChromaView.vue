@@ -54,15 +54,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, ref } from 'vue';
+import { computed, defineComponent, nextTick, ref } from 'vue';
 import chroma from 'chroma-js';
 import AppColorPicker from '@/shared/components/AppColorPicker.vue';
 import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppImageNotUploaded from '@/shared/components/AppImageNotUploaded.vue';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   components: { AppImageNotUploaded, AppColorPicker, AppFileUploader },
   setup() {
+    const store = useStore();
     const fileInput = ref<HTMLInputElement | null>(null);
     const imgEl = ref<HTMLImageElement | null>(null);
     const imageFrame = ref<HTMLElement | null>(null);
@@ -83,10 +85,11 @@ export default defineComponent({
     const selectedHex = ref<string>('#D4F880');
     const luminance = ref<number>(0);
     const pointerDown = ref(false);
+    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
     // опции
     // фиксированный CSS размер canvas (в пикселях CSS)
-    const CANVAS_CSS_W = 400;
-    const CANVAS_CSS_H = 500;
+    const CANVAS_CSS_W = isMobile.value ? 320 : 400;
+    const CANVAS_CSS_H = isMobile.value ? 400 : 500;
 
     const onFileSelected = (file: File) => {
       if (!file) return;
@@ -224,6 +227,10 @@ export default defineComponent({
         b = data[2];
       currentRgb.value = [r, g, b];
       currentHex.value = rgbToHex(r, g, b);
+      if (isMobile.value) {
+        selectedHex.value = currentHex.value;
+      }
+
       try {
         luminance.value = Number(chroma(currentHex.value).luminance().toFixed(3));
       } catch {
@@ -418,6 +425,7 @@ export default defineComponent({
 
 .values {
   font-size: 14px;
+  width: 130px;
 }
 
 .hidden-canvas {
