@@ -4,22 +4,9 @@
       <app-image-not-uploaded v-if="!imageUrl" @on-file-selected="onFileSelected">
       </app-image-not-uploaded>
       <div v-if="imageUrl" class="viewer-wrap">
-        <div
-          ref="imageFrame"
-          class="image-frame"
-          @pointermove.prevent="onPointerMove"
-          @pointerdown.prevent="onPointerDown"
-          @pointerup.prevent="onPointerUp"
-          @pointerleave="onPointerLeave"
-          @touchstart.prevent="onTouchStart"
-          @touchmove.prevent="onTouchMove"
-          @touchend.prevent="onTouchEnd"
-          @pointerdown.capture.prevent="onImageClick"
-        >
+        <div ref="imageFrame" class="image-frame" @pointerdown.prevent="onImagePointerDown">
           <img ref="imgEl" :src="imageUrl" alt="uploaded" draggable="false" />
-          <!-- crosshair -->
           <div
-            v-if="showCursor"
             class="cursor"
             :style="{ left: cursorX + 'px', top: cursorY + 'px' }"
             aria-hidden="true"
@@ -54,7 +41,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, nextTick, ref } from 'vue';
+import { computed, defineComponent, nextTick, onBeforeUnmount, ref } from 'vue';
 import chroma from 'chroma-js';
 import AppColorPicker from '@/shared/components/AppColorPicker.vue';
 import AppFileUploader from '@/shared/components/AppFileUploader.vue';
@@ -76,21 +63,22 @@ export default defineComponent({
 
     // cursor / preview
     const showCursor = ref(false);
-    const cursorX = ref(0);
-    const cursorY = ref(0);
+    const cursorX = ref(100);
+    const cursorY = ref(100);
 
     // sampled color
     const currentRgb = ref<[number, number, number]>([0, 0, 0]);
     const currentHex = ref<string>('#D4F880');
     const selectedHex = ref<string>('#D4F880');
     const luminance = ref<number>(0);
-    const pointerDown = ref(false);
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
     // опции
     // фиксированный CSS размер canvas (в пикселях CSS)
     const CANVAS_CSS_W = isMobile.value ? 320 : 400;
     const CANVAS_CSS_H = isMobile.value ? 400 : 500;
-
+    // внутренние флаги
+    let imageActive = false;
+    let activePointerId: number | null = null;
     const onFileSelected = (file: File) => {
       if (!file) return;
       const url = URL.createObjectURL(file);
@@ -227,9 +215,7 @@ export default defineComponent({
         b = data[2];
       currentRgb.value = [r, g, b];
       currentHex.value = rgbToHex(r, g, b);
-      if (isMobile.value) {
-        selectedHex.value = currentHex.value;
-      }
+      selectedHex.value = currentHex.value;
 
       try {
         luminance.value = Number(chroma(currentHex.value).luminance().toFixed(3));
@@ -251,70 +237,54 @@ export default defineComponent({
       ).toUpperCase();
     };
 
-    const onPointerMove = (e: PointerEvent) => {
-      if (!imageUrl.value) return;
+    const onImagePointerDown = (e: PointerEvent) => {
+      imageActive = true;
+      activePointerId = e.pointerId;
+      imageFrame.value?.setPointerCapture?.(e.pointerId);
+      handleImagePointer(e.clientX, e.clientY);
       const map = sampleAtClient(e.clientX, e.clientY);
       if (!map) return;
-      // position cursor relative to frame
-      const frameRect = imageFrame.value!.getBoundingClientRect();
-      cursorX.value = map.clientX - frameRect.left;
-      cursorY.value = map.clientY - frameRect.top;
+      window.addEventListener('pointermove', onWindowImageMove);
+      window.addEventListener('pointerup', onWindowImageUp, { once: true });
+      window.addEventListener('pointercancel', onWindowImageUp, { once: true });
+    };
+
+    const handleImagePointer = (clientX: number, clientY: number) => {
+      const img = imgEl.value;
+      const frame = imageFrame.value;
+      if (!img || !frame) return;
+      const rect = img.getBoundingClientRect();
+      const xInImg = Math.max(0, Math.min(rect.width, clientX - rect.left));
+      const yInImg = Math.max(0, Math.min(rect.height, clientY - rect.top));
+      const frameRect = frame.getBoundingClientRect();
+      cursorX.value = xInImg + (rect.left - frameRect.left);
+      cursorY.value = yInImg + (rect.top - frameRect.top);
       showCursor.value = true;
     };
 
-    const onPointerDown = (e: PointerEvent) => {
-      pointerDown.value = true;
-      onPointerMove(e);
-    };
-
-    const onPointerUp = () => {
-      pointerDown.value = false;
-    };
-
-    const onPointerLeave = () => {
-      showCursor.value = false;
-    };
-
-    const onTouchStart = (e: TouchEvent) => {
-      const t = e.touches[0];
-      if (!t) return;
-      onPointerDown({ clientX: t.clientX, clientY: t.clientY } as PointerEvent);
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      const t = e.touches[0];
-      if (!t) return;
-      onPointerMove({ clientX: t.clientX, clientY: t.clientY } as PointerEvent);
-    };
-
-    const onTouchEnd = () => {
-      onPointerUp();
-    };
-
-    // вызывается при pointerdown по image-frame — сразу снимаем цвет и копируем
-    const onImageClick = (e: PointerEvent) => {
-      if (!imageUrl.value) return;
+    const onWindowImageMove = (e: PointerEvent) => {
+      if (!imageActive) return;
+      handleImagePointer(e.clientX, e.clientY);
       const map = sampleAtClient(e.clientX, e.clientY);
       if (!map) return;
-      // обновляем позицию курсора визуально
-      const frameRect = imageFrame.value!.getBoundingClientRect();
-      cursorX.value = map.clientX - frameRect.left;
-      cursorY.value = map.clientY - frameRect.top;
-      showCursor.value = true;
-      copyHexImmediate();
     };
 
-    const copyHexImmediate = async () => {
-      const text = currentHex.value;
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        try {
-          await navigator.clipboard.writeText(text);
-          selectedHex.value = text;
-        } catch (err) {
-          console.warn('clipboard.writeText failed:', err);
-        }
+    const onWindowImageUp = () => {
+      imageActive = false;
+      if (activePointerId !== null) {
+        imageFrame.value?.releasePointerCapture?.(activePointerId);
+        activePointerId = null;
       }
+      window.removeEventListener('pointermove', onWindowImageMove);
+      window.removeEventListener('pointerup', onWindowImageUp);
+      window.removeEventListener('pointercancel', onWindowImageUp);
     };
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('pointermove', onWindowImageMove);
+      window.removeEventListener('pointerup', onWindowImageUp);
+      window.removeEventListener('pointercancel', onWindowImageUp);
+    });
 
     return {
       fileInput,
@@ -328,16 +298,9 @@ export default defineComponent({
       showCursor,
       cursorX,
       cursorY,
-      onPointerMove,
-      onPointerDown,
-      onPointerUp,
-      onPointerLeave,
-      onTouchStart,
-      onTouchMove,
-      onTouchEnd,
-      onImageClick,
       selectedHex,
       onFileSelected,
+      onImagePointerDown,
     };
   },
 });
@@ -372,7 +335,6 @@ export default defineComponent({
   justify-content: center; /* центрирует по горизонтали */
   touch-action: none;
   user-select: none;
-  cursor: none;
 }
 .image-frame img {
   max-width: 100%;
