@@ -52,6 +52,10 @@ const messages = {
     successFolderCreate: 'Create folder',
     successDeleteFolder: 'Delete folder',
     takePhoto: 'Take a photo',
+    characteristicColor: 'Colors',
+    photoNotUploaded: 'Photo not uploaded',
+    combinations: 'Combinations',
+    scale: 'Scale',
   },
   ru: {
     login: 'Вход',
@@ -104,6 +108,10 @@ const messages = {
     successFolderCreate: 'Папка добавлена',
     successDeleteFolder: 'Папка удалена',
     takePhoto: 'Фото',
+    characteristicColor: 'Цвета',
+    photoNotUploaded: 'Фото не загружено',
+    combinations: 'Сочетание',
+    scale: 'Шкала',
   },
 };
 
