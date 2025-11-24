@@ -21,6 +21,7 @@ import {
   faEllipsisVertical,
   faEnvelope,
   faExclamationTriangle,
+  faEyeDropper,
   faFileUpload,
   faFilter,
   faFolder,
@@ -92,7 +93,8 @@ library.add(
   faGear,
   faSliders,
   faDownload,
-  faCamera
+  faCamera,
+  faEyeDropper
 );
 
 onAuthStateChanged(auth, (user) => {

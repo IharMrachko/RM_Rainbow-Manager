@@ -6,6 +6,7 @@ import MainLayout from '@/views/main/MainLayout.vue';
 import ColorView from '@/views/main/views/color-view/ColorView.vue';
 import store from '@/store';
 import GalleryView from '@/views/main/views/gallery/GalleryView.vue';
+import ChromaView from '@/views/main/views/chroma/ChromaView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -37,6 +38,12 @@ const routes: Array<RouteRecordRaw> = [
         path: 'color',
         name: 'color',
         component: ColorView,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'chroma',
+        name: 'chroma',
+        component: ChromaView,
         meta: { requiresAuth: true },
       },
       {
