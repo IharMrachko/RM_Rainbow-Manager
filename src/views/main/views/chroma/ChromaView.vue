@@ -1,18 +1,10 @@
 <template>
   <div class="chroma-wrapper">
     <div class="photo-picker">
-      <app-image-not-uploaded v-if="!imageUrl" @on-file-selected="onFileSelected">
+      <app-image-not-uploaded v-if="!imgEl" @on-file-selected="onFileSelected">
       </app-image-not-uploaded>
-      <div v-if="imageUrl" class="viewer-wrap">
-        <div ref="imageFrame" class="image-frame" @pointerdown.prevent="onImagePointerDown">
-          <img ref="imgEl" :src="imageUrl" alt="uploaded" draggable="false" />
-          <div
-            class="cursor"
-            :style="{ left: cursorX + 'px', top: cursorY + 'px' }"
-            aria-hidden="true"
-          />
-        </div>
-
+      <div v-if="imgEl" class="viewer-wrap">
+        <canvas ref="canvasEl"></canvas>
         <div class="info-row">
           <section>
             <div class="swatch" :style="{ background: currentHex }"></div>
@@ -22,8 +14,26 @@
               <div><strong>HEX:</strong> {{ currentHex }}</div>
             </div>
           </section>
+          <div class="actions">
+            <app-button
+              severity="secondary"
+              raised
+              :icon="['fas', 'undo']"
+              @click="reset"
+            ></app-button>
+            <app-button
+              severity="secondary"
+              raised
+              :icon="['fas', 'plus']"
+              @click="zoomIn"
+            ></app-button>
+            <app-button
+              severity="secondary"
+              raised
+              :icon="['fas', 'minus']"
+              @click="zoomOut"
+            ></app-button>
 
-          <div v-if="imageUrl" class="upload-btn">
             <app-file-uploader
               :is-show-sign="false"
               :is-title="false"
@@ -32,197 +42,129 @@
           </div>
         </div>
       </div>
-
-      <!-- скрытый canvas для чтения пикселей -->
-      <canvas ref="hiddenCanvas" class="hidden-canvas" aria-hidden="true"></canvas>
     </div>
     <app-color-picker :hex-p="selectedHex"></app-color-picker>
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, nextTick, onBeforeUnmount, ref } from 'vue';
-import chroma from 'chroma-js';
+import { defineComponent, nextTick, onBeforeUnmount, ref } from 'vue';
 import AppColorPicker from '@/shared/components/AppColorPicker.vue';
 import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppImageNotUploaded from '@/shared/components/AppImageNotUploaded.vue';
-import { useStore } from 'vuex';
+import AppButton from '@/shared/components/AppButton.vue';
 
 export default defineComponent({
-  components: { AppImageNotUploaded, AppColorPicker, AppFileUploader },
+  components: { AppButton, AppImageNotUploaded, AppColorPicker, AppFileUploader },
   setup() {
-    const store = useStore();
-    const fileInput = ref<HTMLInputElement | null>(null);
     const imgEl = ref<HTMLImageElement | null>(null);
-    const imageFrame = ref<HTMLElement | null>(null);
-    const hiddenCanvas = ref<HTMLCanvasElement | null>(null);
-
-    const imageUrl = ref<string | null>(null);
-    const imgNaturalW = ref(0);
-    const imgNaturalH = ref(0);
-
-    // cursor / preview
-    const showCursor = ref(false);
-    const cursorX = ref(100);
-    const cursorY = ref(100);
-
-    // sampled color
+    const canvasEl = ref<HTMLCanvasElement | null>(null);
     const currentRgb = ref<[number, number, number]>([0, 0, 0]);
     const currentHex = ref<string>('#D4F880');
     const selectedHex = ref<string>('#D4F880');
     const luminance = ref<number>(0);
-    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
-    // опции
-    // фиксированный CSS размер canvas (в пикселях CSS)
-    const CANVAS_CSS_W = isMobile.value ? 360 : 400;
-    const CANVAS_CSS_H = isMobile.value ? 450 : 500;
-    // внутренние флаги
-    let imageActive = false;
-    let activePointerId: number | null = null;
+    const scaleFactor = ref(1.2);
+    const CANVAS_W = 400;
+    const CANVAS_H = 450;
+    let cleanup: (() => void) | null = null;
+    let isDrawing = false;
+
     const onFileSelected = (file: File) => {
       if (!file) return;
       const url = URL.createObjectURL(file);
       loadImage(url);
     };
 
-    const loadImage = (url: string) => {
-      if (imageUrl.value) {
-        URL.revokeObjectURL(imageUrl.value);
-      }
-      imageUrl.value = url;
-      nextTick(() => {
-        if (!imgEl.value) return;
-        imgEl.value.onload = () => {
-          imgNaturalW.value = imgEl.value!.naturalWidth;
-          imgNaturalH.value = imgEl.value!.naturalHeight;
-          prepareHiddenCanvas();
-        };
-        if (imgEl.value.complete) {
-          imgNaturalW.value = imgEl.value.naturalWidth;
-          imgNaturalH.value = imgEl.value.naturalHeight;
-          prepareHiddenCanvas();
-        }
-      });
-    };
+    const initCanvasEvents = () => {
+      const canvas = canvasEl.value!;
+      const rect = canvas.getBoundingClientRect();
+      pickColorAndDrawCircle(100, 100);
+      const handleMouseDown = (e: MouseEvent) => {
+        if (e.button !== 0) return;
+        isDrawing = true;
+        pickColorAndDrawCircle(e.clientX - rect.left, e.clientY - rect.top);
+      };
+      const handleMouseMove = (e: MouseEvent) => {
+        if (!isDrawing) return;
+        pickColorAndDrawCircle(e.clientX - rect.left, e.clientY - rect.top);
+      };
+      const handleMouseUp = () => {
+        isDrawing = false;
+      };
+      const handleMouseLeave = () => {
+        isDrawing = false;
+      };
 
-    // prepareHiddenCanvas: рисует изображение в canvas 400x500 (contain)
-    const prepareHiddenCanvas = () => {
-      const img = imgEl.value;
-      const canvas = hiddenCanvas.value;
-      if (!img || !canvas) return;
+      const handleTouchStart = (e: TouchEvent) => {
+        isDrawing = true;
+        const touch = e.touches[0];
+        pickColorAndDrawCircle(touch.clientX - rect.left, touch.clientY - rect.top);
+      };
+      const handleTouchMove = (e: TouchEvent) => {
+        if (!isDrawing) return;
+        const touch = e.touches[0];
+        pickColorAndDrawCircle(touch.clientX - rect.left, touch.clientY - rect.top);
+      };
+      const handleTouchEnd = () => {
+        isDrawing = false;
+      };
 
-      // device pixel ratio
-      const dpr = window.devicePixelRatio || 1;
+      canvas.addEventListener('mousedown', handleMouseDown);
+      canvas.addEventListener('mousemove', handleMouseMove);
+      canvas.addEventListener('mouseup', handleMouseUp);
+      canvas.addEventListener('mouseleave', handleMouseLeave);
 
-      // canvas физические пиксели
-      const canvasPxW = Math.round(CANVAS_CSS_W * dpr);
-      const canvasPxH = Math.round(CANVAS_CSS_H * dpr);
+      canvas.addEventListener('touchstart', handleTouchStart);
+      canvas.addEventListener('touchmove', handleTouchMove);
+      canvas.addEventListener('touchend', handleTouchEnd);
 
-      // устанавливаем размеры canvas
-      canvas.width = canvasPxW;
-      canvas.height = canvasPxH;
-      // CSS размеры (чтобы canvas overlay совпадал с видимым размером, если нужно)
-      canvas.style.width = `${CANVAS_CSS_W}px`;
-      canvas.style.height = `${CANVAS_CSS_H}px`;
+      cleanup = () => {
+        canvas.removeEventListener('mousedown', handleMouseDown);
+        canvas.removeEventListener('mousemove', handleMouseMove);
+        canvas.removeEventListener('mouseup', handleMouseUp);
+        canvas.removeEventListener('mouseleave', handleMouseLeave);
 
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      // масштабируем контекст под DPR
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      // очищаем canvas в CSS-пикселях
-      ctx.clearRect(0, 0, CANVAS_CSS_W, CANVAS_CSS_H);
-
-      // вычисляем размеры для drawImage с режимом contain (в CSS-пикселях)
-      const natW = img.naturalWidth;
-      const natH = img.naturalHeight;
-      if (!natW || !natH) return;
-
-      const ratioImg = natW / natH;
-      const ratioCanvas = CANVAS_CSS_W / CANVAS_CSS_H;
-
-      let drawW;
-      let drawH;
-      if (ratioImg > ratioCanvas) {
-        // изображение шире относительно canvas -> подгоняем по ширине
-        drawW = CANVAS_CSS_W;
-        drawH = Math.round(CANVAS_CSS_W / ratioImg);
-      } else {
-        // изображение выше относительно canvas -> подгоняем по высоте
-        drawH = CANVAS_CSS_H;
-        drawW = Math.round(CANVAS_CSS_H * ratioImg);
-      }
-
-      // центрируем изображение в canvas (CSS-пиксели)
-      const offsetX = Math.round((CANVAS_CSS_W - drawW) / 2);
-      const offsetY = Math.round((CANVAS_CSS_H - drawH) / 2);
-      if (imageFrame.value) {
-        imageFrame.value.style.width = `${drawW}px`;
-        imageFrame.value.style.height = `${drawH}px`;
-      }
-      // drawImage: используем CSS-пиксели, контекст уже масштабирован под DPR
-      ctx.drawImage(img, 0, 0, natW, natH, offsetX, offsetY, drawW, drawH);
-
-      // сохраняем метаданные для маппинга
-      (canvas as any).__meta = {
-        mode: 'contain',
-        cssW: CANVAS_CSS_W,
-        cssH: CANVAS_CSS_H,
-        drawW,
-        drawH,
-        offsetX,
-        offsetY,
-        dpr,
-        natW,
-        natH,
+        canvas.removeEventListener('touchstart', handleTouchStart);
+        canvas.removeEventListener('touchmove', handleTouchMove);
+        canvas.removeEventListener('touchend', handleTouchEnd);
       };
     };
 
-    // map pointer client coords to image natural pixel coords
-    const clientToImagePixel = (clientX: number, clientY: number) => {
-      const frame = imageFrame.value;
-      const img = imgEl.value;
-      const canvas = hiddenCanvas.value;
-      if (!frame || !img || !canvas) return null;
+    function pickColorAndDrawCircle(xCss: number, yCss: number) {
+      const canvas = canvasEl.value!;
+      const ctx = canvas.getContext('2d')!;
+      const rect = canvas.getBoundingClientRect();
 
-      const rect = img.getBoundingClientRect();
-      // if image is letterboxed inside frame, we use rect
-      const xInImg = clientX - rect.left;
-      const yInImg = clientY - rect.top;
+      if (xCss < 0 || yCss < 0 || xCss > rect.width || yCss > rect.height) return;
 
-      // clamp
-      const clampedX = Math.min(Math.max(0, xInImg), rect.width);
-      const clampedY = Math.min(Math.max(0, yInImg), rect.height);
-
-      // map to natural pixels
-      const px = Math.round((clampedX / rect.width) * canvas.width);
-      const py = Math.round((clampedY / rect.height) * canvas.height);
-      return { px, py, clientX: clampedX + rect.left, clientY: clampedY + rect.top };
-    };
-
-    const sampleAtClient = (clientX: number, clientY: number) => {
-      const map = clientToImagePixel(clientX, clientY);
-      if (!map) return;
-      const canvas = hiddenCanvas.value!;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      const { px, py } = map;
-      // guard
-      if (px < 0 || py < 0 || px >= canvas.width || py >= canvas.height) return;
-      const data = ctx.getImageData(px, py, 1, 1).data;
-      const r = data[0],
-        g = data[1],
-        b = data[2];
+      const pixel = ctx.getImageData(xCss, yCss, 1, 1).data;
+      const [r, g, b] = pixel;
       currentRgb.value = [r, g, b];
       currentHex.value = rgbToHex(r, g, b);
       selectedHex.value = currentHex.value;
 
-      try {
-        luminance.value = Number(chroma(currentHex.value).luminance().toFixed(3));
-      } catch {
-        luminance.value = 0;
-      }
-      return map;
+      drawImage();
+
+      ctx.beginPath();
+      ctx.arc(xCss, yCss, 14, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0)';
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    const loadImage = async (src: string) => {
+      const img = new Image();
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('Image load error'));
+        img.src = src;
+      });
+      imgEl.value = img;
+      await nextTick();
+      drawImage();
+      initCanvasEvents();
     };
 
     const rgbToHex = (r: number, g: number, b: number) => {
@@ -237,70 +179,70 @@ export default defineComponent({
       ).toUpperCase();
     };
 
-    const onImagePointerDown = (e: PointerEvent) => {
-      imageActive = true;
-      activePointerId = e.pointerId;
-      imageFrame.value?.setPointerCapture?.(e.pointerId);
-      handleImagePointer(e.clientX, e.clientY);
-      const map = sampleAtClient(e.clientX, e.clientY);
-      if (!map) return;
-      window.addEventListener('pointermove', onWindowImageMove);
-      window.addEventListener('pointerup', onWindowImageUp, { once: true });
-      window.addEventListener('pointercancel', onWindowImageUp, { once: true });
-    };
-
-    const handleImagePointer = (clientX: number, clientY: number) => {
-      const img = imgEl.value;
-      const frame = imageFrame.value;
-      if (!img || !frame) return;
-      const rect = img.getBoundingClientRect();
-      const xInImg = Math.max(0, Math.min(rect.width, clientX - rect.left));
-      const yInImg = Math.max(0, Math.min(rect.height, clientY - rect.top));
-      const frameRect = frame.getBoundingClientRect();
-      cursorX.value = xInImg + (rect.left - frameRect.left);
-      cursorY.value = yInImg + (rect.top - frameRect.top);
-      showCursor.value = true;
-    };
-
-    const onWindowImageMove = (e: PointerEvent) => {
-      if (!imageActive) return;
-      handleImagePointer(e.clientX, e.clientY);
-      const map = sampleAtClient(e.clientX, e.clientY);
-      if (!map) return;
-    };
-
-    const onWindowImageUp = () => {
-      imageActive = false;
-      if (activePointerId !== null) {
-        imageFrame.value?.releasePointerCapture?.(activePointerId);
-        activePointerId = null;
-      }
-      window.removeEventListener('pointermove', onWindowImageMove);
-      window.removeEventListener('pointerup', onWindowImageUp);
-      window.removeEventListener('pointercancel', onWindowImageUp);
-    };
-
     onBeforeUnmount(() => {
-      window.removeEventListener('pointermove', onWindowImageMove);
-      window.removeEventListener('pointerup', onWindowImageUp);
-      window.removeEventListener('pointercancel', onWindowImageUp);
+      if (cleanup) cleanup();
     });
 
+    function drawImage() {
+      const canvas = canvasEl.value;
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      canvas.width = CANVAS_W;
+      canvas.height = CANVAS_H;
+
+      ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+      if (!imgEl.value) return;
+      const natW = imgEl.value.naturalWidth;
+      const natH = imgEl.value.naturalHeight;
+      const ratioImg = natW / natH;
+      const ratioCanvas = CANVAS_W / CANVAS_H;
+
+      let drawW, drawH;
+      if (ratioImg > ratioCanvas) {
+        drawW = CANVAS_W * scaleFactor.value;
+        drawH = (CANVAS_W / ratioImg) * scaleFactor.value;
+      } else {
+        drawH = CANVAS_H * scaleFactor.value;
+        drawW = CANVAS_H * ratioImg * scaleFactor.value;
+      }
+
+      const offsetX = (CANVAS_W - drawW) / 2;
+      const offsetY = (CANVAS_H - drawH) / 2;
+
+      ctx.drawImage(imgEl.value, 0, 0, natW, natH, offsetX, offsetY, drawW, drawH);
+    }
+    function zoomIn() {
+      scaleFactor.value *= 1.2;
+      drawImage();
+    }
+
+    function zoomOut() {
+      if (scaleFactor.value > 1.2) {
+        scaleFactor.value /= 1.2;
+        drawImage();
+      }
+    }
+
+    const reset = () => {
+      scaleFactor.value = 1.2;
+      drawImage();
+    };
+
     return {
-      fileInput,
       imgEl,
-      imageFrame,
-      hiddenCanvas,
-      imageUrl,
       currentRgb,
       currentHex,
       luminance,
-      showCursor,
-      cursorX,
-      cursorY,
       selectedHex,
       onFileSelected,
-      onImagePointerDown,
+      scaleFactor,
+      zoomIn,
+      canvasEl,
+      zoomOut,
+      reset,
     };
   },
 });
@@ -315,7 +257,11 @@ export default defineComponent({
   background: var(--color-wrap-bg);
   height: calc(100dvh - var(--header-height));
   gap: 20px;
-  overflow: auto;
+  overflow: hidden;
+
+  @media (max-width: 600px) {
+    overflow: auto;
+  }
 }
 .photo-picker {
   margin: 12px auto;
@@ -326,49 +272,19 @@ export default defineComponent({
   flex-direction: column;
   gap: 12px;
 }
-.image-frame {
-  position: relative;
-  overflow: hidden; /* прячет выходящие части изображения */
-  border-radius: 10px;
-  display: flex;
-  align-items: center; /* центрирует изображение по вертикали */
-  justify-content: center; /* центрирует по горизонтали */
-  touch-action: none;
-  user-select: none;
-}
-.image-frame img {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-  object-fit: contain; /* сохраняет пропорции, не обрезает */
-  display: block;
-  pointer-events: none; /* чтобы pointer события шли на контейнер */
-}
-
-.cursor {
-  position: absolute;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  mix-blend-mode: normal;
-  background: rgba(255, 255, 255, 0.02);
-}
 
 .info-row {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-
   & section {
     display: flex;
     align-items: center;
+    gap: 12px;
+  }
+
+  & .actions {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: left;
     gap: 12px;
   }
 }
@@ -390,19 +306,14 @@ export default defineComponent({
   width: 130px;
 }
 
-.hidden-canvas {
-  display: none;
-}
-
 /* mobile tweaks */
 @media (max-width: 600px) {
-  .cursor {
-    width: 22px;
-    height: 22px;
-  }
   .swatch {
     width: 96px;
     height: 64px;
   }
+}
+canvas {
+  border-radius: 8px;
 }
 </style>

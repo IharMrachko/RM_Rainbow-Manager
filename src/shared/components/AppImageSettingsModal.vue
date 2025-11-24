@@ -114,6 +114,7 @@ export default defineComponent({
       fitImage();
       draw();
     };
+
     // метод для uploader
     const onFileSelected = async (file: File) => {
       if (!file) return;
