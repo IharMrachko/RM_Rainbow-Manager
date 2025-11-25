@@ -63,7 +63,6 @@ export default defineComponent({
   opacity: 1;
 }
 .placeholder-text {
-  font-size: 15px;
-  color: black;
+  font-size: 18px;
 }
 </style>

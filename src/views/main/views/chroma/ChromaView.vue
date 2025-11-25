@@ -10,7 +10,6 @@
             <div class="swatch" :style="{ background: currentHex }"></div>
             <div class="values">
               <div><strong>RGB:</strong> {{ currentRgb.join(', ') }}</div>
-              <div><strong>Luminance:</strong> {{ luminance }}</div>
               <div><strong>HEX:</strong> {{ currentHex }}</div>
             </div>
           </section>
@@ -48,24 +47,26 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, onBeforeUnmount, ref } from 'vue';
+import { computed, defineComponent, nextTick, onBeforeUnmount, ref } from 'vue';
 import AppColorPicker from '@/shared/components/AppColorPicker.vue';
 import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppImageNotUploaded from '@/shared/components/AppImageNotUploaded.vue';
 import AppButton from '@/shared/components/AppButton.vue';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   components: { AppButton, AppImageNotUploaded, AppColorPicker, AppFileUploader },
   setup() {
+    const store = useStore();
     const imgEl = ref<HTMLImageElement | null>(null);
     const canvasEl = ref<HTMLCanvasElement | null>(null);
     const currentRgb = ref<[number, number, number]>([0, 0, 0]);
     const currentHex = ref<string>('#D4F880');
     const selectedHex = ref<string>('#D4F880');
-    const luminance = ref<number>(0);
-    const scaleFactor = ref(1.2);
-    const CANVAS_W = 400;
-    const CANVAS_H = 450;
+    const scaleFactor = ref(1.4);
+    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
+    const CANVAS_W = isMobile.value ? 350 : 450;
+    const CANVAS_H = isMobile.value ? 350 : 450;
     let cleanup: (() => void) | null = null;
     let isDrawing = false;
 
@@ -130,7 +131,7 @@ export default defineComponent({
       };
     };
 
-    function pickColorAndDrawCircle(xCss: number, yCss: number) {
+    const pickColorAndDrawCircle = (xCss: number, yCss: number) => {
       const canvas = canvasEl.value!;
       const ctx = canvas.getContext('2d')!;
       const rect = canvas.getBoundingClientRect();
@@ -152,7 +153,7 @@ export default defineComponent({
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = 2;
       ctx.stroke();
-    }
+    };
 
     const loadImage = async (src: string) => {
       const img = new Image();
@@ -183,7 +184,7 @@ export default defineComponent({
       if (cleanup) cleanup();
     });
 
-    function drawImage() {
+    const drawImage = () => {
       const canvas = canvasEl.value;
       if (!canvas) return;
 
@@ -213,21 +214,22 @@ export default defineComponent({
       const offsetY = (CANVAS_H - drawH) / 2;
 
       ctx.drawImage(imgEl.value, 0, 0, natW, natH, offsetX, offsetY, drawW, drawH);
-    }
-    function zoomIn() {
+    };
+
+    const zoomIn = () => {
       scaleFactor.value *= 1.2;
       drawImage();
-    }
+    };
 
-    function zoomOut() {
-      if (scaleFactor.value > 1.2) {
+    const zoomOut = () => {
+      if (scaleFactor.value > 1.4) {
         scaleFactor.value /= 1.2;
         drawImage();
       }
-    }
+    };
 
     const reset = () => {
-      scaleFactor.value = 1.2;
+      scaleFactor.value = 1.4;
       drawImage();
     };
 
@@ -235,7 +237,6 @@ export default defineComponent({
       imgEl,
       currentRgb,
       currentHex,
-      luminance,
       selectedHex,
       onFileSelected,
       scaleFactor,
@@ -258,6 +259,16 @@ export default defineComponent({
   height: calc(100dvh - var(--header-height));
   gap: 20px;
   overflow: hidden;
+
+  /* Скрыть скроллбар в разных браузерах */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE и Edge */
+  overscroll-behavior: contain; /* или none */
+
+  &::-webkit-scrollbar {
+    /* Chrome, Safari, Opera */
+    display: none;
+  }
 
   @media (max-width: 600px) {
     overflow: auto;
@@ -284,7 +295,7 @@ export default defineComponent({
     margin-top: 12px;
     display: flex;
     align-items: center;
-    justify-content: left;
+    justify-content: center;
     gap: 12px;
   }
 }
