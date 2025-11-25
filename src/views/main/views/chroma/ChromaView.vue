@@ -1,6 +1,6 @@
 <template>
   <div class="chroma-wrapper">
-    <div class="photo-picker">
+    <div class="photo-picker" :class="{ hiddenOverflow: isHiddenOverflow }">
       <app-image-not-uploaded v-if="!imgEl" @on-file-selected="onFileSelected">
       </app-image-not-uploaded>
       <div v-if="imgEl" class="viewer-wrap">
@@ -69,6 +69,7 @@ export default defineComponent({
     const CANVAS_H = isMobile.value ? 350 : 450;
     let cleanup: (() => void) | null = null;
     let isDrawing = false;
+    const isHiddenOverflow = ref(false);
 
     const onFileSelected = (file: File) => {
       if (!file) return;
@@ -83,31 +84,38 @@ export default defineComponent({
       const handleMouseDown = (e: MouseEvent) => {
         if (e.button !== 0) return;
         isDrawing = true;
+        isHiddenOverflow.value = true;
         pickColorAndDrawCircle(e.clientX - rect.left, e.clientY - rect.top);
       };
       const handleMouseMove = (e: MouseEvent) => {
         if (!isDrawing) return;
+        isHiddenOverflow.value = true;
         pickColorAndDrawCircle(e.clientX - rect.left, e.clientY - rect.top);
       };
       const handleMouseUp = () => {
         isDrawing = false;
+        isHiddenOverflow.value = false;
       };
       const handleMouseLeave = () => {
         isDrawing = false;
+        isHiddenOverflow.value = false;
       };
 
       const handleTouchStart = (e: TouchEvent) => {
         isDrawing = true;
+        isHiddenOverflow.value = true;
         const touch = e.touches[0];
         pickColorAndDrawCircle(touch.clientX - rect.left, touch.clientY - rect.top);
       };
       const handleTouchMove = (e: TouchEvent) => {
         if (!isDrawing) return;
         const touch = e.touches[0];
+        isHiddenOverflow.value = true;
         pickColorAndDrawCircle(touch.clientX - rect.left, touch.clientY - rect.top);
       };
       const handleTouchEnd = () => {
         isDrawing = false;
+        isHiddenOverflow.value = false;
       };
 
       canvas.addEventListener('mousedown', handleMouseDown);
@@ -244,6 +252,7 @@ export default defineComponent({
       canvasEl,
       zoomOut,
       reset,
+      isHiddenOverflow,
     };
   },
 });
@@ -326,5 +335,9 @@ export default defineComponent({
 }
 canvas {
   border-radius: 8px;
+}
+
+.hiddenOverflow {
+  overflow: hidden;
 }
 </style>

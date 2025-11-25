@@ -46,7 +46,7 @@ export default defineComponent({
   text-align: center;
 
   @media (max-width: 600px) {
-    width: 360px;
+    width: 340px;
     height: 400px;
   }
 }
