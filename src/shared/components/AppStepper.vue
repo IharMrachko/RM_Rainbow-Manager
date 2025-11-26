@@ -264,7 +264,7 @@ export default defineComponent({
   background: #ddd;
 
   @media (max-width: 600px) {
-    width: 40px;
+    width: 20px;
   }
 }
 .connector--vertical {
