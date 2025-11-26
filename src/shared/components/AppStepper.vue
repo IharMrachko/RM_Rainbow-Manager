@@ -262,7 +262,7 @@ export default defineComponent({
   align-self: center;
 }
 .connector--horizontal {
-  width: 200px;
+  width: 160px;
   height: 2px;
   background: #ddd;
 
