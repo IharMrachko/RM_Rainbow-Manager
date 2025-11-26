@@ -1,9 +1,7 @@
 <template>
   <section class="container">
     <div class="wrap-login">
-      <div class="login-pic" @mousemove="handleMouseMove" @mouseleave="resetTransform">
-        <img ref="imageRef" src="../../../assets/img-01.png" alt="" />
-      </div>
+      <app-image-login></app-image-login>
       <div class="login-form">
         <h1 class="title">{{ t('login') }}</h1>
         <!--        v-slot="{ meta }"-->
@@ -59,20 +57,20 @@ import { Field, Form as VForm } from 'vee-validate';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import AppImageLogin from '@/shared/components/AppImageLogin.vue';
 
 export default defineComponent({
-  components: { Field, VForm, AppInput, AppButton },
+  components: { AppImageLogin, Field, VForm, AppInput, AppButton },
 
   setup() {
     const router = useRouter();
     const store = useStore();
     const { t } = useI18n();
-    const imageRef = ref<HTMLImageElement | null>(null);
     const email = ref('');
     const password = ref('');
     const loading = computed(() => store.getters['authFirebase/isLoading']);
     const formGroup = yup.object({
-      email: yup.string().required('validation.required').email('validation.required'),
+      email: yup.string().required('validation.required').email('validation.invalidEmail'),
       password: yup
         .string()
         .required('validation.required')
@@ -88,38 +86,12 @@ export default defineComponent({
       }
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const el = imageRef.value;
-      if (!el) return;
-
-      const rect = el.getBoundingClientRect();
-      const x = e.clientX - rect.left; // позиция курсора внутри картинки
-      const y = e.clientY - rect.top;
-
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-
-      // нормализуем в диапазон [-1, 1]
-      const rotateY = ((x - centerX) / centerX) * 10; // 10° — максимальный поворот по Y
-      const rotateX = -((y - centerY) / centerY) * 10; // по X инвертируем
-
-      el.style.transform = `perspective(300px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    };
-
-    const resetTransform = () => {
-      if (imageRef.value) {
-        imageRef.value.style.transform = 'perspective(300px) rotateX(0deg) rotateY(0deg)';
-      }
-    };
     return {
       formGroup,
       onSubmit,
       email,
       password,
       loading,
-      imageRef,
-      handleMouseMove,
-      resetTransform,
       t,
     };
   },
@@ -133,6 +105,9 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   padding: 1rem; // чтобы на маленьких экранах не прилипало к краям
+  @media (max-width: 600px) {
+    padding: 0;
+  }
 }
 
 .wrap-login {
@@ -147,32 +122,12 @@ export default defineComponent({
   padding: 2rem;
   gap: 2rem;
 
-  @media (max-width: 768px) {
+  @media (max-width: 600px) {
     flex-direction: column;
     align-items: center;
     padding: 1.5rem;
-  }
-}
-
-.login-pic {
-  flex: 1 1 40%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  perspective: 300px;
-
-  img {
-    max-width: 100%;
-    height: auto;
-    transition: transform 0.1s ease;
-    will-change: transform;
-  }
-
-  @media (max-width: 768px) {
-    flex: none;
-    display: none;
-    width: 80%;
-    margin-bottom: 1.5rem;
+    height: 100vh;
+    border-radius: 0;
   }
 }
 

@@ -10,6 +10,7 @@ import {
   limit,
   orderBy,
   query,
+  serverTimestamp,
   startAfter,
   updateDoc,
   where,
@@ -182,7 +183,7 @@ export const gallery: Module<GalleryState, any> = {
               coloristicType,
               maskType,
               folderId,
-              createdAt: new Date(),
+              createdAt: serverTimestamp(),
               deprecated,
               tokens: tokenizeTitle(title),
             });

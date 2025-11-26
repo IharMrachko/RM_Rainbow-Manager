@@ -11,7 +11,7 @@ describe('AppButton.vue', () => {
       },
     });
     // Проверяем, что текст отобразился
-    expect(wrapper.text()).toContain('Login');
+    expect(wrapper.text()).toContain('Sign in');
     // Loader отсутствует
     expect(wrapper.find('.loader').exists()).toBe(false);
   });

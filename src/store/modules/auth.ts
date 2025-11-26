@@ -1,8 +1,24 @@
 import { Module } from 'vuex';
-import { signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
-import { auth } from '@/firebase';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  User,
+} from 'firebase/auth';
+import { auth, db } from '@/firebase';
 import { errorMessages } from '@/helpers/error-message.helper';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 
+export type Role = 'USER' | 'ADMIN' | 'SUPER_ADMIN';
+export interface SignUp {
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  password: string;
+  confirmPassword?: string;
+  email: string;
+  role: Role;
+}
 export interface AuthState {
   user: User | null;
   loading: boolean;
@@ -36,6 +52,51 @@ export const authFirebase: Module<AuthState, any> = {
     },
   },
   actions: {
+    async register({ commit, dispatch }, payload: SignUp) {
+      commit('setLoading', true);
+      try {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          payload.email,
+          payload.password
+        );
+        const parentRef = collection(db, 'users', 'Asbe4RDbnbYilRIWtx4F', 'items');
+
+        await addDoc(parentRef, {
+          userId: userCredential.user.uid,
+          firstName: payload.firstName,
+          lastName: payload.lastName,
+          birthDate: payload.birthDate,
+          email: payload.email,
+          role: payload.role,
+          createdAt: serverTimestamp(),
+        });
+        commit('setUser', userCredential.user);
+        // можно добавить уведомление об успешной регистрации
+        dispatch(
+          'toast/addToast',
+          {
+            message: 'Регистрация прошла успешно!',
+            severity: 'success',
+            duration: 3000,
+          },
+          { root: true }
+        );
+      } catch (err: any) {
+        dispatch(
+          'toast/addToast',
+          {
+            message: errorMessages[err.code] || 'Ошибка регистрации',
+            severity: 'error',
+            duration: 3000,
+          },
+          { root: true }
+        );
+        throw err;
+      } finally {
+        commit('setLoading', false);
+      }
+    },
     async login({ commit, dispatch }, { email, password }: { email: string; password: string }) {
       commit('setLoading', true);
       try {
