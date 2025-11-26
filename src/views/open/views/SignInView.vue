@@ -211,6 +211,7 @@ a:hover {
     top: 40px;
     z-index: 8;
     right: 25px;
+    color: #000;
   }
 }
 </style>
