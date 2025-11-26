@@ -77,13 +77,13 @@ router.beforeEach((to, from, next) => {
   const isAuthenticated = store.getters['authFirebase/isAuthenticated'];
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (!isAuthenticated) {
-      next({ name: 'login' });
+      next({ name: 'signIn' });
     } else {
       next();
     }
   } else {
     // если пользователь уже вошёл и идёт на /login → редиректим в main
-    if (to.name === 'login' && isAuthenticated) {
+    if (to.name === 'signIn' && isAuthenticated) {
       next({ name: 'color' });
     } else {
       next();

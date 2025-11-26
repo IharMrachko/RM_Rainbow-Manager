@@ -25,8 +25,10 @@
 
         <span class="stepper__content">
           <slot name="label" :index="i" :state="stateOf(i)">
-            <div class="stepper__title">{{ step.title }}</div>
-            <div v-if="step.subtitle" class="stepper__subtitle">{{ step.subtitle }}</div>
+            <div class="stepper__title">{{ t(step.title) }}</div>
+            <div v-if="step.subtitle" class="stepper__subtitle">
+              {{ t(step.subtitle) }}
+            </div>
           </slot>
         </span>
       </button>
@@ -51,130 +53,146 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+<script lang="ts">
+import { computed, defineComponent, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 type StepItem = { id?: string | number; title: string; subtitle?: string; disabled?: boolean };
 
-const props = defineProps<{
-  steps: StepItem[];
-  activeIndex?: number;
-  orientation?: 'horizontal' | 'vertical';
-  linear?: boolean;
-  clickable?: boolean;
-  showPanel?: boolean;
-}>();
+export default defineComponent({
+  name: 'AppStepper',
+  props: {
+    steps: { type: Array as () => StepItem[], required: true },
+    activeIndex: { type: Number, default: 0 },
+    orientation: { type: String as () => 'horizontal' | 'vertical', default: 'horizontal' },
+    linear: { type: Boolean, default: false },
+    clickable: { type: Boolean, default: true },
+    showPanel: { type: Boolean, default: true },
+  },
+  emits: ['update:activeIndex', 'change', 'next', 'prev'],
+  setup(props, { emit, expose }) {
+    const { t } = useI18n();
+    const orientation = computed(() => props.orientation ?? 'horizontal');
+    const clickable = computed(() => props.clickable ?? true);
+    const linear = computed(() => props.linear ?? false);
 
-const emit = defineEmits<{
-  (e: 'update:activeIndex', value: number): void;
-  (e: 'change', value: number, prev: number): void;
-  (e: 'next', value: number): void;
-  (e: 'prev', value: number): void;
-}>();
+    const internalIndex = ref(props.activeIndex ?? 0);
+    watch(
+      () => props.activeIndex,
+      (v) => {
+        if (v >= 0 && v < props.steps.length) internalIndex.value = v;
+      }
+    );
 
-const orientation = computed(() => props.orientation ?? 'horizontal');
-const showPanel = computed(() => props.showPanel ?? true);
-const clickable = computed(() => props.clickable ?? true);
-const linear = computed(() => props.linear ?? false);
+    const completedUntil = ref(internalIndex.value);
 
-const internalIndex = ref(props.activeIndex ?? 0);
-watch(
-  () => props.activeIndex,
-  (v) => {
-    if (typeof v === 'number' && v >= 0 && v < props.steps.length) internalIndex.value = v;
-  }
-);
+    const isStepDisabled = (): boolean => false;
 
-const completedUntil = ref(internalIndex.value); // для linear режима
+    const stateOf = (i: number): string => {
+      if (i < internalIndex.value) return 'completed';
+      if (i === internalIndex.value) return 'active';
+      return 'pending';
+    };
 
-function isStepDisabled() {
-  return false;
-}
+    const itemClass = (i: number): string[] => [
+      `is-${stateOf(i)}`,
+      props.steps[i]?.disabled ? 'is-disabled' : '',
+    ];
 
-function stateOf(i: number) {
-  if (i < internalIndex.value) return 'completed';
-  if (i === internalIndex.value) return 'active';
-  return 'pending';
-}
+    const connectorClass = (i: number): string[] => {
+      const completed = i < internalIndex.value;
+      return [completed ? 'is-completed' : 'is-pending', `connector--${orientation.value}`];
+    };
 
-function itemClass(i: number) {
-  return [`is-${stateOf(i)}`, props.steps[i]?.disabled ? 'is-disabled' : ''];
-}
+    const setActive = (next: number): void => {
+      const prev = internalIndex.value;
+      if (next === prev) return;
+      internalIndex.value = next;
+      if (linear.value) completedUntil.value = Math.max(completedUntil.value, next);
+      emit('update:activeIndex', next);
+      emit('change', next, prev);
+    };
 
-function connectorClass(i: number) {
-  const completed = i < internalIndex.value;
-  return [completed ? 'is-completed' : 'is-pending', `connector--${orientation.value}`];
-}
+    const onStepClick = (i: number): void => {
+      if (!clickable.value) return;
+      setActive(i);
+    };
 
-function setActive(next: number) {
-  const prev = internalIndex.value;
-  if (next === prev) return;
-  internalIndex.value = next;
-  if (linear.value) completedUntil.value = Math.max(completedUntil.value, next);
-  emit('update:activeIndex', next);
-  emit('change', next, prev);
-}
+    const next = (): void => {
+      const nextIndex = Math.min(props.steps.length - 1, internalIndex.value + 1);
+      setActive(nextIndex);
+      emit('next', nextIndex);
+    };
 
-function onStepClick(i: number) {
-  if (!clickable.value) return;
-  setActive(i);
-}
+    const prev = (): void => {
+      const prevIndex = Math.max(0, internalIndex.value - 1);
+      setActive(prevIndex);
+      emit('prev', prevIndex);
+    };
 
-function next() {
-  const nextIndex = Math.min(props.steps.length - 1, internalIndex.value + 1);
-  setActive(nextIndex);
-  emit('next', nextIndex);
-}
+    const tabId = (i: number): string => {
+      const base = props.steps[i]?.id ?? i;
+      return `stepper-tab-${base}`;
+    };
 
-function prev() {
-  const prevIndex = Math.max(0, internalIndex.value - 1);
-  setActive(prevIndex);
-  emit('prev', prevIndex);
-}
+    const panelId = (i: number): string => {
+      const base = props.steps[i]?.id ?? i;
+      return `stepper-panel-${base}`;
+    };
 
-function tabId(i: number) {
-  const base = props.steps[i]?.id ?? i;
-  return `stepper-tab-${base}`;
-}
-function panelId(i: number) {
-  const base = props.steps[i]?.id ?? i;
-  return `stepper-panel-${base}`;
-}
+    const onKey = (i: number, e: KeyboardEvent): void => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onStepClick(i);
+        return;
+      }
+      if (orientation.value === 'horizontal') {
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          next();
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          prev();
+        }
+      } else {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          next();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          prev();
+        }
+      }
+      if (e.key === 'Home') {
+        e.preventDefault();
+        setActive(0);
+      }
+      if (e.key === 'End') {
+        e.preventDefault();
+        setActive(props.steps.length - 1);
+      }
+    };
 
-function onKey(i: number, e: KeyboardEvent) {
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    onStepClick(i);
-    return;
-  }
-  if (orientation.value === 'horizontal') {
-    if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      next();
-    } else if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      prev();
-    }
-  } else {
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      next();
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      prev();
-    }
-  }
-  if (e.key === 'Home') {
-    e.preventDefault();
-    setActive(0);
-  }
-  if (e.key === 'End') {
-    e.preventDefault();
-    setActive(props.steps.length - 1);
-  }
-}
+    expose({ next, prev, setActive });
 
-defineExpose({ next, prev, setActive });
+    return {
+      internalIndex,
+      completedUntil,
+      isStepDisabled,
+      stateOf,
+      itemClass,
+      connectorClass,
+      setActive,
+      onStepClick,
+      next,
+      prev,
+      tabId,
+      panelId,
+      onKey,
+      t,
+    };
+  },
+});
 </script>
 
 <style scoped>
@@ -246,7 +264,7 @@ defineExpose({ next, prev, setActive });
   background: #ddd;
 
   @media (max-width: 600px) {
-    width: 80px;
+    width: 70px;
   }
 }
 .connector--vertical {

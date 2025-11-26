@@ -24,7 +24,7 @@
                       label="firstName"
                       placeholder="firstName"
                       :icon="['fas', 'pencil']"
-                      :z-index-tooltip="1020"
+                      :z-index-tooltip="8"
                       :error="meta.touched ? errorMessage : ''"
                       type="email"
                     ></app-input>
@@ -37,6 +37,7 @@
                       label="lastName"
                       placeholder="lastName"
                       :icon="['fas', 'pencil']"
+                      :z-index-tooltip="8"
                       :error="meta.touched ? errorMessage : ''"
                     ></app-input>
                   </Field>
@@ -48,6 +49,7 @@
                       label="birthDate"
                       placeholder="birthDateMask"
                       :icon="['fas', 'birthday-cake']"
+                      :z-index-tooltip="8"
                       :error="meta.touched ? errorMessage : ''"
                     ></app-input>
                   </Field>
@@ -59,38 +61,49 @@
                       placeholder="example@gmail.com"
                       label="email"
                       :icon="['fas', 'envelope']"
-                      :z-index-tooltip="1020"
+                      :z-index-tooltip="8"
                       :error="meta.touched ? errorMessage : ''"
                       type="email"
                     ></app-input>
                   </Field>
                   <Field v-slot="{ field, meta, errorMessage }" name="password">
-                    <app-input
-                      v-show="index === 1"
-                      v-bind="field"
-                      v-model="password"
-                      placeholder="password"
-                      label="password"
-                      type="password"
-                      :icon="['fas', 'lock']"
-                      :error="meta.touched ? errorMessage : ''"
-                    ></app-input>
+                    <div class="btn-password">
+                      <app-input
+                        v-show="index === 1"
+                        v-bind="field"
+                        v-model="password"
+                        placeholder="password"
+                        label="password"
+                        :type="typeInput"
+                        :z-index-tooltip="8"
+                        :icon="['fas', 'lock']"
+                        :error="meta.touched ? errorMessage : ''"
+                      ></app-input>
+                      <div v-show="index === 1" class="icon-eye" @click="toggleEye">
+                        <font-awesome-icon :icon="eyeIcon" />
+                      </div>
+                    </div>
                   </Field>
                   <Field v-slot="{ field, meta, errorMessage }" name="confirmPassword">
-                    <app-input
-                      v-show="index === 1"
-                      v-bind="field"
-                      v-model="confirmPassword"
-                      placeholder="confirmPassword"
-                      label="confirmPassword"
-                      type="password"
-                      :icon="['fas', 'lock']"
-                      :error="meta.touched ? errorMessage : ''"
-                    ></app-input>
+                    <div class="btn-password">
+                      <app-input
+                        v-show="index === 1"
+                        v-bind="field"
+                        v-model="confirmPassword"
+                        placeholder="password"
+                        label="confirmPassword"
+                        :type="typeInput"
+                        :icon="['fas', 'lock']"
+                        :z-index-tooltip="8"
+                        :error="meta.touched ? errorMessage : ''"
+                      ></app-input>
+                      <div v-show="index === 1" class="icon-eye" @click="toggleEye">
+                        <font-awesome-icon :icon="eyeIcon" />
+                      </div>
+                    </div>
                   </Field>
                 </section>
 
-                <!--          :disabled="!meta.valid"-->
                 <app-button
                   v-if="index === 1"
                   :loading="loading"
@@ -119,25 +132,27 @@ import AppStepper from '@/shared/components/AppStepper.vue';
 import { parseDDMMYYYY } from '@/helpers/parser-date.helper';
 import AppImageLogin from '@/shared/components/AppImageLogin.vue';
 import { SignUp } from '@/store/modules/auth';
+import { usePasswordToggle } from '@/composables/usePasswordToggle';
 
 export default defineComponent({
   components: { AppImageLogin, AppStepper, Field, VForm, AppInput, AppButton },
 
   setup() {
     const idx = ref(0);
+    const { t } = useI18n();
     const steps = [
-      { id: 's2', title: 'Profile' },
-      { id: 's3', title: 'Confirm' },
+      { id: 's2', title: 'profile' },
+      { id: 's3', title: 'confirmation' },
     ];
     const router = useRouter();
     const store = useStore();
-    const { t } = useI18n();
     const firstName = ref('');
     const lastName = ref('');
     const birthDate = ref('');
     const email = ref('');
     const password = ref('');
     const confirmPassword = ref('');
+    const { typeInput, eyeIcon, toggleEye } = usePasswordToggle();
     const loading = computed(() => store.getters['authFirebase/isLoading']);
 
     const formGroup = yup.object({
@@ -193,6 +208,9 @@ export default defineComponent({
       lastName,
       birthDate,
       confirmPassword,
+      toggleEye,
+      typeInput,
+      eyeIcon,
     };
   },
 });
@@ -267,5 +285,16 @@ export default defineComponent({
 .current-step {
   width: 100%;
   height: 370px;
+}
+
+.btn-password {
+  position: relative;
+
+  & .icon-eye {
+    position: absolute;
+    top: 40px;
+    z-index: 8;
+    right: 25px;
+  }
 }
 </style>

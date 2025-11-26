@@ -66,6 +66,8 @@ const messages = {
     birthDate: 'Date of birth',
     birthDateMask: 'DD.MM.YYYY',
     emailExists: 'Email already exists!',
+    profile: 'Profile',
+    confirmation: 'Confirmation',
   },
   ru: {
     login: 'Вход',
@@ -132,6 +134,8 @@ const messages = {
     birthDate: 'Дата рождения',
     birthDateMask: 'DD.MM.YYYY',
     emailExists: 'Такой email уже существует!',
+    profile: 'Профиль',
+    confirmation: 'Подтверждение',
   },
 };
 

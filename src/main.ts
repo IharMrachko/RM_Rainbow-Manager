@@ -22,7 +22,9 @@ import {
   faEllipsisVertical,
   faEnvelope,
   faExclamationTriangle,
+  faEye,
   faEyeDropper,
+  faEyeSlash,
   faFileUpload,
   faFilter,
   faFolder,
@@ -104,7 +106,9 @@ library.add(
   faSignOut,
   faUserPlus,
   faHome,
-  faBirthdayCake
+  faBirthdayCake,
+  faEye,
+  faEyeSlash
 );
 
 onAuthStateChanged(auth, (user) => {

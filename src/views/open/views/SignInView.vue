@@ -14,24 +14,29 @@
                 placeholder="example@gmail.com"
                 label="email"
                 :icon="['fas', 'envelope']"
-                :z-index-tooltip="1020"
+                :z-index-tooltip="8"
                 :error="meta.touched ? errorMessage : ''"
                 type="email"
               ></app-input>
             </Field>
             <Field v-slot="{ field, meta, errorMessage }" name="password">
-              <app-input
-                v-bind="field"
-                v-model="password"
-                placeholder="password"
-                label="password"
-                type="password"
-                :icon="['fas', 'lock']"
-                :error="meta.touched ? errorMessage : ''"
-              ></app-input>
+              <div class="btn-password">
+                <app-input
+                  v-bind="field"
+                  v-model="password"
+                  placeholder="password"
+                  label="password"
+                  :type="typeInput"
+                  :z-index-tooltip="8"
+                  :icon="['fas', 'lock']"
+                  :error="meta.touched ? errorMessage : ''"
+                ></app-input>
+                <div class="icon-eye" @click="toggleEye">
+                  <font-awesome-icon :icon="eyeIcon" />
+                </div>
+              </div>
             </Field>
           </section>
-          <!--          :disabled="!meta.valid"-->
           <app-button :loading="loading" type="submit" title="login"></app-button>
         </VForm>
 
@@ -58,6 +63,7 @@ import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import AppImageLogin from '@/shared/components/AppImageLogin.vue';
+import { usePasswordToggle } from '@/composables/usePasswordToggle';
 
 export default defineComponent({
   components: { AppImageLogin, Field, VForm, AppInput, AppButton },
@@ -68,6 +74,7 @@ export default defineComponent({
     const { t } = useI18n();
     const email = ref('');
     const password = ref('');
+    const { typeInput, eyeIcon, toggleEye } = usePasswordToggle();
     const loading = computed(() => store.getters['authFirebase/isLoading']);
     const formGroup = yup.object({
       email: yup.string().required('validation.required').email('validation.invalidEmail'),
@@ -93,6 +100,9 @@ export default defineComponent({
       password,
       loading,
       t,
+      typeInput,
+      eyeIcon,
+      toggleEye,
     };
   },
 });
@@ -191,5 +201,16 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.btn-password {
+  position: relative;
+
+  & .icon-eye {
+    position: absolute;
+    top: 40px;
+    z-index: 8;
+    right: 25px;
+  }
 }
 </style>
