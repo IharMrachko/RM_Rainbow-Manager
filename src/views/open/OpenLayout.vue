@@ -7,54 +7,47 @@
           <app-toggle v-model="isDark" variant="theme" @toggled="toggled"></app-toggle>
           <div class="app-dropdown">
             <app-dropdown v-model="language" label="name">
-              <app-option v-for="item in languages" :key="item" :value="item"
-                >{{ item }}
-              </app-option>
+              <app-option v-for="item in languages" :key="item" :value="item">{{
+                item
+              }}</app-option>
             </app-dropdown>
           </div>
-          <app-burger-menu v-if="isMobile"></app-burger-menu>
         </section>
+        <app-burger-menu v-if="isMobile"></app-burger-menu>
       </section>
     </app-header>
-    <section>
+
+    <section class="open-layout">
       <app-sidebar>
         <template #main="{ isShort }">
-          <router-link to="/main/color" active-class="active-link">
+          <router-link to="/home" active-class="active-link">
             <div class="sidebar-item">
               <div class="icon">
-                <font-awesome-icon size="xl" :icon="['fas', 'rainbow']" />
+                <font-awesome-icon size="xl" :icon="['fas', 'home']" />
               </div>
-              <div v-if="!isShort" class="title">{{ t('colorType') }}</div>
+              <div v-if="!isShort" class="title">{{ t('home') }}</div>
+            </div>
+          </router-link>
+          <router-link to="/signIn" active-class="active-link">
+            <div class="sidebar-item">
+              <div class="icon">
+                <font-awesome-icon size="xl" :icon="['fas', 'sign-in']" />
+              </div>
+              <div v-if="!isShort" class="title">{{ t('login') }}</div>
             </div>
           </router-link>
 
-          <router-link to="/main/chroma" active-class="active-link">
+          <router-link to="/signUp" active-class="active-link">
             <div class="sidebar-item">
               <div class="icon">
-                <font-awesome-icon size="xl" :icon="['fas', 'eye-dropper']" />
+                <font-awesome-icon size="xl" :icon="['fas', 'user-plus']" />
               </div>
-              <div v-if="!isShort" class="title">{{ t('characteristicColor') }}</div>
-            </div>
-          </router-link>
-
-          <router-link to="/main/gallery" active-class="active-link">
-            <div class="sidebar-item">
-              <div class="icon">
-                <font-awesome-icon size="xl" :icon="['fas', 'images']" />
-              </div>
-              <div v-if="!isShort" class="title">{{ t('gallery') }}</div>
+              <div v-if="!isShort" class="title">{{ t('signUp') }}</div>
             </div>
           </router-link>
         </template>
 
         <template #additional="{ isShort, toggle }">
-          <div class="sidebar-item logout" @click="logout">
-            <div class="icon">
-              <font-awesome-icon size="xl" :icon="['fas', 'right-from-bracket']" />
-            </div>
-            <div v-if="!isShort" class="title">{{ t('logout') }}</div>
-          </div>
-
           <div v-if="!isMobile" class="sidebar-item" @click="toggle">
             <font-awesome-icon
               size="xl"
@@ -69,32 +62,23 @@
     </section>
   </div>
 </template>
-
 <script lang="ts">
-import AppToggle from '@/shared/components/AppToggle.vue';
-import AppDropdown from '@/shared/components/dropdown/AppDropdown.vue';
-import AppOption from '@/shared/components/dropdown/AppOption.vue';
-import AppHeader from '@/shared/components/AppHeader.vue';
 import { computed, defineComponent, ref, watch } from 'vue';
+
 import { useStore } from 'vuex';
 import AppSidebar from '@/shared/components/AppSidebar.vue';
-import AppBurgerMenu from '@/shared/components/AppBurgerMenu.vue';
-import { useRouter } from 'vue-router';
+import AppOption from '@/shared/components/dropdown/AppOption.vue';
+import AppDropdown from '@/shared/components/dropdown/AppDropdown.vue';
+import AppHeader from '@/shared/components/AppHeader.vue';
+import AppToggle from '@/shared/components/AppToggle.vue';
 import { useI18n } from 'vue-i18n';
+import AppBurgerMenu from '@/shared/components/AppBurgerMenu.vue';
 
 export default defineComponent({
-  components: {
-    AppBurgerMenu,
-    AppSidebar,
-    AppOption,
-    AppDropdown,
-    AppHeader,
-    AppToggle,
-  },
+  components: { AppBurgerMenu, AppSidebar, AppOption, AppDropdown, AppHeader, AppToggle },
   setup() {
     const { t } = useI18n();
     const store = useStore();
-    const router = useRouter();
     const languages = ref(['en', 'ru']);
     const language = ref(store.getters['language/language']);
     const isDark = ref(store.getters['theme/isDark']);
@@ -107,30 +91,20 @@ export default defineComponent({
       store.dispatch('language/setLanguage', { language: newValue });
     });
 
-    const logout = async () => {
-      await store.dispatch('authFirebase/logout');
-      await store.dispatch('burgerMenu/setBurger', { isOpen: false });
-      await router.push('/signIn');
-    };
-
     return {
       toggled,
-      logout,
-      t,
       isDark,
       language,
       languages,
       isMobile,
+      t,
     };
   },
 });
 </script>
-
-<style scoped lang="scss">
+<style lang="scss">
 .container {
-  & section {
-    display: flex;
-  }
+  height: calc(100vh - var(--header-height));
 
   & .header-section {
     display: flex;
@@ -145,18 +119,19 @@ export default defineComponent({
     & .app-dropdown {
       width: 100px;
       margin-left: 15px;
-      margin-right: 15px;
     }
   }
 
-  .main {
-    width: 100%;
-  }
-}
+  & .open-layout {
+    display: flex;
 
-@media (max-width: 600px) {
-  .logout {
-    margin-bottom: 55px;
+    & .main {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    height: auto;
   }
 }
 </style>

@@ -1,24 +1,36 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
-import AuthLayout from '@/views/auth/AuthLayout.vue';
-import LoginView from '@/views/auth/views/LoginView.vue';
-import ForgotView from '@/views/auth/views/ForgotView.vue';
 import MainLayout from '@/views/main/MainLayout.vue';
 import ColorView from '@/views/main/views/color-view/ColorView.vue';
 import store from '@/store';
 import GalleryView from '@/views/main/views/gallery/GalleryView.vue';
 import ChromaView from '@/views/main/views/chroma/ChromaView.vue';
+import OpenLayout from '@/views/open/OpenLayout.vue';
+import SignInView from '@/views/open/views/SignInView.vue';
+import ForgotView from '@/views/open/views/ForgotView.vue';
+import HomeView from '@/views/open/views/HomeView.vue';
+import SignUpView from '@/views/open/views/SignUpView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    name: 'auth',
-    component: AuthLayout,
-    redirect: '/login',
+    name: 'open',
+    component: OpenLayout,
+    redirect: '/signIn',
     children: [
       {
-        path: 'login',
-        name: 'login',
-        component: LoginView,
+        path: 'home',
+        name: 'home',
+        component: HomeView,
+      },
+      {
+        path: 'signIn',
+        name: 'signIn',
+        component: SignInView,
+      },
+      {
+        path: 'signUp',
+        name: 'signUp',
+        component: SignUpView,
       },
       {
         path: 'forgot',

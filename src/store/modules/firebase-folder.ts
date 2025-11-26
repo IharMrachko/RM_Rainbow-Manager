@@ -6,6 +6,7 @@ import {
   doc,
   getDocs,
   query,
+  serverTimestamp,
   updateDoc,
   where,
 } from 'firebase/firestore';
@@ -72,7 +73,7 @@ export const folder: Module<FolderState, any> = {
         const docRef = await addDoc(parentRef, {
           userId,
           name,
-          createdAt: new Date(),
+          createdAt: serverTimestamp(),
         });
 
         // добавляем в state
@@ -80,7 +81,7 @@ export const folder: Module<FolderState, any> = {
           id: docRef.id,
           userId,
           name,
-          createdAt: new Date(),
+          createdAt: serverTimestamp(),
         });
 
         await dispatch(

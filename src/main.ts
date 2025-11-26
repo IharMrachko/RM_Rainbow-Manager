@@ -10,6 +10,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import {
   faArrowLeft,
   faArrowRight,
+  faBirthdayCake,
   faBroom,
   faCamera,
   faCheck,
@@ -26,6 +27,7 @@ import {
   faFilter,
   faFolder,
   faGear,
+  faHome,
   faImages,
   faInfoCircle,
   faLink,
@@ -42,11 +44,14 @@ import {
   faSave,
   faSearch,
   faShare,
+  faSignIn,
+  faSignOut,
   faSliders,
   faTimes,
   faTimesCircle,
   faTrash,
   faUndo,
+  faUserPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import './styles/style.scss';
@@ -94,7 +99,12 @@ library.add(
   faSliders,
   faDownload,
   faCamera,
-  faEyeDropper
+  faEyeDropper,
+  faSignIn,
+  faSignOut,
+  faUserPlus,
+  faHome,
+  faBirthdayCake
 );
 
 onAuthStateChanged(auth, (user) => {

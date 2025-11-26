@@ -71,4 +71,32 @@ a {
 }
 
 
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 15px;
+  color: #ffffff;
+}
 
+.sidebar-item:hover {
+  color: #00ffc6;
+}
+
+/* активная ссылка */
+.active-link .sidebar-item {
+  color: var(--active-doing); /* например, золотой акцент */
+}
+
+/* когда sidebar в режиме mobile-view */
+.sidebar-container.mobile-view .sidebar-item {
+  color: #000000; /* делаем чёрными */
+}
+
+.dark .sidebar-container.mobile-view .active-link .sidebar-item {
+  color: var(--active-doing);
+}
+
+.sidebar-container.mobile-view .active-link .sidebar-item {
+  color: #42b983; /* например, зелёный акцент */
+}
