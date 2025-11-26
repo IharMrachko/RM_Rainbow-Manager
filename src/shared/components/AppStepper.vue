@@ -218,6 +218,7 @@ export default defineComponent({
   cursor: pointer;
   padding: 0.25rem 0.5rem;
   text-align: left;
+  color: var(--color-text);
 }
 .stepper__item.is-disabled {
   opacity: 0.5;
@@ -236,10 +237,12 @@ export default defineComponent({
 }
 .stepper__item.is-active .stepper__marker {
   border-color: var(--active-doing);
+  color: var(--color-text);
 }
 .stepper__item.is-completed .stepper__marker {
   background: var(--active-doing);
   border-color: var(--active-doing);
+  color: #000;
 }
 
 .stepper__content {
@@ -248,11 +251,11 @@ export default defineComponent({
 }
 .stepper__title {
   font-size: 0.95rem;
-  color: #222;
+  color: var(--color-text);
 }
 .stepper__subtitle {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--color-text);
 }
 
 .stepper__connector {
