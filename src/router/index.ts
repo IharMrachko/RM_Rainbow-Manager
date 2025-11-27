@@ -9,6 +9,7 @@ import SignInView from '@/views/open/views/SignInView.vue';
 import ForgotView from '@/views/open/views/ForgotView.vue';
 import HomeView from '@/views/open/views/HomeView.vue';
 import SignUpView from '@/views/open/views/SignUpView.vue';
+import AIAgentView from '@/views/main/views/ai-agent/AIAgentView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -56,6 +57,12 @@ const routes: Array<RouteRecordRaw> = [
         path: 'chroma',
         name: 'chroma',
         component: ChromaView,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'ai-agent',
+        name: 'ai-agent',
+        component: AIAgentView,
         meta: { requiresAuth: true },
       },
       {

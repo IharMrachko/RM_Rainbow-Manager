@@ -10,6 +10,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import {
   faArrowLeft,
   faArrowRight,
+  faArrowUp,
   faBirthdayCake,
   faBroom,
   faCamera,
@@ -37,6 +38,7 @@ import {
   faLock,
   faLongArrowAltRight,
   faMask,
+  faMicrochip,
   faMinus,
   faPencil,
   faPencilSquare,
@@ -108,7 +110,9 @@ library.add(
   faHome,
   faBirthdayCake,
   faEye,
-  faEyeSlash
+  faEyeSlash,
+  faMicrochip,
+  faArrowUp
 );
 
 onAuthStateChanged(auth, (user) => {

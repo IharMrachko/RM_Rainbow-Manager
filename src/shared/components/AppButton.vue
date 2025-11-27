@@ -110,7 +110,6 @@ button {
     cursor: pointer;
     font-weight: 600;
     transition: all 0.2s ease;
-    box-shadow: 2px 2px 6px #c5c5c5, -2px -2px 6px #ffffff;
     color: #444;
     gap: 8px;
 

@@ -36,18 +36,19 @@ export default defineComponent({
     const fileInput = ref<HTMLInputElement | null>(null);
     const fileName = ref<string>('');
 
-    function triggerInput() {
+    const triggerInput = () => {
       fileInput.value?.click();
-    }
+    };
 
-    function onFileChange(e: Event) {
+    const onFileChange = (e: Event) => {
       const target = e.target as HTMLInputElement;
       const file = target.files?.[0];
       if (file) {
         fileName.value = file.name;
         emit('select', file);
       }
-    }
+      target.value = '';
+    };
 
     return {
       fileInput,
@@ -74,9 +75,6 @@ export default defineComponent({
   border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
-
-  /* выпуклый эффект */
-  box-shadow: 2px 2px 6px #c5c5c5, -2px -2px 6px #ffffff;
   transition: all 0.2s ease;
   height: 50px;
 }
