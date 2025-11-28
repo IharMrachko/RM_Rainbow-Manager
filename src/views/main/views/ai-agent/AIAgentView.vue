@@ -1,6 +1,9 @@
 <template>
   <div ref="containerRef" class="ai-container">
     <section class="ai-answers">
+      <div v-if="answers.length === 0" class="ai-answers-area">
+        <h2>{{ t('greedyAI') }}</h2>
+      </div>
       <section v-for="item in answers" :key="item.id">
         <div class="ai-answers-area">
           <div v-if="item.url" class="answer-item-wrapper">
@@ -19,12 +22,7 @@
     </section>
     <section class="ai-ask">
       <div class="ai-ask-area">
-        <app-textarea
-          :loader="loader"
-          placeholder="Write something..."
-          :max-height="300"
-          @apply="apply"
-        />
+        <app-textarea :loader="loader" @apply="apply" />
       </div>
     </section>
   </div>
@@ -36,6 +34,7 @@ import { getGenerativeModel } from 'firebase/ai';
 import { ai } from '@/firebase';
 import { useStore } from 'vuex';
 import { marked } from 'marked';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
   components: { AppTextarea },
@@ -43,10 +42,10 @@ export default defineComponent({
     const store = useStore();
     const containerRef = ref<HTMLElement | null>(null);
     const language = computed(() => store.getters['language/language']);
-    const answers = ref<any[]>([]);
+    const answers = ref<{ id: number; ask: string; url: string; answerHtml: string | null }[]>([]);
     const model = getGenerativeModel(ai, { model: 'gemini-2.5-flash-lite' });
     const loader = ref(false);
-
+    const { t } = useI18n();
     const apply = async (value: { text: string; url: string; base64Data: string }) => {
       loader.value = true;
       const id = Math.random();
@@ -73,7 +72,7 @@ export default defineComponent({
       const response = await model.generateContent(req);
 
       const answer = response.response.text();
-      const answerHtml = marked.parse(answer);
+      const answerHtml = marked.parse(answer) as string;
       const index = answers.value.findIndex((item) => item.id === id);
       if (index !== -1) {
         answers.value[index] = {
@@ -92,6 +91,7 @@ export default defineComponent({
       answers,
       containerRef,
       loader,
+      t,
     };
   },
 });

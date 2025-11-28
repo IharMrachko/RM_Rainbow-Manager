@@ -6,7 +6,7 @@ interface MobileViewState {
   breakPoint: BreakPoint;
 }
 
-export const mobile: Module<MobileViewState, any> = {
+export const mobile: Module<MobileViewState, unknown> = {
   namespaced: true,
   state: () => ({
     clientWidth: 0,

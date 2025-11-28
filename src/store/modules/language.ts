@@ -5,7 +5,7 @@ interface LanguageState {
   language: LanguageType;
 }
 
-export const language: Module<LanguageState, any> = {
+export const language: Module<LanguageState, unknown> = {
   namespaced: true,
   state: () => ({
     language: 'en',

@@ -25,10 +25,10 @@ import {
 
 export default defineComponent({
   props: {
-    items: { type: Array as PropType<any[]>, required: true },
+    items: { type: Array as PropType<unknown[]>, required: true },
     itemKey: {
-      type: Function as PropType<(item: any) => string>,
-      default: (item: any) => item?.id ?? JSON.stringify(item),
+      type: Function as PropType<(item: { id: unknown }) => string>,
+      default: (item: { id: unknown }) => item?.id ?? JSON.stringify(item),
     },
     minColumnWidth: { type: Number, default: 250 }, // минимальная ширина колонки
     rowHeight: { type: Number, default: 300 }, // фиксированная высота строки

@@ -55,12 +55,14 @@
           height="48px"
           label="name"
           is-title
-          title="colorType"
+          title="typeMasks"
         >
           <app-option v-for="c in coloristicTypes" :key="c" :value="c">
-            <font-awesome-icon :icon="['fa', c.icon]" />
-            {{ c.name }}</app-option
-          >
+            <div class="type-maks-option">
+              <font-awesome-icon :icon="['fa', c.icon]" />
+              <span>{{ t(c.name) }}</span>
+            </div>
+          </app-option>
         </app-dropdown>
       </div>
     </section>
@@ -75,7 +77,7 @@
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import AppDropdown from '@/shared/components/dropdown/AppDropdown.vue';
 import AppButton from '@/shared/components/AppButton.vue';
@@ -86,12 +88,14 @@ import {
   ColorCard,
   colorCards,
 } from '@/views/main/views/color-view/components/color-card.constanst';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
   components: { AppOption, AppButton, AppDropdown, AppModalHeader },
 
   emits: ['resolve', 'reject', 'close'],
   setup(props, { emit }) {
+    const { t } = useI18n();
     const store = useStore();
     const cards = ref<ColorCard[]>(colorCards);
     const maskType = ref<ColorCard | null>(store.getters['gallery/getFilter']?.maskType);
@@ -99,8 +103,8 @@ export default defineComponent({
       store.getters['gallery/getFilter']?.coloristicType
     );
     const coloristicTypes = ref([
-      { id: 'mask', name: 'mask', icon: 'mask' },
-      { id: 'collage', name: 'collage', icon: 'images' },
+      { id: 'mask', name: t('mask'), icon: 'mask' },
+      { id: 'collage', name: t('collage'), icon: 'images' },
     ]);
 
     const folders = computed(() => store.getters['folder/getFilterFolders']);
@@ -129,6 +133,15 @@ export default defineComponent({
       store.dispatch('gallery/setFilter', null);
     };
 
+    onMounted(() => {
+      if (coloristicType.value) {
+        coloristicType.value = {
+          id: coloristicType.value.id,
+          name: t(coloristicType.value.id),
+        };
+      }
+    });
+
     return {
       close,
       folder,
@@ -140,6 +153,7 @@ export default defineComponent({
       coloristicTypes,
       applyFilter,
       clearFilter,
+      t,
     };
   },
 });
@@ -237,5 +251,12 @@ img {
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+.type-maks-option {
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 </style>

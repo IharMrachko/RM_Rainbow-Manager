@@ -43,6 +43,26 @@ import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import AppButton from '@/shared/components/AppButton.vue';
 
+interface PointerData {
+  clientX: number;
+  clientY: number;
+  pointerId: number;
+}
+
+interface State {
+  scale: number;
+  minScale: number;
+  maxScale: number;
+  x: number;
+  y: number;
+  dragging: boolean;
+  lastPointer: PointerData | null;
+  pointers: Map<number, PointerData>;
+  naturalW: number;
+  naturalH: number;
+  _pinchStartDist: number | null;
+  _pinchStartScale: number | null;
+}
 export default defineComponent({
   components: { AppButton, AppModalHeader, AppFileUploader },
   props: {
@@ -71,7 +91,7 @@ export default defineComponent({
     const image = ref<string>(props.imageUrl);
     const imgObj = ref<HTMLImageElement | null>(null);
     const exportedImageUrl = ref<string | null>(null); // <- сюда сохраняется результат (dataURL)
-    const state = reactive<any>({
+    const state = reactive<State>({
       scale: 1,
       minScale: 0.5,
       maxScale: 4,
@@ -79,7 +99,7 @@ export default defineComponent({
       y: 0,
       dragging: false,
       lastPointer: null,
-      pointers: new Map<number, any>(),
+      pointers: new Map<number, PointerData>(),
       naturalW: 0,
       naturalH: 0,
       _pinchStartDist: null as number | null,
@@ -221,7 +241,7 @@ export default defineComponent({
       if (state.pointers.has(e.pointerId)) state.pointers.set(e.pointerId, copyPointer(e));
 
       if (state.pointers.size === 2) {
-        const pts: any = Array.from(state.pointers.values());
+        const pts: PointerData[] = Array.from(state.pointers.values());
         const curDist = distance(pts[0], pts[1]);
         if (state._pinchStartDist == null) {
           state._pinchStartDist = curDist;
@@ -268,7 +288,7 @@ export default defineComponent({
       return { clientX: e.clientX, clientY: e.clientY, pointerId: e.pointerId };
     };
 
-    const distance = (a: any, b: any) => {
+    const distance = (a: PointerData, b: PointerData) => {
       const dx = a.clientX - b.clientX;
       const dy = a.clientY - b.clientY;
       return Math.sqrt(dx * dx + dy * dy);

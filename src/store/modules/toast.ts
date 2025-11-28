@@ -13,7 +13,7 @@ interface ToastState {
   counter: number;
 }
 
-export const toast: Module<ToastState, any> = {
+export const toast: Module<ToastState, unknown> = {
   namespaced: true,
   state: () => ({
     toasts: [],

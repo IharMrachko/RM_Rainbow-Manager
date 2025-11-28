@@ -29,6 +29,7 @@ export default [
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'prettier/prettier': 'error',
+      '@typescript-eslint/no-explicit-any': 'error', // запрет any
       'no-console': ['error', { allow: ['warn', 'error'] }], // запрет console.log
     },
   },
@@ -51,10 +52,17 @@ export default [
     rules: {
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'error', // запрет any
       'vue/multi-word-component-names': 'off',
       'prettier/prettier': 'error',
       'no-console': ['error', { allow: ['warn', 'error'] }], // запрет console.log
       'vue/no-v-html': 'off',
+    },
+  },
+  {
+    files: ['**/*.spec.{ts,js}', '**/*.test.{ts,js}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off', // разрешаем any в тестах
     },
   },
 ];

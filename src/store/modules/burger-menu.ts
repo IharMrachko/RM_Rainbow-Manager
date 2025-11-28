@@ -4,7 +4,7 @@ interface BurgerMenuState {
   isOpen: boolean;
 }
 
-export const burgerMenu: Module<BurgerMenuState, any> = {
+export const burgerMenu: Module<BurgerMenuState, unknown> = {
   namespaced: true,
   state: () => ({
     isOpen: false,

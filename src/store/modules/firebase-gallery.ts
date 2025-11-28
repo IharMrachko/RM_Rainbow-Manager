@@ -10,6 +10,7 @@ import {
   limit,
   orderBy,
   query,
+  QueryConstraint,
   serverTimestamp,
   startAfter,
   updateDoc,
@@ -21,6 +22,8 @@ import { MaskType } from '@/types/mask.type';
 import { tokenizeTitle } from '@/helpers/tokenize-title.helper';
 import { Folder } from '@/store/modules/firebase-folder';
 import { ColorCard } from '@/views/main/views/color-view/components/color-card.constanst';
+import { FirebaseError } from '@/interfaces/firebase-error.interface';
+import { errorMessages } from '@/helpers/error-message.helper';
 
 type GalleryOptions = {
   coloristicType?: ColoristicType | null;
@@ -74,7 +77,7 @@ interface GalleryState {
   selectedImages: Map<string, Image>;
 }
 
-export const gallery: Module<GalleryState, any> = {
+export const gallery: Module<GalleryState, unknown> = {
   namespaced: true,
   state: (): GalleryState => ({
     images: [],
@@ -89,7 +92,7 @@ export const gallery: Module<GalleryState, any> = {
     SET_IMAGES(
       state: GalleryState,
       payload: {
-        items: any[];
+        items: Image[];
         lastDoc: unknown;
         totalImages: number;
       }
@@ -195,9 +198,10 @@ export const gallery: Module<GalleryState, any> = {
             );
             resolve(downloadURL);
           } catch (err) {
+            const e = err as FirebaseError;
             await dispatch(
               'toast/addToast',
-              { message: 'errorImage', severity: 'error' },
+              { message: e.code ? errorMessages[e.code] : 'unknownError', severity: 'error' },
               { root: true }
             );
             reject(err);
@@ -221,8 +225,8 @@ export const gallery: Module<GalleryState, any> = {
         const { maskType, coloristicType, title, pageSize = 20, lastDoc, folderId } = options;
         const itemsRef = collection(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items');
 
-        const constraints: any[] = [where('userId', '==', userId)];
-        const constraintsForCount: any[] = [where('userId', '==', userId)];
+        const constraints: QueryConstraint[] = [where('userId', '==', userId)];
+        const constraintsForCount: QueryConstraint[] = [where('userId', '==', userId)];
         if (coloristicType) {
           constraints.push(where('coloristicType', '==', coloristicType));
           constraintsForCount.push(where('coloristicType', '==', coloristicType));
@@ -271,10 +275,11 @@ export const gallery: Module<GalleryState, any> = {
           lastDoc: snapshot.docs.length > 0 ? snapshot.docs[snapshot.docs.length - 1] : null,
           totalImages: totalImages.data().count,
         });
-      } catch (e) {
+      } catch (err) {
+        const e = err as FirebaseError;
         await dispatch(
           'toast/addToast',
-          { message: 'Ошибка загрузки', severity: 'error' },
+          { message: e.code ? errorMessages[e.code] : 'unknownError', severity: 'error' },
           { root: true }
         );
       } finally {
@@ -293,13 +298,14 @@ export const gallery: Module<GalleryState, any> = {
 
         await dispatch(
           'toast/addToast',
-          { message: 'successUpdate', severity: 'success' },
+          { message: 'successUpdateImage', severity: 'success' },
           { root: true }
         );
       } catch (err) {
+        const e = err as FirebaseError;
         await dispatch(
           'toast/addToast',
-          { message: 'errorUpdate', severity: 'error' },
+          { message: e.code ? errorMessages[e.code] : 'unknownError', severity: 'error' },
           { root: true }
         );
         throw err;
@@ -313,13 +319,14 @@ export const gallery: Module<GalleryState, any> = {
         commit('DELETE_IMAGE', id);
         await dispatch(
           'toast/addToast',
-          { message: 'successDelete', severity: 'success' },
+          { message: 'successDeleteImage', severity: 'success' },
           { root: true }
         );
       } catch (err) {
+        const e = err as FirebaseError;
         await dispatch(
           'toast/addToast',
-          { message: 'errorDelete', severity: 'error' },
+          { message: e.code ? errorMessages[e.code] : 'unknownError', severity: 'error' },
           { root: true }
         );
         throw err;
@@ -341,13 +348,14 @@ export const gallery: Module<GalleryState, any> = {
         // 3. Показываем тост
         await dispatch(
           'toast/addToast',
-          { message: 'successDelete', severity: 'success' },
+          { message: 'successDeleteImages', severity: 'success' },
           { root: true }
         );
       } catch (err) {
+        const e = err as FirebaseError;
         await dispatch(
           'toast/addToast',
-          { message: 'errorDelete', severity: 'error' },
+          { message: e.code ? errorMessages[e.code] : 'unknownError', severity: 'error' },
           { root: true }
         );
         throw err;

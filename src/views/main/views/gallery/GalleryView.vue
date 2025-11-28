@@ -1,7 +1,7 @@
 <template>
   <div class="gallery-container">
     <AppLoader v-if="isLoading"></AppLoader>
-    <div class="gallery-wrapper">
+    <div ref="galleryRef" class="gallery-wrapper">
       <section class="gallery-helper" :class="{ hidden: isHidden }">
         <div class="search">
           <app-input
@@ -121,6 +121,7 @@ export default defineComponent({
     const store = useStore();
     const search = ref('');
     const imagesContainer = ref<HTMLElement | null>(null);
+    const galleryRef = ref<HTMLElement | null>(null);
     const images = computed(() => store.getters['gallery/getImages']);
     const currentIndex = ref<number | null>(null);
     const currentUserId = computed(() => store.getters['authFirebase/getUserId']);
@@ -199,6 +200,13 @@ export default defineComponent({
         }
       }
       const nearBottom = scrollBottom >= target.scrollHeight - 20; // порог 20px
+
+      if (galleryRef.value && galleryRef.value.clientHeight >= target.scrollHeight) {
+        isHidden.value = false;
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        return;
+      }
+
       if (!nearBottom) {
         if (scrollTop > lastScrollTop) {
           isHidden.value = true;
@@ -206,6 +214,7 @@ export default defineComponent({
           isHidden.value = false;
         }
       }
+
       lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
     };
 
@@ -259,7 +268,7 @@ export default defineComponent({
     };
 
     const getCurrentIndex = (image: Image) => {
-      return images.value.findIndex((v: any) => v.id === image.id);
+      return images.value.findIndex((v: Image) => v.id === image.id);
     };
 
     const heightImagesContainer = computed(() => {
@@ -295,6 +304,7 @@ export default defineComponent({
       isHidden,
       getCurrentIndex,
       heightImagesContainer,
+      galleryRef,
     };
   },
 });

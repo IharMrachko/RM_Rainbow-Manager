@@ -11,6 +11,8 @@ import {
   where,
 } from 'firebase/firestore';
 import { db } from '@/firebase';
+import { FirebaseError } from '@/interfaces/firebase-error.interface';
+import { errorMessages } from '@/helpers/error-message.helper';
 
 export interface Folder {
   id: string;
@@ -25,7 +27,7 @@ export interface FolderState {
   isLoading: boolean;
 }
 
-export const folder: Module<FolderState, any> = {
+export const folder: Module<FolderState, unknown> = {
   namespaced: true,
   state: (): FolderState => ({
     items: [],
@@ -89,10 +91,11 @@ export const folder: Module<FolderState, any> = {
           { message: 'successFolderCreate', severity: 'success' },
           { root: true }
         );
-      } catch (e) {
+      } catch (err) {
+        const e = err as FirebaseError;
         await dispatch(
           'toast/addToast',
-          { message: 'errorFolder', severity: 'error' },
+          { message: e.code ? errorMessages[e.code] : 'unknownError', severity: 'error' },
           { root: true }
         );
       } finally {
@@ -113,10 +116,11 @@ export const folder: Module<FolderState, any> = {
 
         commit('SET_FOLDERS', folders);
         return folders;
-      } catch (e) {
+      } catch (err) {
+        const e = err as FirebaseError;
         await dispatch(
           'toast/addToast',
-          { message: 'errorLoadFolders', severity: 'error' },
+          { message: e.code ? errorMessages[e.code] : 'unknownError', severity: 'error' },
           { root: true }
         );
         return [];
@@ -138,10 +142,11 @@ export const folder: Module<FolderState, any> = {
           { message: 'successDeleteFolder', severity: 'success' },
           { root: true }
         );
-      } catch (e) {
+      } catch (err) {
+        const e = err as FirebaseError;
         await dispatch(
           'toast/addToast',
-          { message: 'errorDeleteFolder', severity: 'error' },
+          { message: e.code ? errorMessages[e.code] : 'unknownError', severity: 'error' },
           { root: true }
         );
       } finally {
@@ -162,10 +167,11 @@ export const folder: Module<FolderState, any> = {
           { message: 'successUpdateFolder', severity: 'success' },
           { root: true }
         );
-      } catch (e) {
+      } catch (err) {
+        const e = err as FirebaseError;
         await dispatch(
           'toast/addToast',
-          { message: 'errorUpdateFolder', severity: 'error' },
+          { message: e.code ? errorMessages[e.code] : 'unknownError', severity: 'error' },
           { root: true }
         );
       } finally {

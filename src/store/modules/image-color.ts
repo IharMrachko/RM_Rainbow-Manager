@@ -11,7 +11,7 @@ interface ImageColorState {
   originalImgCollage: File | null;
 }
 
-export const imageColor: Module<ImageColorState, any> = {
+export const imageColor: Module<ImageColorState, unknown> = {
   namespaced: true,
   state: () => ({
     rememberImgMask: true,

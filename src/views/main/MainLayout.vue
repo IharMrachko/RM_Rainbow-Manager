@@ -24,7 +24,7 @@
               <div class="icon">
                 <font-awesome-icon size="xl" :icon="['fas', 'rainbow']" />
               </div>
-              <div v-if="!isShort" class="title">{{ t('colorType') }}</div>
+              <div v-if="!isShort" class="title">{{ t('masks') }}</div>
             </div>
           </router-link>
 
@@ -42,7 +42,7 @@
               <div class="icon">
                 <font-awesome-icon size="xl" :icon="['fas', 'microchip']" />
               </div>
-              <div v-if="!isShort" class="title">{{ t('AI agent') }}</div>
+              <div v-if="!isShort" class="title">{{ t('aiAgent') }}</div>
             </div>
           </router-link>
 

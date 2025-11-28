@@ -7,7 +7,7 @@ interface ThemeState {
   isDark: boolean;
 }
 
-export const theme: Module<ThemeState, any> = {
+export const theme: Module<ThemeState, unknown> = {
   namespaced: true,
   state: () => ({
     theme: 'light',

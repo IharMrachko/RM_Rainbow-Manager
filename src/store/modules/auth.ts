@@ -8,6 +8,7 @@ import {
 import { auth, db } from '@/firebase';
 import { errorMessages } from '@/helpers/error-message.helper';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { FirebaseError } from '@/interfaces/firebase-error.interface';
 
 export type Role = 'USER' | 'ADMIN' | 'SUPER_ADMIN';
 export interface SignUp {
@@ -23,7 +24,7 @@ export interface AuthState {
   user: User | null;
   loading: boolean;
 }
-export const authFirebase: Module<AuthState, any> = {
+export const authFirebase: Module<AuthState, unknown> = {
   namespaced: true,
   state: (): AuthState => ({
     user: null,
@@ -82,11 +83,12 @@ export const authFirebase: Module<AuthState, any> = {
           },
           { root: true }
         );
-      } catch (err: any) {
+      } catch (err) {
+        const e = err as FirebaseError;
         dispatch(
           'toast/addToast',
           {
-            message: errorMessages[err.code] || 'Ошибка регистрации',
+            message: e.code ? errorMessages[e.code] : 'unknownError',
             severity: 'error',
             duration: 3000,
           },
@@ -102,11 +104,12 @@ export const authFirebase: Module<AuthState, any> = {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         commit('setUser', userCredential.user);
-      } catch (err: any) {
+      } catch (err) {
+        const e = err as FirebaseError;
         dispatch(
           'toast/addToast',
           {
-            message: errorMessages[err.code],
+            message: e.code ? errorMessages[e.code] : 'unknownError',
             severity: 'error',
             duration: 3000,
           },

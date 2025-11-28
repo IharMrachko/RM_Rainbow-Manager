@@ -10,12 +10,11 @@
     </section>
     <textarea
       id="textarea"
-      v-bind="$attrs"
       v-model="textareaRef"
+      :placeholder="t('writeSomething')"
       class="textarea__field"
     ></textarea>
     <span class="focus-input100"></span>
-    <p v-if="error" class="textarea__error">{{ error }}</p>
     <section class="area-actions">
       <app-file-uploader
         :is-show-sign="false"
@@ -39,6 +38,7 @@
 import { defineComponent, onBeforeUnmount, ref } from 'vue';
 import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppButton from '@/shared/components/AppButton.vue';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
   components: {
@@ -47,12 +47,11 @@ export default defineComponent({
   },
   props: {
     label: { type: String, default: '' },
-    error: { type: String, default: '' },
     loader: { type: Boolean, default: false },
-    maxHeight: { type: Number, default: undefined },
   },
   emits: ['apply'],
   setup(props, { emit }) {
+    const { t } = useI18n();
     const textareaRef = ref('');
     const urlRef = ref('');
     let base64Data: string = '';
@@ -100,6 +99,7 @@ export default defineComponent({
       urlRef,
       clearImage,
       apply,
+      t,
     };
   },
 });

@@ -83,7 +83,7 @@ export default defineComponent({
 
     onBeforeUnmount(() => {
       if (stream.value) {
-        stream.value.getTracks().forEach((t: any) => t.stop());
+        stream.value.getTracks().forEach((t: MediaStreamTrack) => t.stop());
         stream.value = null;
       }
     });
@@ -233,7 +233,7 @@ export default defineComponent({
       photo.value = out.toDataURL('image/png');
       outCanvas.value = out;
     };
-    const selected = (item: any) => {
+    const selected = (item: ColorCard) => {
       selectedCard.value = item;
       frameColors.value = item.segments;
       resizeAndDrawOverlay();

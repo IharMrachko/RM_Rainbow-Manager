@@ -3,8 +3,10 @@ import { Component, reactive } from 'vue';
 export interface DialogItem {
   id: number;
   component: Component;
-  props?: Record<string, any>;
+  props?: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolve: (value: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reject: (reason?: any) => void;
   options?: DialogOptions;
 }
@@ -17,7 +19,7 @@ let idCounter = 0;
 export const dialogsStore = reactive<{ dialogs: DialogItem[] }>({
   dialogs: [],
 });
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function openDialog<T = any>(
   component: Component,
   props = {},

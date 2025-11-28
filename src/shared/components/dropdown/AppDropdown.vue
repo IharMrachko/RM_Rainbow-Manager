@@ -36,7 +36,7 @@ export default defineComponent({
   components: { AppOverlayPanel, AppInput },
   props: {
     modelValue: {
-      type: [String, Number, Object] as PropType<string | number | Record<string, any>>,
+      type: [String, Number, Object] as PropType<string | number | Record<string, unknown>>,
       default: null,
     },
     label: {
@@ -67,7 +67,7 @@ export default defineComponent({
   emits: ['update:modelValue', 'search'],
   setup(props, { emit }) {
     const modelValueRef = computed(() => props.modelValue);
-    const valueRef = ref<any>(null);
+    const valueRef = ref<unknown>(null);
     const targetRef = ref<HTMLElement | null>(null);
     const visible = ref(false);
     const searchValue = ref('');
@@ -81,7 +81,7 @@ export default defineComponent({
         valueRef.value = value;
       }
       if (typeof value === 'object' && value !== null) {
-        const obj = value as Record<string, any>;
+        const obj = value as Record<string, unknown>;
         valueRef.value = obj[props.label] as string;
       }
       emit('update:modelValue', value);
@@ -93,7 +93,7 @@ export default defineComponent({
         valueRef.value = props.modelValue;
       }
       if (typeof props.modelValue === 'object' && props.modelValue !== null) {
-        const obj = props.modelValue as Record<string, any>;
+        const obj = props.modelValue as Record<string, unknown>;
         valueRef.value = obj[props.label] as string;
       }
     });
@@ -110,7 +110,7 @@ export default defineComponent({
         if (typeof newVal === 'string') {
           valueRef.value = newVal;
         } else if (typeof newVal === 'object' && newVal !== null) {
-          valueRef.value = (newVal as Record<string, any>)[props.label] as string;
+          valueRef.value = (newVal as Record<string, unknown>)[props.label] as string;
         } else {
           valueRef.value = null;
         }

@@ -9,7 +9,7 @@ import { computed, defineComponent, inject, PropType, Ref } from 'vue';
 export default defineComponent({
   props: {
     value: {
-      type: [String, Number, Object] as PropType<string | number | Record<string, any>>,
+      type: [String, Number, Object] as PropType<string | number | Record<string, unknown>>,
       default: null,
     },
   },
@@ -35,8 +35,8 @@ export default defineComponent({
         props.value &&
         typeof props.value === 'object'
       ) {
-        const cur = current as Record<string, any>;
-        const val = props.value as Record<string, any>;
+        const cur = current as Record<string, unknown>;
+        const val = props.value as Record<string, unknown>;
         return cur.id === val.id;
       }
 

@@ -123,6 +123,12 @@ import AppFolderModal from '@/shared/components/folder-modal/AppFolderModal.vue'
 import { Folder } from '@/store/modules/firebase-folder';
 import AppCheckbox from '@/shared/components/AppCheckbox.vue';
 
+interface ModalElement extends HTMLDivElement {
+  _touchHandlers?: {
+    handleTouchStart: (e: TouchEvent) => void;
+    handleTouchEnd: (e: TouchEvent) => void;
+  };
+}
 export default defineComponent({
   components: { AppCheckbox, AppOverlayPanel, AppModalHeader, AppInput, AppButton },
   props: {
@@ -134,7 +140,7 @@ export default defineComponent({
     const { t } = useI18n();
     const store = useStore();
     const index = ref(props.startIndex);
-    const modalRef = ref<HTMLElement | null>(null);
+    const modalRef = ref<ModalElement | null>(null);
     const isEditTitle = ref(false);
     const sign = ref('');
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
@@ -233,13 +239,15 @@ export default defineComponent({
         modalRef.value.addEventListener('touchend', handleTouchEnd);
 
         // сохраняем ссылки, чтобы удалить потом
-        (modalRef.value as any)._touchHandlers = { handleTouchStart, handleTouchEnd };
+        if (modalRef.value) {
+          modalRef.value._touchHandlers = { handleTouchStart, handleTouchEnd };
+        }
       }
     });
 
     onUnmounted(() => {
-      if (modalRef.value && (modalRef.value as any)._touchHandlers) {
-        const { handleTouchStart, handleTouchEnd } = (modalRef.value as any)._touchHandlers;
+      if (modalRef.value && modalRef.value._touchHandlers) {
+        const { handleTouchStart, handleTouchEnd } = modalRef.value._touchHandlers;
         modalRef.value.removeEventListener('touchstart', handleTouchStart);
         modalRef.value.removeEventListener('touchend', handleTouchEnd);
       }
