@@ -8,6 +8,7 @@
           <span v-if="folder" class="badge darkBadge">{{ folder?.name }}</span>
           <span v-if="coloristicType" class="badge darkBadge">{{ coloristicType }}</span>
           <span v-if="maskType" class="badge darkBadge">{{ maskType }}</span>
+          <span v-if="paletteType" class="badge darkBadge">{{ paletteType }}</span>
         </div>
 
         <app-input v-model="signIn" :icon="['fas', 'fa-pencil']" :is-label="false"></app-input>
@@ -55,6 +56,10 @@ export default defineComponent({
       type: String as PropType<MaskType>,
       default: '',
     },
+    paletteType: {
+      type: String,
+      default: '',
+    },
     canvas: HTMLCanvasElement,
     currentUserId: string,
     imageUrl: string,
@@ -72,7 +77,7 @@ export default defineComponent({
     const saveToGallery = async () => {
       if (!props.imageUrl) {
         await store.dispatch('toast/addToast', {
-          message: 'Upload image',
+          message: 'uploadImage',
           severity: 'warning',
         });
         return;
@@ -85,6 +90,7 @@ export default defineComponent({
           title: signIn.value,
           coloristicType: props.coloristicType,
           maskType: props.maskType,
+          paletteType: props.paletteType,
           userId: props.currentUserId,
           folderId: folder.value?.id ? folder.value?.id : '',
         }); // возвращает URL
@@ -168,7 +174,7 @@ export default defineComponent({
   font-size: 12px;
   background: #444;
   color: #fff;
-  width: 100px;
+  min-width: 100px;
   text-align: center;
 }
 

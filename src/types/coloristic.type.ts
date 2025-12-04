@@ -1,1 +1,1 @@
-export type ColoristicType = 'mask' | 'collage' | 'makeUpMask' | 'makeUpCollageMask';
+export type ColoristicType = 'mask' | 'collage';

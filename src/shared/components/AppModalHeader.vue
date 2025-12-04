@@ -1,6 +1,7 @@
 <template>
   <section class="modal-header-section">
     <font-awesome-icon v-if="isMobile" size="lg" :icon="['fas', 'arrow-left']" @click="close" />
+    <div v-if="title" class="modal-header-title">{{ title }}</div>
     <div v-if="!isMobile" class="close" @click="close">
       <font-awesome-icon size="lg" :icon="['fas', 'fa-times']" />
     </div>
@@ -11,6 +12,12 @@ import { computed, defineComponent } from 'vue';
 import { useStore } from 'vuex';
 
 export default defineComponent({
+  props: {
+    title: {
+      type: String,
+      default: '',
+    },
+  },
   emits: ['close'],
   setup(_, { emit }) {
     const store = useStore();
@@ -44,6 +51,17 @@ export default defineComponent({
   @media (max-width: 600px) {
     border-radius: 0;
     height: var(--header-height);
+  }
+
+  & .modal-header-title {
+    width: 100%;
+    display: flex;
+    font-size: 24px;
+    font-weight: bold;
+
+    @media (max-width: 600px) {
+      justify-content: center;
+    }
   }
 }
 </style>

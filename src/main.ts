@@ -40,6 +40,7 @@ import {
   faMask,
   faMicrochip,
   faMinus,
+  faPalette,
   faPencil,
   faPencilSquare,
   faPlus,
@@ -112,7 +113,9 @@ library.add(
   faEye,
   faEyeSlash,
   faMicrochip,
-  faArrowUp
+  faArrowUp,
+  faPalette,
+  faExclamationTriangle
 );
 
 onAuthStateChanged(auth, (user) => {

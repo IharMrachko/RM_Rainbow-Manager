@@ -42,8 +42,7 @@ export default defineComponent({
       drawFrame(ctx);
     };
 
-    const { getCanvasSrc, saveImage, loadImage, resetImage, zoomPlus, zoomMinus, zoom } =
-      useCanvasSaver(canvasRef, render, emit);
+    const { getCanvasSrc, saveImage, loadImage, zoom } = useCanvasSaver(canvasRef, render, emit);
 
     const getCanvasValue = () => {
       return canvasRef.value;
@@ -138,7 +137,7 @@ export default defineComponent({
       () => store.getters['mobile/clientWidth'],
       (value) => {
         if (value < 600) {
-          thicknessRef.value = 60;
+          thicknessRef.value = 55;
           sizeRef.value = 320;
           nextTick(() => render());
           return;
@@ -170,10 +169,7 @@ export default defineComponent({
 
     return {
       canvasRef,
-      resetImage,
       triggerSaveImage,
-      zoomPlus,
-      zoomMinus,
       sizeRef,
       getCanvasValue,
       getImageSrc,
