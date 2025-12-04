@@ -72,7 +72,7 @@ export default defineComponent({
     const saveToGallery = async () => {
       if (!props.imageUrl) {
         await store.dispatch('toast/addToast', {
-          message: 'Upload image',
+          message: 'uploadImage',
           severity: 'warning',
         });
         return;

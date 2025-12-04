@@ -269,7 +269,7 @@ export default defineComponent({
       // сохраняем в Firebase Storage
       if (!isLoadImage) {
         await store.dispatch('toast/addToast', {
-          message: 'Upload image',
+          message: 'uploadImage',
           severity: 'warning',
         });
         return;
