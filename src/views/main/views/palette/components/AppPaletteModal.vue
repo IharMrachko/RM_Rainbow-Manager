@@ -6,50 +6,74 @@
         <div class="canvas-item">
           <span class="rating">{{ index + 1 }}. {{ t(item.name) }}</span>
           <app-editor-canvas
-            ref="editorCanvasRef"
+            :ref="(el: InstanceType<typeof AppEditorCanvas> | null) => (editorCanvasRefs[index] = el)"
             :image-url="imageUrl"
             :segments="item.segments"
           ></app-editor-canvas>
         </div>
-        <div class="palette">
-          <div class="palette-left">
-            <div
-              v-for="color in item.segments.slice(0, 35)"
-              :key="color"
-              class="palette-item"
-              :style="{ backgroundColor: color.color }"
-            ></div>
+        <section class="palette-wrap">
+          <div class="palette">
+            <div class="palette-left">
+              <div
+                v-for="color in item.segments.slice(0, 35)"
+                :key="color"
+                class="palette-item"
+                :style="{ backgroundColor: color.color }"
+              ></div>
+            </div>
+            <div class="palette-right">
+              <div
+                v-for="color in item.segments.slice(35, 65)"
+                :key="color"
+                class="palette-item"
+                :style="{ backgroundColor: color.color }"
+              ></div>
+            </div>
+            <div class="my-color">
+              <div
+                v-for="color in paletteCards"
+                :key="color"
+                class="palette-item"
+                :style="{ backgroundColor: color.color }"
+              ></div>
+            </div>
           </div>
-
-          <div class="palette-right">
-            <div
-              v-for="color in item.segments.slice(35, 65)"
-              :key="color"
-              class="palette-item"
-              :style="{ backgroundColor: color.color }"
-            ></div>
+          <div class="buttons">
+            <app-button
+              severity="success"
+              title="download"
+              @click="saveToDevice(editorCanvasRefs[index])"
+            ></app-button>
+            <app-button
+              severity="info"
+              title="addSign"
+              @click="openImageModal(editorCanvasRefs[index], item.name)"
+            ></app-button>
+            <app-button
+              severity="warning"
+              title="saveToGallery"
+              :loading="isSaveToGallery"
+              @click="saveToGallery(editorCanvasRefs[index], item.name)"
+            ></app-button>
           </div>
-          <div class="my-color">
-            <div
-              v-for="color in paletteCards"
-              :key="color"
-              class="palette-item"
-              :style="{ backgroundColor: color.color }"
-            ></div>
-          </div>
-        </div>
+        </section>
       </section>
     </div>
   </div>
 </template>
 <script lang="ts">
 import AppEditorCanvas from '@/views/main/views/color-view/components/AppEditorCanvas.vue';
-import { defineComponent, PropType } from 'vue';
+import { computed, defineComponent, PropType, ref } from 'vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import { useI18n } from 'vue-i18n';
+import AppButton from '@/shared/components/AppButton.vue';
+import { openDialog } from '@/shared/components/dialog/services/dialog.service';
+import AppImageSignInModal from '@/views/main/views/color-view/components/AppImageSignInModal.vue';
+import { useStore } from 'vuex';
+import { EditorCanvasRef } from '@/interfaces/editor-canvas-ref.interface';
 
 export default defineComponent({
-  components: { AppModalHeader, AppEditorCanvas },
+  components: { AppButton, AppModalHeader, AppEditorCanvas },
   props: {
     results: {
       type: Array as PropType<{ name: string; segments: { color: string }[] }[]>,
@@ -65,14 +89,62 @@ export default defineComponent({
     },
   },
   emits: ['resolve', 'reject', 'close'],
-  setup(_, { emit }) {
+  setup(props, { emit }) {
     const { t } = useI18n();
+    const store = useStore();
+    const editorCanvasRefs = ref<EditorCanvasRef[]>([]);
+    const isSaveToGallery = ref(false);
+    const currentUser = computed(() => store.getters['authFirebase/currentUser']);
+
     const close = () => {
       emit('close');
     };
+
+    const saveToDevice = (editorCanvasRef: EditorCanvasRef) => {
+      editorCanvasRef.triggerSaveImage();
+    };
+
+    const openImageModal = async (editorCanvasRef: EditorCanvasRef, paletteName: string) => {
+      const url = editorCanvasRef.getImageSrc();
+      await openDialog(
+        AppImageSignInModal,
+        {
+          url,
+          coloristicType: 'mask',
+          currentUserId: currentUser.value?.uid,
+          canvas: editorCanvasRef.getCanvasValue(),
+          imageUrl: props.imageUrl,
+          paletteType: paletteName,
+        },
+        { transparent: true }
+      );
+    };
+
+    const saveToGallery = async (editorCanvasRef: EditorCanvasRef, paletteName: string) => {
+      isSaveToGallery.value = true;
+
+      try {
+        await store.dispatch('gallery/saveImageToGallery', {
+          canvas: editorCanvasRef.getCanvasValue(),
+          title: '',
+          coloristicType: 'mask',
+          maskType: '',
+          paletteType: paletteName,
+          userId: currentUser.value?.uid,
+        });
+      } finally {
+        isSaveToGallery.value = false;
+      }
+    };
+
     return {
       close,
       t,
+      saveToDevice,
+      editorCanvasRefs,
+      openImageModal,
+      isSaveToGallery,
+      saveToGallery,
     };
   },
 });
@@ -81,7 +153,7 @@ export default defineComponent({
 .modal-content {
   position: relative;
   width: 90vw;
-  height: 95vh;
+  height: 90vh;
   background: var(--color-bg);
   display: flex;
   flex-direction: column; /* вертикально */
@@ -107,7 +179,7 @@ export default defineComponent({
     overflow: auto;
     align-items: center;
     gap: 20px;
-    height: calc(100% - 76px);
+    height: calc(100% - 65px);
   }
 }
 
@@ -130,29 +202,42 @@ export default defineComponent({
   }
 }
 
-.palette {
-  position: relative;
-  display: flex;
-  height: 220px;
-  margin-top: 60px;
-
+.palette-wrap {
   @media (max-width: 600px) {
     margin: 12px auto;
   }
 
-  & .palette-left {
+  & .palette {
+    position: relative;
     display: flex;
-    flex-wrap: wrap;
-    width: 160px;
-    gap: 2px;
+    height: 220px;
+    margin-top: 60px;
+
+    @media (max-width: 600px) {
+      margin: 12px auto;
+    }
+
+    & .palette-left {
+      display: flex;
+      flex-wrap: wrap;
+      width: 160px;
+      gap: 2px;
+    }
+
+    & .palette-right {
+      display: flex;
+      flex-wrap: wrap;
+      width: 160px;
+      gap: 2px;
+      height: 187px;
+    }
   }
 
-  & .palette-right {
+  & .buttons {
+    margin-top: 20px;
     display: flex;
-    flex-wrap: wrap;
-    width: 160px;
-    gap: 2px;
-    height: 187px;
+    flex-direction: column;
+    gap: 12px;
   }
 }
 

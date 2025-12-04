@@ -61,13 +61,13 @@ export function useCanvasSaver(
   };
 
   const zoomPlus = () => {
-    zoom.value++;
+    zoom.value *= 1.2;
     render();
   };
 
   const zoomMinus = () => {
     if (zoom.value === 1) return;
-    zoom.value--;
+    zoom.value /= 1.2;
     render();
   };
 

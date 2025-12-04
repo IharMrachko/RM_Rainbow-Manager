@@ -10,18 +10,23 @@
         </div>
       </section>
       <div class="actions">
-        <app-button severity="secondary" raised :icon="['fas', 'undo']" @click="reset"></app-button>
+        <app-button
+          severity="secondary"
+          raised
+          :icon="['fas', 'undo']"
+          @click="resetImage"
+        ></app-button>
         <app-button
           severity="secondary"
           raised
           :icon="['fas', 'plus']"
-          @click="zoomIn"
+          @click="zoomPlus"
         ></app-button>
         <app-button
           severity="secondary"
           raised
           :icon="['fas', 'minus']"
-          @click="zoomOut"
+          @click="zoomMinus"
         ></app-button>
 
         <app-file-uploader
@@ -46,6 +51,7 @@ import {
 import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import { useStore } from 'vuex';
+import { useCanvasSaver } from '@/composables/useCanvasSaver';
 
 export default defineComponent({
   components: { AppButton, AppFileUploader },
@@ -64,13 +70,11 @@ export default defineComponent({
     const currentRgb = ref<[number, number, number]>([0, 0, 0]);
     const currentHex = ref<string>('#D4F880');
     const selectedHex = ref<string>('#D4F880');
-    const scaleFactor = ref(1);
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
     const CANVAS_W = isMobile.value ? 350 : 450;
     const CANVAS_H = isMobile.value ? 350 : 450;
     let cleanup: (() => void) | null = null;
     let isDrawing = false;
-
     onMounted(() => {
       drawImage();
       initCanvasEvents();
@@ -217,11 +221,11 @@ export default defineComponent({
 
       let drawW, drawH;
       if (ratioImg > ratioCanvas) {
-        drawW = CANVAS_W * scaleFactor.value;
-        drawH = (CANVAS_W / ratioImg) * scaleFactor.value;
+        drawW = CANVAS_W * zoom.value;
+        drawH = (CANVAS_W / ratioImg) * zoom.value;
       } else {
-        drawH = CANVAS_H * scaleFactor.value;
-        drawW = CANVAS_H * ratioImg * scaleFactor.value;
+        drawH = CANVAS_H * zoom.value;
+        drawW = CANVAS_H * ratioImg * zoom.value;
       }
 
       const offsetX = (CANVAS_W - drawW) / 2;
@@ -230,22 +234,7 @@ export default defineComponent({
       ctx.drawImage(imgEl.value, 0, 0, natW, natH, offsetX, offsetY, drawW, drawH);
     };
 
-    const zoomIn = () => {
-      scaleFactor.value *= 1.2;
-      drawImage();
-    };
-
-    const zoomOut = () => {
-      if (scaleFactor.value > 1) {
-        scaleFactor.value /= 1.2;
-        drawImage();
-      }
-    };
-
-    const reset = () => {
-      scaleFactor.value = 1;
-      drawImage();
-    };
+    const { resetImage, zoomPlus, zoomMinus, zoom } = useCanvasSaver(canvasEl, drawImage);
 
     return {
       imgEl,
@@ -253,11 +242,10 @@ export default defineComponent({
       currentHex,
       selectedHex,
       onFileSelected,
-      scaleFactor,
-      zoomIn,
       canvasEl,
-      zoomOut,
-      reset,
+      resetImage,
+      zoomPlus,
+      zoomMinus,
     };
   },
 });

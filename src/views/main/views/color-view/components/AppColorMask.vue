@@ -20,7 +20,7 @@
       <div v-if="!isMobile" class="btn">
         <app-button
           raised
-          title="settings"
+          title="pickPhoto"
           severity="secondary"
           :icon="['fas', 'sliders']"
           @click="openImageSettingsModal"
@@ -67,7 +67,7 @@
     <app-popover-wrapper>
       <app-popover-item @click="openImageSettingsModal">
         <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
-        <span>{{ t('settings') }}</span>
+        <span>{{ t('pickPhoto') }}</span>
       </app-popover-item>
       <app-popover-item @click="openCameraModal">
         <font-awesome-icon size="xl" :icon="['fas', 'camera']" />
@@ -120,6 +120,7 @@ import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppImageSignInModal from '@/views/main/views/color-view/components/AppImageSignInModal.vue';
 import AppImageSettingsModal from '@/shared/components/AppImageSettingsModal.vue';
 import AppCameraModal from '@/shared/components/AppCameraModal.vue';
+import { EditorCanvasRef } from '@/interfaces/editor-canvas-ref.interface';
 
 export default defineComponent({
   components: {
@@ -133,11 +134,7 @@ export default defineComponent({
   },
   emits: ['fileOnLoad', 'isLoading'],
   setup(_, { emit }) {
-    const editorCanvasRef = ref<{
-      getCanvasValue: () => HTMLCanvasElement;
-      getImageSrc: () => string;
-      triggerSaveImage: () => void;
-    } | null>(null);
+    const editorCanvasRef = ref<EditorCanvasRef | null>(null);
     const { t } = useI18n();
     const uploader = ref();
     const store = useStore();

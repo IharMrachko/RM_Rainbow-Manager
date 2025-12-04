@@ -5,6 +5,7 @@
       </app-image-not-uploaded>
       <app-image-color-picker
         v-if="imgEl"
+        ref="imageColorPickerRef"
         :image-element="imgEl"
         @selected-hex="onSelectedHex"
         @is-hidden-overflow="isHiddenOverflow = $event"
@@ -69,6 +70,11 @@ export default defineComponent({
     AppImageNotUploaded,
   },
   setup() {
+    const imageColorPickerRef = ref<{
+      getCanvasValue: () => HTMLCanvasElement;
+      getImageSrc: () => string;
+      triggerSaveImage: () => void;
+    } | null>(null);
     const { t } = useI18n();
     const store = useStore();
     const selectedHex = ref<string>('#fff');
@@ -229,6 +235,7 @@ export default defineComponent({
       range,
       imageUrlChange,
       t,
+      imageColorPickerRef,
     };
   },
 });

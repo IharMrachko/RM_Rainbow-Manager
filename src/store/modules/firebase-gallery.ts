@@ -40,6 +40,7 @@ interface SaveOptions {
   title?: string;
   coloristicType?: ColoristicType;
   maskType?: MaskType;
+  paletteType?: string;
   folderId?: string;
   deprecated?: boolean;
 }
@@ -161,6 +162,7 @@ export const gallery: Module<GalleryState, unknown> = {
         canvas,
         path = `avatar/${Date.now()}.png`,
         title = '',
+        paletteType = '',
         coloristicType,
         maskType,
         userId,
@@ -184,6 +186,7 @@ export const gallery: Module<GalleryState, unknown> = {
               url: downloadURL,
               title,
               coloristicType,
+              paletteType,
               maskType,
               folderId,
               createdAt: serverTimestamp(),

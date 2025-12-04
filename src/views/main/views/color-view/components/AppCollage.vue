@@ -8,7 +8,7 @@
       <div v-if="!isMobile" class="btn">
         <app-button
           raised
-          title="settings"
+          title="pickPhoto"
           severity="secondary"
           :icon="['fas', 'sliders']"
           @click="openImageSettingsModal"
@@ -49,7 +49,7 @@
     <app-popover-wrapper>
       <app-popover-item @click="openImageSettingsModal">
         <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
-        <span>{{ t('settings') }}</span>
+        <span>{{ t('pickPhoto') }}</span>
       </app-popover-item>
       <app-popover-item @click="saveImage('collage')">
         <font-awesome-icon size="xl" :icon="['fas', 'download']" />
@@ -185,8 +185,12 @@ export default defineComponent({
       }
     };
 
-    const { getCanvasSrc, saveImage, loadImage, resetImage, zoomPlus, zoomMinus, zoom } =
-      useCanvasSaver(canvas, render, emit, originalUrlRef);
+    const { getCanvasSrc, saveImage, loadImage, zoom } = useCanvasSaver(
+      canvas,
+      render,
+      emit,
+      originalUrlRef
+    );
 
     const drawImageWithFrame = (
       ctx: CanvasRenderingContext2D,
@@ -363,9 +367,6 @@ export default defineComponent({
     return {
       canvas,
       saveImage,
-      resetImage,
-      zoomPlus,
-      zoomMinus,
       isMobile,
       openPopover,
       visiblePopover,
