@@ -303,9 +303,9 @@ export default defineComponent({
 }
 
 a {
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1.7;
-  color: #666666;
+  color: var(--active-doing);
   margin: 0;
   text-decoration: none;
   transition: all 0.4s;
