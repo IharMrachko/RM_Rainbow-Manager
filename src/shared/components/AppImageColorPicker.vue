@@ -39,15 +39,7 @@
   </div>
 </template>
 <script lang="ts">
-import {
-  computed,
-  defineComponent,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  PropType,
-  ref,
-} from 'vue';
+import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, PropType, ref, } from 'vue';
 import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import { useStore } from 'vuex';
@@ -294,8 +286,8 @@ export default defineComponent({
 /* mobile tweaks */
 @media (max-width: 600px) {
   .swatch {
-    width: 96px;
-    height: 64px;
+    width: 75px;
+    height: 50px;
   }
 }
 
