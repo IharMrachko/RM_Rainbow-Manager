@@ -137,8 +137,8 @@ export default defineComponent({
       () => store.getters['mobile/clientWidth'],
       (value) => {
         if (value < 600) {
-          thicknessRef.value = 55;
-          sizeRef.value = 320;
+          thicknessRef.value = 58;
+          sizeRef.value = 340;
           nextTick(() => render());
           return;
         }
