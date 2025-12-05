@@ -263,7 +263,7 @@ export default defineComponent({
   @media (max-width: 600px) {
     overflow: auto;
     align-content: start;
-    padding: 5px;
+    padding: 0;
     gap: 0;
   }
 }
@@ -283,7 +283,7 @@ export default defineComponent({
     display: inline-block;
     margin-bottom: 20px;
     width: 350px;
-    font-size: 14px;
+    font-size: 13px;
   }
 
   & .preview-row {
