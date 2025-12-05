@@ -7,7 +7,7 @@
         <div class="badge-wrapper">
           <span v-if="folder" class="badge darkBadge">{{ folder?.name }}</span>
           <span v-if="coloristicType" class="badge darkBadge">{{ t(coloristicType) }}</span>
-          <span v-if="maskType" class="badge darkBadge">{{ maskType }}</span>
+          <span v-if="maskType" class="badge darkBadge">{{ t(maskType) }}</span>
           <span v-if="paletteType" class="badge darkBadge">{{ getPaletteName() }}</span>
         </div>
 
