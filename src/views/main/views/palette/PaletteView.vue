@@ -281,9 +281,9 @@ export default defineComponent({
 
   & .reminder {
     display: inline-block;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     width: 350px;
-    font-size: 13px;
+    font-size: 12px;
   }
 
   & .preview-row {
