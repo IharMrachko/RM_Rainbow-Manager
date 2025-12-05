@@ -81,6 +81,9 @@ export default defineComponent({
 
   @media (max-width: 600px) {
     overflow: auto;
+    align-content: start;
+    padding: 5px 20px;
+    gap: 0;
   }
 }
 .photo-picker {

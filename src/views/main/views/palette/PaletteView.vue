@@ -184,7 +184,6 @@ export default defineComponent({
           return { name, score, hits, closestMap };
         })
         .sort((a, b) => b.hits - a.hits || a.score - b.score)
-        .slice(0, 3)
         .map((it) => ({
           name: it.name,
           segments: palettes[it.name].map((v) => ({ color: v })),
@@ -264,6 +263,8 @@ export default defineComponent({
   @media (max-width: 600px) {
     overflow: auto;
     align-content: start;
+    padding: 5px;
+    gap: 0;
   }
 }
 .photo-picker {
@@ -282,6 +283,7 @@ export default defineComponent({
     display: inline-block;
     margin-bottom: 20px;
     width: 350px;
+    font-size: 14px;
   }
 
   & .preview-row {

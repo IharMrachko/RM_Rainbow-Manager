@@ -96,6 +96,7 @@ const messages = {
     warmAutumnPalette: 'Warm Autumn — warm and soft palette',
     coldWinterPalette: 'Cold Winter — cool and bright palette',
     brightWinterPalette: 'Bright Winter — bright and cool palette',
+    seeMore: 'See more',
   },
   ru: {
     login: 'Вход',
@@ -175,11 +176,10 @@ const messages = {
     aiAgent: 'ИИ агент',
     greedyAI:
       'Привет, буду рад тебе помочь с любым вопросом! Хочешь определим цвета в фотографии? Просто загрузи ее и я помогу!',
-    reminderPickColor:
-      'Для более точного определения палитры, пожалуйста, заполните все квадраты цветами!',
+    reminderPickColor: 'Для более точного определения палитры заполните все квадраты цветом!',
     palette: 'Палитра',
     define: 'Определить',
-    top3: 'Топ 3 вероятных палитр',
+    top3: 'Топ 3 вероятных палитры',
     softSummerPalette: 'Мягкое лето — мягкий и холодный колорит',
     darkAutumnPalette: 'Тёмная осень — тёплый и тёмный колорит',
     coolSummerPalette: 'Холодное лето — холодный и мягкий колорит',
@@ -192,6 +192,7 @@ const messages = {
     warmAutumnPalette: 'Тёплая осень — тёплый и мягкий колорит',
     coldWinterPalette: 'Холодная зима — холодный и яркий колорит',
     brightWinterPalette: 'Яркая зима — яркий и холодный колорит',
+    seeMore: 'Ещё',
   },
 };
 

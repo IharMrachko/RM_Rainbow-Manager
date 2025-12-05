@@ -143,7 +143,7 @@ export default defineComponent({
 
         .image {
           width: 100px;
-          height: 140px;
+          margin-bottom: 5px;
           & img {
             object-fit: contain;
             border-radius: 0.75rem;

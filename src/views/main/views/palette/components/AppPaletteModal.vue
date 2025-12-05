@@ -2,7 +2,7 @@
   <div ref="modalRef" class="modal-content neon">
     <app-modal-header :title="t('top3')" @close="close"></app-modal-header>
     <div class="wrapper">
-      <section v-for="(item, index) in results" :key="item" class="wrapper-item">
+      <section v-for="(item, index) in results.slice(0, end)" :key="item" class="wrapper-item">
         <div class="canvas-item">
           <span class="rating">{{ index + 1 }}. {{ t(item.name) }}</span>
           <app-editor-canvas
@@ -58,6 +58,9 @@
           </div>
         </section>
       </section>
+      <div v-if="end === 3" class="see-more">
+        <a @click="end = 12">{{ t('seeMore') }}</a>
+      </div>
     </div>
   </div>
 </template>
@@ -92,6 +95,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const { t } = useI18n();
     const store = useStore();
+    const end = ref(3);
     const editorCanvasRefs = ref<EditorCanvasRef[]>([]);
     const isSaveToGallery = ref(false);
     const currentUser = computed(() => store.getters['authFirebase/currentUser']);
@@ -145,6 +149,7 @@ export default defineComponent({
       openImageModal,
       isSaveToGallery,
       saveToGallery,
+      end,
     };
   },
 });
@@ -286,5 +291,29 @@ export default defineComponent({
   @media (max-width: 600px) {
     font-size: 16px;
   }
+}
+
+.see-more {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+a {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #666666;
+  margin: 0;
+  text-decoration: none;
+  transition: all 0.4s;
+  -webkit-transition: all 0.4s;
+  -o-transition: all 0.4s;
+  -moz-transition: all 0.4s;
+}
+
+a:hover {
+  color: #57b846;
 }
 </style>
