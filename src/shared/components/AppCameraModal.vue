@@ -44,14 +44,12 @@
 import { computed, defineComponent, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import AppColorCard from '@/views/main/views/color-view/components/AppColorCard.vue';
-import {
-  ColorCard,
-  colorCards,
-} from '@/views/main/views/color-view/components/color-card.constanst';
+import { colorCards } from '@/views/main/views/color-view/components/color-card.constanst';
 import { useStore } from 'vuex';
 import AppShutterButton from '@/shared/components/AppShutterButton.vue';
 import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
 import AppLoader from '@/shared/components/AppLoader.vue';
+import { MaskCard } from '@/types/mask-card.type';
 
 export default defineComponent({
   components: { AppLoader, AppOverlayPanel, AppShutterButton, AppColorCard, AppModalHeader },
@@ -59,7 +57,7 @@ export default defineComponent({
   setup(_, { emit }) {
     const store = useStore();
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
-    const cards: ColorCard[] = colorCards;
+    const cards: MaskCard[] = colorCards;
     const video = ref<HTMLVideoElement | null>(null);
     const overlay = ref<HTMLCanvasElement | null>(null);
     const canvas = ref<HTMLCanvasElement | null>(null);
@@ -69,7 +67,7 @@ export default defineComponent({
     const viewer = ref<HTMLElement | null>(null);
     const modalRef = ref<HTMLElement | null>(null);
     const visible = ref(false);
-    const selectedCard = ref<null | ColorCard>(null);
+    const selectedCard = ref<null | MaskCard>(null);
     const frameColors = ref();
     const isLoader = ref(false);
     onBeforeMount(() => {
@@ -233,7 +231,7 @@ export default defineComponent({
       photo.value = out.toDataURL('image/png');
       outCanvas.value = out;
     };
-    const selected = (item: ColorCard) => {
+    const selected = (item: MaskCard) => {
       selectedCard.value = item;
       frameColors.value = item.segments;
       resizeAndDrawOverlay();

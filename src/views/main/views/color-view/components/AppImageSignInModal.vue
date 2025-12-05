@@ -6,9 +6,9 @@
       <div class="info-section-wrapper">
         <div class="badge-wrapper">
           <span v-if="folder" class="badge darkBadge">{{ folder?.name }}</span>
-          <span v-if="coloristicType" class="badge darkBadge">{{ coloristicType }}</span>
+          <span v-if="coloristicType" class="badge darkBadge">{{ t(coloristicType) }}</span>
           <span v-if="maskType" class="badge darkBadge">{{ maskType }}</span>
-          <span v-if="paletteType" class="badge darkBadge">{{ paletteType }}</span>
+          <span v-if="paletteType" class="badge darkBadge">{{ getPaletteName() }}</span>
         </div>
 
         <app-input v-model="signIn" :icon="['fas', 'fa-pencil']" :is-label="false"></app-input>
@@ -43,6 +43,9 @@ import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppFolderModal from '@/shared/components/folder-modal/AppFolderModal.vue';
 import { Folder } from '@/store/modules/firebase-folder';
+import { useI18n } from 'vue-i18n';
+import { Palette } from '@/types/palette.type';
+import { paletteI18nHelper } from '@/helpers/palette-i18n.helper';
 
 export default defineComponent({
   components: { AppModalHeader, AppInput, AppButton },
@@ -57,7 +60,7 @@ export default defineComponent({
       default: '',
     },
     paletteType: {
-      type: String,
+      type: String as PropType<Palette>,
       default: '',
     },
     canvas: HTMLCanvasElement,
@@ -66,6 +69,7 @@ export default defineComponent({
   },
   emits: ['resolve', 'reject', 'close'],
   setup(props, { emit }) {
+    const { t } = useI18n();
     const store = useStore();
     const signIn = ref('');
     const isSaveToGallery = ref(false);
@@ -111,6 +115,11 @@ export default defineComponent({
         folder.value = item;
       });
     };
+
+    const getPaletteName = (): string => {
+      const name = paletteI18nHelper.get(props.paletteType) || '';
+      return t(name);
+    };
     return {
       close,
       signIn,
@@ -118,6 +127,8 @@ export default defineComponent({
       isSaveToGallery,
       openFolderModal,
       folder,
+      t,
+      getPaletteName,
     };
   },
 });
@@ -149,6 +160,7 @@ export default defineComponent({
 .dark .darkBadge {
   border: 1px solid #fff;
 }
+
 .modal-content img {
   background: var(--color-wrap-bg);
   max-height: 55%;
@@ -166,6 +178,7 @@ export default defineComponent({
   gap: 10px;
   margin-bottom: 12px;
 }
+
 .badge {
   display: inline-block;
   margin-top: 4px;

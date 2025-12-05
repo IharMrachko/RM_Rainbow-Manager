@@ -21,9 +21,11 @@ import { ColoristicType } from '@/types/coloristic.type';
 import { MaskType } from '@/types/mask.type';
 import { tokenizeTitle } from '@/helpers/tokenize-title.helper';
 import { Folder } from '@/store/modules/firebase-folder';
-import { ColorCard } from '@/views/main/views/color-view/components/color-card.constanst';
 import { FirebaseError } from '@/interfaces/firebase-error.interface';
 import { errorMessages } from '@/helpers/error-message.helper';
+import { MaskCard } from '@/types/mask-card.type';
+import { PaletteCard } from '@/types/palette-card.type';
+import { Palette } from '@/types/palette.type';
 
 type GalleryOptions = {
   coloristicType?: ColoristicType | null;
@@ -32,6 +34,7 @@ type GalleryOptions = {
   lastDoc?: unknown;
   maskType?: MaskType | null;
   folderId?: string;
+  paletteType?: Palette | null;
 };
 interface SaveOptions {
   userId: string;
@@ -40,7 +43,7 @@ interface SaveOptions {
   title?: string;
   coloristicType?: ColoristicType;
   maskType?: MaskType;
-  paletteType?: string;
+  paletteType?: Palette;
   folderId?: string;
   deprecated?: boolean;
 }
@@ -52,6 +55,7 @@ export interface Image {
   coloristicType: ColoristicType;
   maskType: MaskType;
   folder: Folder;
+  paletteType: Palette;
 }
 export interface ImageUpdate {
   id: string;
@@ -59,13 +63,15 @@ export interface ImageUpdate {
   title: string;
   coloristicType: ColoristicType;
   maskType: MaskType;
+  paletteType: Palette;
   folderId: string | null;
 }
 
 export interface GalleryFilter {
-  maskType: ColorCard | null;
+  maskType: MaskCard | null;
   coloristicType: { id: string; name: string } | null;
   folder: Folder | null;
+  paletteType: PaletteCard | null;
 }
 
 interface GalleryState {
@@ -162,7 +168,7 @@ export const gallery: Module<GalleryState, unknown> = {
         canvas,
         path = `avatar/${Date.now()}.png`,
         title = '',
-        paletteType = '',
+        paletteType,
         coloristicType,
         maskType,
         userId,
@@ -225,7 +231,15 @@ export const gallery: Module<GalleryState, unknown> = {
         if (reset) {
           commit('RESET_IMAGES');
         }
-        const { maskType, coloristicType, title, pageSize = 20, lastDoc, folderId } = options;
+        const {
+          paletteType,
+          maskType,
+          coloristicType,
+          title,
+          pageSize = 20,
+          lastDoc,
+          folderId,
+        } = options;
         const itemsRef = collection(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items');
 
         const constraints: QueryConstraint[] = [where('userId', '==', userId)];
@@ -238,6 +252,11 @@ export const gallery: Module<GalleryState, unknown> = {
         if (maskType) {
           constraints.push(where('maskType', '==', maskType));
           constraintsForCount.push(where('maskType', '==', maskType));
+        }
+
+        if (paletteType) {
+          constraints.push(where('paletteType', '==', paletteType));
+          constraintsForCount.push(where('paletteType', '==', paletteType));
         }
 
         if (folderId) {
@@ -270,6 +289,7 @@ export const gallery: Module<GalleryState, unknown> = {
             title: data.title,
             coloristicType: data.coloristicType,
             maskType: data.maskType,
+            paletteType: data.paletteType,
             folder: rootGetters['folder/getFolderById'](data.folderId),
           };
         });
@@ -279,6 +299,7 @@ export const gallery: Module<GalleryState, unknown> = {
           totalImages: totalImages.data().count,
         });
       } catch (err) {
+        console.error(err);
         const e = err as FirebaseError;
         await dispatch(
           'toast/addToast',

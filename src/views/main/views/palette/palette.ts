@@ -1,4 +1,6 @@
 // Мягкое лето, мягкий и холодный колорит + переделал
+import { Palette } from '@/types/palette.type';
+
 export const softSummerPalette = [
   '#DEDCCD',
   '#DDD4C3',
@@ -817,3 +819,18 @@ export const defaultPaletteCards: { id: number; color: string }[] = [
   { id: 4, color: '#fff' },
   { id: 5, color: '#fff' },
 ];
+
+export const palettesObj: Record<Palette, string[]> = {
+  softSummerPalette: softSummerPalette,
+  darkAutumnPalette: darkAutumnPalette,
+  coolSummerPalette: coolSummerPalette,
+  lightSpringPalette: lightSpringPalette,
+  softAutumnPalette: softAutumnPalette,
+  brightSpringPalette: brightSpringPalette,
+  warmSpringPalette: warmSpringPalette,
+  darkWinterPalette: darkWinterPalette,
+  lightSummerPalette: lightSummerPalette,
+  warmAutumnPalette: warmAutumnPalette,
+  coldWinterPalette: coldWinterPalette,
+  brightWinterPalette: brightWinterPalette,
+};

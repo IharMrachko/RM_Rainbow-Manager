@@ -1,1 +1,1 @@
-export type MaskType = 'cold' | 'warm' | 'dark' | 'light' | 'soft' | 'unforgettable';
+export type MaskType = 'cold' | 'warm' | 'dark' | 'light' | 'mute' | 'bright';

@@ -42,25 +42,12 @@ import AppImageColorPicker from '@/shared/components/AppImageColorPicker.vue';
 import AppPaletteFillCard from '@/views/main/views/palette/components/AppPaletteFillCard.vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import chroma from 'chroma-js';
-import {
-  brightSpringPalette,
-  brightWinterPalette,
-  coldWinterPalette,
-  coolSummerPalette,
-  darkAutumnPalette,
-  darkWinterPalette,
-  defaultPaletteCards,
-  lightSpringPalette,
-  lightSummerPalette,
-  softAutumnPalette,
-  softSummerPalette,
-  warmAutumnPalette,
-  warmSpringPalette,
-} from '@/views/main/views/palette/components/palette';
+import { defaultPaletteCards, palettesObj } from '@/views/main/views/palette/palette';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppPaletteModal from '@/views/main/views/palette/components/AppPaletteModal.vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
+import { Palette } from '@/types/palette.type';
 
 export default defineComponent({
   components: {
@@ -87,20 +74,7 @@ export default defineComponent({
     // Настройки: веса метрики и допуск попадания
     const weights = { l: 1.0, c: 1.0, h: 1.5 };
     const tolerance = { l: 10, c: 20, h: 15 };
-    const palettes: Record<string, string[]> = {
-      softSummerPalette: softSummerPalette,
-      darkAutumnPalette: darkAutumnPalette,
-      coolSummerPalette: coolSummerPalette,
-      lightSpringPalette: lightSpringPalette,
-      softAutumnPalette: softAutumnPalette,
-      brightSpringPalette: brightSpringPalette,
-      warmSpringPalette: warmSpringPalette,
-      darkWinterPalette: darkWinterPalette,
-      lightSummerPalette: lightSummerPalette,
-      warmAutumnPalette: warmAutumnPalette,
-      coldWinterPalette: coldWinterPalette,
-      brightWinterPalette: brightWinterPalette,
-    };
+    const palettes: Record<Palette, string[]> = palettesObj;
 
     onBeforeMount(() => {
       initFirstCard();
@@ -186,7 +160,7 @@ export default defineComponent({
         .sort((a, b) => b.hits - a.hits || a.score - b.score)
         .map((it) => ({
           name: it.name,
-          segments: palettes[it.name].map((v) => ({ color: v })),
+          segments: palettes[it.name as Palette].map((v) => ({ color: v })),
         }));
 
       openDialog(AppPaletteModal, {

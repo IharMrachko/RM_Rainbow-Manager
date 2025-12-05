@@ -290,6 +290,7 @@ export default defineComponent({
           coloristicType: 'collage',
           maskType: '',
           userId: currentUser.value?.uid,
+          paletteType: '',
         }); // вернет URL
       } finally {
         isSaveToGallery.value = false;

@@ -13,12 +13,12 @@
 </template>
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
-import { ColorCard } from '@/views/main/views/color-view/components/color-card.constanst';
+import { MaskCard } from '@/types/mask-card.type';
 
 export default defineComponent({
   props: {
     card: {
-      type: Object as PropType<ColorCard>,
+      type: Object as PropType<MaskCard>,
       required: true,
     },
     isSelected: {

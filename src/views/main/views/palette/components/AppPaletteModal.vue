@@ -74,6 +74,7 @@ import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppImageSignInModal from '@/views/main/views/color-view/components/AppImageSignInModal.vue';
 import { useStore } from 'vuex';
 import { EditorCanvasRef } from '@/interfaces/editor-canvas-ref.interface';
+import { Palette } from '@/types/palette.type';
 
 export default defineComponent({
   components: { AppButton, AppModalHeader, AppEditorCanvas },
@@ -108,7 +109,7 @@ export default defineComponent({
       editorCanvasRef.triggerSaveImage();
     };
 
-    const openImageModal = async (editorCanvasRef: EditorCanvasRef, paletteName: string) => {
+    const openImageModal = async (editorCanvasRef: EditorCanvasRef, palette: Palette) => {
       const url = editorCanvasRef.getImageSrc();
       await openDialog(
         AppImageSignInModal,
@@ -118,13 +119,13 @@ export default defineComponent({
           currentUserId: currentUser.value?.uid,
           canvas: editorCanvasRef.getCanvasValue(),
           imageUrl: props.imageUrl,
-          paletteType: paletteName,
+          paletteType: palette,
         },
         { transparent: true }
       );
     };
 
-    const saveToGallery = async (editorCanvasRef: EditorCanvasRef, paletteName: string) => {
+    const saveToGallery = async (editorCanvasRef: EditorCanvasRef, palette: Palette) => {
       isSaveToGallery.value = true;
 
       try {
@@ -133,7 +134,7 @@ export default defineComponent({
           title: '',
           coloristicType: 'mask',
           maskType: '',
-          paletteType: paletteName,
+          paletteType: palette,
           userId: currentUser.value?.uid,
         });
       } finally {

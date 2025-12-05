@@ -36,7 +36,7 @@
     <img :src="currentImage.src" alt="" class="modal-image" />
     <section class="info-section scroll-area">
       <div class="info-section-wrapper">
-        <div class="slider-dots">
+        <div class="slider-dots" :class="{ many: images.length > 5 }">
           <div
             v-for="(img, i) in images"
             :key="img.id"
@@ -50,10 +50,13 @@
               localImages[index].folder.name
             }}</span>
             <span v-if="currentImage.maskType" class="badge darkBadge">{{
-              currentImage.maskType
+              t(currentImage.maskType)
             }}</span>
             <span v-if="currentImage.coloristicType" class="badge darkBadge">{{
-              currentImage.coloristicType
+              t(currentImage.coloristicType)
+            }}</span>
+            <span v-if="currentImage.paletteType" class="badge darkBadge">{{
+              getPaletteName(currentImage.paletteType)
             }}</span>
           </div>
           <div v-if="!isEditTitle" class="info-title">
@@ -122,6 +125,8 @@ import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
 import AppFolderModal from '@/shared/components/folder-modal/AppFolderModal.vue';
 import { Folder } from '@/store/modules/firebase-folder';
 import AppCheckbox from '@/shared/components/AppCheckbox.vue';
+import { Palette } from '@/types/palette.type';
+import { paletteI18nHelper } from '@/helpers/palette-i18n.helper';
 
 interface ModalElement extends HTMLDivElement {
   _touchHandlers?: {
@@ -218,6 +223,7 @@ export default defineComponent({
         coloristicType: image.coloristicType,
         maskType: image.maskType,
         folderId: image?.folder?.id ?? null,
+        paletteType: image.paletteType,
       };
     };
 
@@ -255,6 +261,11 @@ export default defineComponent({
 
     const toggleImageOverlayPanel = () => {
       visible.value = !visible.value;
+    };
+
+    const getPaletteName = (type: Palette): string => {
+      const name = paletteI18nHelper.get(type) || '';
+      return t(name);
     };
 
     const openFolderModal = async () => {
@@ -334,6 +345,7 @@ export default defineComponent({
       isSelectedMode,
       selectedImage,
       selected,
+      getPaletteName,
     };
   },
 });
@@ -560,7 +572,7 @@ export default defineComponent({
   margin-bottom: 10px;
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* чтобы точки шли подряд */
+  justify-content: center; /* чтобы точки шли подряд */
   gap: 5px;
   width: 75px;
   overflow-x: auto; /* включаем горизонтальный скролл */
@@ -572,6 +584,10 @@ export default defineComponent({
 
 .slider-dots .dot {
   flex-shrink: 0; /* запрещаем сжатие точек */
+}
+
+.slider-dots.many {
+  justify-content: flex-start; /* если точек много */
 }
 
 .dot {

@@ -151,6 +151,7 @@ export default defineComponent({
           coloristicType: filter.value?.coloristicType?.id,
           maskType: filter.value?.maskType?.type,
           folderId: filter.value?.folder?.id,
+          paletteType: filter.value?.paletteType?.id,
         },
         reset: true,
       });
@@ -173,6 +174,7 @@ export default defineComponent({
               coloristicType: filter.value?.coloristicType?.id,
               maskType: filter.value?.maskType?.type,
               folderId: filter.value?.folder?.id,
+              paletteType: filter.value?.paletteType?.id,
             },
             reset: true,
           });
@@ -194,6 +196,7 @@ export default defineComponent({
               coloristicType: filter.value?.coloristicType?.id,
               maskType: filter.value?.maskType?.type,
               folderId: filter.value?.folder?.id,
+              paletteType: filter.value?.paletteType?.id,
               lastDoc: lastDoc.value,
             },
           });

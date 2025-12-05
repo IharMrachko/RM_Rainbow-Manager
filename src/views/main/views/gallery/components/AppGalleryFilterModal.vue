@@ -33,7 +33,26 @@
         </app-dropdown>
       </div>
       <div class="filter-dropdown">
-        <app-dropdown v-model="maskType" height="48px" label="type" is-title title="mask">
+        <app-dropdown v-model="paletteType" height="48px" label="name" is-title title="palette">
+          <div class="wrapper-palette">
+            <app-option v-for="card in palettesCards" :key="card.id" :value="card">
+              <div class="mask-type-wrapper">
+                <div class="segments">
+                  <div
+                    v-for="v in card.colors"
+                    :key="v"
+                    :style="{ backgroundColor: v }"
+                    class="segment"
+                  ></div>
+                </div>
+                <span>{{ card.name }}</span>
+              </div>
+            </app-option>
+          </div>
+        </app-dropdown>
+      </div>
+      <div class="filter-dropdown">
+        <app-dropdown v-model="maskType" height="48px" label="name" is-title title="mask">
           <app-option v-for="card in cards" :key="card" :value="card">
             <div class="mask-type-wrapper">
               <div class="segments">
@@ -44,7 +63,7 @@
                   class="segment"
                 ></div>
               </div>
-              <span>{{ card.type }}</span>
+              <span>{{ card.name }}</span>
             </div>
           </app-option>
         </app-dropdown>
@@ -60,7 +79,7 @@
           <app-option v-for="c in coloristicTypes" :key="c" :value="c">
             <div class="type-maks-option">
               <font-awesome-icon :icon="['fa', c.icon]" />
-              <span>{{ t(c.name) }}</span>
+              <span>{{ c.name }}</span>
             </div>
           </app-option>
         </app-dropdown>
@@ -84,21 +103,29 @@ import AppButton from '@/shared/components/AppButton.vue';
 import AppOption from '@/shared/components/dropdown/AppOption.vue';
 import { Folder } from '@/store/modules/firebase-folder';
 import { useStore } from 'vuex';
-import {
-  ColorCard,
-  colorCards,
-} from '@/views/main/views/color-view/components/color-card.constanst';
+import { colorCards } from '@/views/main/views/color-view/components/color-card.constanst';
 import { useI18n } from 'vue-i18n';
+import { palettesObj } from '@/views/main/views/palette/palette';
+import { PaletteCard } from '@/types/palette-card.type';
+import { MaskCard } from '@/types/mask-card.type';
+import { Palette } from '@/types/palette.type';
 
 export default defineComponent({
   components: { AppOption, AppButton, AppDropdown, AppModalHeader },
-
   emits: ['resolve', 'reject', 'close'],
-  setup(props, { emit }) {
+  setup(_, { emit }) {
     const { t } = useI18n();
     const store = useStore();
-    const cards = ref<ColorCard[]>(colorCards);
-    const maskType = ref<ColorCard | null>(store.getters['gallery/getFilter']?.maskType);
+    const cards = ref<MaskCard[]>(colorCards.map((it) => ({ ...it, name: t(it.type) })));
+    const palettesCards = ref<PaletteCard[]>(
+      Object.entries(palettesObj).map(([type, color]) => ({
+        id: type as Palette,
+        name: t(type),
+        colors: color,
+      }))
+    );
+    const maskType = ref<MaskCard | null>(store.getters['gallery/getFilter']?.maskType);
+    const paletteType = ref<PaletteCard | null>(store.getters['gallery/getFilter']?.paletteType);
     const coloristicType = ref<{ id: string; name: string } | null>(
       store.getters['gallery/getFilter']?.coloristicType
     );
@@ -109,6 +136,7 @@ export default defineComponent({
 
     const folders = computed(() => store.getters['folder/getFilterFolders']);
     const folder = ref<Folder | null>(store.getters['gallery/getFilter']?.folder);
+
     const close = () => {
       emit('close');
     };
@@ -122,6 +150,7 @@ export default defineComponent({
         folder: folder.value,
         coloristicType: coloristicType.value,
         maskType: maskType.value,
+        paletteType: paletteType.value,
       });
       emit('resolve', true);
     };
@@ -130,6 +159,7 @@ export default defineComponent({
       folder.value = null;
       coloristicType.value = null;
       maskType.value = null;
+      paletteType.value = null;
       store.dispatch('gallery/setFilter', null);
     };
 
@@ -138,6 +168,18 @@ export default defineComponent({
         coloristicType.value = {
           id: coloristicType.value.id,
           name: t(coloristicType.value.id),
+        };
+      }
+      if (paletteType.value) {
+        paletteType.value = {
+          ...paletteType.value,
+          name: t(paletteType.value.id),
+        };
+      }
+      if (maskType.value) {
+        maskType.value = {
+          ...maskType.value,
+          name: t(maskType.value.type),
         };
       }
     });
@@ -154,6 +196,8 @@ export default defineComponent({
       applyFilter,
       clearFilter,
       t,
+      paletteType,
+      palettesCards,
     };
   },
 });
@@ -164,7 +208,7 @@ export default defineComponent({
   background: var(--color-bg);
   position: relative;
   width: 35vw;
-  height: 55vh;
+  height: 68vh;
   display: flex;
   flex-direction: column; /* вертикально */
   align-items: center;
@@ -258,5 +302,10 @@ img {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.wrapper-palette {
+  max-height: 300px;
+  overflow-y: auto;
 }
 </style>

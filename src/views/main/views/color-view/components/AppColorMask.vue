@@ -108,10 +108,7 @@ import AppButton from '@/shared/components/AppButton.vue';
 import AppPopover from '@/shared/components/AppPopover.vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
-import {
-  ColorCard,
-  colorCards,
-} from '@/views/main/views/color-view/components/color-card.constanst';
+import { colorCards } from '@/views/main/views/color-view/components/color-card.constanst';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
 import AppCheckbox from '@/shared/components/AppCheckbox.vue';
@@ -121,6 +118,7 @@ import AppImageSignInModal from '@/views/main/views/color-view/components/AppIma
 import AppImageSettingsModal from '@/shared/components/AppImageSettingsModal.vue';
 import AppCameraModal from '@/shared/components/AppCameraModal.vue';
 import { EditorCanvasRef } from '@/interfaces/editor-canvas-ref.interface';
+import { MaskCard } from '@/types/mask-card.type';
 
 export default defineComponent({
   components: {
@@ -139,8 +137,8 @@ export default defineComponent({
     const uploader = ref();
     const store = useStore();
     const visiblePopover = ref(false);
-    const cards: ColorCard[] = colorCards;
-    const selectedCard = ref<null | ColorCard>(null);
+    const cards: MaskCard[] = colorCards;
+    const selectedCard = ref<null | MaskCard>(null);
     const frameColors = ref();
     const imageUrl = ref<string | null>(null);
     const isSaveToGallery = ref(false);
@@ -190,6 +188,7 @@ export default defineComponent({
           coloristicType: 'mask',
           maskType: selectedCard.value?.type,
           userId: currentUser.value?.uid,
+          paletteType: '',
         }); // вернет URL
       } finally {
         isSaveToGallery.value = false;
@@ -197,7 +196,7 @@ export default defineComponent({
       }
     };
 
-    const selected = (item: ColorCard) => {
+    const selected = (item: MaskCard) => {
       selectedCard.value = item;
       frameColors.value = item.segments;
     };
