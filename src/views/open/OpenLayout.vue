@@ -132,8 +132,8 @@ export default defineComponent({
     }
   }
 
-  @media (max-width: 768px) {
-    height: auto;
+  @media (max-width: 600px) {
+    height: calc(100dvh);
   }
 }
 </style>
