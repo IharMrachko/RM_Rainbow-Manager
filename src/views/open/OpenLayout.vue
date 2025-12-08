@@ -87,12 +87,16 @@ export default defineComponent({
       store.dispatch('theme/setTheme', isDark);
     };
     onMounted(() => {
-      function syncViewportHeight() {
-        const vh = window.visualViewport?.height || window.innerHeight;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
-      }
-      window.visualViewport?.addEventListener('resize', syncViewportHeight);
-      syncViewportHeight();
+      // set --vvh = visual viewport height
+      const setVvh = () => {
+        const vv = window.visualViewport;
+        const h = vv ? vv.height : window.innerHeight;
+        document.documentElement.style.setProperty('--vvh', `${h}px`);
+      };
+      setVvh();
+      window.visualViewport?.addEventListener('resize', setVvh);
+      window.visualViewport?.addEventListener('scroll', setVvh);
+      window.addEventListener('orientationchange', setVvh);
     });
     watch(language, (newValue) => {
       store.dispatch('language/setLanguage', { language: newValue });
