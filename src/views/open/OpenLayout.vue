@@ -133,7 +133,7 @@ export default defineComponent({
   }
 
   @media (max-width: 600px) {
-    height: calc(100dvh);
+    height: auto;
   }
 }
 </style>
