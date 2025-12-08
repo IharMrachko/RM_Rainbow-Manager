@@ -219,7 +219,7 @@ export default defineComponent({
 <style scoped>
 .home-container {
   overflow: auto;
-  height: calc(100dvh - var(--header-height));
+  height: calc(100dvh);
   background: var(--color-wrap-bg);
   overscroll-behavior-y: contain; /* снижает bounce */
   -webkit-overflow-scrolling: touch; /* плавность на iOS */

@@ -63,7 +63,7 @@
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, ref, watch } from 'vue';
+import { computed, defineComponent, onMounted, ref, watch } from 'vue';
 
 import { useStore } from 'vuex';
 import AppSidebar from '@/shared/components/AppSidebar.vue';
@@ -86,7 +86,14 @@ export default defineComponent({
     const toggled = (isDark: boolean) => {
       store.dispatch('theme/setTheme', isDark);
     };
-
+    onMounted(() => {
+      function syncViewportHeight() {
+        const vh = window.visualViewport?.height || window.innerHeight;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      }
+      window.visualViewport?.addEventListener('resize', syncViewportHeight);
+      syncViewportHeight();
+    });
     watch(language, (newValue) => {
       store.dispatch('language/setLanguage', { language: newValue });
     });
@@ -104,8 +111,8 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .container {
-  min-height: calc(100dvh);
-  overflow: hidden;
+  min-height: var(--vh);
+  overflow: auto;
   overscroll-behavior: contain;
 
   & .header-section {
