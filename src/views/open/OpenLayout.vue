@@ -104,7 +104,8 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .container {
-  height: calc(100vh - var(--header-height));
+  height: calc(100dvh);
+  overflow: hidden;
 
   & .header-section {
     display: flex;
