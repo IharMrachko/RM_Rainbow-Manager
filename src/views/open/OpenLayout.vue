@@ -104,7 +104,7 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .container {
-  height: calc(100dvh);
+  min-height: calc(100dvh);
   overflow: hidden;
 
   & .header-section {
@@ -133,7 +133,7 @@ export default defineComponent({
   }
 
   @media (max-width: 600px) {
-    height: auto;
+    //height: auto;
   }
 }
 </style>
