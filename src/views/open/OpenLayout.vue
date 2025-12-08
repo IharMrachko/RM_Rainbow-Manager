@@ -106,6 +106,7 @@ export default defineComponent({
 .container {
   min-height: calc(100dvh);
   overflow: hidden;
+  overscroll-behavior: contain;
 
   & .header-section {
     display: flex;
