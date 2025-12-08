@@ -12,32 +12,7 @@
           ></app-editor-canvas>
         </div>
         <section class="palette-wrap">
-          <div class="palette">
-            <div class="palette-left">
-              <div
-                v-for="color in item.segments.slice(0, 35)"
-                :key="color"
-                class="palette-item"
-                :style="{ backgroundColor: color.color }"
-              ></div>
-            </div>
-            <div class="palette-right">
-              <div
-                v-for="color in item.segments.slice(35, 65)"
-                :key="color"
-                class="palette-item"
-                :style="{ backgroundColor: color.color }"
-              ></div>
-            </div>
-            <div class="my-color">
-              <div
-                v-for="color in paletteCards"
-                :key="color"
-                class="palette-item"
-                :style="{ backgroundColor: color.color }"
-              ></div>
-            </div>
-          </div>
+          <app-palette :item="item" :palette-cards="paletteCards"></app-palette>
           <div class="buttons">
             <app-button
               severity="success"
@@ -75,9 +50,10 @@ import AppImageSignInModal from '@/views/main/views/color-view/components/AppIma
 import { useStore } from 'vuex';
 import { EditorCanvasRef } from '@/interfaces/editor-canvas-ref.interface';
 import { Palette } from '@/types/palette.type';
+import AppPalette from '@/shared/components/AppPalette.vue';
 
 export default defineComponent({
-  components: { AppButton, AppModalHeader, AppEditorCanvas },
+  components: { AppPalette, AppButton, AppModalHeader, AppEditorCanvas },
   props: {
     results: {
       type: Array as PropType<{ name: string; segments: { color: string }[] }[]>,
@@ -213,73 +189,11 @@ export default defineComponent({
     margin: 12px auto;
   }
 
-  & .palette {
-    position: relative;
-    display: flex;
-    height: 220px;
-    margin-top: 60px;
-
-    @media (max-width: 600px) {
-      margin: 12px auto;
-    }
-
-    & .palette-left {
-      display: flex;
-      flex-wrap: wrap;
-      width: 160px;
-      gap: 2px;
-    }
-
-    & .palette-right {
-      display: flex;
-      flex-wrap: wrap;
-      width: 160px;
-      gap: 2px;
-      height: 187px;
-    }
-  }
-
   & .buttons {
     margin-top: 20px;
     display: flex;
     flex-direction: column;
     gap: 12px;
-  }
-}
-
-.palette-item {
-  width: 30px;
-  height: 30px;
-}
-
-.my-color {
-  width: 200px;
-  background: white;
-  position: absolute;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 40px;
-  gap: 5px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 12px;
-  /* лёгкая тень */
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  /* анимация парения */
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0% {
-    transform: translate(-50%, -50%) translateY(0);
-  }
-  50% {
-    transform: translate(-50%, -50%) translateY(-8px);
-  }
-  100% {
-    transform: translate(-50%, -50%) translateY(0);
   }
 }
 

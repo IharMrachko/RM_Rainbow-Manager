@@ -776,7 +776,7 @@ export const brightWinterPalette = [
   '#E64F70',
   '#CC2B4A',
   '#842336',
-  '#DFDECA',
+  '#F078BF',
   '#C54894',
   '#812B6A',
   '#BF3277',
