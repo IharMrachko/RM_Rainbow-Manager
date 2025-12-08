@@ -87,17 +87,42 @@ export default defineComponent({
       store.dispatch('theme/setTheme', isDark);
     };
     onMounted(() => {
-      // set --vvh = visual viewport height
       const setVvh = () => {
         const vv = window.visualViewport;
         const h = vv ? vv.height : window.innerHeight;
-        document.documentElement.style.setProperty('--vvh', `${h}px`);
+        document.documentElement.style.setProperty('--vh', `${h}px`);
       };
+
+      const onViewportChange = () => {
+        setVvh();
+        const vv = window.visualViewport;
+        const kbHeight = vv ? Math.max(0, window.innerHeight - vv.height) : 0;
+        const container = document.querySelector('.container') as HTMLElement;
+        if (container) container.style.paddingBottom = kbHeight > 0 ? `${kbHeight}px` : '';
+      };
+
       setVvh();
-      window.visualViewport?.addEventListener('resize', setVvh);
-      window.visualViewport?.addEventListener('scroll', setVvh);
-      window.addEventListener('orientationchange', setVvh);
+      window.visualViewport?.addEventListener('resize', onViewportChange);
+      window.visualViewport?.addEventListener('scroll', onViewportChange);
+      window.addEventListener('orientationchange', onViewportChange);
+
+      const onFocusIn = (e: Event) => {
+        const el = e.target;
+        if (!(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)) return;
+        const container = document.querySelector('.container') as HTMLElement;
+        if (!window.visualViewport && container) container.style.paddingBottom = '300px';
+        setTimeout(() => el.scrollIntoView({ block: 'center', behavior: 'smooth' }), 50);
+      };
+
+      const onFocusOut = () => {
+        const container = document.querySelector('.container') as HTMLElement;
+        if (container && !window.visualViewport) container.style.paddingBottom = '';
+      };
+
+      document.addEventListener('focusin', onFocusIn);
+      document.addEventListener('focusout', onFocusOut);
     });
+
     watch(language, (newValue) => {
       store.dispatch('language/setLanguage', { language: newValue });
     });
@@ -118,6 +143,9 @@ export default defineComponent({
   min-height: var(--vh);
   overflow: auto;
   overscroll-behavior: contain;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 
   & .header-section {
     display: flex;
