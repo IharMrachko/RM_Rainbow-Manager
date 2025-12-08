@@ -235,6 +235,7 @@ export default defineComponent({
     display: none;
   }
 }
+
 .welcome-section {
   height: 400px;
   display: flex;
@@ -244,6 +245,7 @@ export default defineComponent({
   text-align: center;
   position: relative;
 }
+
 .background-photo {
   position: absolute;
   top: 0;
@@ -254,12 +256,14 @@ export default defineComponent({
   filter: brightness(0.5);
   z-index: 1;
 }
+
 .welcome-text {
   position: relative;
   z-index: 2;
   max-width: 600px;
   animation: fadeInUp 1s ease forwards;
 }
+
 @keyframes fadeInUp {
   0% {
     opacity: 0;
@@ -283,6 +287,10 @@ export default defineComponent({
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: left;
+  @media (max-width: 600px) {
+    max-width: 340px;
+    padding: 0;
+  }
 }
 
 .who-for-section-2 {
@@ -294,6 +302,10 @@ export default defineComponent({
   margin: 0 auto;
   padding: 2rem;
   text-align: left;
+  @media (max-width: 600px) {
+    max-width: 340px;
+    padding: 0;
+  }
 }
 
 .section-title {
@@ -342,12 +354,15 @@ export default defineComponent({
 .gradient-1 {
   background: linear-gradient(45deg, #ff6b6b, #f7d794);
 }
+
 .gradient-2 {
   background: linear-gradient(45deg, #6a11cb, #2575fc);
 }
+
 .gradient-3 {
   background: linear-gradient(45deg, #f7971e, #ffd200);
 }
+
 .gradient-4 {
   background: linear-gradient(45deg, #11998e, #38ef7d);
 }
@@ -373,21 +388,27 @@ export default defineComponent({
 .fade-in-down {
   animation: fadeInDown 0.8s ease forwards;
 }
+
 .fade-in-left {
   animation: fadeInLeft 0.8s ease forwards;
 }
+
 .fade-in-up {
   animation: fadeInUp 0.8s ease forwards;
 }
+
 .delay-1 {
   animation-delay: 0.2s;
 }
+
 .delay-2 {
   animation-delay: 0.4s;
 }
+
 .delay-3 {
   animation-delay: 0.6s;
 }
+
 .delay-4 {
   animation-delay: 0.8s;
 }
@@ -402,6 +423,7 @@ export default defineComponent({
     transform: translateY(0);
   }
 }
+
 @keyframes fadeInLeft {
   from {
     opacity: 0;
@@ -412,6 +434,7 @@ export default defineComponent({
     transform: translateX(0);
   }
 }
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -428,9 +451,11 @@ export default defineComponent({
   .who-for-section {
     padding: 1rem;
   }
+
   .section-title {
     font-size: 1.5rem;
   }
+
   .section-subtitle {
     font-size: 1rem;
   }
@@ -445,6 +470,10 @@ export default defineComponent({
   background: var(--color-wrap-bg);
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 600px) {
+    max-width: 340px;
+  }
 }
 
 .section-title {
@@ -480,6 +509,7 @@ export default defineComponent({
   font-weight: 600;
   scroll-snap-align: start;
   transition: transform 0.3s ease;
+
   & .img-carousel {
     width: inherit;
     height: inherit;
@@ -574,9 +604,11 @@ export default defineComponent({
 .gradient-1 {
   color: #ff6b6b;
 }
+
 .gradient-2 {
   color: #2575fc;
 }
+
 .gradient-3 {
   color: #38ef7d;
 }
@@ -622,15 +654,19 @@ export default defineComponent({
 .fade-in-left {
   animation: fadeInLeft 0.8s ease forwards;
 }
+
 .fade-in-up {
   animation: fadeInUp 0.8s ease forwards;
 }
+
 .delay-1 {
   animation-delay: 0.2s;
 }
+
 .delay-2 {
   animation-delay: 0.4s;
 }
+
 .delay-3 {
   animation-delay: 0.6s;
 }
@@ -645,6 +681,7 @@ export default defineComponent({
     transform: translateX(0);
   }
 }
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -661,6 +698,7 @@ export default defineComponent({
   .gallery-cards {
     flex-direction: column;
   }
+
   .gallery-preview img {
     width: 80px;
     height: 80px;
@@ -715,6 +753,7 @@ export default defineComponent({
   font-size: 1.1rem;
   line-height: 1.5;
 }
+
 .video-wrapper {
   width: 100%;
   display: flex;
