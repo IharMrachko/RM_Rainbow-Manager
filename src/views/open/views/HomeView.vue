@@ -104,7 +104,7 @@
         </ul>
         <section class="video-section">
           <video class="video-bg" autoplay muted loop playsinline>
-            <source src="/ai.mp4" type="video/mp4" />
+            <source src="../../../assets/ai.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </section>
@@ -137,18 +137,18 @@
         </div>
 
         <div class="gallery-preview">
-          <img src="/buba-0.png" alt="Preview 1" />
-          <img src="/buba-1.png" alt="Preview 2" />
-          <img src="/buba-c-0.png" alt="Preview 3" />
-          <img src="/buba-0.png" alt="Preview 1" />
-          <img src="/buba-1.png" alt="Preview 2" />
-          <img src="/buba-c-0.png" alt="Preview 3" />
-          <img src="/buba-0.png" alt="Preview 1" />
-          <img src="/buba-1.png" alt="Preview 2" />
-          <img src="/buba-c-0.png" alt="Preview 3" />
-          <img src="/buba-0.png" alt="Preview 1" />
-          <img src="/buba-1.png" alt="Preview 2" />
-          <img src="/buba-c-0.png" alt="Preview 3" />
+          <img src="../../../assets/buba-0.png" alt="Preview 1" />
+          <img src="../../../assets/buba-1.png" alt="Preview 2" />
+          <img src="../../../assets/buba-c-0.png" alt="Preview 3" />
+          <img src="../../../assets/buba-0.png" alt="Preview 1" />
+          <img src="../../../assets/buba-1.png" alt="Preview 2" />
+          <img src="../../../assets/buba-c-0.png" alt="Preview 3" />
+          <img src="../../../assets/buba-0.png" alt="Preview 1" />
+          <img src="../../../assets/buba-1.png" alt="Preview 2" />
+          <img src="../../../assets/buba-c-0.png" alt="Preview 3" />
+          <img src="../../../assets/buba-0.png" alt="Preview 1" />
+          <img src="../../../assets/buba-1.png" alt="Preview 2" />
+          <img src="../../../assets/buba-c-0.png" alt="Preview 3" />
         </div>
 
         <button class="cta-button fade-in-up">Open Gallery</button>
@@ -200,13 +200,9 @@ export default defineComponent({
       clearInterval(intervalId);
     });
 
-    const src = computed(() => {
-      return `/buba-${currentIndex.value}.png`;
-    });
+    const src = computed(() => require(`@/assets/buba-${currentIndex.value}.png`));
 
-    const srcPalette = computed(() => {
-      return `/buba-c-${currentPaletteIndex.value}.png`;
-    });
+    const srcPalette = computed(() => require(`@/assets/buba-c-${currentPaletteIndex.value}.png`));
     const palette = computed(() => {
       return palettes[currentPaletteIndex.value];
     });
