@@ -51,6 +51,9 @@ export default defineComponent({
   @media (max-width: 600px) {
     border-radius: 0;
     height: var(--header-height);
+    flex-shrink: 0;
+    min-height: 50px; /* или нужное значение */
+    padding-top: env(safe-area-inset-top);
   }
 
   & .modal-header-title {
