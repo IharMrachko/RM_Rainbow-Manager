@@ -60,7 +60,7 @@ export default defineComponent({
     background: #f2f4f7;
     width: 100%;
     bottom: 0;
-    height: 65dvh;
+    height: 80dvh;
     border-radius: 20px 20px 0 0;
     padding: 15px;
 
