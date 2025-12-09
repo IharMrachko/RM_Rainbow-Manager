@@ -99,7 +99,7 @@ export default defineComponent({
 <style scoped lang="scss">
 .ai-container {
   width: 100%;
-  height: calc(100dvh - var(--header-height));
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   background: var(--color-wrap-bg);
