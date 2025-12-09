@@ -119,7 +119,7 @@ export default defineComponent({
 
       // параметры в CSS-пикселях
       const padding = Math.max(6, Math.round(Math.min(cssW, cssH) * 0.02));
-      const thickness = isMobile.value ? 50 : 80; // для компа 80;
+      const thickness = isMobile.value ? 60 : 80; // для компа 80;
       const overSize = 2; // для компа 2
       const cx = cssW / 2;
       const cy = cssH / 2;
@@ -335,7 +335,7 @@ footer {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 10px 20px;
+  padding: 30px 20px;
   flex-shrink: 0;
 
   & .image {
