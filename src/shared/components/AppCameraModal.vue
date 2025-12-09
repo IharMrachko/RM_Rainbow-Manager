@@ -319,7 +319,7 @@ export default defineComponent({
       //flex: 1; /* занимает всё оставшееся пространство */
       position: relative;
       width: 100%;
-      height: 100%;
+      height: 80%;
     }
   }
 }
@@ -342,7 +342,7 @@ footer {
   flex-shrink: 0;
 
   @media (max-width: 600px) {
-    min-height: 350px;
+    min-height: 150px;
     //padding-bottom: env(safe-area-inset-bottom); /* учёт safe-area */
   }
 
