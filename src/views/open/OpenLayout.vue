@@ -100,6 +100,9 @@ export default defineComponent({
       window.visualViewport?.addEventListener('scroll', setVvh);
       window.addEventListener('orientationchange', setVvh);
       iNoBounce.enable();
+      document.addEventListener('focusout', () => {
+        setTimeout(() => window.scrollTo(0, 0), 50);
+      });
     });
     watch(language, (newValue) => {
       store.dispatch('language/setLanguage', { language: newValue });
