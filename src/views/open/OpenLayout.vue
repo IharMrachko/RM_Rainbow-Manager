@@ -73,6 +73,8 @@ import AppHeader from '@/shared/components/AppHeader.vue';
 import AppToggle from '@/shared/components/AppToggle.vue';
 import { useI18n } from 'vue-i18n';
 import AppBurgerMenu from '@/shared/components/AppBurgerMenu.vue';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: { AppBurgerMenu, AppSidebar, AppOption, AppDropdown, AppHeader, AppToggle },
@@ -87,16 +89,17 @@ export default defineComponent({
       store.dispatch('theme/setTheme', isDark);
     };
     onMounted(() => {
-      // set --vvh = visual viewport height
-      const setVvh = () => {
-        const vv = window.visualViewport;
-        const h = vv ? vv.height : window.innerHeight;
-        document.documentElement.style.setProperty('--vh', `${h}px`);
-      };
-      setVvh();
-      window.visualViewport?.addEventListener('resize', setVvh);
-      window.visualViewport?.addEventListener('scroll', setVvh);
-      window.addEventListener('orientationchange', setVvh);
+      // // set --vvh = visual viewport height
+      // const setVvh = () => {
+      //   const vv = window.visualViewport;
+      //   const h = vv ? vv.height : window.innerHeight;
+      //   document.documentElement.style.setProperty('--vh', `${h}px`);
+      // };
+      // setVvh();
+      // window.visualViewport?.addEventListener('resize', setVvh);
+      // window.visualViewport?.addEventListener('scroll', setVvh);
+      // window.addEventListener('orientationchange', setVvh);
+      iNoBounce.enable();
     });
     watch(language, (newValue) => {
       store.dispatch('language/setLanguage', { language: newValue });

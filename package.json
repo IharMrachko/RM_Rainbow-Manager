@@ -17,6 +17,7 @@
     "chroma-js": "^3.1.2",
     "core-js": "^3.8.3",
     "firebase": "^12.4.0",
+    "inobounce": "^0.2.1",
     "marked": "^17.0.1",
     "modern-css-reset": "^1.4.0",
     "vee-validate": "^4.7.4",

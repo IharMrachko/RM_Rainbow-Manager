@@ -387,7 +387,7 @@ export default defineComponent({
 <style scoped>
 .collage-wrapper {
   position: relative;
-  height: calc(100vh - var(--header-height) - var(--tabs-height-with-padding));
+  height: calc(100dvh - var(--header-height) - var(--tabs-height-with-padding));
   width: 100%;
   background: var(--color-wrap-bg);
   display: flex;
