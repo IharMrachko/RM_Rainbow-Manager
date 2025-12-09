@@ -10,6 +10,8 @@ import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import AppToaster from '@/shared/components/AppToaster.vue';
 import AppDialog from '@/shared/components/dialog/AppDialog.vue';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: { AppDialog, AppToaster },
@@ -19,6 +21,13 @@ export default defineComponent({
     const { locale } = useI18n();
     store.dispatch('theme/initTheme');
     store.dispatch('language/initLanguage');
+
+    onMounted(() => {
+      iNoBounce.enable();
+      document.addEventListener('focusout', () => {
+        setTimeout(() => window.scrollTo(0, 0), 50);
+      });
+    });
     watch(
       () => store.getters['language/language'],
       (lang) => {

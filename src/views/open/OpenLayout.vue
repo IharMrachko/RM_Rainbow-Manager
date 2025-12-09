@@ -63,7 +63,7 @@
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref, watch } from 'vue';
+import { computed, defineComponent, ref, watch } from 'vue';
 
 import { useStore } from 'vuex';
 import AppSidebar from '@/shared/components/AppSidebar.vue';
@@ -73,8 +73,6 @@ import AppHeader from '@/shared/components/AppHeader.vue';
 import AppToggle from '@/shared/components/AppToggle.vue';
 import { useI18n } from 'vue-i18n';
 import AppBurgerMenu from '@/shared/components/AppBurgerMenu.vue';
-// @ts-ignore
-import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: { AppBurgerMenu, AppSidebar, AppOption, AppDropdown, AppHeader, AppToggle },
@@ -88,22 +86,7 @@ export default defineComponent({
     const toggled = (isDark: boolean) => {
       store.dispatch('theme/setTheme', isDark);
     };
-    onMounted(() => {
-      // set --vvh = visual viewport height
-      // const setVvh = () => {
-      //   const vv = window.visualViewport;
-      //   const h = vv ? vv.height : window.innerHeight;
-      //   document.documentElement.style.setProperty('--vh', `${h}px`);
-      // };
-      // setVvh();
-      // window.visualViewport?.addEventListener('resize', setVvh);
-      // window.visualViewport?.addEventListener('scroll', setVvh);
-      // window.addEventListener('orientationchange', setVvh);
-      iNoBounce.enable();
-      document.addEventListener('focusout', () => {
-        setTimeout(() => window.scrollTo(0, 0), 50);
-      });
-    });
+
     watch(language, (newValue) => {
       store.dispatch('language/setLanguage', { language: newValue });
     });
@@ -121,7 +104,7 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .container {
-  min-height: var(--vh);
+  min-height: 100dvh;
   overflow: auto;
   overscroll-behavior: contain;
   will-change: transform, opacity;
