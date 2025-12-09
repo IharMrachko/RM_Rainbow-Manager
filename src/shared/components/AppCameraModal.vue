@@ -319,7 +319,7 @@ export default defineComponent({
       //flex: 1; /* занимает всё оставшееся пространство */
       position: relative;
       width: 100%;
-      height: 60%;
+      height: 65%;
     }
   }
 }
