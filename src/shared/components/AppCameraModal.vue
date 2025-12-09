@@ -316,7 +316,9 @@ export default defineComponent({
     }
 
     @media (max-width: 600px) {
-      //flex: 1;
+      flex: 1; /* занимает всё оставшееся пространство */
+      position: relative;
+      width: 100%;
     }
   }
 }
@@ -337,7 +339,11 @@ footer {
   width: 100%;
   padding: 30px 20px;
   flex-shrink: 0;
-  min-height: 150px;
+
+  @media (max-width: 600px) {
+    min-height: 150px;
+    padding-bottom: env(safe-area-inset-bottom); /* учёт safe-area */
+  }
 
   & .image {
     width: 70px;
