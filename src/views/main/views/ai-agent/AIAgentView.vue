@@ -20,7 +20,7 @@
         </div>
       </section>
     </section>
-    <section class="ai-ask" :class="{ ios: device === 'ios' && isMobile }">
+    <section class="ai-ask" :style="{ padding: paddingAreaIos }">
       <div class="ai-ask-area">
         <app-textarea :loader="loader" @apply="apply" @focus="focusInput" @blur="focusOutInput" />
       </div>
@@ -34,8 +34,7 @@ import { getGenerativeModel } from 'firebase/ai';
 import { ai } from '@/firebase';
 import { useStore } from 'vuex';
 import { marked } from 'marked';
-import { useI18n } from 'vue-i18n';
-// @ts-ignore
+import { useI18n } from 'vue-i18n'; // @ts-ignore
 import iNoBounce from 'inobounce';
 
 export default defineComponent({
@@ -50,6 +49,7 @@ export default defineComponent({
     const { t } = useI18n();
     const device = computed(() => store.getters['mobile/getDevice']);
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
+    const focusInputForIosRef = ref(false);
     const apply = async (value: { text: string; url: string; base64Data: string }) => {
       loader.value = true;
       const id = Math.random();
@@ -93,6 +93,7 @@ export default defineComponent({
     const focusInput = () => {
       if (device.value === 'ios') {
         iNoBounce.enable();
+        focusInputForIosRef.value = true;
       }
     };
 
@@ -100,9 +101,20 @@ export default defineComponent({
       if (device.value === 'ios') {
         iNoBounce.disable();
         setTimeout(() => window.scrollTo(0, 0), 50);
+        focusInputForIosRef.value = false;
       }
     };
 
+    const paddingAreaIos = computed(() => {
+      if (device.value === 'ios' && isMobile.value && focusInputForIosRef.value) {
+        return '0 20px 10px 20px';
+      }
+      if (device.value === 'ios' && isMobile.value && !focusInputForIosRef.value) {
+        return '0 20px 50px 20px';
+      }
+
+      return '';
+    });
     return {
       apply,
       answers,
@@ -113,6 +125,7 @@ export default defineComponent({
       focusOutInput,
       device,
       isMobile,
+      paddingAreaIos,
     };
   },
 });
@@ -182,7 +195,7 @@ export default defineComponent({
   & .ai-ask {
     position: sticky;
     flex: 1;
-    padding: 20px;
+    padding: 0 20px 20px 20px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -204,8 +217,5 @@ export default defineComponent({
       }
     }
   }
-}
-.ai-ask.ios {
-  padding: 0 20px 40px 20px;
 }
 </style>
