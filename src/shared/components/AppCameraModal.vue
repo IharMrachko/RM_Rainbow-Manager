@@ -119,7 +119,7 @@ export default defineComponent({
       // параметры в CSS-пикселях
       const padding = Math.max(6, Math.round(Math.min(cssW, cssH) * 0.02));
       const thickness = isMobile.value ? 20 : 80; // для компа 80;
-      const overSize = isMobile.value ? 0.8 : 2; // для компа 2
+      const overSize = isMobile.value ? 0.7 : 2; // для компа 2
       const cx = cssW / 2;
       const cy = cssH / 2;
       const radius = Math.min(cssW, cssH) / 2 - padding - thickness / overSize;
