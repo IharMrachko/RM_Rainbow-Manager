@@ -316,7 +316,7 @@ export default defineComponent({
     }
 
     @media (max-width: 600px) {
-      flex: 1;
+      //flex: 1;
     }
   }
 }
