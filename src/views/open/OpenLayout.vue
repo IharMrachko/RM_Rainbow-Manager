@@ -90,15 +90,15 @@ export default defineComponent({
     };
     onMounted(() => {
       // set --vvh = visual viewport height
-      const setVvh = () => {
-        const vv = window.visualViewport;
-        const h = vv ? vv.height : window.innerHeight;
-        document.documentElement.style.setProperty('--vh', `${h}px`);
-      };
-      setVvh();
-      window.visualViewport?.addEventListener('resize', setVvh);
-      window.visualViewport?.addEventListener('scroll', setVvh);
-      window.addEventListener('orientationchange', setVvh);
+      // const setVvh = () => {
+      //   const vv = window.visualViewport;
+      //   const h = vv ? vv.height : window.innerHeight;
+      //   document.documentElement.style.setProperty('--vh', `${h}px`);
+      // };
+      // setVvh();
+      // window.visualViewport?.addEventListener('resize', setVvh);
+      // window.visualViewport?.addEventListener('scroll', setVvh);
+      // window.addEventListener('orientationchange', setVvh);
       iNoBounce.enable();
       document.addEventListener('focusout', () => {
         setTimeout(() => window.scrollTo(0, 0), 50);
