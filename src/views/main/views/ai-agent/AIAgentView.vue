@@ -92,18 +92,18 @@ export default defineComponent({
     };
     const focusInput = () => {
       if (device.value === 'ios') {
-        setTimeout(() => {
-          iNoBounce.enable();
-          focusInputForIosRef.value = true;
-        }, 100);
+        iNoBounce.enable();
+        focusInputForIosRef.value = true;
       }
     };
 
     const focusOutInput = () => {
       if (device.value === 'ios') {
-        iNoBounce.disable();
-        setTimeout(() => window.scrollTo(0, 0), 50);
-        focusInputForIosRef.value = false;
+        setTimeout(() => {
+          iNoBounce.disable();
+          setTimeout(() => window.scrollTo(0, 0), 50);
+          focusInputForIosRef.value = false;
+        });
       }
     };
 
