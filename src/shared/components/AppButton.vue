@@ -1,6 +1,6 @@
 <template>
   <div class="container-btn">
-    <button :disabled="disabled || loading" :class="classes" @click="clickBtn">
+    <button :disabled="disabled || loading" :class="classes" ontouchstart="" @click="clickBtn">
       <span v-if="icon" class="btn-icon">
         <font-awesome-icon size="lg" :icon="icon" />
       </span>
