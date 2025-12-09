@@ -102,9 +102,8 @@ export default defineComponent({
       const physW = Math.round(cssW * dpr);
       const physH = Math.round(cssH * dpr);
       if (canvas.width !== physW || canvas.height !== physH) {
-        canvas.width = 350;
-        canvas.height = 150;
-        // console.log(physW, physH);
+        canvas.width = physW;
+        canvas.height = physH;
       }
 
       const ctx = canvas.getContext('2d');
@@ -303,6 +302,7 @@ export default defineComponent({
   & .cam-wrap {
     position: relative;
     display: block;
+
     & .overlay {
       position: absolute;
       inset: 0;
@@ -311,6 +311,10 @@ export default defineComponent({
       object-fit: cover;
       pointer-events: none;
       z-index: 2;
+    }
+
+    @media (max-width: 600px) {
+      height: 300px;
     }
   }
 }
@@ -363,6 +367,7 @@ footer {
 video {
   @media (max-width: 600px) {
     width: 100vw;
+    object-fit: contain;
   }
 }
 
