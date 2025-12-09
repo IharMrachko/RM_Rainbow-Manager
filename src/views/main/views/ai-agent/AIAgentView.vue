@@ -92,7 +92,9 @@ export default defineComponent({
     };
     const focusInput = () => {
       if (device.value === 'ios') {
-        iNoBounce.enable();
+        setTimeout(() => {
+          iNoBounce.enable();
+        });
         focusInputForIosRef.value = true;
       }
     };
@@ -107,7 +109,7 @@ export default defineComponent({
 
     const paddingAreaIos = computed(() => {
       if (device.value === 'ios' && isMobile.value && focusInputForIosRef.value) {
-        return '0 20px 10px 20px';
+        return '0 20px 0 20px';
       }
       if (device.value === 'ios' && isMobile.value && !focusInputForIosRef.value) {
         return '0 20px 50px 20px';
