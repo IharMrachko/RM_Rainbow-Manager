@@ -147,9 +147,9 @@ export default defineComponent({
   flex-direction: column;
   gap: 3rem;
 
-  @media (max-width: 768px) {
+  @media (max-width: 600px) {
     width: 100%;
-    gap: 2rem;
+    gap: 1rem;
   }
 }
 
