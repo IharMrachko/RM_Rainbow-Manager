@@ -337,6 +337,7 @@ footer {
   width: 100%;
   padding: 30px 20px;
   flex-shrink: 0;
+  min-height: 50px;
 
   & .image {
     width: 70px;
