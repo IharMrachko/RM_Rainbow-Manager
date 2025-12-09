@@ -314,7 +314,7 @@ export default defineComponent({
     }
 
     @media (max-width: 600px) {
-      height: 150px;
+      flex: 1;
     }
   }
 }
@@ -366,8 +366,8 @@ footer {
 
 video {
   @media (max-width: 600px) {
-    width: 100vw;
-    object-fit: contain;
+    //width: 100vw;
+    //object-fit: contain;
   }
 }
 
