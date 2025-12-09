@@ -26,7 +26,9 @@
                       :icon="['fas', 'pencil']"
                       :z-index-tooltip="8"
                       :error="meta.touched ? errorMessage : ''"
-                      type="email"
+                      type="text"
+                      @focus="focusInput"
+                      @blur="focusOutInput"
                     ></app-input>
                   </Field>
                   <Field v-slot="{ field, meta, errorMessage }" name="lastName">
@@ -39,6 +41,8 @@
                       :icon="['fas', 'pencil']"
                       :z-index-tooltip="8"
                       :error="meta.touched ? errorMessage : ''"
+                      @focus="focusInput"
+                      @blur="focusOutInput"
                     ></app-input>
                   </Field>
                   <Field v-slot="{ field, meta, errorMessage }" name="birthDate">
@@ -51,6 +55,8 @@
                       :icon="['fas', 'birthday-cake']"
                       :z-index-tooltip="8"
                       :error="meta.touched ? errorMessage : ''"
+                      @focus="focusInput"
+                      @blur="focusOutInput"
                     ></app-input>
                   </Field>
                   <Field v-slot="{ field, meta, errorMessage }" name="email">
@@ -64,6 +70,8 @@
                       :z-index-tooltip="8"
                       :error="meta.touched ? errorMessage : ''"
                       type="email"
+                      @focus="focusInput"
+                      @blur="focusOutInput"
                     ></app-input>
                   </Field>
                   <Field v-slot="{ field, meta, errorMessage }" name="password">
@@ -78,6 +86,8 @@
                         :z-index-tooltip="8"
                         :icon="['fas', 'lock']"
                         :error="meta.touched ? errorMessage : ''"
+                        @focus="focusInput"
+                        @blur="focusOutInput"
                       ></app-input>
                       <div v-show="index === 1" class="icon-eye" @click="toggleEye">
                         <font-awesome-icon :icon="eyeIcon" />
@@ -96,6 +106,8 @@
                         :icon="['fas', 'lock']"
                         :z-index-tooltip="8"
                         :error="meta.touched ? errorMessage : ''"
+                        @focus="focusInput"
+                        @blur="focusOutInput"
                       ></app-input>
                       <div v-show="index === 1" class="icon-eye" @click="toggleEye">
                         <font-awesome-icon :icon="eyeIcon" />
@@ -133,6 +145,8 @@ import { parseDDMMYYYY } from '@/helpers/parser-date.helper';
 import AppImageLogin from '@/shared/components/AppImageLogin.vue';
 import { SignUp } from '@/store/modules/auth';
 import { usePasswordToggle } from '@/composables/usePasswordToggle';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: { AppImageLogin, AppStepper, Field, VForm, AppInput, AppButton },
@@ -153,8 +167,9 @@ export default defineComponent({
     const password = ref('');
     const confirmPassword = ref('');
     const { typeInput, eyeIcon, toggleEye } = usePasswordToggle();
+    const focus: Map<string, boolean> = new Map<string, boolean>();
     const loading = computed(() => store.getters['authFirebase/isLoading']);
-
+    const device = computed(() => store.getters['mobile/getDevice']);
     const formGroup = yup.object({
       firstName: yup.string().required('validation.required'),
       lastName: yup.string().required('validation.required'),
@@ -195,6 +210,25 @@ export default defineComponent({
       }
     };
 
+    const focusInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.enable();
+        focus.set('focus', true);
+      }
+    };
+
+    const focusOutInput = () => {
+      if (device.value === 'ios') {
+        focus.set('focus', false);
+        setTimeout(() => {
+          if (!focus.get('focus')) {
+            iNoBounce.disable();
+            setTimeout(() => window.scrollTo(0, 0), 50);
+          }
+        }, 100);
+      }
+    };
+
     return {
       formGroup,
       onSubmit,
@@ -211,6 +245,8 @@ export default defineComponent({
       toggleEye,
       typeInput,
       eyeIcon,
+      focusInput,
+      focusOutInput,
     };
   },
 });
@@ -257,7 +293,7 @@ export default defineComponent({
 
   @media (max-width: 768px) {
     width: 100%;
-    gap: 2rem;
+    gap: 1rem;
   }
 }
 
