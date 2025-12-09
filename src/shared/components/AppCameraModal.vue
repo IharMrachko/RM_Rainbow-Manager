@@ -314,7 +314,7 @@ export default defineComponent({
     }
 
     @media (max-width: 600px) {
-      height: 300px;
+      height: 150px;
     }
   }
 }
