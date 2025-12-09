@@ -7,6 +7,7 @@
         v-if="imgEl"
         ref="imageColorPickerRef"
         :image-element="imgEl"
+        :is-show-section-info="false"
         @selected-hex="onSelectedHex"
         @is-hidden-overflow="isHiddenOverflow = $event"
         @image-url-changed="imageUrlChange"

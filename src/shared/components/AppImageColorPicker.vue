@@ -2,7 +2,7 @@
   <div class="viewer-wrap">
     <canvas ref="canvasEl"></canvas>
     <div class="info-row">
-      <section>
+      <section v-if="isShowSectionInfo">
         <div class="swatch" :style="{ background: currentHex }"></div>
         <div class="values">
           <div><strong>RGB:</strong> {{ currentRgb.join(', ') }}</div>
@@ -52,6 +52,8 @@ import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import { useStore } from 'vuex';
 import { useCanvasSaver } from '@/composables/useCanvasSaver';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: { AppButton, AppFileUploader },
@@ -60,6 +62,10 @@ export default defineComponent({
       type: Object as PropType<HTMLImageElement>,
       default: null,
       require: true,
+    },
+    isShowSectionInfo: {
+      type: Boolean,
+      default: true,
     },
   },
   emits: ['selectedHex', 'isHiddenOverflow', 'imageUrlChanged'],
@@ -95,25 +101,30 @@ export default defineComponent({
         if (e.button !== 0) return;
         isDrawing = true;
         emit('isHiddenOverflow', true);
+        iNoBounce.enable();
         pickColorAndDrawCircle(e.clientX - rect.left, e.clientY - rect.top);
       };
       const handleMouseMove = (e: MouseEvent) => {
         if (!isDrawing) return;
         emit('isHiddenOverflow', true);
+        iNoBounce.enable();
         pickColorAndDrawCircle(e.clientX - rect.left, e.clientY - rect.top);
       };
       const handleMouseUp = () => {
         isDrawing = false;
+        iNoBounce.disable();
         emit('isHiddenOverflow', false);
       };
       const handleMouseLeave = () => {
         isDrawing = false;
+        iNoBounce.disable();
         emit('isHiddenOverflow', false);
       };
 
       const handleTouchStart = (e: TouchEvent) => {
         isDrawing = true;
         emit('isHiddenOverflow', true);
+        iNoBounce.enable();
         const touch = e.touches[0];
         pickColorAndDrawCircle(touch.clientX - rect.left, touch.clientY - rect.top);
       };
@@ -121,11 +132,13 @@ export default defineComponent({
         if (!isDrawing) return;
         const touch = e.touches[0];
         emit('isHiddenOverflow', true);
+        iNoBounce.enable();
         pickColorAndDrawCircle(touch.clientX - rect.left, touch.clientY - rect.top);
       };
       const handleTouchEnd = () => {
         isDrawing = false;
         emit('isHiddenOverflow', false);
+        iNoBounce.disable();
       };
 
       canvas.addEventListener('mousedown', handleMouseDown);

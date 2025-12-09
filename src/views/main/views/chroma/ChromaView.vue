@@ -1,12 +1,13 @@
 <template>
-  <div class="chroma-wrapper">
-    <div class="photo-picker" :class="{ hiddenOverflow: isHiddenOverflow }">
+  <div class="chroma-wrapper" :class="{ hiddenOverflow: isHiddenOverflow }">
+    <div class="photo-picker">
       <app-image-not-uploaded v-if="!imgEl" @on-file-selected="onFileSelected">
       </app-image-not-uploaded>
 
       <app-image-color-picker
         v-if="imgEl"
         :image-element="imgEl"
+        :is-show-section-info="false"
         @selected-hex="selectedHex = $event"
         @is-hidden-overflow="isHiddenOverflow = $event"
       ></app-image-color-picker>
