@@ -95,15 +95,16 @@ export default defineComponent({
       const canvas = overlay.value;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
-      const cssW = isMobile.value ? 200 : rect.width;
-      const cssH = isMobile.value ? 100 : rect.height;
+      const cssW = isMobile.value ? 350 : rect.width;
+      const cssH = isMobile.value ? 150 : rect.height;
       const dpr = window.devicePixelRatio || 1;
 
       const physW = Math.round(cssW * dpr);
       const physH = Math.round(cssH * dpr);
       if (canvas.width !== physW || canvas.height !== physH) {
-        canvas.width = physW;
-        canvas.height = physH;
+        canvas.width = 350;
+        canvas.height = 150;
+        // console.log(physW, physH);
       }
 
       const ctx = canvas.getContext('2d');
