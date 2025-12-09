@@ -22,7 +22,7 @@
     </section>
     <section class="ai-ask">
       <div class="ai-ask-area">
-        <app-textarea :loader="loader" @apply="apply" />
+        <app-textarea :loader="loader" @apply="apply" @focus="focusInput" @blur="focusOutInput" />
       </div>
     </section>
   </div>
@@ -35,6 +35,8 @@ import { ai } from '@/firebase';
 import { useStore } from 'vuex';
 import { marked } from 'marked';
 import { useI18n } from 'vue-i18n';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: { AppTextarea },
@@ -46,6 +48,8 @@ export default defineComponent({
     const model = getGenerativeModel(ai, { model: 'gemini-2.5-flash-lite' });
     const loader = ref(false);
     const { t } = useI18n();
+    const device = computed(() => store.getters['mobile/getDevice']);
+
     const apply = async (value: { text: string; url: string; base64Data: string }) => {
       loader.value = true;
       const id = Math.random();
@@ -86,12 +90,27 @@ export default defineComponent({
       }
       loader.value = false;
     };
+    const focusInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.enable();
+      }
+    };
+
+    const focusOutInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.disable();
+        setTimeout(() => window.scrollTo(0, 0), 50);
+      }
+    };
+
     return {
       apply,
       answers,
       containerRef,
       loader,
       t,
+      focusInput,
+      focusOutInput,
     };
   },
 });

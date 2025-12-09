@@ -13,6 +13,8 @@
       v-model="textareaRef"
       :placeholder="t('writeSomething')"
       class="textarea__field"
+      @blur="handleBlur"
+      @focus="focus"
     ></textarea>
     <span class="focus-input100"></span>
     <section class="area-actions">
@@ -49,7 +51,7 @@ export default defineComponent({
     label: { type: String, default: '' },
     loader: { type: Boolean, default: false },
   },
-  emits: ['apply'],
+  emits: ['apply', 'focus', 'blur'],
   setup(props, { emit }) {
     const { t } = useI18n();
     const textareaRef = ref('');
@@ -93,6 +95,14 @@ export default defineComponent({
       }
     });
 
+    const focus = () => {
+      emit('focus');
+    };
+
+    const handleBlur = () => {
+      emit('blur');
+    };
+
     return {
       textareaRef,
       onFileSelected,
@@ -100,6 +110,8 @@ export default defineComponent({
       clearImage,
       apply,
       t,
+      focus,
+      handleBlur,
     };
   },
 });

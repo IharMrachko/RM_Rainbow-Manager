@@ -10,6 +10,8 @@
             placeholder="search"
             :icon="['fas', 'search']"
             :is-label="false"
+            @focus="focusInput"
+            @blur="focusOutInput"
           ></app-input>
         </div>
         <app-button
@@ -46,6 +48,8 @@ import AppFolderCreate from '@/shared/components/folder-modal/components/AppFold
 import { useStore } from 'vuex';
 import AppLoader from '@/shared/components/AppLoader.vue';
 import { Folder } from '@/store/modules/firebase-folder';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: {
@@ -69,6 +73,8 @@ export default defineComponent({
     const currentUserId = computed(() => store.getters['authFirebase/getUserId']);
     const isLoading = computed(() => store.getters['folder/isLoading']);
     const search = ref('');
+    const device = computed(() => store.getters['mobile/getDevice']);
+
     const selected = (item: Folder) => {
       selectedFolder.value = item;
     };
@@ -96,6 +102,19 @@ export default defineComponent({
     watch(search, (value) => {
       store.dispatch('folder/filterFolder', value);
     });
+
+    const focusInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.enable();
+      }
+    };
+
+    const focusOutInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.disable();
+        setTimeout(() => window.scrollTo(0, 0), 50);
+      }
+    };
     return {
       close,
       folders,
@@ -105,6 +124,8 @@ export default defineComponent({
       isLoading,
       choose,
       search,
+      focusInput,
+      focusOutInput,
     };
   },
 });

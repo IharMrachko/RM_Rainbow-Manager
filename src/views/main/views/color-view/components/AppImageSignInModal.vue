@@ -11,7 +11,13 @@
           <span v-if="paletteType" class="badge darkBadge">{{ getPaletteName() }}</span>
         </div>
 
-        <app-input v-model="signIn" :icon="['fas', 'fa-pencil']" :is-label="false"></app-input>
+        <app-input
+          v-model="signIn"
+          :icon="['fas', 'fa-pencil']"
+          :is-label="false"
+          @focus="focusInput"
+          @blur="focusOutInput"
+        ></app-input>
 
         <div class="actions">
           <div class="btn">
@@ -31,7 +37,7 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, PropType, ref } from 'vue';
+import { computed, defineComponent, PropType, ref } from 'vue';
 import { string } from 'yup';
 import AppButton from '@/shared/components/AppButton.vue';
 import AppInput from '@/shared/components/AppInput.vue';
@@ -46,6 +52,8 @@ import { Folder } from '@/store/modules/firebase-folder';
 import { useI18n } from 'vue-i18n';
 import { Palette } from '@/types/palette.type';
 import { paletteI18nHelper } from '@/helpers/palette-i18n.helper';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: { AppModalHeader, AppInput, AppButton },
@@ -74,6 +82,8 @@ export default defineComponent({
     const signIn = ref('');
     const isSaveToGallery = ref(false);
     const folder = ref<Folder | null>(null);
+    const device = computed(() => store.getters['mobile/getDevice']);
+
     const close = () => {
       emit('close');
     };
@@ -120,6 +130,20 @@ export default defineComponent({
       const name = paletteI18nHelper.get(props.paletteType) || '';
       return t(name);
     };
+
+    const focusInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.enable();
+      }
+    };
+
+    const focusOutInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.disable();
+        setTimeout(() => window.scrollTo(0, 0), 50);
+      }
+    };
+
     return {
       close,
       signIn,
@@ -129,6 +153,8 @@ export default defineComponent({
       folder,
       t,
       getPaletteName,
+      focusInput,
+      focusOutInput,
     };
   },
 });
