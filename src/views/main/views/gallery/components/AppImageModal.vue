@@ -73,6 +73,8 @@
               :icon="['fas', 'fa-pencil']"
               :is-label="false"
               is-focused
+              @focus="focusInput"
+              @blur="focusOutInput"
             ></app-input>
             <div class="edit-title-save-icon" @click="updateSign">
               <font-awesome-icon size="sm" :icon="['fas', 'undo']" />
@@ -113,6 +115,8 @@ import {
   watch,
 } from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 import { useStore } from 'vuex';
 import AppInput from '@/shared/components/AppInput.vue';
@@ -157,6 +161,8 @@ export default defineComponent({
     const selectedImage = computed(() =>
       store.getters['gallery/isSelected'](props.images[index.value].id)
     );
+    const device = computed(() => store.getters['mobile/getDevice']);
+
     watch(
       () => props.startIndex,
       (val) => {
@@ -321,6 +327,19 @@ export default defineComponent({
       store.dispatch('gallery/setSelected', props.images[index.value]);
     };
 
+    const focusInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.enable();
+      }
+    };
+
+    const focusOutInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.disable();
+        setTimeout(() => window.scrollTo(0, 0), 50);
+      }
+    };
+
     return {
       index,
       next,
@@ -346,6 +365,8 @@ export default defineComponent({
       selectedImage,
       selected,
       getPaletteName,
+      focusInput,
+      focusOutInput,
     };
   },
 });
@@ -404,7 +425,7 @@ export default defineComponent({
   padding: 16px;
 
   @media (max-width: 600px) {
-    height: 65%;
+    height: 60%;
     flex: none;
   }
 }
