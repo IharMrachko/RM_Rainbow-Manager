@@ -92,8 +92,10 @@ export default defineComponent({
     };
     const focusInput = () => {
       if (device.value === 'ios') {
-        iNoBounce.enable();
-        focusInputForIosRef.value = true;
+        setTimeout(() => {
+          iNoBounce.enable();
+          focusInputForIosRef.value = true;
+        });
       }
     };
 
@@ -154,6 +156,7 @@ export default defineComponent({
 
       @media (max-width: 600px) {
         width: 95vw;
+        margin-bottom: 60px;
       }
 
       & .answer-item-wrapper {
