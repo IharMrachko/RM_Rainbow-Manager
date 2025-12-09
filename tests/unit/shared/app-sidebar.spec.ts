@@ -52,11 +52,29 @@ describe('Sidebar.vue', () => {
     expect(wrapper.find('aside').exists()).toBe(false);
   });
 
-  it('renders aside when mobile and burger open', () => {
+  it('renders aside in body when mobile and burger open', () => {
     breakPoint.value = 'mobile';
     burgerOpen.value = true;
-    const wrapper = mountSidebar();
-    expect(wrapper.find('aside').exists()).toBe(true);
+
+    const wrapper = mount(AppSidebar, {
+      attachTo: document.body, // важно, чтобы Teleport реально вставил в body
+      global: {
+        mocks: {
+          $store: storeMock,
+        },
+        provide: {
+          store: storeMock,
+        },
+      },
+    });
+
+    // проверяем, что aside появился в body
+    expect(document.body.querySelector('aside')).not.toBeNull();
+
+    // при желании можно проверить класс mobile-view
+    expect(document.body.querySelector('aside')?.classList.contains('mobile-view')).toBe(true);
+
+    wrapper.unmount();
   });
 
   it('passes isShort to slots', () => {

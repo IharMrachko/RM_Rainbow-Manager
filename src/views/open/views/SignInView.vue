@@ -141,11 +141,11 @@ export default defineComponent({
 .container {
   width: 100%;
   display: flex;
-  align-items: center;
   justify-content: center;
   padding: 1rem; // чтобы на маленьких экранах не прилипало к краям
   @media (max-width: 600px) {
     padding: 0;
+    align-items: center;
   }
 }
 
@@ -160,6 +160,8 @@ export default defineComponent({
   justify-content: space-between;
   padding: 2rem;
   gap: 2rem;
+  height: 80vh;
+  margin-top: 20px;
 
   @media (max-width: 600px) {
     flex-direction: column;
@@ -167,6 +169,7 @@ export default defineComponent({
     padding: 1.5rem;
     height: 100dvh;
     border-radius: 0;
+    margin-top: 0;
   }
 }
 

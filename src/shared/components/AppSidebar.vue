@@ -1,20 +1,31 @@
 <template>
-  <aside
-    v-if="!isMobile || (isMobile && isBurgerMenuOpen)"
-    class="sidebar-container"
-    :style="{ width: isShort ? '60px' : '220px' }"
-    :class="{ 'mobile-view': isMobile }"
-  >
+  <!-- десктоп -->
+  <aside v-if="!isMobile" class="sidebar-container" :style="{ width: isShort ? '60px' : '220px' }">
     <section class="main-section" @click="setBurgerMenu">
       <slot name="main" :is-short="isShort" />
     </section>
-
-    <!-- слот для дополнительной секции -->
     <section class="additional-section">
       <slot name="additional" :is-short="isShort" :toggle="toggle" />
     </section>
   </aside>
+
+  <!-- мобильный -->
+  <Teleport to="body">
+    <aside
+      v-if="isMobile && isBurgerMenuOpen"
+      class="sidebar-container mobile-view"
+      :style="{ width: isShort ? '60px' : '220px' }"
+    >
+      <section class="main-section" @click="setBurgerMenu">
+        <slot name="main" :is-short="isShort" />
+      </section>
+      <section class="additional-section">
+        <slot name="additional" :is-short="isShort" :toggle="toggle" />
+      </section>
+    </aside>
+  </Teleport>
 </template>
+
 <script lang="ts">
 import { computed, defineComponent, ref, watch } from 'vue';
 import { useStore } from 'vuex';

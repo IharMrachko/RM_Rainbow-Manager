@@ -8,7 +8,7 @@
           v-model:active-index="idx"
           :steps="steps"
           orientation="horizontal"
-          :clickable="true"
+          :clickable="isNextStep"
           :linear="true"
           :show-panel="true"
         >
@@ -25,7 +25,7 @@
                       placeholder="firstName"
                       :icon="['fas', 'pencil']"
                       :z-index-tooltip="8"
-                      :error="meta.touched ? errorMessage : ''"
+                      :error="meta.touched && index === 0 ? errorMessage : ''"
                       type="text"
                       @focus="focusInput"
                       @blur="focusOutInput"
@@ -40,7 +40,7 @@
                       placeholder="lastName"
                       :icon="['fas', 'pencil']"
                       :z-index-tooltip="8"
-                      :error="meta.touched ? errorMessage : ''"
+                      :error="meta.touched && index === 0 ? errorMessage : ''"
                       @focus="focusInput"
                       @blur="focusOutInput"
                     ></app-input>
@@ -54,7 +54,7 @@
                       placeholder="birthDateMask"
                       :icon="['fas', 'birthday-cake']"
                       :z-index-tooltip="8"
-                      :error="meta.touched ? errorMessage : ''"
+                      :error="meta.touched && index === 0 ? errorMessage : ''"
                       @focus="focusInput"
                       @blur="focusOutInput"
                     ></app-input>
@@ -68,7 +68,7 @@
                       label="email"
                       :icon="['fas', 'envelope']"
                       :z-index-tooltip="8"
-                      :error="meta.touched ? errorMessage : ''"
+                      :error="meta.touched && index === 1 ? errorMessage : ''"
                       type="email"
                       @focus="focusInput"
                       @blur="focusOutInput"
@@ -85,7 +85,7 @@
                         :type="typeInput"
                         :z-index-tooltip="8"
                         :icon="['fas', 'lock']"
-                        :error="meta.touched ? errorMessage : ''"
+                        :error="meta.touched && index === 1 ? errorMessage : ''"
                         @focus="focusInput"
                         @blur="focusOutInput"
                       ></app-input>
@@ -105,7 +105,7 @@
                         :type="typeInput"
                         :icon="['fas', 'lock']"
                         :z-index-tooltip="8"
-                        :error="meta.touched ? errorMessage : ''"
+                        :error="meta.touched && index === 1 ? errorMessage : ''"
                         @focus="focusInput"
                         @blur="focusOutInput"
                       ></app-input>
@@ -229,6 +229,15 @@ export default defineComponent({
       }
     };
 
+    const isNextStep = computed(() => {
+      return (
+        firstName.value.trim() !== '' &&
+        lastName.value.trim() !== '' &&
+        birthDate.value.trim() !== '' &&
+        parseDDMMYYYY(birthDate.value as string) !== null
+      );
+    });
+
     return {
       formGroup,
       onSubmit,
@@ -247,6 +256,7 @@ export default defineComponent({
       eyeIcon,
       focusInput,
       focusOutInput,
+      isNextStep,
     };
   },
 });
@@ -256,7 +266,6 @@ export default defineComponent({
 .container {
   width: 100%;
   display: flex;
-  align-items: center;
   justify-content: center;
   padding: 1rem; // чтобы на маленьких экранах не прилипало к краям
   @media (max-width: 600px) {
@@ -275,6 +284,8 @@ export default defineComponent({
   justify-content: space-between;
   padding: 2rem;
   gap: 2rem;
+  margin-top: 20px;
+  height: 80vh;
 
   @media (max-width: 600px) {
     flex-direction: column;
@@ -282,6 +293,7 @@ export default defineComponent({
     padding: 1.5rem;
     border-radius: 0;
     height: 100vh;
+    margin-top: 0;
   }
 }
 
