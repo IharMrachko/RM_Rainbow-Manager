@@ -86,7 +86,7 @@ export default defineComponent({
       }
       await nextTick();
       if (containerRef.value) {
-        containerRef.value.scrollTop = containerRef.value.scrollTop + 50;
+        containerRef.value.scrollTop = containerRef.value.scrollTop + 70;
       }
       loader.value = false;
     };
@@ -101,9 +101,9 @@ export default defineComponent({
       if (device.value === 'ios') {
         setTimeout(() => {
           iNoBounce.disable();
-          setTimeout(() => window.scrollTo(0, 0), 50);
+          window.scrollTo(0, 0);
           focusInputForIosRef.value = false;
-        });
+        }, 50);
       }
     };
 
