@@ -341,7 +341,7 @@ footer {
   flex-shrink: 0;
 
   @media (max-width: 600px) {
-    min-height: 150px;
+    min-height: 350px;
     padding-bottom: env(safe-area-inset-bottom); /* учёт safe-area */
   }
 
