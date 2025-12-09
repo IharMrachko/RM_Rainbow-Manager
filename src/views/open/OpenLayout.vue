@@ -89,16 +89,16 @@ export default defineComponent({
       store.dispatch('theme/setTheme', isDark);
     };
     onMounted(() => {
-      // // set --vvh = visual viewport height
-      // const setVvh = () => {
-      //   const vv = window.visualViewport;
-      //   const h = vv ? vv.height : window.innerHeight;
-      //   document.documentElement.style.setProperty('--vh', `${h}px`);
-      // };
-      // setVvh();
-      // window.visualViewport?.addEventListener('resize', setVvh);
-      // window.visualViewport?.addEventListener('scroll', setVvh);
-      // window.addEventListener('orientationchange', setVvh);
+      // set --vvh = visual viewport height
+      const setVvh = () => {
+        const vv = window.visualViewport;
+        const h = vv ? vv.height : window.innerHeight;
+        document.documentElement.style.setProperty('--vh', `${h}px`);
+      };
+      setVvh();
+      window.visualViewport?.addEventListener('resize', setVvh);
+      window.visualViewport?.addEventListener('scroll', setVvh);
+      window.addEventListener('orientationchange', setVvh);
       iNoBounce.enable();
     });
     watch(language, (newValue) => {
@@ -118,7 +118,7 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .container {
-  min-height: 100dvh;
+  min-height: var(--vh);
   overflow: auto;
   overscroll-behavior: contain;
   will-change: transform, opacity;
