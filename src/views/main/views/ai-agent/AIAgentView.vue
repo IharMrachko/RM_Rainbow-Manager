@@ -199,7 +199,7 @@ export default defineComponent({
     display: flex;
     align-items: center;
     justify-content: center;
-    bottom: 0;
+    bottom: 60px;
     background: var(--color-wrap-bg);
 
     @media (max-width: 600px) {
