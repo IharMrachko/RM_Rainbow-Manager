@@ -95,7 +95,7 @@ export default defineComponent({
         setTimeout(() => {
           iNoBounce.enable();
           focusInputForIosRef.value = true;
-        });
+        }, 100);
       }
     };
 
