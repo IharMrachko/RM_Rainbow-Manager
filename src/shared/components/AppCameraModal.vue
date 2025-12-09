@@ -95,8 +95,8 @@ export default defineComponent({
       const canvas = overlay.value;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
-      const cssW = isMobile.value ? 300 : rect.width;
-      const cssH = isMobile.value ? 150 : rect.height;
+      const cssW = isMobile.value ? 250 : rect.width;
+      const cssH = isMobile.value ? 100 : rect.height;
 
       const dpr = window.devicePixelRatio || 1;
 
@@ -118,7 +118,7 @@ export default defineComponent({
 
       // параметры в CSS-пикселях
       const padding = Math.max(6, Math.round(Math.min(cssW, cssH) * 0.02));
-      const thickness = isMobile.value ? 20 : 80; // для компа 80;
+      const thickness = isMobile.value ? 10 : 80; // для компа 80;
       const overSize = isMobile.value ? 0.8 : 2; // для компа 2
       const cx = cssW / 2;
       const cy = cssH / 2;
