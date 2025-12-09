@@ -20,7 +20,7 @@
         </div>
       </section>
     </section>
-    <section class="ai-ask">
+    <section class="ai-ask" :class="{ ios: device === 'ios' && isMobile }">
       <div class="ai-ask-area">
         <app-textarea :loader="loader" @apply="apply" @focus="focusInput" @blur="focusOutInput" />
       </div>
@@ -49,7 +49,7 @@ export default defineComponent({
     const loader = ref(false);
     const { t } = useI18n();
     const device = computed(() => store.getters['mobile/getDevice']);
-
+    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
     const apply = async (value: { text: string; url: string; base64Data: string }) => {
       loader.value = true;
       const id = Math.random();
@@ -111,6 +111,8 @@ export default defineComponent({
       t,
       focusInput,
       focusOutInput,
+      device,
+      isMobile,
     };
   },
 });
@@ -202,5 +204,8 @@ export default defineComponent({
       }
     }
   }
+}
+.ai-ask.ios {
+  padding: 0 20px 40px 20px;
 }
 </style>
