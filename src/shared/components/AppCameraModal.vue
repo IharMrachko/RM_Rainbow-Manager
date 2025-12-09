@@ -334,7 +334,7 @@ footer {
   align-items: center;
   width: 100%;
   padding: 10px 20px;
-  flex: 1;
+  flex-shrink: 0;
 
   & .image {
     width: 70px;
@@ -366,8 +366,9 @@ footer {
 
 video {
   @media (max-width: 600px) {
-    //width: 100vw;
-    //object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 }
 
