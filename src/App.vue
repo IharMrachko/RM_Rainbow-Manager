@@ -10,8 +10,8 @@ import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import AppToaster from '@/shared/components/AppToaster.vue';
 import AppDialog from '@/shared/components/dialog/AppDialog.vue';
-// @ts-ignore
-import iNoBounce from 'inobounce';
+
+import { Device } from '@/store/modules/mobile-view';
 
 export default defineComponent({
   components: { AppDialog, AppToaster },
@@ -21,13 +21,16 @@ export default defineComponent({
     const { locale } = useI18n();
     store.dispatch('theme/initTheme');
     store.dispatch('language/initLanguage');
+    const device = ref<Device>('desktop');
 
     onMounted(() => {
-      iNoBounce.enable();
-      document.addEventListener('focusout', () => {
-        setTimeout(() => window.scrollTo(0, 0), 50);
-      });
+      const ua = navigator.userAgent.toLowerCase();
+      if (/iphone|ipad|ipod/.test(ua)) device.value = 'ios';
+      else if (/android/.test(ua)) device.value = 'android';
+      else device.value = 'desktop';
+      store.dispatch('mobile/setDevice', { device: device.value });
     });
+
     watch(
       () => store.getters['language/language'],
       (lang) => {

@@ -17,6 +17,8 @@
                 :z-index-tooltip="8"
                 :error="meta.touched ? errorMessage : ''"
                 type="email"
+                @focus="focusInput"
+                @blur="focusOutInput"
               ></app-input>
             </Field>
             <Field v-slot="{ field, meta, errorMessage }" name="password">
@@ -30,6 +32,8 @@
                   :z-index-tooltip="8"
                   :icon="['fas', 'lock']"
                   :error="meta.touched ? errorMessage : ''"
+                  @focus="focusInput"
+                  @blur="focusOutInput"
                 ></app-input>
                 <div class="icon-eye" @click="toggleEye">
                   <font-awesome-icon :icon="eyeIcon" />
@@ -64,6 +68,8 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import AppImageLogin from '@/shared/components/AppImageLogin.vue';
 import { usePasswordToggle } from '@/composables/usePasswordToggle';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: { AppImageLogin, Field, VForm, AppInput, AppButton },
@@ -76,6 +82,8 @@ export default defineComponent({
     const password = ref('');
     const { typeInput, eyeIcon, toggleEye } = usePasswordToggle();
     const loading = computed(() => store.getters['authFirebase/isLoading']);
+    const device = computed(() => store.getters['mobile/getDevice']);
+    const focus: Map<string, boolean> = new Map<string, boolean>();
     const formGroup = yup.object({
       email: yup.string().required('validation.required').email('validation.invalidEmail'),
       password: yup
@@ -93,6 +101,25 @@ export default defineComponent({
       }
     };
 
+    const focusInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.enable();
+        focus.set('focus', true);
+      }
+    };
+
+    const focusOutInput = () => {
+      if (device.value === 'ios') {
+        focus.set('focus', false);
+        setTimeout(() => {
+          if (!focus.get('focus')) {
+            iNoBounce.disable();
+            setTimeout(() => window.scrollTo(0, 0), 50);
+          }
+        }, 100);
+      }
+    };
+
     return {
       formGroup,
       onSubmit,
@@ -103,6 +130,8 @@ export default defineComponent({
       typeInput,
       eyeIcon,
       toggleEye,
+      focusInput,
+      focusOutInput,
     };
   },
 });
@@ -136,7 +165,7 @@ export default defineComponent({
     flex-direction: column;
     align-items: center;
     padding: 1.5rem;
-    height: 100vh;
+    height: 100dvh;
     border-radius: 0;
   }
 }
