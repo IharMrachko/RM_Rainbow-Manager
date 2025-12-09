@@ -95,8 +95,9 @@ export default defineComponent({
       const canvas = overlay.value;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
-      const cssW = isMobile.value ? 350 : rect.width;
-      const cssH = isMobile.value ? 150 : rect.height;
+      const cssW = rect.width;
+      const cssH = rect.height;
+
       const dpr = window.devicePixelRatio || 1;
 
       const physW = Math.round(cssW * dpr);
@@ -118,11 +119,12 @@ export default defineComponent({
 
       // параметры в CSS-пикселях
       const padding = Math.max(6, Math.round(Math.min(cssW, cssH) * 0.02));
-      const thickness = isMobile.value ? 20 : 80; // для компа 80;
-      const overSize = isMobile.value ? 0.8 : 2; // для компа 2
+      const thickness = isMobile.value ? 50 : 80; // для компа 80;
+      const overSize = 2; // для компа 2
       const cx = cssW / 2;
       const cy = cssH / 2;
-      const radius = Math.min(cssW, cssH) / 2 - padding - thickness / overSize;
+      const radius = Math.max(10, Math.min(cssW, cssH) / 2 - padding - thickness / overSize);
+
       // отрисовка сегментов (в CSS-пикселях)
       const n = frameColors.value.length;
       const step = (2 * Math.PI) / n;
