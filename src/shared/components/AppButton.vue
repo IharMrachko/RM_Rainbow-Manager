@@ -55,6 +55,13 @@ export default defineComponent({
 </script>
 <style scoped lang="scss">
 @import '@/styles/style';
+.container-btn {
+  touch-action: manipulation; /* предотвращает двойной тап-зум */
+  -webkit-tap-highlight-color: transparent; /* убирает подсветку */
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
 button {
   outline: none !important;
   border: none;
