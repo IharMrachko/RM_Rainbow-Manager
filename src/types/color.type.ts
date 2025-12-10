@@ -1,1 +1,1 @@
-export type Severity = 'success' | 'error' | 'info' | 'warning' | 'secondary';
+export type Severity = 'success' | 'error' | 'info' | 'warning' | 'secondary' | 'gradient';

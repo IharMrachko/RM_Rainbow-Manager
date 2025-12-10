@@ -36,6 +36,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    gradient: {
+      type: Boolean,
+      default: false,
+    },
     icon: {
       type: [Array, String],
       default: '',
@@ -44,7 +48,11 @@ export default defineComponent({
   emits: ['click'],
   setup(props, { emit }) {
     const { t } = useI18n();
-    const classes = computed(() => ['btn', `${props.severity}`, { raised: props.raised }]);
+    const classes = computed(() => [
+      'btn',
+      `${props.severity}`,
+      { raised: props.raised, gradient: props.gradient },
+    ]);
 
     const clickBtn = () => {
       emit('click');
@@ -106,6 +114,10 @@ button {
     color: #111111;
   }
 
+  &.gradient {
+    background-color: map-get($type-colors, gradient);
+  }
+
   &.raised {
     display: flex;
     align-items: center;
@@ -130,15 +142,42 @@ button {
       font-size: 15px;
     }
   }
+
+  &.gradient {
+    margin-top: 2rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+
+    & .btn-icon {
+      color: #444;
+    }
+
+    & .btn-title {
+      margin-left: 10px;
+      font-weight: 600;
+      font-size: 15px;
+    }
+  }
 }
 
-.btn:not(.raised):hover {
+.btn:not(.raised, .gradient):hover {
   cursor: pointer;
   background: #333333;
 }
 
 .btn.raised:active {
   box-shadow: inset 2px 2px 6px #c5c5c5, inset -2px -2px 6px #ffffff;
+}
+
+.btn.gradient:hover {
+  background: linear-gradient(135deg, #5a67d8, #6b46c1);
 }
 
 .btn:disabled {

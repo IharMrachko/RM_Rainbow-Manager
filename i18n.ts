@@ -115,6 +115,32 @@ const messages = {
     mute: 'Mute',
     bright: 'Bright',
     seeMore: 'See more',
+    welcomeText: 'Welcome to Your Personal Color Guide',
+    welcomeSubText:
+      'Discover your unique color harmony through smart analysis, intuitive tools, and personalized visuals.',
+    whoIsThisAppFor: 'Who Is This App For?',
+    discoverColorText: 'Discover how this app empowers your color journey.',
+    individualReadyText:
+      'Individuals ready to unlock the power of color in their personal style journey.',
+    fashionLoversText: 'Fashion lovers seeking clarity and confidence in every outfit choice.',
+    designersCravingText: 'Designers craving palettes that spark creativity and harmony.',
+    curiosMindText: 'Curious minds exploring the science and emotion behind color aesthetics.',
+    getStarted: 'Start Your Color Journey',
+    instantFramedPhotos: 'Instant Framed Photos',
+    capturePhotoText:
+      'Capture photos directly with elegant frames. Save to your gallery with custom folder and caption options',
+    paletteExplorerText: 'Palette Explorer',
+    selectAnyColorsText: 'Pick up any color from your photo.',
+    optionalColorChromaText: 'Get optimal matching colors using Chroma.js.',
+    buildPaletteText: 'Build your best palette from five selected tones.',
+    askQuestionAiText: 'Ask questions, get guidance, and explore seasonal palettes.',
+    learnPreferColorText: 'Learn which color types suit your undertones and preferences.',
+    afterAllText: 'After all, you can talk to him about absolutely anything.',
+    yourGallery: 'Your Gallery',
+    organizeGalleryText: 'Organize, explore, and relive your memories with ease.',
+    allYourPhotoText: 'All your saved photos in one place',
+    searchGalleryText: 'Search and filter by palette type, masks, or folders',
+    storedText: 'Stored securely via Firebase',
   },
   ru: {
     login: 'Вход',
@@ -229,6 +255,34 @@ const messages = {
     mute: 'Мягкий',
     bright: 'Яркий',
     seeMore: 'Ещё',
+    welcomeText: 'Добро пожаловать в ваш персональный цветовой гид!',
+    welcomeSubText:
+      'Откройте для себя уникальную цветовую гармонию с помощью интеллектуального анализа, интуитивно понятных инструментов и персонализированных визуализаций.',
+    whoIsThisAppFor: 'Для кого это приложение?',
+    discoverColorText: 'Узнайте, как это приложение поможет вам в вашем путешествии по миру цвета.',
+    individualReadyText: 'Для тех, кто готов раскрыть потенциал цвета в своем личном стиле.',
+    fashionLoversText: 'Любители моды, стремящиеся к ясности и уверенности в каждом выборе наряда.',
+    designersCravingText:
+      'Дизайнеры стремящиеся к цветовым палитрам, которые пробуждают творчество и гармонию.',
+    curiosMindText: 'Любознательные умы изучающие научные и эмоциональные аспекты эстетики цвета.',
+    getStarted: 'Начните цветовое путешествие',
+    instantFramedPhotos: 'Фотографии в рамках',
+    capturePhotoText:
+      'Делайте снимки прямо в элегантных рамках. Сохраняйте фотографии в галерею, используя настраиваемые папки и параметры подписи',
+    paletteExplorerText: 'Палитра',
+    selectAnyColorsText: 'Выберите любой цвет с вашей фотографии.',
+    optionalColorChromaText: 'Получите оптимальное соответствие цветов с помощью Chroma.js.',
+    buildPaletteText: 'Создайте свою оптимальную палитру из пяти выбранных оттенков.',
+    askQuestionAiText:
+      'Задавайте вопросы, получайте рекомендации и изучайте сезонные цветовые решения.',
+    learnPreferColorText: 'Узнайте, какие оттенки кожи подходят именно вам и вашим предпочтениям.',
+    afterAllText: 'В конце концов с ним можно обсудить любую тему.',
+    yourGallery: 'Твоя галерея',
+    organizeGalleryText:
+      'С легкостью систематизируйте, изучайте и переживайте заново свои воспоминания.',
+    allYourPhotoText: 'Все ваши сохраненные фотографии в одном месте.',
+    searchGalleryText: 'Поиск и фильтрация по типу палитры, маскам или папкам.',
+    storedText: 'Надежное хранение данных осуществляется через Firebase',
   },
 };
 

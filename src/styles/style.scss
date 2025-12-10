@@ -3,14 +3,17 @@ $type-colors: (
         error: #f44336,
         info: #2196f3,
         warning: #ff9800,
-        secondary: #E5E5E5
+        secondary: #E5E5E5,
+        gradient: linear-gradient(135deg, #667eea, #764ba2)
 );
 
 
 :root {
   --color-bg: linear-gradient(-135deg, #c850c0, #4158d0);
   --color-text: #000;
+  --color-sub-text: #666;
   --color-wrap-bg: #fff;
+  --color-li: #555;
   --header-height: 76px;
   --tabs-height-with-padding: 65px;
   --active-doing: #ffd700;
@@ -21,6 +24,8 @@ $type-colors: (
 .dark {
   --color-bg: #111;
   --color-text: #eee;
+  --color-sub-text: #f3f3f3;
+  --color-li: #fefefe;
   --color-wrap-bg: #111;
 
 
