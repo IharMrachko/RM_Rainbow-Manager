@@ -112,6 +112,9 @@ export default defineComponent({
       if (device.value === 'ios') {
         focus.set('focus', false);
         setTimeout(() => {
+          window.scrollTo(0, 0);
+        }, 50);
+        setTimeout(() => {
           if (!focus.get('focus')) {
             iNoBounce.disable();
             window.scrollTo(0, 0);
@@ -145,7 +148,7 @@ export default defineComponent({
   padding: 1rem; // чтобы на маленьких экранах не прилипало к краям
   @media (max-width: 600px) {
     padding: 0;
-    //align-items: center;
+    align-items: center;
   }
 }
 
@@ -166,12 +169,10 @@ export default defineComponent({
   @media (max-width: 600px) {
     flex-direction: column;
     align-items: center;
-    //min-height: 100dvh;
-    height: 300px;
+    min-height: 100dvh;
     border-radius: 0;
     margin-top: 0;
     padding: 1.5rem;
-    overflow: auto;
   }
 }
 
