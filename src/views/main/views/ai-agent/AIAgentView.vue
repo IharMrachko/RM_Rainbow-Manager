@@ -28,13 +28,14 @@
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, nextTick, ref } from 'vue';
+import { computed, defineComponent, nextTick, onMounted, ref } from 'vue';
 import AppTextarea from '@/shared/components/AppTextarea.vue';
 import { getGenerativeModel } from 'firebase/ai';
 import { ai } from '@/firebase';
 import { useStore } from 'vuex';
 import { marked } from 'marked';
-import { useI18n } from 'vue-i18n'; // @ts-ignore
+import { useI18n } from 'vue-i18n';
+// @ts-ignore
 import iNoBounce from 'inobounce';
 
 export default defineComponent({
@@ -116,6 +117,12 @@ export default defineComponent({
       }
 
       return '';
+    });
+
+    onMounted(() => {
+      if (device.value === 'ios') {
+        iNoBounce.enable();
+      }
     });
     return {
       apply,
