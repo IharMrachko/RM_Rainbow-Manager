@@ -219,7 +219,7 @@ export default defineComponent({
         currentUserId: currentUser.value?.uid,
         canvas: editorCanvasRef.value?.getCanvasValue(),
         imageUrl: imageUrl.value,
-      }).then(() => window.scrollTo(0, 0));
+      }).then(() => window.scrollTo(0, -50));
     };
     const openImageSettingsModal = async () => {
       visiblePopover.value = false;
