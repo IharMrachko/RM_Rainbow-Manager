@@ -222,7 +222,7 @@ export default defineComponent({
 @import '@/styles/style';
 .home-container {
   overflow: auto;
-  height: calc(100dvh - var(--header-height));
+  height: 100dvh;
   background: var(--color-wrap-bg);
   overscroll-behavior-y: contain; /* снижает bounce */
   -webkit-overflow-scrolling: touch; /* плавность на iOS */

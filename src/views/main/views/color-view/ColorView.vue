@@ -47,6 +47,6 @@ export default defineComponent({
 .color-container {
   position: relative;
   overflow: auto;
-  height: calc(100dvh - var(--header-height));
+  height: 100dvh;
 }
 </style>
