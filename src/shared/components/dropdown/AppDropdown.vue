@@ -1,6 +1,6 @@
 <template>
   <section>
-    <div ref="targetRef" class="dropdown-container" @click="toggle">
+    <div ref="targetRef" class="dropdown-container">
       <app-input
         v-model="valueRef"
         :height="height"
@@ -9,7 +9,13 @@
         :disabled="disabled"
         :label="title"
       ></app-input>
-      <button :disabled="disabled" type="button" class="toggle-btn" :class="{ withTitle: isTitle }">
+      <button
+        :disabled="disabled"
+        type="button"
+        class="toggle-btn"
+        :class="{ withTitle: isTitle }"
+        @click="toggle"
+      >
         ▼
       </button>
       <app-overlay-panel v-if="targetRef" v-model:visible="visible" :target="targetRef">

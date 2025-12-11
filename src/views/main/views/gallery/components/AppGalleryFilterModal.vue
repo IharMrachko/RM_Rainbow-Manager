@@ -5,7 +5,7 @@
       <div class="filter-dropdown">
         <app-dropdown
           v-model="folder"
-          :is-search="false"
+          :is-search="true"
           is-title
           title="folder"
           label="name"
@@ -16,14 +16,6 @@
         >
           <div class="folders-overlay-container">
             <div class="folders-options-wrapper">
-              <app-input
-                v-model="searchValue"
-                placeholder="search"
-                :icon="['fas', 'search']"
-                :is-label="false"
-                @focus="focusInput"
-                @blur="focusOutInput"
-              ></app-input>
               <app-option v-for="item in folders" :key="item" :value="item">
                 <div class="option-folder-item">
                   <img
@@ -121,10 +113,9 @@ import { MaskCard } from '@/types/mask-card.type';
 import { Palette } from '@/types/palette.type';
 // @ts-ignore
 import iNoBounce from 'inobounce';
-import AppInput from '@/shared/components/AppInput.vue';
 
 export default defineComponent({
-  components: { AppInput, AppOption, AppButton, AppDropdown, AppModalHeader },
+  components: { AppOption, AppButton, AppDropdown, AppModalHeader },
   emits: ['resolve', 'reject', 'close'],
   setup(_, { emit }) {
     const focus = ref('');
