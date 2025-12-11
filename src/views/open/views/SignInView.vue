@@ -166,10 +166,10 @@ export default defineComponent({
   @media (max-width: 600px) {
     flex-direction: column;
     align-items: center;
-    padding: 1.5rem;
     min-height: 100dvh;
     border-radius: 0;
     margin-top: 0;
+    padding-top: 80px;
   }
 }
 
