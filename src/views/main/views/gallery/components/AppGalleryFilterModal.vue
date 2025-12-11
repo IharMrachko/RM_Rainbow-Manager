@@ -3,6 +3,25 @@
     <app-modal-header :title="focus" @close="close"></app-modal-header>
     <section class="wrapper-filter">
       <div class="filter-dropdown">
+        <app-dropdown v-model="paletteType" height="48px" label="name" is-title title="palette">
+          <div class="wrapper-palette">
+            <app-option v-for="card in palettesCards" :key="card.id" :value="card">
+              <div class="mask-type-wrapper">
+                <div class="segments">
+                  <div
+                    v-for="v in card.colors"
+                    :key="v"
+                    :style="{ backgroundColor: v }"
+                    class="segment"
+                  ></div>
+                </div>
+                <span>{{ card.name }}</span>
+              </div>
+            </app-option>
+          </div>
+        </app-dropdown>
+      </div>
+      <div class="filter-dropdown">
         <app-dropdown
           v-model="folder"
           :is-search="true"
@@ -31,25 +50,6 @@
                 </div>
               </app-option>
             </div>
-          </div>
-        </app-dropdown>
-      </div>
-      <div class="filter-dropdown">
-        <app-dropdown v-model="paletteType" height="48px" label="name" is-title title="palette">
-          <div class="wrapper-palette">
-            <app-option v-for="card in palettesCards" :key="card.id" :value="card">
-              <div class="mask-type-wrapper">
-                <div class="segments">
-                  <div
-                    v-for="v in card.colors"
-                    :key="v"
-                    :style="{ backgroundColor: v }"
-                    class="segment"
-                  ></div>
-                </div>
-                <span>{{ card.name }}</span>
-              </div>
-            </app-option>
           </div>
         </app-dropdown>
       </div>
