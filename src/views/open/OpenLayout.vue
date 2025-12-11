@@ -104,7 +104,6 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .container {
-  min-height: 100dvh;
   overflow: auto;
   overscroll-behavior: contain;
   will-change: transform;
