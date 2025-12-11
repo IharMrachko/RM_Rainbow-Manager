@@ -343,7 +343,7 @@ export default defineComponent({
 @media (max-width: 600px) {
   .color-wrapper .buttons {
     position: absolute;
-    bottom: 20px;
+    bottom: 100px;
     left: 50%;
     transform: translateX(-50%);
   }
