@@ -167,9 +167,9 @@ export default defineComponent({
     flex-direction: column;
     align-items: center;
     padding: 1.5rem;
+    min-height: 100dvh;
     border-radius: 0;
     margin-top: 0;
-    height: calc(100vh - var(--header-height));
   }
 }
 

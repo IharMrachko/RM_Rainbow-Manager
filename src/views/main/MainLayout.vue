@@ -145,6 +145,12 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .container {
+  min-height: 100dvh;
+  overflow: auto;
+  overscroll-behavior: contain;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
   & section {
     display: flex;
   }
