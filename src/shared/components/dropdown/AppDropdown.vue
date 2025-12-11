@@ -33,9 +33,6 @@
 import { computed, defineComponent, onMounted, PropType, provide, ref, watch } from 'vue';
 import AppInput from '@/shared/components/AppInput.vue';
 import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
-// @ts-ignore
-import iNoBounce from 'inobounce';
-import { useStore } from 'vuex';
 
 export default defineComponent({
   components: { AppOverlayPanel, AppInput },
@@ -69,15 +66,13 @@ export default defineComponent({
       default: '',
     },
   },
-  emits: ['update:modelValue', 'search'],
+  emits: ['update:modelValue', 'search', 'focusInput', 'focusOutInput'],
   setup(props, { emit }) {
-    const store = useStore();
     const modelValueRef = computed(() => props.modelValue);
     const valueRef = ref<unknown>(null);
     const targetRef = ref<HTMLElement | null>(null);
     const visible = ref(false);
     const searchValue = ref('');
-    const device = computed(() => store.getters['mobile/getDevice']);
 
     const toggle = () => {
       visible.value = !visible.value;
@@ -127,16 +122,11 @@ export default defineComponent({
     );
 
     const focusInput = () => {
-      if (device.value === 'ios') {
-        iNoBounce.enable();
-      }
+      emit('focusInput');
     };
 
     const focusOutInput = () => {
-      if (device.value === 'ios') {
-        iNoBounce.disable();
-        setTimeout(() => window.scrollTo(0, 0), 50);
-      }
+      emit('focusOutInput');
     };
     return {
       targetRef,

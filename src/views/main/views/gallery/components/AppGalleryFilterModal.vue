@@ -109,6 +109,8 @@ import { palettesObj } from '@/views/main/views/palette/palette';
 import { PaletteCard } from '@/types/palette-card.type';
 import { MaskCard } from '@/types/mask-card.type';
 import { Palette } from '@/types/palette.type';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: { AppOption, AppButton, AppDropdown, AppModalHeader },
@@ -116,6 +118,7 @@ export default defineComponent({
   setup(_, { emit }) {
     const { t } = useI18n();
     const store = useStore();
+    const device = computed(() => store.getters['mobile/getDevice']);
     const cards = ref<MaskCard[]>(colorCards.map((it) => ({ ...it, name: t(it.type) })));
     const palettesCards = ref<PaletteCard[]>(
       Object.entries(palettesObj).map(([type, color]) => ({
@@ -184,6 +187,19 @@ export default defineComponent({
       }
     });
 
+    const focusInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.enable();
+      }
+    };
+
+    const focusOutInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.disable();
+        setTimeout(() => window.scrollTo(0, 0), 50);
+      }
+    };
+
     return {
       close,
       folder,
@@ -198,6 +214,8 @@ export default defineComponent({
       t,
       paletteType,
       palettesCards,
+      focusInput,
+      focusOutInput,
     };
   },
 });

@@ -83,7 +83,7 @@ export default defineComponent({
   @media (max-width: 600px) {
     overflow: auto;
     align-content: start;
-    padding: 0 20px;
+    padding: 0 20px 76px 20px;
     gap: 0;
   }
 }
