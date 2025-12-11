@@ -11,7 +11,7 @@
               <img :src="item.url" alt="image" />
             </div>
           </div>
-          <div class="answer-item-wrapper">
+          <div v-if="item.ask" class="answer-item-wrapper">
             <div class="answer-item">{{ item.ask }}</div>
           </div>
           <div v-if="item.answerHtml" class="asked-item-wrapper">
@@ -20,7 +20,7 @@
         </div>
       </section>
     </section>
-    <section class="ai-ask" :style="{ padding: paddingAreaIos }">
+    <section class="ai-ask">
       <div class="ai-ask-area">
         <app-textarea :loader="loader" @apply="apply" @focus="focusInput" @blur="focusOutInput" />
       </div>
@@ -135,7 +135,7 @@ export default defineComponent({
 <style scoped lang="scss">
 .ai-container {
   width: 100%;
-  height: 100dvh;
+  height: calc(100dvh - var(--header-height));
   display: flex;
   flex-direction: column;
   background: var(--color-wrap-bg);
@@ -146,7 +146,7 @@ export default defineComponent({
 
   & .ai-answers {
     padding-top: 20px;
-    flex: 1;
+    flex: 2;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -198,15 +198,15 @@ export default defineComponent({
   & .ai-ask {
     position: sticky;
     flex: 1;
-    padding: 0 20px 20px 20px;
+    padding: 0 20px 5px 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    bottom: 45px;
+    bottom: 0;
     background: var(--color-wrap-bg);
 
     @media (max-width: 600px) {
-      padding: 0 20px 20px 20px;
+      //padding: 0 20px 20px 20px;
     }
 
     & .ai-ask-area {
