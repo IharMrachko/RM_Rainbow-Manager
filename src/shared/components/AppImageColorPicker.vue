@@ -39,7 +39,15 @@
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, PropType, ref, } from 'vue';
+import {
+  computed,
+  defineComponent,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  PropType,
+  ref,
+} from 'vue';
 import AppFileUploader from '@/shared/components/AppFileUploader.vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import { useStore } from 'vuex';
