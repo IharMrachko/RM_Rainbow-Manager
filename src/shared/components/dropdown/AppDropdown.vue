@@ -80,6 +80,9 @@ export default defineComponent({
     const device = computed(() => store.getters['mobile/getDevice']);
     const toggle = () => {
       visible.value = !visible.value;
+      if (!visible.value) {
+        emit('focusOutInput');
+      }
     };
 
     // функция выбора, которую будут вызывать AppOption
