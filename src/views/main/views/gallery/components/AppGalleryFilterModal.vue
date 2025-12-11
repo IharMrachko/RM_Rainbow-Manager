@@ -98,7 +98,7 @@
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref, watch } from 'vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import AppDropdown from '@/shared/components/dropdown/AppDropdown.vue';
 import AppButton from '@/shared/components/AppButton.vue';
@@ -197,10 +197,14 @@ export default defineComponent({
 
     const focusOutInput = () => {
       if (device.value === 'ios') {
-        iNoBounce.disable();
+        // iNoBounce.disable();
         setTimeout(() => window.scrollTo(0, 0), 50);
       }
     };
+
+    watch(folder, () => {
+      setTimeout(() => window.scrollTo(0, 0), 50);
+    });
 
     return {
       close,
