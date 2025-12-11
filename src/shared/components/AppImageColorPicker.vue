@@ -84,7 +84,6 @@ export default defineComponent({
     onMounted(() => {
       drawImage();
       initCanvasEvents();
-      iNoBounce.disable();
     });
 
     const onFileSelected = (file: File) => {

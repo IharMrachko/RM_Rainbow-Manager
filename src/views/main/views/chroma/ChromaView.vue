@@ -1,5 +1,6 @@
 <template>
-  <div class="chroma-wrapper" :class="{ hiddenOverflow: isHiddenOverflow }">
+  <!--  :class="{ hiddenOverflow: isHiddenOverflow }"-->
+  <div class="chroma-wrapper">
     <div class="photo-picker">
       <app-image-not-uploaded v-if="!imgEl" @on-file-selected="onFileSelected">
       </app-image-not-uploaded>
