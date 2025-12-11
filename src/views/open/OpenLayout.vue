@@ -105,11 +105,6 @@ export default defineComponent({
 <style lang="scss">
 .container {
   min-height: 100dvh;
-  overflow: auto;
-  overscroll-behavior: contain;
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  transform: translateZ(0);
 
   & .header-section {
     display: flex;
