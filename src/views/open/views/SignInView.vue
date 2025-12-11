@@ -114,9 +114,9 @@ export default defineComponent({
         setTimeout(() => {
           if (!focus.get('focus')) {
             iNoBounce.disable();
-            setTimeout(() => window.scrollTo(0, 0), 50);
+            window.scrollTo(0, 0);
           }
-        }, 100);
+        }, 50);
       }
     };
 
