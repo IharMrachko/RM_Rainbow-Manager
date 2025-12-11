@@ -301,7 +301,7 @@ export default defineComponent({
   width: 100%;
   flex-wrap: wrap;
   background: var(--color-wrap-bg);
-  height: calc(100dvh - var(--header-height) - var(--tabs-height-with-padding));
+  height: calc(100dvh - var(--header-height));
   gap: 20px;
 
   & .selected {
