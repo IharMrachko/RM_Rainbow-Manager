@@ -340,6 +340,10 @@ export default defineComponent({
   display: flex;
   background: var(--color-wrap-bg);
 
+  @media (max-width: 600px) {
+    height: 100dvh;
+  }
+
   .gallery-wrapper {
     width: 100%;
     overflow: hidden;

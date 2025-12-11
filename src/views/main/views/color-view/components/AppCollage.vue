@@ -392,7 +392,7 @@ export default defineComponent({
 <style scoped>
 .collage-wrapper {
   position: relative;
-  height: calc(100dvh - var(--header-height) - var(--tabs-height-with-padding));
+  height: calc(100dvh - var(--tabs-height-with-padding));
   width: 100%;
   background: var(--color-wrap-bg);
   display: flex;
@@ -430,7 +430,7 @@ export default defineComponent({
 @media (max-width: 600px) {
   .buttons {
     position: absolute;
-    bottom: 20px;
+    bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
   }
