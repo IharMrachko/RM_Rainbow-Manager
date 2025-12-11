@@ -143,6 +143,9 @@ export default defineComponent({
     let timeout: ReturnType<typeof setTimeout> | null = null;
 
     onMounted(async () => {
+      setInterval(() => {
+        window.scrollTo(0, 0);
+      }, 300);
       await store.dispatch('folder/getFolders', currentUserId.value);
       await store.dispatch('gallery/initUserGalleryItems', {
         userId: currentUserId.value,
