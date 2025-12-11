@@ -11,6 +11,8 @@
           label="name"
           height="48px"
           @search="searchFolder"
+          @focus-input="focusInput"
+          @focus-out-input="focusOutInput"
         >
           <div class="folders-overlay-container">
             <div class="folders-options-wrapper">
