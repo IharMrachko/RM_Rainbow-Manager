@@ -149,6 +149,7 @@ export default defineComponent({
   overflow: auto;
   @media (max-width: 600px) {
     overflow: auto;
+    height: 100dvh;
   }
 
   & .ai-answers {

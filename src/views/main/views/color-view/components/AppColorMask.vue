@@ -119,8 +119,6 @@ import AppImageSettingsModal from '@/shared/components/AppImageSettingsModal.vue
 import AppCameraModal from '@/shared/components/AppCameraModal.vue';
 import { EditorCanvasRef } from '@/interfaces/editor-canvas-ref.interface';
 import { MaskCard } from '@/types/mask-card.type';
-// @ts-ignore
-import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: {
@@ -151,7 +149,7 @@ export default defineComponent({
     const originalImgMask = computed(() => store.getters['imageColor/getOriginalImgMask']);
     const currentUser = computed(() => store.getters['authFirebase/currentUser']);
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
-    const device = computed(() => store.getters['mobile/getDevice']);
+
     onBeforeMount(() => {
       const [first] = cards;
       selectedCard.value = first;
@@ -165,9 +163,6 @@ export default defineComponent({
           onFileSelected(file);
         }
       }
-      // if (device.value === 'ios') {
-      //   iNoBounce.enable();
-      // }
     });
     const onFileSelected = async (file: File) => {
       imageUrl.value = await readFileAsDataURL(file);
