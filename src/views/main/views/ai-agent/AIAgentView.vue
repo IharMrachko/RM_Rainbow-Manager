@@ -214,7 +214,7 @@ export default defineComponent({
     background: var(--color-wrap-bg);
 
     @media (max-width: 600px) {
-      //padding: 0 20px 20px 20px;
+      padding: 0 20px 76px 20px;
     }
 
     & .ai-ask-area {
