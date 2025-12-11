@@ -135,9 +135,5 @@ export default defineComponent({
       width: 100%;
     }
   }
-
-  @media (max-width: 600px) {
-    //height: auto;
-  }
 }
 </style>

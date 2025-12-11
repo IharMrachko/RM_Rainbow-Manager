@@ -145,7 +145,7 @@ export default defineComponent({
   padding: 1rem; // чтобы на маленьких экранах не прилипало к краям
   @media (max-width: 600px) {
     padding: 0;
-    align-items: center;
+    //align-items: center;
   }
 }
 
@@ -166,10 +166,12 @@ export default defineComponent({
   @media (max-width: 600px) {
     flex-direction: column;
     align-items: center;
-    min-height: 100dvh;
+    //min-height: 100dvh;
+    height: 300px;
     border-radius: 0;
     margin-top: 0;
     padding: 1.5rem;
+    overflow: auto;
   }
 }
 
