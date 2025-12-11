@@ -9,6 +9,8 @@
         :is-focused="true"
         :is-label="false"
         placeholder="nameFolder"
+        @focus="focusInput"
+        @blur="focusOutInput"
       ></app-input>
     </div>
 
@@ -28,10 +30,13 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import AppInput from '@/shared/components/AppInput.vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import { useI18n } from 'vue-i18n';
+// @ts-ignore
+import iNoBounce from 'inobounce';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   components: { AppButton, AppInput },
@@ -44,7 +49,10 @@ export default defineComponent({
   emits: ['resolve', 'reject', 'close'],
   setup(props, { emit }) {
     const { t } = useI18n();
+    const store = useStore();
     const folderName = ref(props.name);
+    const device = computed(() => store.getters['mobile/getDevice']);
+
     const close = () => {
       emit('close');
     };
@@ -52,11 +60,26 @@ export default defineComponent({
     const setName = () => {
       emit('resolve', folderName.value);
     };
+
+    const focusInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.enable();
+      }
+    };
+
+    const focusOutInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.disable();
+        setTimeout(() => window.scrollTo(0, 0), 50);
+      }
+    };
     return {
       folderName,
       close,
       setName,
       t,
+      focusInput,
+      focusOutInput,
     };
   },
 });

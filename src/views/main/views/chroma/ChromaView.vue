@@ -66,7 +66,7 @@ export default defineComponent({
   width: 100%;
   flex-wrap: wrap;
   background: var(--color-wrap-bg);
-  height: calc(100dvh - var(--header-height));
+  height: 100dvh;
   gap: 20px;
   overflow: hidden;
 
