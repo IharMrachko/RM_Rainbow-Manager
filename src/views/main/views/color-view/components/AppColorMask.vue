@@ -165,9 +165,9 @@ export default defineComponent({
           onFileSelected(file);
         }
       }
-      if (device.value === 'ios') {
-        iNoBounce.enable();
-      }
+      // if (device.value === 'ios') {
+      //   iNoBounce.enable();
+      // }
     });
     const onFileSelected = async (file: File) => {
       imageUrl.value = await readFileAsDataURL(file);
@@ -219,7 +219,7 @@ export default defineComponent({
         currentUserId: currentUser.value?.uid,
         canvas: editorCanvasRef.value?.getCanvasValue(),
         imageUrl: imageUrl.value,
-      }).then(() => window.scrollTo(0, -50));
+      });
     };
     const openImageSettingsModal = async () => {
       visiblePopover.value = false;
@@ -343,7 +343,7 @@ export default defineComponent({
 @media (max-width: 600px) {
   .color-wrapper .buttons {
     position: absolute;
-    bottom: 100px;
+    bottom: 50px;
     left: 50%;
     transform: translateX(-50%);
   }
