@@ -219,7 +219,7 @@ export default defineComponent({
         currentUserId: currentUser.value?.uid,
         canvas: editorCanvasRef.value?.getCanvasValue(),
         imageUrl: imageUrl.value,
-      });
+      }).then(() => window.scrollTo(0, 0));
     };
     const openImageSettingsModal = async () => {
       visiblePopover.value = false;
@@ -301,7 +301,7 @@ export default defineComponent({
   width: 100%;
   flex-wrap: wrap;
   background: var(--color-wrap-bg);
-  height: calc(100dvh - var(--header-height));
+  height: calc(100dvh - var(--header-height) - var(--tabs-height-with-padding));
   gap: 20px;
 
   & .selected {
