@@ -112,9 +112,6 @@ export default defineComponent({
       if (device.value === 'ios') {
         focus.set('focus', false);
         setTimeout(() => {
-          window.scrollTo(0, 0);
-        }, 50);
-        setTimeout(() => {
           if (!focus.get('focus')) {
             iNoBounce.disable();
             window.scrollTo(0, 0);
