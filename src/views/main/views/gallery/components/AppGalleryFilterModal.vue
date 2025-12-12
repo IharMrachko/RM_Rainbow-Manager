@@ -16,15 +16,9 @@
         >
           <div class="folders-overlay-container">
             <div class="folders-options-wrapper">
-              <app-option v-for="item in folders" :key="item" :value="item">
+              <app-option v-for="item in folders" :key="item.id" :value="item">
                 <div class="option-folder-item">
-                  <img
-                    loading="lazy"
-                    :class="{ 'fade-in': onLoad }"
-                    :src="require('@/assets/rainbow-folder.png')"
-                    alt="Rainbow Folder"
-                    @load="onLoad"
-                  />
+                  <img :src="require('@/assets/rainbow-folder.png')" alt="Rainbow Folder" />
                   <span>
                     {{ item.name }}
                   </span>
@@ -96,7 +90,7 @@
           @focus-input="focusInput"
           @focus-out-input="focusOutInput"
         >
-          <app-option v-for="c in coloristicTypes" :key="c" :value="c">
+          <app-option v-for="c in coloristicTypes" :key="c.id" :value="c">
             <div class="type-maks-option">
               <font-awesome-icon :icon="['fa', c.icon]" />
               <span>{{ c.name }}</span>
@@ -186,7 +180,6 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      iNoBounce.enable();
       if (coloristicType.value) {
         coloristicType.value = {
           id: coloristicType.value.id,
@@ -215,7 +208,7 @@ export default defineComponent({
 
     const focusOutInput = () => {
       if (device.value === 'ios') {
-        // iNoBounce.disable();
+        iNoBounce.enable();
         setTimeout(() => window.scrollTo(0, 0), 50);
       }
     };
