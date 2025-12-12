@@ -232,7 +232,7 @@ export default defineComponent({
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE и Edge */
   overscroll-behavior: contain; /* или none */
-
+  padding-bottom: var(--header-height);
   &::-webkit-scrollbar {
     /* Chrome, Safari, Opera */
     display: none;
@@ -522,7 +522,7 @@ export default defineComponent({
 .video-section {
   margin-top: 20px;
   position: relative;
-  height: 508px;
+  height: 507px;
   width: 253px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
