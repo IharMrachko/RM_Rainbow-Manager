@@ -67,8 +67,6 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import AppImageLogin from '@/shared/components/AppImageLogin.vue';
 import { usePasswordToggle } from '@/composables/usePasswordToggle';
-// @ts-ignore
-import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: { AppImageLogin, Field, VForm, AppInput, AppButton },
@@ -112,10 +110,13 @@ export default defineComponent({
         focus.set('focus', false);
         setTimeout(() => {
           if (!focus.get('focus')) {
-            iNoBounce.disable();
-            window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
+            // iNoBounce.disable();
+            // window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+            // document.documentElement.scrollTop = 0;
+            // document.body.scrollTop = 0;
+            //@ts-ignore
+            // import iNoBounce from 'inobounce';
+
             window.scrollTo(0, 0);
           }
         }, 50);
@@ -144,12 +145,10 @@ export default defineComponent({
   width: 100%;
   display: flex;
   justify-content: center;
-
-  padding: 1rem; // чтобы на маленьких экранах не прилипало к краям
+  padding: 1rem;
   @media (max-width: 600px) {
     padding: 0;
     height: 100dvh;
-    //align-items: center;
   }
 }
 
@@ -173,7 +172,7 @@ export default defineComponent({
     border-radius: 0;
     margin-top: 0;
     padding: 1.5rem;
-    height: 100dvh;
+    height: calc(100vh - 76px);
   }
 }
 
@@ -186,6 +185,7 @@ export default defineComponent({
   @media (max-width: 600px) {
     width: 100%;
     gap: 1rem;
+    flex: 0 0 0;
   }
 }
 
@@ -207,7 +207,7 @@ export default defineComponent({
 
   @media (max-width: 480px) {
     font-size: 1.5rem;
-    margin-bottom: 70px;
+    //margin-bottom: 70px;
   }
 }
 
