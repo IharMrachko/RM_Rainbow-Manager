@@ -79,7 +79,6 @@ export default defineComponent({
     const id = Math.random();
     const value = ref('');
     const { t } = useI18n();
-    const showError = ref(false);
     const inputRef = ref<HTMLInputElement | null>(null);
     const wrapperRef = ref<HTMLElement | null>(null);
 
@@ -103,7 +102,6 @@ export default defineComponent({
 
     return {
       value,
-      showError,
       showErrorToggle,
       inputRef,
       wrapperRef,

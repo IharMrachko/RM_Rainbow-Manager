@@ -20,7 +20,7 @@
                   @focus="focusInput"
                   @blur="focusOutInput"
                 ></app-input>
-                <div v-if="errorMessage" class="error-message">
+                <div v-if="meta.touched && errorMessage" class="error-message">
                   {{ t(errorMessage) }}
                 </div>
               </div>
@@ -42,8 +42,8 @@
                 <div class="icon-eye" @click="toggleEye">
                   <font-awesome-icon :icon="eyeIcon" />
                 </div>
-                <div v-if="errorMessage" class="error-message">
-                  {{ t(errorMessage) }}
+                <div v-if="meta.touched && errorMessage" class="error-message">
+                  {{ errorMess(errorMessage) }}
                 </div>
               </div>
             </Field>
@@ -123,6 +123,10 @@ export default defineComponent({
       }
     };
 
+    const errorMess = (err: string | { key: string; values: Record<string, unknown> }) => {
+      return typeof err === 'object' ? t(err.key, err.values) : t(err);
+    };
+
     return {
       formGroup,
       onSubmit,
@@ -135,6 +139,7 @@ export default defineComponent({
       toggleEye,
       focusInput,
       focusOutInput,
+      errorMess,
     };
   },
 });
