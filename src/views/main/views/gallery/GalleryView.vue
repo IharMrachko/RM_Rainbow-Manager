@@ -103,8 +103,6 @@ import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopover from '@/shared/components/AppPopover.vue';
 import AppVirtualScrollGrid from '@/shared/components/AppVirtualScrollGrid.vue';
-// @ts-ignore
-import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: {
@@ -145,7 +143,6 @@ export default defineComponent({
     let timeout: ReturnType<typeof setTimeout> | null = null;
 
     onMounted(async () => {
-      iNoBounce.enable();
       await store.dispatch('folder/getFolders', currentUserId.value);
       await store.dispatch('gallery/initUserGalleryItems', {
         userId: currentUserId.value,
