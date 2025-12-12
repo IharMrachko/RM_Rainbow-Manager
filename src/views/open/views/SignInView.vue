@@ -82,7 +82,7 @@ export default defineComponent({
     const device = computed(() => store.getters['mobile/getDevice']);
     const focus: Map<string, boolean> = new Map<string, boolean>();
     const formGroup = yup.object({
-      email: yup.string().required('validation.required').email('validation.invalidEmail'),
+      email: yup.string().required('validation.required').email('validation.email'),
       password: yup
         .string()
         .required('validation.required')

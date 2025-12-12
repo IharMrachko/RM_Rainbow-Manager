@@ -183,7 +183,7 @@ export default defineComponent({
         .typeError('validation.invalidDate')
         .required('validation.required'),
 
-      email: yup.string().required('validation.required').email('validation.invalidEmail'),
+      email: yup.string().required('validation.required').email('validation.email'),
       password: yup
         .string()
         .required('validation.required')

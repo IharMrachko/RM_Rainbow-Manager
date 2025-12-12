@@ -95,7 +95,7 @@ export default defineComponent({
 
     const showErrorToggle = () => {
       emit('focus');
-      isFocused.value = true;
+      // isFocused.value = true;
       inputRef.value?.focus();
       updateErrorVisibility();
     };
