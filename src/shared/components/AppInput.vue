@@ -1,10 +1,10 @@
 <template>
   <section>
-    <label v-if="isLabel" class="label" :for="type"> {{ t(label) }}</label>
+    <label v-if="isLabel" class="label" :for="id"> {{ t(label) }}</label>
 
     <div ref="wrapperRef" class="wrap-input validate-input">
       <input
-        :id="type"
+        :id="id"
         ref="inputRef"
         :value="modelValue"
         class="input100"
@@ -25,7 +25,6 @@
       </span>
     </div>
     <app-input-error-overlay
-      v-if="wrapperRef && error"
       :target="wrapperRef"
       :message="error"
       :visible="showError"
@@ -86,6 +85,7 @@ export default defineComponent({
   },
   emits: ['update:modelValue', 'blur', 'change', 'focus'],
   setup(props, { emit }) {
+    const id = Math.random();
     const value = ref('');
     const { t } = useI18n();
     const showError = ref(false);
@@ -139,6 +139,7 @@ export default defineComponent({
       handleInput,
       handleBlur,
       t,
+      id,
     };
   },
 });
@@ -212,14 +213,14 @@ input {
   z-index: 1;
 }
 
-/* Запуск анимации при фокусе */
-:deep(.input100:focus + .focus-input100) {
-  animation: glow-fade 0.8s ease-in-out forwards;
-}
-
-:deep(.input100:focus) ~ .symbol-input100 {
-  color: #57b846;
-}
+///* Запуск анимации при фокусе */
+//:deep(.input100:focus + .focus-input100) {
+//  animation: glow-fade 0.8s ease-in-out forwards;
+//}
+//
+//:deep(.input100:focus) ~ .symbol-input100 {
+//  color: #57b846;
+//}
 
 /* Кадры анимации */
 @keyframes glow-fade {

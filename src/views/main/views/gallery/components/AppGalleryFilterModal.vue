@@ -3,6 +3,38 @@
     <app-modal-header :title="focus" @close="close"></app-modal-header>
     <section class="wrapper-filter">
       <div class="filter-dropdown">
+        <app-dropdown
+          v-model="folder"
+          :is-search="true"
+          is-title
+          title="folder"
+          label="name"
+          height="48px"
+          @search="searchFolder"
+          @focus-input="focusInput"
+          @focus-out-input="focusOutInput"
+        >
+          <div class="folders-overlay-container">
+            <div class="folders-options-wrapper">
+              <app-option v-for="item in folders" :key="item" :value="item">
+                <div class="option-folder-item">
+                  <img
+                    loading="lazy"
+                    :class="{ 'fade-in': onLoad }"
+                    :src="require('@/assets/rainbow-folder.png')"
+                    alt="Rainbow Folder"
+                    @load="onLoad"
+                  />
+                  <span>
+                    {{ item.name }}
+                  </span>
+                </div>
+              </app-option>
+            </div>
+          </div>
+        </app-dropdown>
+      </div>
+      <div class="filter-dropdown">
         <app-dropdown v-model="paletteType" height="48px" label="name" is-title title="palette">
           <div class="wrapper-palette">
             <app-option v-for="card in palettesCards" :key="card.id" :value="card">
@@ -52,38 +84,6 @@
               <span>{{ c.name }}</span>
             </div>
           </app-option>
-        </app-dropdown>
-      </div>
-      <div class="filter-dropdown">
-        <app-dropdown
-          v-model="folder"
-          :is-search="true"
-          is-title
-          title="folder"
-          label="name"
-          height="48px"
-          @search="searchFolder"
-          @focus-input="focusInput"
-          @focus-out-input="focusOutInput"
-        >
-          <div class="folders-overlay-container">
-            <div class="folders-options-wrapper">
-              <app-option v-for="item in folders" :key="item" :value="item">
-                <div class="option-folder-item">
-                  <img
-                    loading="lazy"
-                    :class="{ 'fade-in': onLoad }"
-                    :src="require('@/assets/rainbow-folder.png')"
-                    alt="Rainbow Folder"
-                    @load="onLoad"
-                  />
-                  <span>
-                    {{ item.name }}
-                  </span>
-                </div>
-              </app-option>
-            </div>
-          </div>
         </app-dropdown>
       </div>
     </section>

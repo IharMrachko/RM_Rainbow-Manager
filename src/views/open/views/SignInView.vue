@@ -118,7 +118,7 @@ export default defineComponent({
             document.body.scrollTop = 0;
             window.scrollTo(0, 0);
           }
-        }, 50);
+        }, 350);
       }
     };
 
