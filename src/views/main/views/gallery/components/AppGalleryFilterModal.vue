@@ -169,6 +169,7 @@ export default defineComponent({
     };
 
     onMounted(() => {
+      iNoBounce.enable();
       if (coloristicType.value) {
         coloristicType.value = {
           id: coloristicType.value.id,
@@ -197,7 +198,7 @@ export default defineComponent({
 
     const focusOutInput = () => {
       if (device.value === 'ios') {
-        iNoBounce.disable();
+        // iNoBounce.disable();
         setTimeout(() => window.scrollTo(0, 0), 50);
       }
     };
