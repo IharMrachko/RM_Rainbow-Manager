@@ -185,6 +185,7 @@ export default defineComponent({
   @media (max-width: 600px) {
     width: 100%;
     gap: 1rem;
+    justify-content: center;
   }
 }
 
