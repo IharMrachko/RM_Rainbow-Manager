@@ -13,12 +13,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import AppTabs from '@/shared/components/tabs/AppTabs.vue';
 import AppTab from '@/shared/components/tabs/AppTab.vue';
 import AppCollage from '@/views/main/views/color-view/components/AppCollage.vue';
 import AppColorMask from '@/views/main/views/color-view/components/AppColorMask.vue';
 import AppLoader from '@/shared/components/AppLoader.vue';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: {
@@ -34,6 +36,10 @@ export default defineComponent({
     const fileOnLoad = (image: string) => {
       imageUrl.value = image;
     };
+
+    onMounted(() => {
+      iNoBounce.disable();
+    });
     return {
       imageUrl,
       fileOnLoad,

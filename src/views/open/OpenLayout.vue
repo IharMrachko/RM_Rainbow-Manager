@@ -122,7 +122,7 @@ export default defineComponent({
     }
 
     & .app-dropdown {
-      width: 100px;
+      width: 120px;
       margin-left: 15px;
       margin-right: 15px;
     }

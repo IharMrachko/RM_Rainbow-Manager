@@ -3,18 +3,6 @@
     <span class="title">{{ title }}</span>
     <div ref="targetRef" class="dropdown-container" @click="toggle">
       <div class="dropdown-value" :style="{ height }">{{ valueRef }}</div>
-      <app-input
-        v-if="false"
-        v-model="valueRef"
-        :height="height"
-        :is-label="isTitle"
-        :readonly="true"
-        :disabled="disabled"
-        :label="title"
-        :cursor="'pointer'"
-        @focus="focusInput"
-        @blur="focusOutInput"
-      ></app-input>
       <button :disabled="disabled" type="button" class="toggle-btn" :class="{ withTitle: isTitle }">
         ▼
       </button>
@@ -160,6 +148,7 @@ export default defineComponent({
 .dropdown-container {
   position: relative;
   cursor: pointer;
+  width: 100%;
 
   & .dropdown-value {
     width: 100%;

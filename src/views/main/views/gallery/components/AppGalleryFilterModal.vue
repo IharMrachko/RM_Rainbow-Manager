@@ -7,7 +7,7 @@
           v-model="folder"
           :is-search="true"
           is-title
-          title="folder"
+          :title="t('folder')"
           label="name"
           height="48px"
           @search="searchFolder"
@@ -29,7 +29,15 @@
         </app-dropdown>
       </div>
       <div class="filter-dropdown">
-        <app-dropdown v-model="paletteType" height="48px" label="name" is-title title="palette">
+        <app-dropdown
+          v-model="paletteType"
+          height="48px"
+          label="name"
+          is-title
+          :title="t('palette')"
+          @focus-input="focusInput"
+          @focus-out-input="focusOutInput"
+        >
           <div class="wrapper-palette">
             <app-option v-for="card in palettesCards" :key="card.id" :value="card">
               <div class="mask-type-wrapper">
@@ -53,7 +61,7 @@
           height="48px"
           label="name"
           is-title
-          title="mask"
+          :title="t('mask')"
           @focus-input="focusInput"
           @focus-out-input="focusOutInput"
         >
@@ -78,7 +86,7 @@
           height="48px"
           label="name"
           is-title
-          title="typeMasks"
+          :title="t('typeMasks')"
           @focus-input="focusInput"
           @focus-out-input="focusOutInput"
         >
