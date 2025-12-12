@@ -1,5 +1,6 @@
 <template>
   <section>
+    <span class="title">{{ title }}</span>
     <div ref="targetRef" class="dropdown-container" @click="toggle">
       <div class="dropdown-value" :style="{ height }">{{ valueRef }}</div>
       <app-input
@@ -158,6 +159,7 @@ export default defineComponent({
 <style scoped lang="scss">
 .dropdown-container {
   position: relative;
+  cursor: pointer;
 
   & .dropdown-value {
     width: 100%;
@@ -197,5 +199,12 @@ export default defineComponent({
 
 .search {
   padding: 20px;
+}
+.title {
+  display: block;
+  text-align: left;
+  padding: 0 1rem 0.3rem 1rem;
+  font-weight: bold;
+  font-size: 14px;
 }
 </style>
