@@ -213,14 +213,14 @@ input {
   z-index: 1;
 }
 
-///* Запуск анимации при фокусе */
-//:deep(.input100:focus + .focus-input100) {
-//  animation: glow-fade 0.8s ease-in-out forwards;
-//}
-//
-//:deep(.input100:focus) ~ .symbol-input100 {
-//  color: #57b846;
-//}
+/* Запуск анимации при фокусе */
+:deep(.input100:focus + .focus-input100) {
+  animation: glow-fade 0.8s ease-in-out forwards;
+}
+
+:deep(.input100:focus) ~ .symbol-input100 {
+  color: #57b846;
+}
 
 /* Кадры анимации */
 @keyframes glow-fade {

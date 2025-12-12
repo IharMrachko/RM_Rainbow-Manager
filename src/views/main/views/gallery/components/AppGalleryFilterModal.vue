@@ -1,6 +1,6 @@
 <template>
   <div ref="modalRef" class="modal-content neon">
-    <app-modal-header :title="focus" @close="close"></app-modal-header>
+    <app-modal-header @close="close"></app-modal-header>
     <section class="wrapper-filter">
       <div class="filter-dropdown">
         <app-dropdown
@@ -118,7 +118,6 @@ export default defineComponent({
   components: { AppOption, AppButton, AppDropdown, AppModalHeader },
   emits: ['resolve', 'reject', 'close'],
   setup(_, { emit }) {
-    const focus = ref('');
     const { t } = useI18n();
     const store = useStore();
     const searchValue = ref('');
@@ -194,14 +193,12 @@ export default defineComponent({
     const focusInput = () => {
       if (device.value === 'ios') {
         iNoBounce.enable();
-        focus.value = 'focus';
       }
     };
 
     const focusOutInput = () => {
       if (device.value === 'ios') {
         iNoBounce.disable();
-        focus.value = 'unfocus';
         setTimeout(() => window.scrollTo(0, 0), 250);
       }
     };
@@ -222,7 +219,6 @@ export default defineComponent({
       palettesCards,
       focusInput,
       focusOutInput,
-      focus,
       searchValue,
     };
   },
