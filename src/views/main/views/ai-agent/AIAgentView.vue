@@ -28,7 +28,7 @@
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, nextTick, onMounted, ref } from 'vue';
+import { computed, defineComponent, nextTick, ref } from 'vue';
 import AppTextarea from '@/shared/components/AppTextarea.vue';
 import { getGenerativeModel } from 'firebase/ai';
 import { ai } from '@/firebase';
@@ -119,11 +119,6 @@ export default defineComponent({
       return '';
     });
 
-    onMounted(() => {
-      if (device.value === 'ios') {
-        iNoBounce.enable();
-      }
-    });
     return {
       apply,
       answers,

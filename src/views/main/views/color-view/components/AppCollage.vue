@@ -92,8 +92,6 @@ import { readFileAsDataURL } from '@/helpers/read-file-as-data-url';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppImageSignInModal from '@/views/main/views/color-view/components/AppImageSignInModal.vue';
 import AppImageSettingsModal from '@/shared/components/AppImageSettingsModal.vue';
-// @ts-ignore
-import iNoBounce from 'inobounce';
 
 const mobileHeight = 410;
 const mobileWidth = 320;
@@ -130,7 +128,7 @@ export default defineComponent({
     const sharedWithMask = ref(store.getters['imageColor/shareImgMask']);
     const rememberChoose = ref(store.getters['imageColor/rememberImgCollage']);
     let isLoadImage = false;
-    const device = computed(() => store.getters['mobile/getDevice']);
+
     const onFileSelected = async (file: File) => {
       isLoadImage = false;
       imageUrl.value = await readFileAsDataURL(file);
@@ -334,9 +332,6 @@ export default defineComponent({
         if (file) {
           onFileSelected(file);
         }
-      }
-      if (device.value === 'ios') {
-        iNoBounce.enable();
       }
     });
 
