@@ -168,11 +168,9 @@ export default defineComponent({
   @media (max-width: 600px) {
     flex-direction: column;
     align-items: center;
-    height: 300px;
     border-radius: 0;
     margin-top: 0;
     padding: 1.5rem;
-    overflow: auto;
   }
 }
 
@@ -206,6 +204,7 @@ export default defineComponent({
 
   @media (max-width: 480px) {
     font-size: 1.5rem;
+    margin-bottom: 80px;
   }
 }
 
