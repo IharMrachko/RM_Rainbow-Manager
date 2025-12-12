@@ -3,7 +3,7 @@
     <div class="wrap-login">
       <app-image-login></app-image-login>
       <div class="login-form">
-        <!--        <h1 class="title">{{ t('login') }}</h1>-->
+        <h1 class="title">{{ t('login') }}</h1>
         <VForm :validation-schema="formGroup" @submit="onSubmit">
           <section class="login-inputs">
             <Field v-slot="{ field, meta, errorMessage }" name="email">
