@@ -259,6 +259,10 @@ export default defineComponent({
     flex-direction: column;
     justify-content: start;
     gap: 12px;
+
+    @media (max-width: 600px) {
+      padding-top: 60px;
+    }
   }
 
   & .footer {
