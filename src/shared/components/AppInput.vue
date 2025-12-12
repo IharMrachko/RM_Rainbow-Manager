@@ -25,7 +25,7 @@
       </span>
     </div>
     <app-input-error-overlay
-      v-if="wrapperRef"
+      v-if="wrapperRef && error"
       :target="wrapperRef"
       :message="error"
       :visible="showError"
