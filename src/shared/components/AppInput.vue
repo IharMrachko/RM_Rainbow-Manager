@@ -27,7 +27,7 @@
     <app-input-error-overlay
       :target="wrapperRef"
       :message="error"
-      :visible="showError && false"
+      :visible="showError"
       :z-index="zIndexTooltip"
       @click="showErrorToggle"
     ></app-input-error-overlay>
