@@ -7,15 +7,7 @@
 </template>
 
 <script lang="ts">
-import {
-  computed,
-  defineComponent,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  PropType,
-  ref,
-} from 'vue';
+import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, PropType, ref, } from 'vue';
 import { PositionPanelType } from '@/types/position-panel.type';
 import { PositionYType } from '@/types/positionY.type';
 import { PositionXType } from '@/types/positionX.type';
@@ -208,7 +200,7 @@ export default defineComponent({
 
     onMounted(() => {
       window.addEventListener('resize', updatePosition);
-      // window.addEventListener('scroll', updatePosition, true);
+      window.addEventListener('scroll', updatePosition, true);
       document.addEventListener('click', handleClickOutside);
 
       nextTick(updatePosition);
