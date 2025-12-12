@@ -208,7 +208,7 @@ export default defineComponent({
 
     onMounted(() => {
       window.addEventListener('resize', updatePosition);
-      window.addEventListener('scroll', updatePosition, true);
+      // window.addEventListener('scroll', updatePosition, true);
       document.addEventListener('click', handleClickOutside);
 
       nextTick(updatePosition);
