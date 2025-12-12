@@ -115,7 +115,7 @@ export default defineComponent({
             iNoBounce.disable();
             window.scrollTo(0, 0);
           }
-        }, 350);
+        }, 50);
       }
     };
 

@@ -192,14 +192,14 @@ export default defineComponent({
 
     const focusInput = () => {
       if (device.value === 'ios') {
-        iNoBounce.enable();
+        // iNoBounce.enable();
       }
     };
 
     const focusOutInput = () => {
       if (device.value === 'ios') {
         iNoBounce.disable();
-        setTimeout(() => window.scrollTo(0, 0), 250);
+        setTimeout(() => window.scrollTo(0, 0), 50);
       }
     };
 
