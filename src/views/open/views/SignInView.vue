@@ -185,7 +185,6 @@ export default defineComponent({
   @media (max-width: 600px) {
     width: 100%;
     gap: 1rem;
-    justify-content: center;
   }
 }
 
@@ -207,7 +206,7 @@ export default defineComponent({
 
   @media (max-width: 480px) {
     font-size: 1.5rem;
-    //margin-bottom: 70px;
+    margin-bottom: 60px;
   }
 }
 
