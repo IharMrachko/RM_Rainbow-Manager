@@ -3,7 +3,7 @@
     <div class="wrap-login">
       <app-image-login></app-image-login>
       <div class="login-form">
-        <h1 class="title">{{ t('login') }}</h1>
+        <h1 v-if="showTitle" class="title">{{ t('login') }}</h1>
         <VForm :validation-schema="formGroup" @submit="onSubmit">
           <section class="login-inputs">
             <Field v-slot="{ field, meta, errorMessage }" name="email">
@@ -74,6 +74,7 @@ export default defineComponent({
   components: { AppImageLogin, Field, VForm, AppInput, AppButton },
 
   setup() {
+    const showTitle = ref(true);
     const router = useRouter();
     const store = useStore();
     const { t } = useI18n();
@@ -103,6 +104,7 @@ export default defineComponent({
     const focusInput = () => {
       if (device.value === 'ios') {
         // iNoBounce.enable();
+        showTitle.value = false;
         focus.set('focus', true);
       }
     };
@@ -113,9 +115,13 @@ export default defineComponent({
         setTimeout(() => {
           if (!focus.get('focus')) {
             iNoBounce.disable();
+            window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
             window.scrollTo(0, 0);
+            showTitle.value = true;
           }
-        }, 50);
+        }, 350);
       }
     };
 
@@ -131,6 +137,7 @@ export default defineComponent({
       toggleEye,
       focusInput,
       focusOutInput,
+      showTitle,
     };
   },
 });
