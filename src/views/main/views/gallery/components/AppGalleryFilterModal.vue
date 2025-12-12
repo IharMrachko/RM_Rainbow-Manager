@@ -29,15 +29,7 @@
         </app-dropdown>
       </div>
       <div class="filter-dropdown">
-        <app-dropdown
-          v-model="paletteType"
-          height="48px"
-          label="name"
-          is-title
-          title="palette"
-          @focus-input="focusInput"
-          @focus-out-input="focusOutInput"
-        >
+        <app-dropdown v-model="paletteType" height="48px" label="name" is-title title="palette">
           <div class="wrapper-palette">
             <app-option v-for="card in palettesCards" :key="card.id" :value="card">
               <div class="mask-type-wrapper">
@@ -342,6 +334,6 @@ img {
 .wrapper-palette,
 .folders-options-wrapper {
   max-height: 300px;
-  overflow-y: auto !important;
+  overflow-y: auto;
 }
 </style>
