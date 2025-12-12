@@ -1,7 +1,9 @@
 <template>
   <section>
     <div ref="targetRef" class="dropdown-container" @click="toggle">
+      <div class="dropdown-value" :style="{ height }">{{ valueRef }}</div>
       <app-input
+        v-if="false"
         v-model="valueRef"
         :height="height"
         :is-label="isTitle"
@@ -156,6 +158,19 @@ export default defineComponent({
 <style scoped lang="scss">
 .dropdown-container {
   position: relative;
+
+  & .dropdown-value {
+    width: 100%;
+    border-radius: 25px;
+    padding: 0 30px 0 20px;
+    position: relative;
+    background: #e6e6e6;
+    font-size: 17px;
+    line-height: 1.5;
+    color: #666;
+    display: flex;
+    align-items: center;
+  }
 }
 
 .toggle-btn {
@@ -177,7 +192,7 @@ export default defineComponent({
 }
 
 .withTitle {
-  top: 70%;
+  top: 50%;
 }
 
 .search {

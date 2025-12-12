@@ -342,6 +342,6 @@ img {
 .wrapper-palette,
 .folders-options-wrapper {
   max-height: 300px;
-  overflow-y: auto;
+  overflow-y: auto !important;
 }
 </style>
