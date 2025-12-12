@@ -9,6 +9,8 @@
         :disabled="disabled"
         :label="title"
         :cursor="'pointer'"
+        @focus="focusInput"
+        @blur="focusOutInput"
       ></app-input>
       <button :disabled="disabled" type="button" class="toggle-btn" :class="{ withTitle: isTitle }">
         ▼

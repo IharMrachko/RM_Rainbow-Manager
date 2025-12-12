@@ -35,7 +35,15 @@
         </app-dropdown>
       </div>
       <div class="filter-dropdown">
-        <app-dropdown v-model="paletteType" height="48px" label="name" is-title title="palette">
+        <app-dropdown
+          v-model="paletteType"
+          height="48px"
+          label="name"
+          is-title
+          title="palette"
+          @focus-input="focusInput"
+          @focus-out-input="focusOutInput"
+        >
           <div class="wrapper-palette">
             <app-option v-for="card in palettesCards" :key="card.id" :value="card">
               <div class="mask-type-wrapper">
@@ -54,7 +62,15 @@
         </app-dropdown>
       </div>
       <div class="filter-dropdown">
-        <app-dropdown v-model="maskType" height="48px" label="name" is-title title="mask">
+        <app-dropdown
+          v-model="maskType"
+          height="48px"
+          label="name"
+          is-title
+          title="mask"
+          @focus-input="focusInput"
+          @focus-out-input="focusOutInput"
+        >
           <app-option v-for="card in cards" :key="card" :value="card">
             <div class="mask-type-wrapper">
               <div class="segments">
@@ -77,6 +93,8 @@
           label="name"
           is-title
           title="typeMasks"
+          @focus-input="focusInput"
+          @focus-out-input="focusOutInput"
         >
           <app-option v-for="c in coloristicTypes" :key="c" :value="c">
             <div class="type-maks-option">
@@ -110,8 +128,7 @@ import { useI18n } from 'vue-i18n';
 import { palettesObj } from '@/views/main/views/palette/palette';
 import { PaletteCard } from '@/types/palette-card.type';
 import { MaskCard } from '@/types/mask-card.type';
-import { Palette } from '@/types/palette.type';
-// @ts-ignore
+import { Palette } from '@/types/palette.type'; // @ts-ignore
 import iNoBounce from 'inobounce';
 
 export default defineComponent({
