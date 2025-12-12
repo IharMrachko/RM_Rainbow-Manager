@@ -144,9 +144,11 @@ export default defineComponent({
   width: 100%;
   display: flex;
   justify-content: center;
+
   padding: 1rem; // чтобы на маленьких экранах не прилипало к краям
   @media (max-width: 600px) {
     padding: 0;
+    height: 100dvh;
     //align-items: center;
   }
 }
@@ -171,6 +173,7 @@ export default defineComponent({
     border-radius: 0;
     margin-top: 0;
     padding: 1.5rem;
+    height: 100dvh;
   }
 }
 
@@ -204,7 +207,7 @@ export default defineComponent({
 
   @media (max-width: 480px) {
     font-size: 1.5rem;
-    margin-bottom: 80px;
+    margin-bottom: 70px;
   }
 }
 
