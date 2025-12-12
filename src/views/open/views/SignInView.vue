@@ -3,7 +3,7 @@
     <div class="wrap-login">
       <app-image-login></app-image-login>
       <div class="login-form">
-        <h1 v-if="showTitle" class="title">{{ t('login') }}</h1>
+        <h1 class="title">{{ t('login') }}</h1>
         <VForm :validation-schema="formGroup" @submit="onSubmit">
           <section class="login-inputs">
             <Field v-slot="{ field, meta, errorMessage }" name="email">
@@ -74,7 +74,6 @@ export default defineComponent({
   components: { AppImageLogin, Field, VForm, AppInput, AppButton },
 
   setup() {
-    const showTitle = ref(true);
     const router = useRouter();
     const store = useStore();
     const { t } = useI18n();
@@ -104,7 +103,6 @@ export default defineComponent({
     const focusInput = () => {
       if (device.value === 'ios') {
         // iNoBounce.enable();
-        showTitle.value = false;
         focus.set('focus', true);
       }
     };
@@ -119,9 +117,8 @@ export default defineComponent({
             document.documentElement.scrollTop = 0;
             document.body.scrollTop = 0;
             window.scrollTo(0, 0);
-            showTitle.value = true;
           }
-        }, 350);
+        }, 50);
       }
     };
 
@@ -137,7 +134,6 @@ export default defineComponent({
       toggleEye,
       focusInput,
       focusOutInput,
-      showTitle,
     };
   },
 });
@@ -151,7 +147,7 @@ export default defineComponent({
   padding: 1rem; // чтобы на маленьких экранах не прилипало к краям
   @media (max-width: 600px) {
     padding: 0;
-    align-items: center;
+    //align-items: center;
   }
 }
 
@@ -172,10 +168,11 @@ export default defineComponent({
   @media (max-width: 600px) {
     flex-direction: column;
     align-items: center;
-    height: 100vh;
+    height: 300px;
     border-radius: 0;
     margin-top: 0;
     padding: 1.5rem;
+    overflow: auto;
   }
 }
 
