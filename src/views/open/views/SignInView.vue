@@ -146,6 +146,7 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   padding: 1rem;
+  overflow: auto;
   @media (max-width: 600px) {
     padding: 0;
     height: 100dvh;
@@ -173,6 +174,7 @@ export default defineComponent({
     margin-top: 0;
     padding: 1.5rem;
     height: 100dvh;
+    overflow: auto;
   }
 }
 
@@ -206,7 +208,7 @@ export default defineComponent({
 
   @media (max-width: 480px) {
     font-size: 1.5rem;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
   }
 }
 
