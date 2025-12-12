@@ -207,7 +207,7 @@ export default defineComponent({
 
   @media (max-width: 480px) {
     font-size: 1.5rem;
-    margin-bottom: 35px;
+    margin-bottom: 40px;
   }
 }
 
