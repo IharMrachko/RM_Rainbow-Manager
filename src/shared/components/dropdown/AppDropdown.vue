@@ -2,7 +2,11 @@
   <section>
     <span class="title">{{ title }}</span>
     <div ref="targetRef" class="dropdown-container" @click="toggle">
-      <div class="dropdown-value" :style="{ height }">{{ valueRef }}</div>
+      <div class="dropdown-value" :style="{ height }">
+        <span>
+          {{ valueRef }}
+        </span>
+      </div>
       <button :disabled="disabled" type="button" class="toggle-btn" :class="{ withTitle: isTitle }">
         ▼
       </button>
@@ -161,6 +165,12 @@ export default defineComponent({
     color: #666;
     display: flex;
     align-items: center;
+    & span {
+      /* добавляем для обрезки текста */
+      white-space: nowrap; /* запрет переноса строк */
+      overflow: hidden; /* скрыть лишний текст */
+      text-overflow: ellipsis; /* показать "…" */
+    }
   }
 }
 
