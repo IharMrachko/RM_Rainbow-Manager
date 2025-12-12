@@ -7,18 +7,23 @@
         <VForm :validation-schema="formGroup" @submit="onSubmit">
           <section class="login-inputs">
             <Field v-slot="{ field, meta, errorMessage }" name="email">
-              <app-input
-                v-bind="field"
-                v-model="email"
-                placeholder="example@gmail.com"
-                label="email"
-                :icon="['fas', 'envelope']"
-                :z-index-tooltip="8"
-                :error="meta.touched ? errorMessage : ''"
-                type="email"
-                @focus="focusInput"
-                @blur="focusOutInput"
-              ></app-input>
+              <div class="input-wrapper">
+                <app-input
+                  v-bind="field"
+                  v-model="email"
+                  placeholder="example@gmail.com"
+                  label="email"
+                  :icon="['fas', 'envelope']"
+                  :z-index-tooltip="8"
+                  :error="meta.touched ? errorMessage : ''"
+                  type="email"
+                  @focus="focusInput"
+                  @blur="focusOutInput"
+                ></app-input>
+                <div v-if="errorMessage" class="error-message">
+                  {{ t(errorMessage) }}
+                </div>
+              </div>
             </Field>
             <Field v-slot="{ field, meta, errorMessage }" name="password">
               <div class="btn-password">
@@ -36,6 +41,9 @@
                 ></app-input>
                 <div class="icon-eye" @click="toggleEye">
                   <font-awesome-icon :icon="eyeIcon" />
+                </div>
+                <div v-if="errorMessage" class="error-message">
+                  {{ t(errorMessage) }}
                 </div>
               </div>
             </Field>
@@ -100,7 +108,6 @@ export default defineComponent({
 
     const focusInput = () => {
       if (device.value === 'ios') {
-        // iNoBounce.enable();
         focus.set('focus', true);
       }
     };
@@ -192,6 +199,10 @@ export default defineComponent({
     gap: 1rem;
     margin-bottom: 2rem;
   }
+
+  & .input-wrapper {
+    position: relative;
+  }
 }
 
 .title {
@@ -243,5 +254,12 @@ a:hover {
     right: 25px;
     color: #000;
   }
+}
+.error-message {
+  position: absolute;
+  color: rgb(200, 0, 0);
+  font-size: 13px;
+  font-weight: bold;
+  right: 20px;
 }
 </style>

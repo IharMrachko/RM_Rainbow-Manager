@@ -8,7 +8,7 @@
         ref="inputRef"
         :value="modelValue"
         class="input100"
-        :class="{ pr: icon }"
+        :class="{ pr: icon, error }"
         :type="type"
         :placeholder="t(placeholder)"
         :disabled="disabled"
@@ -24,27 +24,18 @@
         <font-awesome-icon :icon="icon" />
       </span>
     </div>
-    <app-input-error-overlay
-      :target="wrapperRef"
-      :message="error"
-      :visible="showError"
-      :z-index="zIndexTooltip"
-      @click="showErrorToggle"
-    ></app-input-error-overlay>
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref, watch } from 'vue';
+import { defineComponent, onMounted, PropType, ref } from 'vue';
 import { InputType } from '@/types/input.type';
-import AppInputErrorOverlay from '@/shared/components/AppInputErrorOverlay.vue';
 import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
-  components: { AppInputErrorOverlay },
   props: {
     modelValue: { type: String, default: '' }, // для v-model
-    error: { type: [String, Boolean], default: '' }, // ошибка извне (vee-validate)
+    error: { type: String, default: '' }, // ошибка извне (vee-validate)
     isLabel: {
       type: Boolean,
       default: true,
@@ -89,31 +80,19 @@ export default defineComponent({
     const value = ref('');
     const { t } = useI18n();
     const showError = ref(false);
-    const isFocused = ref(false);
     const inputRef = ref<HTMLInputElement | null>(null);
     const wrapperRef = ref<HTMLElement | null>(null);
 
     const showErrorToggle = () => {
       emit('focus');
-      // isFocused.value = true;
-      inputRef.value?.focus();
-      updateErrorVisibility();
     };
 
     const handleBlur = () => {
       emit('blur');
-      isFocused.value = false;
-      updateErrorVisibility();
     };
 
     const handleInput = (e: Event) => {
       emit('update:modelValue', (e.target as HTMLInputElement).value);
-      isFocused.value = true;
-      updateErrorVisibility();
-    };
-
-    const updateErrorVisibility = () => {
-      showError.value = !isFocused.value && Boolean(props.error);
     };
 
     onMounted(() => {
@@ -121,14 +100,6 @@ export default defineComponent({
         inputRef.value?.focus();
       }
     });
-
-    watch(
-      () => props.error, // реактивный геттер
-      () => {
-        updateErrorVisibility();
-      },
-      { immediate: true } // чтобы сработало и при первом монтировании
-    );
 
     return {
       value,
@@ -211,6 +182,10 @@ input {
   -moz-transition: all 0.4s;
   transition: all 0.4s;
   z-index: 1;
+}
+
+.error {
+  border: 1px solid red;
 }
 
 /* Запуск анимации при фокусе */

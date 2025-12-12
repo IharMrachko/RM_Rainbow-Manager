@@ -154,7 +154,7 @@ const messages = {
     incorrectLoginPassword: 'Неверный логин или пароль',
     userNotFound: 'Пользователь не найден',
     validation: {
-      required: 'Поле обязательно',
+      required: 'Поле обязательно для заполнения',
       email: 'Некорректный email',
       min: 'Минимум {count} символов',
       passwordsMatch: 'Пароли не совпали',
