@@ -56,6 +56,9 @@ body {
   color: var(--color-text);
   height: -webkit-fill-available;
   overflow: hidden;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+
 }
 
 a {
