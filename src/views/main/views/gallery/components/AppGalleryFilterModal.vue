@@ -115,6 +115,8 @@ import { palettesObj } from '@/views/main/views/palette/palette';
 import { PaletteCard } from '@/types/palette-card.type';
 import { MaskCard } from '@/types/mask-card.type';
 import { Palette } from '@/types/palette.type';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: { AppOption, AppButton, AppDropdown, AppModalHeader },
@@ -171,6 +173,7 @@ export default defineComponent({
     };
 
     onMounted(() => {
+      iNoBounce.disable();
       if (coloristicType.value) {
         coloristicType.value = {
           id: coloristicType.value.id,
@@ -193,15 +196,13 @@ export default defineComponent({
 
     const focusInput = () => {
       if (device.value === 'ios') {
-        // iNoBounce.enable();
-        // @ts-ignore
-        // import iNoBounce from 'inobounce';
+        iNoBounce.enable();
       }
     };
 
     const focusOutInput = () => {
       if (device.value === 'ios') {
-        // iNoBounce.enable();
+        iNoBounce.disable();
         setTimeout(() => window.scrollTo(0, 0), 50);
       }
     };
