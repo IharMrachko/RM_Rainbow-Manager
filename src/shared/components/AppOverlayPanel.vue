@@ -7,7 +7,15 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, PropType, ref, } from 'vue';
+import {
+  computed,
+  defineComponent,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  PropType,
+  ref,
+} from 'vue';
 import { PositionPanelType } from '@/types/position-panel.type';
 import { PositionYType } from '@/types/positionY.type';
 import { PositionXType } from '@/types/positionX.type';
