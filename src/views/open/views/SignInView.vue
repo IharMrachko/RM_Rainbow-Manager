@@ -4,7 +4,6 @@
       <app-image-login></app-image-login>
       <div class="login-form">
         <h1 class="title">{{ t('login') }}</h1>
-        <!--        v-slot="{ meta }"-->
         <VForm :validation-schema="formGroup" @submit="onSubmit">
           <section class="login-inputs">
             <Field v-slot="{ field, meta, errorMessage }" name="email">
@@ -206,6 +205,7 @@ export default defineComponent({
 
   @media (max-width: 480px) {
     font-size: 1.5rem;
+    margin-bottom: 20px;
   }
 }
 

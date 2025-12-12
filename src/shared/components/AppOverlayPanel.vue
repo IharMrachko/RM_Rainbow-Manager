@@ -7,15 +7,7 @@
 </template>
 
 <script lang="ts">
-import {
-  computed,
-  defineComponent,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  PropType,
-  ref,
-} from 'vue';
+import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, PropType, ref, } from 'vue';
 import { PositionPanelType } from '@/types/position-panel.type';
 import { PositionYType } from '@/types/positionY.type';
 import { PositionXType } from '@/types/positionX.type';
@@ -195,6 +187,7 @@ export default defineComponent({
       const overlayEl = overlayRef.value;
       const targetEl = props.target;
       const clickedNode = e.target as Node;
+      console.log(props.visible);
 
       if (
         overlayEl &&
