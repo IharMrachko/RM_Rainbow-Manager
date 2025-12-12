@@ -108,13 +108,11 @@ export default defineComponent({
     const focusOutInput = () => {
       if (device.value === 'ios') {
         focus.set('focus', false);
-        [50, 150, 250, 350].forEach((it) => {
-          setTimeout(() => {
-            if (!focus.get('focus')) {
-              window.scrollTo(0, 0);
-            }
-          }, it);
-        });
+        setTimeout(() => {
+          if (!focus.get('focus')) {
+            window.scrollTo(0, 0);
+          }
+        }, 50);
       }
     };
 
