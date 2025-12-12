@@ -13,7 +13,7 @@
         :placeholder="t(placeholder)"
         :disabled="disabled"
         :readonly="readonly"
-        :style="{ height }"
+        :style="{ height, cursor: cursor }"
         @input="handleInput"
         @blur="handleBlur"
         @focus="showErrorToggle"
@@ -72,6 +72,10 @@ export default defineComponent({
     isFocused: {
       type: Boolean,
       default: false,
+    },
+    cursor: {
+      type: String,
+      default: '',
     },
   },
   emits: ['update:modelValue', 'blur', 'change', 'focus'],

@@ -120,7 +120,6 @@ export default defineComponent({
   setup(_, { emit }) {
     const { t } = useI18n();
     const store = useStore();
-    const searchValue = ref('');
     const device = computed(() => store.getters['mobile/getDevice']);
     const cards = ref<MaskCard[]>(colorCards.map((it) => ({ ...it, name: t(it.type) })));
     const palettesCards = ref<PaletteCard[]>(
@@ -219,7 +218,6 @@ export default defineComponent({
       palettesCards,
       focusInput,
       focusOutInput,
-      searchValue,
     };
   },
 });
@@ -330,7 +328,8 @@ img {
   gap: 10px;
 }
 
-.wrapper-palette {
+.wrapper-palette,
+.folders-options-wrapper {
   max-height: 300px;
   overflow-y: auto;
 }

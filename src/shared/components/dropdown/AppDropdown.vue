@@ -8,6 +8,7 @@
         :readonly="true"
         :disabled="disabled"
         :label="title"
+        :cursor="'pointer'"
       ></app-input>
       <button :disabled="disabled" type="button" class="toggle-btn" :class="{ withTitle: isTitle }">
         ▼
@@ -79,6 +80,11 @@ export default defineComponent({
       if (!visible.value) {
         emit('focusOutInput');
       }
+
+      if (!visible.value) {
+        searchValue.value = '';
+        emit('search', '');
+      }
     };
 
     // функция выбора, которую будут вызывать AppOption
@@ -92,6 +98,8 @@ export default defineComponent({
       }
       emit('update:modelValue', value);
       visible.value = false;
+      searchValue.value = '';
+      emit('search', '');
     };
 
     onMounted(() => {
