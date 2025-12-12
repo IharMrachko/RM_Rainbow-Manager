@@ -108,18 +108,13 @@ export default defineComponent({
     const focusOutInput = () => {
       if (device.value === 'ios') {
         focus.set('focus', false);
-        setTimeout(() => {
-          if (!focus.get('focus')) {
-            // iNoBounce.disable();
-            // window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-            // document.documentElement.scrollTop = 0;
-            // document.body.scrollTop = 0;
-            //@ts-ignore
-            // import iNoBounce from 'inobounce';
-
-            window.scrollTo(0, 0);
-          }
-        }, 50);
+        [50, 100, 150].forEach((it) => {
+          setTimeout(() => {
+            if (!focus.get('focus')) {
+              window.scrollTo(0, 0);
+            }
+          }, it);
+        });
       }
     };
 
