@@ -339,7 +339,11 @@ img {
   gap: 10px;
 }
 
-.wrapper-palette,
+.wrapper-palette {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
 .folders-options-wrapper {
   max-height: 300px;
   overflow-y: auto;
