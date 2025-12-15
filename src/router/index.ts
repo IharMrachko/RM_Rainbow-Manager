@@ -11,6 +11,7 @@ import HomeView from '@/views/open/views/HomeView.vue';
 import SignUpView from '@/views/open/views/SignUpView.vue';
 import AIAgentView from '@/views/main/views/ai-agent/AIAgentView.vue';
 import PaletteView from '@/views/main/views/palette/PaletteView.vue';
+import FAQView from '@/views/open/views/FAQView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -23,6 +24,11 @@ const routes: Array<RouteRecordRaw> = [
         path: 'home',
         name: 'home',
         component: HomeView,
+      },
+      {
+        path: 'FAQ',
+        name: 'FAQ',
+        component: FAQView,
       },
       {
         path: 'signIn',

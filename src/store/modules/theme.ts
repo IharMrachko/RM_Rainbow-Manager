@@ -41,5 +41,8 @@ export const theme: Module<ThemeState, unknown> = {
     isDark(state: ThemeState): boolean {
       return state.isDark;
     },
+    theme(state: ThemeState): ThemeType {
+      return state.theme;
+    },
   },
 };

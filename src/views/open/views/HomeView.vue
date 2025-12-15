@@ -13,6 +13,11 @@
         <p class="section-subtitle fade-in-down">
           {{ t('discoverColorText') }}
         </p>
+        <p class="section-subtitle fade-in-down">
+          {{ t('canInstall') }}
+          <strong>Progressive Web App (PWA)</strong>. {{ t('detailInstructions') }}
+          <router-link class="txt2" :to="{ name: 'FAQ' }">{{ t('FAQ') }} </router-link>
+        </p>
 
         <ul class="who-for-list">
           <li class="fade-in-left delay-1">
@@ -104,8 +109,7 @@
           </li>
         </ul>
         <section class="video-section">
-          <video class="video-bg" autoplay muted loop playsinline>
-            <source src="../../../assets/ai.mp4" type="video/mp4" />
+          <video class="video-bg" autoplay muted loop playsinline :src="srcVideo">
             Your browser does not support the video tag.
           </video>
         </section>
@@ -168,16 +172,20 @@ import AppPalette from '@/shared/components/AppPalette.vue';
 import { useI18n } from 'vue-i18n';
 import AppButton from '@/shared/components/AppButton.vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   components: { AppButton, AppPalette, AppColorPicker },
   setup() {
+    const store = useStore();
     const { t } = useI18n();
     const frames = new Array(7);
     const router = useRouter();
     const palettesImg = new Array(12);
     const currentIndex = ref(0);
     const currentPaletteIndex = ref(0);
+    const theme = computed(() => store.getters['theme/theme']);
+    const language = computed(() => store.getters['language/language']);
     let intervalId: number;
     const palettes: { segments: { color: string }[] }[] = Object.entries(palettesObj).map(
       ([_, value]) => ({
@@ -185,6 +193,7 @@ export default defineComponent({
       })
     );
     const src = computed(() => require(`@/assets/buba-${currentIndex.value}.png`));
+    const srcVideo = computed(() => require(`@/assets/ai-${theme.value}-${language.value}.mp4`));
 
     const srcPalette = computed(() => require(`@/assets/buba-c-${currentPaletteIndex.value}.png`));
     const palette = computed(() => {
@@ -214,6 +223,7 @@ export default defineComponent({
       palette,
       t,
       getStarted,
+      srcVideo,
     };
   },
 });
@@ -610,5 +620,21 @@ export default defineComponent({
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+a {
+  font-size: 18px;
+  line-height: 1.7;
+  color: #666666;
+  margin: 0;
+  text-decoration: none;
+  transition: all 0.4s;
+  -webkit-transition: all 0.4s;
+  -o-transition: all 0.4s;
+  -moz-transition: all 0.4s;
+}
+
+a:hover {
+  color: #57b846;
 }
 </style>

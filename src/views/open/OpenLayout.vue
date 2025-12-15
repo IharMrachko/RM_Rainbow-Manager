@@ -24,6 +24,14 @@
               <div v-if="!isShort" class="title">{{ t('home') }}</div>
             </div>
           </router-link>
+          <router-link to="/FAQ" active-class="active-link">
+            <div class="sidebar-item">
+              <div class="icon">
+                <font-awesome-icon size="xl" :icon="['fas', 'question-circle']" />
+              </div>
+              <div v-if="!isShort" class="title">{{ t('FAQ') }}</div>
+            </div>
+          </router-link>
           <router-link to="/signIn" active-class="active-link">
             <div class="sidebar-item">
               <div class="icon">

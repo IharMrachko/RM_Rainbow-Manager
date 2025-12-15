@@ -44,6 +44,8 @@ import {
   faPencil,
   faPencilSquare,
   faPlus,
+  faQuestion,
+  faQuestionCircle,
   faRainbow,
   faRightFromBracket,
   faSave,
@@ -115,7 +117,9 @@ library.add(
   faMicrochip,
   faArrowUp,
   faPalette,
-  faExclamationTriangle
+  faExclamationTriangle,
+  faQuestion,
+  faQuestionCircle
 );
 
 onAuthStateChanged(auth, (user) => {
