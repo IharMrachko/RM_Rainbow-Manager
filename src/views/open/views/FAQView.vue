@@ -73,6 +73,10 @@ export default defineComponent({
   height: calc(100dvh - var(--header-height));
   background: var(--color-wrap-bg);
   padding: 20px;
+
+  @media (max-width: 600px) {
+    height: 100dvh;
+  }
 }
 
 .faq-container h2 {
