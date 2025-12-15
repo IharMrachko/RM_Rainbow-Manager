@@ -75,8 +75,7 @@ export default defineComponent({
   padding: 20px;
 
   @media (max-width: 600px) {
-    overflow: auto;
-    height: auto;
+    height: 100vh;
     padding-bottom: var(--header-height);
   }
 }
