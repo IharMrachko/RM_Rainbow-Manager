@@ -196,6 +196,10 @@ export default defineComponent({
       padding: 10px 0 10px 0;
       margin-bottom: 10px;
     }
+
+    @media (max-width: 600px) {
+      overflow: auto;
+    }
   }
 
   & .ai-ask {
@@ -209,7 +213,8 @@ export default defineComponent({
     background: var(--color-wrap-bg);
 
     @media (max-width: 600px) {
-      padding: 0 20px 76px 20px;
+      padding: 0 20px 80px 20px;
+      position: static;
     }
 
     & .ai-ask-area {

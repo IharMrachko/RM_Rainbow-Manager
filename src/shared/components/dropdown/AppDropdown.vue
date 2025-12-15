@@ -1,6 +1,6 @@
 <template>
   <section>
-    <span class="title">{{ title }}</span>
+    <span v-if="title" class="title">{{ title }}</span>
     <div ref="targetRef" class="dropdown-container" @click="toggle">
       <div class="dropdown-value" :style="{ height }">
         <span>
@@ -153,6 +153,7 @@ export default defineComponent({
   position: relative;
   cursor: pointer;
   width: 100%;
+  min-width: 90px;
 
   & .dropdown-value {
     width: 100%;

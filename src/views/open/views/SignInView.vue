@@ -21,7 +21,7 @@
                   @blur="focusOutInput"
                 ></app-input>
                 <div v-if="meta.touched && errorMessage" class="error-message">
-                  {{ t(errorMessage) }}
+                  {{ errorValue(errorMessage) }}
                 </div>
               </div>
             </Field>
@@ -43,7 +43,7 @@
                   <font-awesome-icon :icon="eyeIcon" />
                 </div>
                 <div v-if="meta.touched && errorMessage" class="error-message">
-                  {{ errorMess(errorMessage) }}
+                  {{ errorValue(errorMessage) }}
                 </div>
               </div>
             </Field>
@@ -75,6 +75,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import AppImageLogin from '@/shared/components/AppImageLogin.vue';
 import { usePasswordToggle } from '@/composables/usePasswordToggle';
+import { useErrorMessage } from '@/composables/useError';
 
 export default defineComponent({
   components: { AppImageLogin, Field, VForm, AppInput, AppButton },
@@ -86,6 +87,7 @@ export default defineComponent({
     const email = ref('');
     const password = ref('');
     const { typeInput, eyeIcon, toggleEye } = usePasswordToggle();
+    const { errorValue } = useErrorMessage();
     const loading = computed(() => store.getters['authFirebase/isLoading']);
     const device = computed(() => store.getters['mobile/getDevice']);
     const focus: Map<string, boolean> = new Map<string, boolean>();
@@ -123,10 +125,6 @@ export default defineComponent({
       }
     };
 
-    const errorMess = (err: string | { key: string; values: Record<string, unknown> }) => {
-      return typeof err === 'object' ? t(err.key, err.values) : t(err);
-    };
-
     return {
       formGroup,
       onSubmit,
@@ -139,7 +137,7 @@ export default defineComponent({
       toggleEye,
       focusInput,
       focusOutInput,
-      errorMess,
+      errorValue,
     };
   },
 });

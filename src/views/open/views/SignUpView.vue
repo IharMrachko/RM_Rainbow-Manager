@@ -17,62 +17,82 @@
               <VForm :validation-schema="formGroup" @submit="onSubmit">
                 <section class="signUp-inputs">
                   <Field v-slot="{ field, meta, errorMessage }" name="firstName">
-                    <app-input
-                      v-show="index === 0"
-                      v-bind="field"
-                      v-model="firstName"
-                      label="firstName"
-                      placeholder="firstName"
-                      :icon="['fas', 'pencil']"
-                      :z-index-tooltip="8"
-                      :error="meta.touched && index === 0 ? errorMessage : ''"
-                      type="text"
-                      @focus="focusInput"
-                      @blur="focusOutInput"
-                    ></app-input>
+                    <div class="input-wrapper">
+                      <app-input
+                        v-show="index === 0"
+                        v-bind="field"
+                        v-model="firstName"
+                        label="firstName"
+                        placeholder="firstName"
+                        :icon="['fas', 'pencil']"
+                        :z-index-tooltip="8"
+                        :error="meta.touched && index === 0 ? errorMessage : ''"
+                        type="text"
+                        @focus="focusInput"
+                        @blur="focusOutInput"
+                      ></app-input>
+                      <div v-if="meta.touched && errorMessage" class="error-message">
+                        {{ errorValue(errorMessage) }}
+                      </div>
+                    </div>
                   </Field>
                   <Field v-slot="{ field, meta, errorMessage }" name="lastName">
-                    <app-input
-                      v-show="index === 0"
-                      v-bind="field"
-                      v-model="lastName"
-                      label="lastName"
-                      placeholder="lastName"
-                      :icon="['fas', 'pencil']"
-                      :z-index-tooltip="8"
-                      :error="meta.touched && index === 0 ? errorMessage : ''"
-                      @focus="focusInput"
-                      @blur="focusOutInput"
-                    ></app-input>
+                    <div class="input-wrapper">
+                      <app-input
+                        v-show="index === 0"
+                        v-bind="field"
+                        v-model="lastName"
+                        label="lastName"
+                        placeholder="lastName"
+                        :icon="['fas', 'pencil']"
+                        :z-index-tooltip="8"
+                        :error="meta.touched && index === 0 ? errorMessage : ''"
+                        @focus="focusInput"
+                        @blur="focusOutInput"
+                      ></app-input>
+                      <div v-if="meta.touched && errorMessage" class="error-message">
+                        {{ errorValue(errorMessage) }}
+                      </div>
+                    </div>
                   </Field>
                   <Field v-slot="{ field, meta, errorMessage }" name="birthDate">
-                    <app-input
-                      v-show="index === 0"
-                      v-bind="field"
-                      v-model="birthDate"
-                      label="birthDate"
-                      placeholder="birthDateMask"
-                      :icon="['fas', 'birthday-cake']"
-                      :z-index-tooltip="8"
-                      :error="meta.touched && index === 0 ? errorMessage : ''"
-                      @focus="focusInput"
-                      @blur="focusOutInput"
-                    ></app-input>
+                    <div class="input-wrapper">
+                      <app-input
+                        v-show="index === 0"
+                        v-bind="field"
+                        v-model="birthDate"
+                        label="birthDate"
+                        placeholder="birthDateMask"
+                        :icon="['fas', 'birthday-cake']"
+                        :z-index-tooltip="8"
+                        :error="meta.touched && index === 0 ? errorMessage : ''"
+                        @focus="focusInput"
+                        @blur="focusOutInput"
+                      ></app-input>
+                      <div v-if="meta.touched && errorMessage" class="error-message">
+                        {{ errorValue(errorMessage) }}
+                      </div>
+                    </div>
                   </Field>
                   <Field v-slot="{ field, meta, errorMessage }" name="email">
-                    <app-input
-                      v-show="index === 1"
-                      v-bind="field"
-                      v-model="email"
-                      placeholder="example@gmail.com"
-                      label="email"
-                      :icon="['fas', 'envelope']"
-                      :z-index-tooltip="8"
-                      :error="meta.touched && index === 1 ? errorMessage : ''"
-                      type="email"
-                      @focus="focusInput"
-                      @blur="focusOutInput"
-                    ></app-input>
+                    <div class="input-wrapper">
+                      <app-input
+                        v-show="index === 1"
+                        v-bind="field"
+                        v-model="email"
+                        placeholder="example@gmail.com"
+                        label="email"
+                        :icon="['fas', 'envelope']"
+                        :z-index-tooltip="8"
+                        :error="meta.touched && index === 1 ? errorMessage : ''"
+                        type="email"
+                        @focus="focusInput"
+                        @blur="focusOutInput"
+                      ></app-input>
+                      <div v-if="meta.touched && errorMessage" class="error-message">
+                        {{ errorValue(errorMessage) }}
+                      </div>
+                    </div>
                   </Field>
                   <Field v-slot="{ field, meta, errorMessage }" name="password">
                     <div class="btn-password">
@@ -91,6 +111,9 @@
                       ></app-input>
                       <div v-show="index === 1" class="icon-eye" @click="toggleEye">
                         <font-awesome-icon :icon="eyeIcon" />
+                      </div>
+                      <div v-if="meta.touched && errorMessage" class="error-message">
+                        {{ errorValue(errorMessage) }}
                       </div>
                     </div>
                   </Field>
@@ -111,6 +134,9 @@
                       ></app-input>
                       <div v-show="index === 1" class="icon-eye" @click="toggleEye">
                         <font-awesome-icon :icon="eyeIcon" />
+                      </div>
+                      <div v-if="meta.touched && errorMessage" class="error-message">
+                        {{ errorValue(errorMessage) }}
                       </div>
                     </div>
                   </Field>
@@ -147,6 +173,7 @@ import { SignUp } from '@/store/modules/auth';
 import { usePasswordToggle } from '@/composables/usePasswordToggle';
 // @ts-ignore
 import iNoBounce from 'inobounce';
+import { useErrorMessage } from '@/composables/useError';
 
 export default defineComponent({
   components: { AppImageLogin, AppStepper, Field, VForm, AppInput, AppButton },
@@ -167,6 +194,7 @@ export default defineComponent({
     const password = ref('');
     const confirmPassword = ref('');
     const { typeInput, eyeIcon, toggleEye } = usePasswordToggle();
+    const { errorValue } = useErrorMessage();
     const focus: Map<string, boolean> = new Map<string, boolean>();
     const loading = computed(() => store.getters['authFirebase/isLoading']);
     const device = computed(() => store.getters['mobile/getDevice']);
@@ -257,6 +285,7 @@ export default defineComponent({
       focusInput,
       focusOutInput,
       isNextStep,
+      errorValue,
     };
   },
 });
@@ -319,6 +348,10 @@ export default defineComponent({
     gap: 1rem;
     margin-bottom: 2rem;
   }
+
+  & .input-wrapper {
+    position: relative;
+  }
 }
 
 .title {
@@ -345,5 +378,13 @@ export default defineComponent({
     right: 25px;
     color: #000;
   }
+}
+
+.error-message {
+  position: absolute;
+  color: rgb(200, 0, 0);
+  font-size: 13px;
+  font-weight: bold;
+  right: 20px;
 }
 </style>

@@ -5,13 +5,9 @@
         <img src="../../assets/rainbow.svg" alt="App Logo" width="32" height="32" />
         <section>
           <app-toggle v-model="isDark" variant="theme" @toggled="toggled"></app-toggle>
-          <div class="app-dropdown">
-            <app-dropdown v-model="language" label="name">
-              <app-option v-for="item in languages" :key="item" :value="item"
-                >{{ item }}
-              </app-option>
-            </app-dropdown>
-          </div>
+          <app-dropdown v-model="language" label="name">
+            <app-option v-for="item in languages" :key="item" :value="item">{{ item }} </app-option>
+          </app-dropdown>
           <app-burger-menu v-if="isMobile"></app-burger-menu>
         </section>
       </section>
@@ -119,12 +115,7 @@ export default defineComponent({
     & section {
       display: flex;
       align-items: center;
-    }
-
-    & .app-dropdown {
-      width: 120px;
-      margin-left: 15px;
-      margin-right: 15px;
+      gap: 14px;
     }
   }
 

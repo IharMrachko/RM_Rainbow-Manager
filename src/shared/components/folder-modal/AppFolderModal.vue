@@ -150,7 +150,7 @@ export default defineComponent({
 
   & .folder-section {
     width: 100%;
-    height: calc(100% - 50px);
+    height: calc(100% - var(--header-height));
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
     display: flex;
