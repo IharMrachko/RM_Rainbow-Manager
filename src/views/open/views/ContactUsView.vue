@@ -108,6 +108,10 @@ export default defineComponent({
   color: #111111;
   margin-bottom: 20px;
   cursor: pointer;
+
+  @media (max-width: 600px) {
+    font-size: 1rem;
+  }
 }
 
 .description {
