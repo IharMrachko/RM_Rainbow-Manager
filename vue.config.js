@@ -1,14 +1,14 @@
 const { defineConfig } = require('@vue/cli-service');
 module.exports = defineConfig({
   transpileDependencies: true,
-  publicPath: '/',
+  publicPath: process.env.NODE_ENV === 'production' ? '/RM_Rainbow-Manager/' : '/',
   pwa: {
     name: 'Rainbow Manager',
     themeColor: '#42b883',
     msTileColor: '#000000',
     manifestOptions: {
       short_name: 'RM',
-      start_url: '/',
+      start_url: '/RM_Rainbow-Manager/',
       display: 'standalone',
       background_color: '#ffffff',
       icons: [
