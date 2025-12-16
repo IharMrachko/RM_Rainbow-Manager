@@ -83,10 +83,10 @@
   </div>
 </template>
 <script lang="ts">
-import {computed, defineComponent, onMounted} from 'vue';
-import {useI18n} from 'vue-i18n'; // @ts-ignore
+import { computed, defineComponent, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n'; // @ts-ignore
 import iNoBounce from 'inobounce';
-import {useStore} from 'vuex';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   setup() {
