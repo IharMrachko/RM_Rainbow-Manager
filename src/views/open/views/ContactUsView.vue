@@ -9,12 +9,12 @@
           <span class="description">{{ t('ideaAndSuggestions') }}</span>
           <div class="contact-item">
             <font-awesome-icon size="xl" :icon="['fas', 'envelope']" />
-            <a href="mailto:rainbow-manager@info.com">rainbow-manager@info.com</a>
+            <a href="mailto:info@rainbow-manager.com">info@rainbow-manager.com</a>
           </div>
           <span class="description">{{ t('supportAndAssistance') }}</span>
           <div class="contact-item">
             <font-awesome-icon size="xl" :icon="['fas', 'envelope']" />
-            <a href="mailto:rainbow-manager@support.com">rainbow-manager@support.com</a>
+            <a href="mailto:support@rainbow-manager.com">support@rainbow-manager.com</a>
           </div>
         </section>
       </div>
