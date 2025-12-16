@@ -32,6 +32,14 @@
               <div v-if="!isShort" class="title">{{ t('FAQ') }}</div>
             </div>
           </router-link>
+          <router-link to="/contacts" active-class="active-link">
+            <div class="sidebar-item">
+              <div class="icon">
+                <font-awesome-icon size="xl" :icon="['fas', 'contact-card']" />
+              </div>
+              <div v-if="!isShort" class="title">{{ t('contacts') }}</div>
+            </div>
+          </router-link>
           <router-link to="/signIn" active-class="active-link">
             <div class="sidebar-item">
               <div class="icon">

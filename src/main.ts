@@ -17,6 +17,7 @@ import {
   faCheck,
   faCheckCircle,
   faCog,
+  faContactCard,
   faCopy,
   faDownload,
   faEllipsisH,
@@ -119,7 +120,8 @@ library.add(
   faPalette,
   faExclamationTriangle,
   faQuestion,
-  faQuestionCircle
+  faQuestionCircle,
+  faContactCard
 );
 
 onAuthStateChanged(auth, (user) => {

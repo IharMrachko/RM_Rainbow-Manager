@@ -157,6 +157,9 @@ const messages = {
     addToHomeScreenTitle: 'Add to Home Screen',
     addToHomeScreenIosTitle: 'Add to Home Screen',
     addTitle: 'Install',
+    contacts: 'Contacts',
+    ideaAndSuggestions: 'Ideas and suggestions',
+    supportAndAssistance: 'Support and assistance',
   },
   ru: {
     login: 'Вход',
@@ -316,6 +319,9 @@ const messages = {
     addToHomeScreenTitle: 'Добавить на главный экран',
     addToHomeScreenIosTitle: 'Добавить на экран Домой',
     addTitle: 'Установить',
+    contacts: 'Контакты',
+    ideaAndSuggestions: 'Идеи и предложения',
+    supportAndAssistance: 'Поддержка и помощь',
   },
 };
 

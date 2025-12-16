@@ -12,6 +12,7 @@ import SignUpView from '@/views/open/views/SignUpView.vue';
 import AIAgentView from '@/views/main/views/ai-agent/AIAgentView.vue';
 import PaletteView from '@/views/main/views/palette/PaletteView.vue';
 import FAQView from '@/views/open/views/FAQView.vue';
+import ContactUsView from '@/views/open/views/ContactUsView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -29,6 +30,11 @@ const routes: Array<RouteRecordRaw> = [
         path: 'FAQ',
         name: 'FAQ',
         component: FAQView,
+      },
+      {
+        path: 'contacts',
+        name: 'contacts',
+        component: ContactUsView,
       },
       {
         path: 'signIn',
