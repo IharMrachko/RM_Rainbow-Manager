@@ -13,7 +13,7 @@
         {{ t('appWillAppearText') }}
       </p>
     </div>
-    <div class="faq-photos">
+    <div v-if="language === 'ru'" class="faq-photos">
       <div>
         <span>1</span>
         <img src="../../../assets/menu-ios.jpg" alt="Preview 1" />
@@ -27,6 +27,20 @@
         <img src="../../../assets/confirm-ios-ru.jpg" alt="Preview 2" />
       </div>
     </div>
+    <div v-if="language === 'en'" class="faq-photos">
+      <div>
+        <span>1</span>
+        <img src="../../../assets/menu-ios-en.jpg" alt="Preview 1" />
+      </div>
+      <div>
+        <span>2</span>
+        <img src="../../../assets/install-ios-en.jpg" alt="Preview 1" />
+      </div>
+      <div>
+        <span>3</span>
+        <img src="../../../assets/confirm-ios-en.jpg" alt="Preview 2" />
+      </div>
+    </div>
     <div class="faq-item">
       <h3>❓ {{ t('howInstallAndroidTitle') }}</h3>
       <p>
@@ -38,7 +52,7 @@
         {{ t('appWillAppearText') }}
       </p>
     </div>
-    <div class="faq-photos">
+    <div v-if="language === 'ru'" class="faq-photos">
       <div>
         <span>1</span>
         <img src="../../../assets/menu-android.jpg" alt="Preview 1" />
@@ -52,22 +66,40 @@
         <img src="../../../assets/confirm-ru.jpg" alt="Preview 2" />
       </div>
     </div>
+    <div v-if="language === 'en'" class="faq-photos">
+      <div>
+        <span>1</span>
+        <img src="../../../assets/menu-android.jpg" alt="Preview 1" />
+      </div>
+      <div>
+        <span>2</span>
+        <img src="../../../assets/install-en.jpg" alt="Preview 1" />
+      </div>
+      <div>
+        <span>3</span>
+        <img src="../../../assets/confirm-en.jpg" alt="Preview 2" />
+      </div>
+    </div>
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
-import { useI18n } from 'vue-i18n';
-// @ts-ignore
+import { computed, defineComponent, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n'; // @ts-ignore
 import iNoBounce from 'inobounce';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   setup() {
     const { t } = useI18n();
+    const store = useStore();
+    const language = computed(() => store.getters['language/language']);
+
     onMounted(() => {
       iNoBounce.disable();
     });
     return {
       t,
+      language,
     };
   },
 });
@@ -81,7 +113,7 @@ export default defineComponent({
 
   @media (max-width: 600px) {
     height: 100vh;
-    padding-bottom: var(--header-height);
+    padding: 20px 20px 76px 20px;
   }
 }
 

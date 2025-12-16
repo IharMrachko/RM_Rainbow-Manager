@@ -155,6 +155,7 @@ const messages = {
     appWillAppearText: 'The app icon will now appear on your home screen like a regular app.',
     threeDotsText: 'three dots in the upper right corner',
     addToHomeScreenTitle: 'Add to Home Screen',
+    addToHomeScreenIosTitle: 'Add to Home Screen',
     addTitle: 'Install',
   },
   ru: {
@@ -313,6 +314,7 @@ const messages = {
       'Теперь иконка приложения появится на главном экране, как обычное приложение.',
     threeDotsText: 'три точки в правом верхнем углу',
     addToHomeScreenTitle: 'Добавить на главный экран',
+    addToHomeScreenIosTitle: 'Добавить на экран Домой',
     addTitle: 'Установить',
   },
 };
