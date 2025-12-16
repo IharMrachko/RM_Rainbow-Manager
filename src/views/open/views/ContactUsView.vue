@@ -120,5 +120,9 @@ export default defineComponent({
   font-size: 1.1rem;
   color: var(--color-sub-text);
   margin-bottom: 0.5rem;
+
+  @media (max-width: 600px) {
+    font-size: 1rem;
+  }
 }
 </style>
