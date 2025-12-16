@@ -4,6 +4,7 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getAI } from 'firebase/ai'; // модуль AI Logic
+import { getAnalytics } from 'firebase/analytics';
 // модуль AI Logic
 // ⚡️ сюда вставь конфиг из Firebase Console
 const firebaseConfig = {
@@ -13,12 +14,15 @@ const firebaseConfig = {
   storageBucket: process.env.VUE_APP_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.VUE_APP_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.VUE_APP_FIREBASE_APP_ID,
+  measurementId: process.env.VUE_APP_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 // Экспортируем сервисы, чтобы использовать в компонентах
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const ai = getAI(app);
+export { analytics };

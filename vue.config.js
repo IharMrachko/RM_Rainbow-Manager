@@ -8,7 +8,7 @@ module.exports = defineConfig({
     msTileColor: '#000000',
     manifestOptions: {
       short_name: 'RM',
-      start_url: '/RM_Rainbow-Manager/',
+      start_url: '/',
       display: 'standalone',
       background_color: '#ffffff',
       icons: [
