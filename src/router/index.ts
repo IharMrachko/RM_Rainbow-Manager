@@ -19,7 +19,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'open',
     component: OpenLayout,
-    redirect: '/signIn',
+    redirect: '/home',
     children: [
       {
         path: 'home',
@@ -92,6 +92,7 @@ const routes: Array<RouteRecordRaw> = [
       },
     ],
   },
+  { path: '/:pathMatch(.*)*', redirect: '/home' },
 ];
 
 const router = createRouter({
