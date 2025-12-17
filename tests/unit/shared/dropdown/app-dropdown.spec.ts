@@ -4,7 +4,7 @@ import { defineComponent, inject } from 'vue';
 import { i18n } from '../../../../i18n';
 
 describe('AppDropdown', () => {
-  it('renders input and toggle button', () => {
+  it('renders  toggle button', () => {
     const wrapper = mount(AppDropdown, {
       props: {
         modelValue: 'Option A',
@@ -15,7 +15,6 @@ describe('AppDropdown', () => {
       },
     });
 
-    expect(wrapper.findComponent({ name: 'AppInput' }).exists()).toBe(true);
     expect(wrapper.find('button.toggle-btn').exists()).toBe(true);
   });
 

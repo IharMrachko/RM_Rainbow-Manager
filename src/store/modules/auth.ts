@@ -1,6 +1,7 @@
 import { Module } from 'vuex';
 import {
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
   User,
@@ -73,11 +74,10 @@ export const authFirebase: Module<AuthState, unknown> = {
           createdAt: serverTimestamp(),
         });
         commit('setUser', userCredential.user);
-        // можно добавить уведомление об успешной регистрации
         dispatch(
           'toast/addToast',
           {
-            message: 'Регистрация прошла успешно!',
+            message: 'registrationSuccessful',
             severity: 'success',
             duration: 3000,
           },
@@ -124,6 +124,28 @@ export const authFirebase: Module<AuthState, unknown> = {
     async logout({ commit }) {
       await signOut(auth);
       commit('setUser', null);
+    },
+    async resetPassword({ dispatch }, email: string) {
+      try {
+        await sendPasswordResetEmail(auth, email);
+        dispatch(
+          'toast/addToast',
+          { message: 'passwordResetEmailSent', severity: 'success', duration: 3000 },
+          { root: true }
+        );
+      } catch (err) {
+        const e = err as FirebaseError;
+        dispatch(
+          'toast/addToast',
+          {
+            message: e.code ? errorMessages[e.code] : 'unknownError',
+            severity: 'error',
+            duration: 3000,
+          },
+          { root: true }
+        );
+        throw err;
+      }
     },
   },
 };

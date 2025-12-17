@@ -14,7 +14,6 @@
                   placeholder="example@gmail.com"
                   label="email"
                   :icon="['fas', 'envelope']"
-                  :z-index-tooltip="8"
                   :error="meta.touched ? errorMessage : ''"
                   type="email"
                   @focus="focusInput"
@@ -33,7 +32,6 @@
                   placeholder="password"
                   label="password"
                   :type="typeInput"
-                  :z-index-tooltip="8"
                   :icon="['fas', 'lock']"
                   :error="meta.touched ? errorMessage : ''"
                   @focus="focusInput"
@@ -54,9 +52,7 @@
         <section>
           <div class="text-center">
             <span class="txt1">{{ t('forgot') }}</span>
-            <router-link class="txt2" :to="{ name: 'forgot' }">
-              {{ t('userName') }} / {{ t('password') }}?
-            </router-link>
+            <router-link class="txt2" :to="{ name: 'forgot' }"> {{ t('password') }}? </router-link>
           </div>
         </section>
       </div>

@@ -17,15 +17,13 @@
               <VForm :validation-schema="formGroup" @submit="onSubmit">
                 <section class="signUp-inputs">
                   <Field v-slot="{ field, meta, errorMessage }" name="firstName">
-                    <div class="input-wrapper">
+                    <div v-show="index === 0" class="input-wrapper">
                       <app-input
-                        v-show="index === 0"
                         v-bind="field"
                         v-model="firstName"
                         label="firstName"
                         placeholder="firstName"
                         :icon="['fas', 'pencil']"
-                        :z-index-tooltip="8"
                         :error="meta.touched && index === 0 ? errorMessage : ''"
                         type="text"
                         @focus="focusInput"
@@ -37,15 +35,13 @@
                     </div>
                   </Field>
                   <Field v-slot="{ field, meta, errorMessage }" name="lastName">
-                    <div class="input-wrapper">
+                    <div v-show="index === 0" class="input-wrapper">
                       <app-input
-                        v-show="index === 0"
                         v-bind="field"
                         v-model="lastName"
                         label="lastName"
                         placeholder="lastName"
                         :icon="['fas', 'pencil']"
-                        :z-index-tooltip="8"
                         :error="meta.touched && index === 0 ? errorMessage : ''"
                         @focus="focusInput"
                         @blur="focusOutInput"
@@ -56,15 +52,13 @@
                     </div>
                   </Field>
                   <Field v-slot="{ field, meta, errorMessage }" name="birthDate">
-                    <div class="input-wrapper">
+                    <div v-show="index === 0" class="input-wrapper">
                       <app-input
-                        v-show="index === 0"
                         v-bind="field"
                         v-model="birthDate"
                         label="birthDate"
                         placeholder="birthDateMask"
                         :icon="['fas', 'birthday-cake']"
-                        :z-index-tooltip="8"
                         :error="meta.touched && index === 0 ? errorMessage : ''"
                         @focus="focusInput"
                         @blur="focusOutInput"
@@ -75,15 +69,13 @@
                     </div>
                   </Field>
                   <Field v-slot="{ field, meta, errorMessage }" name="email">
-                    <div class="input-wrapper">
+                    <div v-show="index === 1" class="input-wrapper">
                       <app-input
-                        v-show="index === 1"
                         v-bind="field"
                         v-model="email"
                         placeholder="example@gmail.com"
                         label="email"
                         :icon="['fas', 'envelope']"
-                        :z-index-tooltip="8"
                         :error="meta.touched && index === 1 ? errorMessage : ''"
                         type="email"
                         @focus="focusInput"
@@ -95,15 +87,13 @@
                     </div>
                   </Field>
                   <Field v-slot="{ field, meta, errorMessage }" name="password">
-                    <div class="btn-password">
+                    <div v-show="index === 1" class="btn-password">
                       <app-input
-                        v-show="index === 1"
                         v-bind="field"
                         v-model="password"
                         placeholder="password"
                         label="password"
                         :type="typeInput"
-                        :z-index-tooltip="8"
                         :icon="['fas', 'lock']"
                         :error="meta.touched && index === 1 ? errorMessage : ''"
                         @focus="focusInput"
@@ -118,16 +108,14 @@
                     </div>
                   </Field>
                   <Field v-slot="{ field, meta, errorMessage }" name="confirmPassword">
-                    <div class="btn-password">
+                    <div v-show="index === 1" class="btn-password">
                       <app-input
-                        v-show="index === 1"
                         v-bind="field"
                         v-model="confirmPassword"
                         placeholder="password"
                         label="confirmPassword"
                         :type="typeInput"
                         :icon="['fas', 'lock']"
-                        :z-index-tooltip="8"
                         :error="meta.touched && index === 1 ? errorMessage : ''"
                         @focus="focusInput"
                         @blur="focusOutInput"

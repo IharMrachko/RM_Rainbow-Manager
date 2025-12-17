@@ -121,7 +121,8 @@ library.add(
   faExclamationTriangle,
   faQuestion,
   faQuestionCircle,
-  faContactCard
+  faContactCard,
+  faArrowLeft
 );
 
 onAuthStateChanged(auth, (user) => {
