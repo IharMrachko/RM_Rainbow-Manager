@@ -34,7 +34,7 @@
         </section>
       </section>
       <div v-if="end === 3" class="see-more">
-        <a @click="end = 12">{{ t('seeMore') }}</a>
+        <app-button severity="gradient" gradient title="seeMore" @click="end = 12"></app-button>
       </div>
     </div>
   </div>
@@ -209,26 +209,7 @@ export default defineComponent({
 }
 
 .see-more {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 250px;
   padding: 20px;
-}
-
-a {
-  font-size: 18px;
-  line-height: 1.7;
-  color: var(--active-doing);
-  margin: 0;
-  text-decoration: none;
-  transition: all 0.4s;
-  -webkit-transition: all 0.4s;
-  -o-transition: all 0.4s;
-  -moz-transition: all 0.4s;
-}
-
-a:hover {
-  color: #57b846;
 }
 </style>
