@@ -17,7 +17,7 @@
             <AppCheckbox v-model="isSelectedMode" label="choose"></AppCheckbox>
           </div>
           <div v-if="isSelectedMode && !isMobile" class="choose-checkbox">
-            <AppCheckbox v-model="chooseAll" label="Выбрать все"></AppCheckbox>
+            <AppCheckbox v-model="chooseAll" label="chooseAll"></AppCheckbox>
           </div>
           <app-button
             severity="secondary"

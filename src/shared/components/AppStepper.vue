@@ -68,6 +68,7 @@ export default defineComponent({
     linear: { type: Boolean, default: false },
     clickable: { type: Boolean, default: true },
     showPanel: { type: Boolean, default: true },
+    nextStep: { type: Number, default: 0 },
   },
   emits: ['update:activeIndex', 'change', 'next', 'prev'],
   setup(props, { emit, expose }) {
@@ -81,6 +82,13 @@ export default defineComponent({
       () => props.activeIndex,
       (v) => {
         if (v >= 0 && v < props.steps.length) internalIndex.value = v;
+      }
+    );
+
+    watch(
+      () => props.nextStep,
+      (index) => {
+        onStepClick(index);
       }
     );
 

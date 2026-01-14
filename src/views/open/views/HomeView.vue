@@ -48,7 +48,7 @@
         </div>
       </section>
       <section class="who-for-section">
-        <h2 class="section-title">📸 {{ t('instantFramedPhotos') }}</h2>
+        <h2 class="section-title">📸 {{ t('masks') }}</h2>
         <p class="section-subtitle">
           {{ t('capturePhotoText') }}
         </p>
@@ -63,7 +63,9 @@
     <div class="palette-explore">
       <section class="palette-explore-section">
         <h2 class="section-title fade-in-down">🌈 {{ t('paletteExplorerText') }}</h2>
-
+        <p class="section-subtitle">
+          {{ t('paletteExplorerSubText') }}
+        </p>
         <ul class="who-for-list">
           <li class="fade-in-left delay-1">
             <span class="marker gradient-1"></span>

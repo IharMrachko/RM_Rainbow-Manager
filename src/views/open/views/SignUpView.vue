@@ -9,6 +9,7 @@
           :steps="steps"
           orientation="horizontal"
           :clickable="isNextStep"
+          :next-step="idx"
           :linear="true"
           :show-panel="true"
         >
@@ -129,6 +130,13 @@
                     </div>
                   </Field>
                 </section>
+
+                <app-button
+                  v-if="index === 0"
+                  :disabled="!isNextStep"
+                  title="nextStep"
+                  @click="nextStep"
+                ></app-button>
 
                 <app-button
                   v-if="index === 1"
@@ -254,6 +262,12 @@ export default defineComponent({
       );
     });
 
+    const nextStep = () => {
+      if (isNextStep.value) {
+        idx.value = 1;
+      }
+    };
+
     return {
       formGroup,
       onSubmit,
@@ -274,6 +288,7 @@ export default defineComponent({
       focusOutInput,
       isNextStep,
       errorValue,
+      nextStep,
     };
   },
 });

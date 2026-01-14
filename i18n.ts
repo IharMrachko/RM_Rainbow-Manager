@@ -128,11 +128,12 @@ const messages = {
     getStarted: 'Start Your Color Journey',
     instantFramedPhotos: 'Instant Framed Photos',
     capturePhotoText:
-      'Capture photos directly with elegant frames. Save to your gallery with custom folder and caption options',
+      'Determine the dominant characteristic of color warmth - coolness; brightness - softness; lightness - darkness. Upload a photo from your device or take a picture within the desired frame directly in the application. Save photos to the gallery using customizable folders and caption options.',
     paletteExplorerText: 'Palette Explorer',
+    paletteExplorerSubText: 'The section includes 12 palettes from the Sci Art tonal system',
     selectAnyColorsText: 'Pick up any color from your photo.',
     optionalColorChromaText: 'Get optimal matching colors using Chroma.js.',
-    buildPaletteText: 'Build your best palette from five selected tones.',
+    buildPaletteText: 'Find out your optimal palette from five chosen tones.',
     askQuestionAiText: 'Ask questions, get guidance, and explore seasonal palettes.',
     learnPreferColorText: 'Learn which color types suit your undertones and preferences.',
     afterAllText: 'After all, you can talk to him about absolutely anything.',
@@ -165,6 +166,7 @@ const messages = {
     goBack: 'Go Back',
     passwordResetEmailSent: 'Password reset email sent',
     registrationSuccessful: 'Registration was successful!',
+    nextStep: 'Next step',
   },
   ru: {
     login: 'Вход',
@@ -292,11 +294,13 @@ const messages = {
     getStarted: 'Начните цветовое путешествие',
     instantFramedPhotos: 'Фотографии в рамках',
     capturePhotoText:
-      'Делайте снимки прямо в элегантных рамках. Сохраняйте фотографии в галерею, используя настраиваемые папки и параметры подписи',
-    paletteExplorerText: 'Палитра',
+      'Определите ведущую характеристику цвета: теплота - холод; яркость - мягкость; светлота - темнота. ' +
+      'Загружайте фотографию со своего устройства или делайте фото в нужной рамке прямо в приложении. Сохраняйте фотографии в галерею, используя настраиваемые папки и параметры подписи',
+    paletteExplorerText: 'Палитры',
+    paletteExplorerSubText: 'Раздел включает 12 палитр тоновой системы Sci Art',
     selectAnyColorsText: 'Выберите любой цвет с вашей фотографии.',
     optionalColorChromaText: 'Получите оптимальное соответствие цветов с помощью Chroma.js.',
-    buildPaletteText: 'Создайте свою оптимальную палитру из пяти выбранных оттенков.',
+    buildPaletteText: 'Узнайте свою оптимальную палитру по пяти выбранным оттенкам.',
     askQuestionAiText:
       'Задавайте вопросы, получайте рекомендации и изучайте сезонные цветовые решения.',
     learnPreferColorText: 'Узнайте, какие оттенки подходят именно вам и вашим предпочтениям.',
@@ -332,6 +336,7 @@ const messages = {
     goBack: 'Назад',
     passwordResetEmailSent: 'Письмо для сброса пароля отправлено',
     registrationSuccessful: 'Регистрация прошла успешно!',
+    nextStep: 'Следующий шаг',
   },
 };
 
