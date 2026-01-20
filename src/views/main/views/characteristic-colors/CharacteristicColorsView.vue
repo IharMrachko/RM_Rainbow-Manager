@@ -16,8 +16,8 @@
 import { defineComponent, onMounted, ref } from 'vue';
 import AppTabs from '@/shared/components/tabs/AppTabs.vue';
 import AppTab from '@/shared/components/tabs/AppTab.vue';
-import AppCollage from '@/views/main/views/color-view/components/AppCollage.vue';
-import AppColorMask from '@/views/main/views/color-view/components/AppColorMask.vue';
+import AppCollage from '@/views/main/views/characteristic-colors/components/AppCollage.vue';
+import AppColorMask from '@/views/main/views/characteristic-colors/components/AppColorMask.vue';
 import AppLoader from '@/shared/components/AppLoader.vue';
 // @ts-ignore
 import iNoBounce from 'inobounce';

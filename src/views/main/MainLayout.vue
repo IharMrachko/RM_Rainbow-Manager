@@ -15,12 +15,20 @@
     <section>
       <app-sidebar>
         <template #main="{ isShort }">
-          <router-link to="/main/color" active-class="active-link">
+          <router-link to="/main/characteristic-colors" active-class="active-link">
             <div class="sidebar-item">
               <div class="icon">
                 <font-awesome-icon size="xl" :icon="['fas', 'rainbow']" />
               </div>
-              <div v-if="!isShort" class="title">{{ t('masks') }}</div>
+              <div v-if="!isShort" class="title">{{ t('characteristicColors') }}</div>
+            </div>
+          </router-link>
+          <router-link to="/main/palette-determinant" active-class="active-link">
+            <div class="sidebar-item">
+              <div class="icon">
+                <font-awesome-icon size="xl" :icon="['fas', 'brush']" />
+              </div>
+              <div v-if="!isShort" class="title">{{ t('paletteDeterminant') }}</div>
             </div>
           </router-link>
 

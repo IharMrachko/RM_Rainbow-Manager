@@ -1,7 +1,7 @@
 export type Palette =
   | 'softSummerPalette'
   | 'darkAutumnPalette'
-  | 'coolSummerPalette'
+  | 'coldSummerPalette'
   | 'lightSpringPalette'
   | 'softAutumnPalette'
   | 'brightSpringPalette'

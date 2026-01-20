@@ -117,7 +117,7 @@ import AppButton from '@/shared/components/AppButton.vue';
 import AppOption from '@/shared/components/dropdown/AppOption.vue';
 import { Folder } from '@/store/modules/firebase-folder';
 import { useStore } from 'vuex';
-import { colorCards } from '@/views/main/views/color-view/components/color-card.constanst';
+import { colorCards } from '@/views/main/views/characteristic-colors/components/color-card.constanst';
 import { useI18n } from 'vue-i18n';
 import { palettesObj } from '@/views/main/views/palette/palette';
 import { PaletteCard } from '@/types/palette-card.type';

@@ -41,10 +41,18 @@
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
+import {
+  computed,
+  defineComponent,
+  onBeforeMount,
+  onBeforeUnmount,
+  onMounted,
+  PropType,
+  ref,
+} from 'vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
-import AppColorCard from '@/views/main/views/color-view/components/AppColorCard.vue';
-import { colorCards } from '@/views/main/views/color-view/components/color-card.constanst';
+import AppColorCard from '@/views/main/views/characteristic-colors/components/AppColorCard.vue';
+import { colorCards } from '@/views/main/views/characteristic-colors/components/color-card.constanst';
 import { useStore } from 'vuex';
 import AppShutterButton from '@/shared/components/AppShutterButton.vue';
 import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
@@ -53,11 +61,17 @@ import { MaskCard } from '@/types/mask-card.type';
 
 export default defineComponent({
   components: { AppLoader, AppOverlayPanel, AppShutterButton, AppColorCard, AppModalHeader },
+  props: {
+    colorCards: {
+      type: Array as PropType<MaskCard[]>,
+      default: colorCards,
+    },
+  },
   emits: ['resolve', 'reject', 'close'],
-  setup(_, { emit }) {
+  setup(props, { emit }) {
     const store = useStore();
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
-    const cards: MaskCard[] = colorCards;
+    const cards: MaskCard[] = props.colorCards;
     const video = ref<HTMLVideoElement | null>(null);
     const overlay = ref<HTMLCanvasElement | null>(null);
     const canvas = ref<HTMLCanvasElement | null>(null);

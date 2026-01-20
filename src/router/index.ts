@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
 import MainLayout from '@/views/main/MainLayout.vue';
-import ColorView from '@/views/main/views/color-view/ColorView.vue';
+import CharacteristicColorsView from '@/views/main/views/characteristic-colors/CharacteristicColorsView.vue';
 import store from '@/store';
 import GalleryView from '@/views/main/views/gallery/GalleryView.vue';
 import ChromaView from '@/views/main/views/chroma/ChromaView.vue';
@@ -13,6 +13,7 @@ import AIAgentView from '@/views/main/views/ai-agent/AIAgentView.vue';
 import PaletteView from '@/views/main/views/palette/PaletteView.vue';
 import FAQView from '@/views/open/views/FAQView.vue';
 import ContactUsView from '@/views/open/views/ContactUsView.vue';
+import PaletteDeterminantView from '@/views/main/views/palette-determinant/PaletteDeterminantView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -57,13 +58,19 @@ const routes: Array<RouteRecordRaw> = [
     path: '/main',
     name: 'main',
     component: MainLayout,
-    redirect: '/main/color',
+    redirect: '/main/characteristic-colors',
     meta: { requiresAuth: true },
     children: [
       {
-        path: 'color',
-        name: 'color',
-        component: ColorView,
+        path: 'characteristic-colors',
+        name: 'characteristic-colors',
+        component: CharacteristicColorsView,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'palette-determinant',
+        name: 'palette-determinant',
+        component: PaletteDeterminantView,
         meta: { requiresAuth: true },
       },
       {
@@ -111,7 +118,7 @@ router.beforeEach((to, from, next) => {
   } else {
     // если пользователь уже вошёл и идёт на /login → редиректим в main
     if (to.name === 'signIn' && isAuthenticated) {
-      next({ name: 'color' });
+      next({ name: 'characteristic-colors' });
     } else {
       next();
     }

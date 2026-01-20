@@ -135,7 +135,7 @@ export const darkAutumnPalette = [
   '#4C442F',
 ];
 //Холодное лето — холодный и мягкий колорит + переделал
-export const coolSummerPalette = [
+export const coldSummerPalette = [
   '#DCDACD',
   '#D0CCC3',
   '#BEBBB2',
@@ -823,7 +823,7 @@ export const defaultPaletteCards: { id: number; color: string }[] = [
 export const palettesObj: Record<Palette, string[]> = {
   softSummerPalette: softSummerPalette,
   darkAutumnPalette: darkAutumnPalette,
-  coolSummerPalette: coolSummerPalette,
+  coldSummerPalette: coldSummerPalette,
   lightSpringPalette: lightSpringPalette,
   softAutumnPalette: softAutumnPalette,
   brightSpringPalette: brightSpringPalette,

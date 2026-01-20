@@ -8,6 +8,7 @@ import { burgerMenu } from '@/store/modules/burger-menu';
 import { imageColor } from '@/store/modules/image-color';
 import { gallery } from '@/store/modules/firebase-gallery';
 import { folder } from '@/store/modules/firebase-folder';
+import { palette } from '@/store/modules/palette';
 
 export default createStore({
   state: {},
@@ -24,6 +25,7 @@ export default createStore({
     imageColor,
     gallery,
     folder,
+    palette,
   },
   plugins: [createLogger()],
 });
