@@ -646,7 +646,6 @@ export const warmSpringPalette = [
   '#D93649',
   '#F1616B',
   '#D9374F',
-
   '#C8DA74',
   '#AFC547',
   '#8C9D35',
@@ -714,7 +713,6 @@ export const brightSpringPalette = [
   '#DD476A',
   '#FD7C90',
   '#D93F5B',
-
   '#FF9ACA',
   '#FC7FB9',
   '#EC488F',
@@ -781,7 +779,6 @@ export const brightWinterPalette = [
   '#812B6A',
   '#BF3277',
   '#662247',
-
   '#E078C7',
   '#9B4292',
   '#632D6B',
@@ -825,29 +822,29 @@ export const softSummerPaletteShort: string[] = [
   '#807D92',
   '#54475B',
   '#E5D99F',
+  '#527A93',
   '#CE88A0',
   '#C34461',
-  '#E2A1B7',
-  '#527A93',
   '#487379',
   '#37564E',
+  '#E2A1B7',
   '#A4AFC5',
   '#5E5D7C',
 ];
 
 export const softAutumnPaletteShort: string[] = [
-  '#7E7D5E',
-  '#98795D',
-  '#E2B479',
-  '#F09896',
-  '#B74E5A',
   '#83926B',
   '#534F43',
+  '#E5CF93',
+  '#98795D',
+  '#F09896',
+  '#B74F5A',
   '#43836B',
-  '#F1C795',
-  '#FEA6B2',
-  '#377AA5',
+  '#7E7D5E',
   '#55608D',
+  '#164C6E',
+  '#8B2E36',
+  '#6E5841',
 ];
 
 export const brightWinterPaletteShort: string[] = [
@@ -904,7 +901,7 @@ export const lightSpringPaletteShort: string[] = [
   '#F26B65',
   '#BADA97',
   '#79C270',
-  '#857456',
+  '#F47E9E',
   '#EABCC6',
   '#85AFDD',
   '#B0A7D2',
@@ -926,8 +923,8 @@ export const lightSummerPaletteShort: string[] = [
 ];
 
 export const coldSummerPaletteShort: string[] = [
-  '#2E6E7A',
   '#6F6065',
+  '#2E6E7A',
   '#E8E0A1',
   '#DE7089',
   '#DF4F66',
@@ -972,17 +969,17 @@ export const darkAutumnPaletteShort: string[] = [
 
 export const darkWinterPaletteShort: string[] = [
   '#000000',
-  '#E2537E',
-  '#622534',
+  '#622535',
+  '#E1527E',
+  '#203353',
+  '#1F5B99',
+  '#127685',
+  '#4D6F32',
+  '#1E413B',
+  '#973D59',
   '#59335A',
-  '#609EF1',
-  '#1C3353',
-  '#147585',
-  '#EEE8AC',
-  '#97253F',
-  '#23B783',
-  '#1A4239',
-  '#4C7032',
+  '#3D212D',
+  '#A52A3C',
 ];
 
 export const coldWinterPaletteShort: string[] = [
@@ -990,12 +987,12 @@ export const coldWinterPaletteShort: string[] = [
   '#0E0E0E',
   '#2299C3',
   '#20418E',
-  '#FDE55F',
+  '#FBF097',
   '#C9D4F0',
   '#FE98DA',
   '#AA2A67',
-  '#15B764',
-  '#DC364C',
+  '#33C574',
+  '#F65D8C',
   '#7B3569',
   '#89509F',
 ];
