@@ -135,7 +135,7 @@ export const darkAutumnPalette = [
   '#4C442F',
 ];
 //Холодное лето — холодный и мягкий колорит + переделал
-export const coolSummerPalette = [
+export const coldSummerPalette = [
   '#DCDACD',
   '#D0CCC3',
   '#BEBBB2',
@@ -820,10 +820,205 @@ export const defaultPaletteCards: { id: number; color: string }[] = [
   { id: 5, color: '#fff' },
 ];
 
+export const softSummerPaletteShort: string[] = [
+  '#B28184',
+  '#807D92',
+  '#54475B',
+  '#E5D99F',
+  '#CE88A0',
+  '#C34461',
+  '#E2A1B7',
+  '#527A93',
+  '#487379',
+  '#37564E',
+  '#A4AFC5',
+  '#5E5D7C',
+];
+
+export const softAutumnPaletteShort: string[] = [
+  '#7E7D5E',
+  '#98795D',
+  '#E2B479',
+  '#F09896',
+  '#B74E5A',
+  '#83926B',
+  '#534F43',
+  '#43836B',
+  '#F1C795',
+  '#FEA6B2',
+  '#377AA5',
+  '#55608D',
+];
+
+export const brightWinterPaletteShort: string[] = [
+  '#D3363F',
+  '#FFFFFF',
+  '#F3DD78',
+  '#ABD452',
+  '#1AA856',
+  '#41D287',
+  '#4CC7E9',
+  '#264F9F',
+  '#604E9A',
+  '#D974C0',
+  '#FBD3ED',
+  '#141414',
+];
+
+export const brightSpringPaletteShort: string[] = [
+  '#FBD05F',
+  '#FD7B61',
+  '#E54449',
+  '#8FBB4A',
+  '#2F7030',
+  '#F784A5',
+  '#EC488F',
+  '#88275A',
+  '#A2E4D8',
+  '#28ADBC',
+  '#1070BC',
+  '#7151A4',
+];
+
+export const warmSpringPaletteShort: string[] = [
+  '#FAD6A6',
+  '#F0BB51',
+  '#AFC546',
+  '#8C9D35',
+  '#735539',
+  '#F98077',
+  '#EF5861',
+  '#8C4835',
+  '#48CEA9',
+  '#33A948',
+  '#C993D1',
+  '#587DCB',
+];
+
+export const lightSpringPaletteShort: string[] = [
+  '#4EC1BC',
+  '#F1BB97',
+  '#F8D47C',
+  '#F99E71',
+  '#F48282',
+  '#F26B65',
+  '#BADA97',
+  '#79C270',
+  '#857456',
+  '#EABCC6',
+  '#85AFDD',
+  '#B0A7D2',
+];
+
+export const lightSummerPaletteShort: string[] = [
+  '#F398B7',
+  '#6FCFDF',
+  '#4292CF',
+  '#A59D92',
+  '#F1DAB0',
+  '#DD5885',
+  '#63DBBF',
+  '#1DC796',
+  '#7D949C',
+  '#8DAADC',
+  '#9782C7',
+  '#F2AAB5',
+];
+
+export const coldSummerPaletteShort: string[] = [
+  '#2E6E7A',
+  '#6F6065',
+  '#E8E0A1',
+  '#DE7089',
+  '#DF4F66',
+  '#852F54',
+  '#346EA0',
+  '#4B4978',
+  '#5CC1DD',
+  '#FDC4D7',
+  '#B35D85',
+  '#1F7960',
+];
+
+export const warmAutumnPaletteShort: string[] = [
+  '#F6BA72',
+  '#E18552',
+  '#BE5242',
+  '#D6353B',
+  '#ADA14B',
+  '#715638',
+  '#477A37',
+  '#1D7C8E',
+  '#6788B5',
+  '#4F425C',
+  '#423C24',
+  '#883837',
+];
+
+export const darkAutumnPaletteShort: string[] = [
+  '#C65454',
+  '#6E272F',
+  '#4A2127',
+  '#8D9C59',
+  '#1B3430',
+  '#392933',
+  '#6F3450',
+  '#E87F6A',
+  '#263356',
+  '#F4C581',
+  '#B88C5B',
+  '#4C432E',
+];
+
+export const darkWinterPaletteShort: string[] = [
+  '#000000',
+  '#E2537E',
+  '#622534',
+  '#59335A',
+  '#609EF1',
+  '#1C3353',
+  '#147585',
+  '#EEE8AC',
+  '#97253F',
+  '#23B783',
+  '#1A4239',
+  '#4C7032',
+];
+
+export const coldWinterPaletteShort: string[] = [
+  '#F863B4',
+  '#0E0E0E',
+  '#2299C3',
+  '#20418E',
+  '#FDE55F',
+  '#C9D4F0',
+  '#FE98DA',
+  '#AA2A67',
+  '#15B764',
+  '#DC364C',
+  '#7B3569',
+  '#89509F',
+];
+
+export const palettesObjShort: Record<Palette, string[]> = {
+  softSummerPalette: softSummerPaletteShort,
+  softAutumnPalette: softAutumnPaletteShort,
+  brightWinterPalette: brightWinterPaletteShort,
+  brightSpringPalette: brightSpringPaletteShort,
+  warmSpringPalette: warmSpringPaletteShort,
+  lightSpringPalette: lightSpringPaletteShort,
+  lightSummerPalette: lightSummerPaletteShort,
+  coldWinterPalette: coldWinterPaletteShort,
+  coldSummerPalette: coldSummerPaletteShort,
+  warmAutumnPalette: warmAutumnPaletteShort,
+  darkAutumnPalette: darkAutumnPaletteShort,
+  darkWinterPalette: darkWinterPaletteShort,
+};
+
 export const palettesObj: Record<Palette, string[]> = {
   softSummerPalette: softSummerPalette,
   darkAutumnPalette: darkAutumnPalette,
-  coolSummerPalette: coolSummerPalette,
+  coldSummerPalette: coldSummerPalette,
   lightSpringPalette: lightSpringPalette,
   softAutumnPalette: softAutumnPalette,
   brightSpringPalette: brightSpringPalette,

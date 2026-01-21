@@ -40,13 +40,13 @@
   </div>
 </template>
 <script lang="ts">
-import AppEditorCanvas from '@/views/main/views/color-view/components/AppEditorCanvas.vue';
+import AppEditorCanvas from '@/views/main/views/characteristic-colors/components/AppEditorCanvas.vue';
 import { computed, defineComponent, PropType, ref } from 'vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import { useI18n } from 'vue-i18n';
 import AppButton from '@/shared/components/AppButton.vue';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
-import AppImageSignInModal from '@/views/main/views/color-view/components/AppImageSignInModal.vue';
+import AppImageSignInModal from '@/views/main/views/characteristic-colors/components/AppImageSignInModal.vue';
 import { useStore } from 'vuex';
 import { EditorCanvasRef } from '@/interfaces/editor-canvas-ref.interface';
 import { Palette } from '@/types/palette.type';

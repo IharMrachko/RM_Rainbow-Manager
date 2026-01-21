@@ -102,19 +102,19 @@
 </template>
 <script lang="ts">
 import { computed, defineComponent, onBeforeMount, onMounted, ref, watch } from 'vue';
-import AppColorCard from '@/views/main/views/color-view/components/AppColorCard.vue';
-import AppEditorCanvas from '@/views/main/views/color-view/components/AppEditorCanvas.vue';
+import AppColorCard from '@/views/main/views/characteristic-colors/components/AppColorCard.vue';
+import AppEditorCanvas from '@/views/main/views/characteristic-colors/components/AppEditorCanvas.vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import AppPopover from '@/shared/components/AppPopover.vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
-import { colorCards } from '@/views/main/views/color-view/components/color-card.constanst';
+import { colorCards } from '@/views/main/views/characteristic-colors/components/color-card.constanst';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
 import AppCheckbox from '@/shared/components/AppCheckbox.vue';
 import { readFileAsDataURL } from '@/helpers/read-file-as-data-url';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
-import AppImageSignInModal from '@/views/main/views/color-view/components/AppImageSignInModal.vue';
+import AppImageSignInModal from '@/views/main/views/characteristic-colors/components/AppImageSignInModal.vue';
 import AppImageSettingsModal from '@/shared/components/AppImageSettingsModal.vue';
 import AppCameraModal from '@/shared/components/AppCameraModal.vue';
 import { EditorCanvasRef } from '@/interfaces/editor-canvas-ref.interface';

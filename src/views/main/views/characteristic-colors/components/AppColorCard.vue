@@ -1,6 +1,6 @@
 <template>
   <div class="card" :class="{ cardSelected: isSelected }" @click="selected">
-    <div class="card-number">{{ card.id }}</div>
+    <div class="card-number">{{ card?.type ? t(card.type) : index + 1 }}</div>
     <div class="segments">
       <div
         v-for="item in card.segments"
@@ -14,6 +14,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import { MaskCard } from '@/types/mask-card.type';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
   props: {
@@ -25,14 +26,20 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    index: {
+      type: Number,
+      default: 0,
+    },
   },
   emits: ['selected'],
   setup(props, { emit }) {
+    const { t } = useI18n();
     const selected = () => {
       emit('selected', props.card);
     };
     return {
       selected,
+      t,
     };
   },
 });
@@ -88,16 +95,15 @@ export default defineComponent({
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 72px; /* крупнее */
-  font-weight: 900; /* максимально жирный */
-  color: #fff; /* чисто белый */
-  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8), /* мягкое свечение */ 0 2px 6px rgba(0, 0, 0, 0.7),
-    /* глубокая тень */ 0 0 12px rgba(0, 0, 0, 0.9); /* дополнительная чёткость */
+  font-size: 14px;
+  font-weight: 900;
+  color: #000;
   letter-spacing: 2px; /* чуть больше воздуха */
   pointer-events: none;
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.8), -1px -1px 0px rgba(0, 0, 0, 0.3);
 
-  @media (max-width: 768px) {
-    font-size: 30px;
+  @media (max-width: 600px) {
+    font-size: 11px;
   }
 }
 </style>

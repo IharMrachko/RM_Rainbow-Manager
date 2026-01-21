@@ -13,6 +13,7 @@ import {
   faArrowUp,
   faBirthdayCake,
   faBroom,
+  faBrush,
   faCamera,
   faCheck,
   faCheckCircle,
@@ -41,6 +42,7 @@ import {
   faMask,
   faMicrochip,
   faMinus,
+  faPaintBrush,
   faPalette,
   faPencil,
   faPencilSquare,
@@ -122,7 +124,9 @@ library.add(
   faQuestion,
   faQuestionCircle,
   faContactCard,
-  faArrowLeft
+  faArrowLeft,
+  faBrush,
+  faPaintBrush
 );
 
 onAuthStateChanged(auth, (user) => {

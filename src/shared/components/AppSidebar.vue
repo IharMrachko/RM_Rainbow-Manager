@@ -1,6 +1,6 @@
 <template>
   <!-- десктоп -->
-  <aside v-if="!isMobile" class="sidebar-container" :style="{ width: isShort ? '60px' : '220px' }">
+  <aside v-if="!isMobile" class="sidebar-container" :style="{ width: isShort ? '60px' : '300px' }">
     <section class="main-section" @click="setBurgerMenu">
       <slot name="main" :is-short="isShort" />
     </section>
@@ -76,7 +76,6 @@ export default defineComponent({
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px); /* для Safari */
   border-right: 1px solid rgba(255, 255, 255, 0.3);
-  width: 300px;
   padding: 15px;
   height: calc(100vh - var(--header-height));
   & .main-section {

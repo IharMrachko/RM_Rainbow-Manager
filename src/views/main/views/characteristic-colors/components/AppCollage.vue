@@ -80,7 +80,7 @@
 <script lang="ts">
 import { computed, defineComponent, onMounted, ref, watch } from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
-import { colorCards } from '@/views/main/views/color-view/components/color-card.constanst';
+import { colorCards } from '@/views/main/views/characteristic-colors/components/color-card.constanst';
 import { useStore } from 'vuex';
 import { useCanvasSaver } from '@/composables/useCanvasSaver';
 import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
@@ -90,7 +90,7 @@ import { useI18n } from 'vue-i18n';
 import AppCheckbox from '@/shared/components/AppCheckbox.vue';
 import { readFileAsDataURL } from '@/helpers/read-file-as-data-url';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
-import AppImageSignInModal from '@/views/main/views/color-view/components/AppImageSignInModal.vue';
+import AppImageSignInModal from '@/views/main/views/characteristic-colors/components/AppImageSignInModal.vue';
 import AppImageSettingsModal from '@/shared/components/AppImageSettingsModal.vue';
 
 const mobileHeight = 410;
