@@ -86,7 +86,7 @@ const messages = {
     top3: 'Top 3 possible palettes',
     softSummerPalette: 'Soft Summer — soft and cool palette',
     darkAutumnPalette: 'Dark Autumn — warm and dark palette',
-    coolSummerPalette: 'Cool Summer — cool and soft palette',
+    coldSummerPalette: 'Cold Summer — cool and soft palette',
     lightSpringPalette: 'Light Spring — light and warm palette',
     softAutumnPalette: 'Soft Autumn — soft and warm palette',
     brightSpringPalette: 'Bright Spring — bright and warm palette',
