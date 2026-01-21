@@ -90,7 +90,7 @@
       <app-popover-wrapper>
         <app-popover-item @click="openPaletteSettings">
           <font-awesome-icon size="xl" :icon="['fas', 'cog']" />
-          <span>{{ t('settings') }}</span>
+          <span>{{ t('filter') }}</span>
         </app-popover-item>
         <app-popover-item @click="openImageSettingsModal">
           <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />

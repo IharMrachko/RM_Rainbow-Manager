@@ -39,7 +39,7 @@ export const palette: Module<PaletteState, unknown> = {
   namespaced: true,
   state: (): PaletteState => ({
     settings: {
-      fullFill: true,
+      fullFill: false,
       onlySoft: true,
       onlyBright: true,
       onlyCold: true,

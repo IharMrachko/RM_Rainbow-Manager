@@ -178,6 +178,7 @@ const messages = {
     showOnlyLight: 'Show only light ones',
     showOnlyDark: 'Show only dark ones',
     pleaseSelectAtLeastOneCharacteristic: 'Select at least one characteristic!',
+    filter: 'Filter',
   },
   ru: {
     login: 'Вход',
@@ -359,6 +360,7 @@ const messages = {
     showOnlyLight: 'Показывать только светлые',
     showOnlyDark: 'Показывать только темные',
     pleaseSelectAtLeastOneCharacteristic: 'Выберите хотя бы одну характерестику!',
+    filter: 'Фильтер',
   },
 };
 
