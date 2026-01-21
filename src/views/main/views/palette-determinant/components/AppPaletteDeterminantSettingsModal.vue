@@ -2,13 +2,13 @@
   <div ref="modalRef" class="modal-content neon">
     <app-modal-header @close="close"></app-modal-header>
     <section class="wrapper-filter">
-      <AppCheckbox v-model="fullFill" label="Полная заливка"></AppCheckbox>
-      <AppCheckbox v-model="onlySoft" label="Показывать только мягкие"></AppCheckbox>
-      <AppCheckbox v-model="onlyBright" label="Показывать только яркие"></AppCheckbox>
-      <AppCheckbox v-model="onlyCold" label="Показывать только холодные"></AppCheckbox>
-      <AppCheckbox v-model="onlyWarm" label="Показывать только теплые"></AppCheckbox>
-      <AppCheckbox v-model="onlyLight" label="Показывать только светлые"></AppCheckbox>
-      <AppCheckbox v-model="onlyDark" label="Показывать только темные"></AppCheckbox>
+      <AppCheckbox v-model="fullFill" label="fullFill"></AppCheckbox>
+      <AppCheckbox v-model="onlySoft" label="showOnlySoft"></AppCheckbox>
+      <AppCheckbox v-model="onlyBright" label="showOnlyBright"></AppCheckbox>
+      <AppCheckbox v-model="onlyCold" label="showOnlyCold"></AppCheckbox>
+      <AppCheckbox v-model="onlyWarm" label="showOnlyWarm"></AppCheckbox>
+      <AppCheckbox v-model="onlyLight" label="showOnlyLight"></AppCheckbox>
+      <AppCheckbox v-model="onlyDark" label="showOnlyDark"></AppCheckbox>
     </section>
     <footer class="footer">
       <div class="btn" @click="applyFilter">
@@ -55,7 +55,7 @@ export default defineComponent({
     const applyFilter = () => {
       if (clearAll.value) {
         store.dispatch('toast/addToast', {
-          message: 'Выберите хотя бы одну характерестику!',
+          message: 'pleaseSelectAtLeastOneCharacteristic',
           severity: 'warning',
         });
         return;

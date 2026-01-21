@@ -13,8 +13,9 @@
     >
       <section class="cards">
         <app-color-card
-          v-for="card in cards"
+          v-for="(card, index) in cards"
           :key="card.id"
+          :index="index"
           :card="card"
           :is-selected="selectedCard?.id === card?.id"
           @selected="selected"

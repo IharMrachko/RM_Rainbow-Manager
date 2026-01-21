@@ -142,7 +142,7 @@ import AppImageSignInModal from '@/views/main/views/characteristic-colors/compon
 import AppImageSettingsModal from '@/shared/components/AppImageSettingsModal.vue';
 import AppCameraModal from '@/shared/components/AppCameraModal.vue';
 import AppLoader from '@/shared/components/AppLoader.vue';
-import { palettesObj } from '@/views/main/views/palette/palette';
+import { palettesObj, palettesObjShort } from '@/views/main/views/palette/palette';
 import { Palette } from '@/types/palette.type';
 import { PaletteCard } from '@/types/palette-card.type';
 import AppColorCard from '@/views/main/views/characteristic-colors/components/AppColorCard.vue';
@@ -172,6 +172,12 @@ export default defineComponent({
     const isSaveToGallery = ref(false);
     const targetRef = ref<HTMLElement | null>(null);
     const visible = ref(false);
+
+    const getPalette = (): Record<Palette, string[]> => {
+      const fullFill = store.getters['palette/getSettingsMap'].fullFill;
+      return fullFill ? palettesObj : palettesObjShort;
+    };
+
     const createPaletteCard = (type: string, color: string[]): PaletteCard => ({
       id: type as Palette,
       name: type,
@@ -189,7 +195,7 @@ export default defineComponent({
     };
 
     const palettesCards = ref<PaletteCard[]>(
-      filterAndTransformPalettes(palettesObj, store.getters['palette/getSettingsMap'].palette)
+      filterAndTransformPalettes(getPalette(), store.getters['palette/getSettingsMap'].palette)
     );
     const startPalette = ref(0);
     const endPalette = ref(6);
@@ -314,7 +320,7 @@ export default defineComponent({
 
     const openPaletteSettings = async () => {
       await openDialog(AppPaletteDeterminantSettingsModal, {}).then((value) => {
-        palettesCards.value = filterAndTransformPalettes(palettesObj, value.palette);
+        palettesCards.value = filterAndTransformPalettes(getPalette(), value.palette);
         initPositionStart();
         initSelectedFirst();
       });
