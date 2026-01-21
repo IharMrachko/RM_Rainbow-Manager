@@ -360,7 +360,7 @@ const messages = {
     showOnlyLight: 'Показывать только светлые',
     showOnlyDark: 'Показывать только темные',
     pleaseSelectAtLeastOneCharacteristic: 'Выберите хотя бы одну характерестику!',
-    filter: 'Фильтер',
+    filter: 'Фильтр',
   },
 };
 
