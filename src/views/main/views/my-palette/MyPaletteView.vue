@@ -403,6 +403,7 @@ export default defineComponent({
     gap: 15px;
     flex-wrap: nowrap;
     overflow: auto;
+    height: 100dvh;
   }
   .color-container .color-wrapper .selected {
     flex: 0 1 auto;
