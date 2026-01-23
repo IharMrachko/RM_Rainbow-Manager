@@ -318,7 +318,7 @@ export default defineComponent({
 @media (max-width: 600px) {
   .sv {
     width: 160px;
-    height: 100px;
+    height: 80px;
   }
   .hue {
     width: 160px;
