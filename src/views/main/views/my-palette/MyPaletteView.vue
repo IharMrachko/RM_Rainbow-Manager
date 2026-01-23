@@ -409,6 +409,7 @@ export default defineComponent({
     flex: 0 1 auto;
     align-self: flex-start; // не тянется вниз
     width: 100%;
+    gap: 0;
   }
 }
 
