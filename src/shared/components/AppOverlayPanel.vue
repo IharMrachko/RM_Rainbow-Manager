@@ -121,7 +121,6 @@ export default defineComponent({
     const overlayStyle = computed(() => {
       positionTrigger.value;
       if (!props.target) return {};
-
       const rect = props.target.getBoundingClientRect();
       const el = overlayRef.value;
 

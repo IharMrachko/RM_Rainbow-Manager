@@ -1,6 +1,6 @@
 <template>
   <div>
-    <canvas ref="canvasRef" :width="sizeRef" :height="sizeRef"></canvas>
+    <canvas ref="canvasRef" :width="sizeRef" :height="sizeRef" @click="handleCanvasClick"></canvas>
   </div>
 </template>
 
@@ -15,8 +15,9 @@ export default defineComponent({
   props: {
     segments: { type: Array as () => FrameColorSegmentType[], required: true },
     imageUrl: { type: [String, null], default: null },
+    gapBetweenSegments: { type: Number, default: 0 },
   },
-  emits: ['update:imageUrl'],
+  emits: ['update:imageUrl', 'selected-segment'],
   setup(props, { emit }) {
     const store = useStore();
     const canvasRef = ref<HTMLCanvasElement | null>(null);
@@ -102,17 +103,106 @@ export default defineComponent({
       const startOffset = startAngleRef.value ?? -Math.PI / 2;
       ctx.lineWidth = thickness; // Устанавливаем толщину линии для всех дуг
       // Перебираем все сегменты и рисуем каждый как дугу
+
       props.segments.forEach((seg, i) => {
         ctx.beginPath(); // Начинаем новый путь для текущего сегмента
         ctx.strokeStyle = seg.color; // Устанавливаем цвет обводки для текущего сегмента
-        const start = i * step + startOffset; // Вычисляем начальный угол дуги для сегмента i
-        const end = (i + 1) * step + startOffset; // Вычисляем конечный угол дуги для сегмента i
+        const start = i * step + startOffset + props.gapBetweenSegments; // Вычисляем начальный угол дуги для сегмента i
+        const end = (i + 1) * step + startOffset - props.gapBetweenSegments; // Вычисляем конечный угол дуги для сегмента i
         // Рисуем дугу по окружности с заданным радиусом и углами
         // Центр круга: (radius, radius)
         // Радиус: radius - thickness / 2 (чтобы линия была по центру толщины)
         ctx.arc(radius, radius, radius - thickness / 2, start, end);
         ctx.stroke(); // Отрисовываем дугу на канвасе
       });
+    };
+
+    // Функция для определения сегмента по координатам клика
+    const handleCanvasClick = (event: MouseEvent) => {
+      if (!canvasRef.value) return;
+
+      // Получаем координаты клика относительно canvas
+      const rect = canvasRef.value.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
+      // Вычисляем расстояние от центра
+      const centerX = sizeRef.value / 2;
+      const centerY = sizeRef.value / 2;
+      const radius = sizeRef.value / 2;
+
+      // Вычисляем расстояние от точки клика до центра
+      const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+
+      // Проверяем, находится ли клик в пределах рамки (сегментов)
+      const innerRadius = radius - thicknessRef.value;
+      const outerRadius = radius;
+
+      if (distance >= innerRadius && distance <= outerRadius) {
+        // Клик в пределах рамки - вычисляем угол
+        const clickAngle = Math.atan2(y - centerY, x - centerX);
+
+        // Нормализуем угол от 0 до 2π
+        let normalizedAngle = clickAngle;
+        if (normalizedAngle < 0) {
+          normalizedAngle += 2 * Math.PI;
+        }
+
+        // Учитываем начальное смещение
+        const startOffset = startAngleRef.value ?? -Math.PI / 2;
+        let adjustedAngle = normalizedAngle - startOffset;
+        if (adjustedAngle < 0) {
+          adjustedAngle += 2 * Math.PI;
+        }
+        if (adjustedAngle >= 2 * Math.PI) {
+          adjustedAngle -= 2 * Math.PI;
+        }
+
+        // Вычисляем индекс сегмента
+        const step = (2 * Math.PI) / props.segments.length;
+        let segmentIndex = Math.floor(adjustedAngle / step);
+
+        // Корректируем индекс, если он выходит за границы
+        if (segmentIndex >= props.segments.length) {
+          segmentIndex = props.segments.length - 1;
+        } else if (segmentIndex < 0) {
+          segmentIndex = 0;
+        }
+
+        emit('selected-segment', segmentIndex);
+        highlightSegment(segmentIndex);
+      } else {
+        // Клик вне рамки
+        render();
+      }
+    };
+
+    // Функция для визуального выделения сегмента (опционально)
+    const highlightSegment = (segmentIndex: number) => {
+      if (!canvasRef.value) return;
+      render();
+      const ctx = canvasRef.value.getContext('2d')!;
+      const radius = sizeRef.value / 2;
+      const thickness = thicknessRef.value;
+      const step = (2 * Math.PI) / props.segments.length;
+      const startOffset = startAngleRef.value ?? -Math.PI / 2;
+
+      // Сохраняем текущее состояние канваса
+      ctx.save();
+
+      // Рисуем подсветку поверх сегмента
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.lineWidth = thickness;
+      ctx.lineCap = 'round';
+      const start = segmentIndex * step + startOffset + props.gapBetweenSegments;
+      const end = (segmentIndex + 1) * step + startOffset - props.gapBetweenSegments;
+
+      ctx.arc(radius, radius, radius - thickness / 2, start, end);
+      ctx.stroke();
+
+      // Восстанавливаем состояние
+      ctx.restore();
     };
 
     onMounted(render);
@@ -173,6 +263,7 @@ export default defineComponent({
       sizeRef,
       getCanvasValue,
       getImageSrc,
+      handleCanvasClick,
     };
   },
 });

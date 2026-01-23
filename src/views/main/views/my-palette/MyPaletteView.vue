@@ -2,46 +2,32 @@
   <div class="color-container">
     <div class="color-wrapper">
       <section class="selected">
-        <app-color-card
-          v-for="card in palettesCards.slice(startPalette, endPalette)"
-          :key="card.id"
-          :index="order(card)"
-          :card="card"
-          :is-selected="selectedCard?.id === card?.id"
-          @selected="selected"
-        ></app-color-card>
-        <div v-if="palettesCards.length > 6" class="arrows">
-          <font-awesome-icon
-            class="arrow left"
-            :size="isMobile ? 'sm' : '2xl'"
-            :icon="['fas', 'arrow-left']"
-            @click="nextPalette"
-          />
-          <font-awesome-icon
-            class="arrow right"
-            :size="isMobile ? 'sm' : '2xl'"
-            :icon="['fas', 'arrow-right']"
-            @click="nextPalette"
-          />
+        <div class="selected-slider">
+          <span>{{ t('numberOfSegments') }}: {{ slider }}</span>
+          <app-slider v-model="slider" :min="1" :max="12"></app-slider>
         </div>
-        <span class="selected-name">{{ t(selectedCard.name) }}</span>
+
+        <div class="color-picker-wrapper">
+          <div class="color-picker-inner">
+            <app-color-picker
+              :is-preview-row="false"
+              :is-combos-section="false"
+              :is-info="false"
+              @change="colorChange($event)"
+            ></app-color-picker>
+          </div>
+        </div>
       </section>
       <section class="editor">
         <app-editor-canvas
           ref="editorCanvasRef"
           v-model:image-url="imageUrl"
           :segments="frameColors"
+          :gap-between-segments="gapBetweenSegments"
+          @selected-segment="selectedSegment($event)"
         ></app-editor-canvas>
       </section>
       <section class="buttons" :class="{ isMobile: isMobile }">
-        <div v-if="!isMobile" class="btn">
-          <app-button
-            raised
-            severity="secondary"
-            :icon="['fas', 'cog']"
-            @click="openPaletteSettings"
-          ></app-button>
-        </div>
         <div v-if="!isMobile" class="btn">
           <app-button
             raised
@@ -87,10 +73,6 @@
     </div>
     <app-popover v-model:visible="visiblePopover">
       <app-popover-wrapper>
-        <app-popover-item @click="openPaletteSettings">
-          <font-awesome-icon size="xl" :icon="['fas', 'cog']" />
-          <span>{{ t('filter') }}</span>
-        </app-popover-item>
         <app-popover-item @click="openImageSettingsModal">
           <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
           <span>{{ t('pickPhoto') }}</span>
@@ -124,86 +106,61 @@
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onBeforeMount, onMounted, ref, watch } from 'vue';
-
+import { computed, defineComponent, onMounted, ref, watch } from 'vue';
+import AppSlider from '@/shared/components/AppSlider.vue';
 import AppCheckbox from '@/shared/components/AppCheckbox.vue';
-import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
+import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopover from '@/shared/components/AppPopover.vue';
 import AppEditorCanvas from '@/views/main/views/characteristic-colors/components/AppEditorCanvas.vue';
 import AppButton from '@/shared/components/AppButton.vue';
-import { EditorCanvasRef } from '@/interfaces/editor-canvas-ref.interface';
 import { useI18n } from 'vue-i18n';
+import { EditorCanvasRef } from '@/interfaces/editor-canvas-ref.interface';
 import { useStore } from 'vuex';
 import { readFileAsDataURL } from '@/helpers/read-file-as-data-url';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppImageSignInModal from '@/views/main/views/characteristic-colors/components/AppImageSignInModal.vue';
 import AppImageSettingsModal from '@/shared/components/AppImageSettingsModal.vue';
 import AppCameraModal from '@/shared/components/AppCameraModal.vue';
-import { palettesObj, palettesObjShort } from '@/views/main/views/palette/palette';
-import { Palette } from '@/types/palette.type';
-import { PaletteCard } from '@/types/palette-card.type';
-import AppColorCard from '@/views/main/views/characteristic-colors/components/AppColorCard.vue';
-import AppPaletteDeterminantSettingsModal from '@/views/main/views/palette-determinant/components/AppPaletteDeterminantSettingsModal.vue';
+import AppColorPicker from '@/shared/components/AppColorPicker.vue';
+import {
+  DEFAULT_COLOR_SEGMENT,
+  MARK_COLOR_SEGMENT,
+} from '@/views/main/views/my-palette/my-palette.constants';
 
 export default defineComponent({
   components: {
-    AppColorCard,
-    AppCheckbox,
-    AppPopoverItem,
-    AppPopoverWrapper,
-    AppPopover,
+    AppColorPicker,
     AppButton,
     AppEditorCanvas,
+    AppPopover,
+    AppPopoverWrapper,
+    AppPopoverItem,
+    AppCheckbox,
+    AppSlider,
   },
-  setup(_) {
+  setup() {
     const editorCanvasRef = ref<EditorCanvasRef | null>(null);
     const { t } = useI18n();
     const uploader = ref();
     const store = useStore();
     const visiblePopover = ref(false);
-    const selectedCard = ref<null | PaletteCard>(null);
-    const frameColors = ref();
+    const frameColors = ref<{ color: string }[]>(store.getters['myPalette/getFrameColors']);
+    const slider = ref(store.getters['myPalette/getNumberSegments']);
     const imageUrl = ref<string | null>(null);
     const isSaveToGallery = ref(false);
     const targetRef = ref<HTMLElement | null>(null);
-
-    const getPalette = (): Record<Palette, string[]> => {
-      const fullFill = store.getters['palette/getSettingsMap'].fullFill;
-      return fullFill ? palettesObj : palettesObjShort;
-    };
-
-    const createPaletteCard = (type: string, color: string[]): PaletteCard => ({
-      id: type as Palette,
-      name: type,
-      colors: color,
-      segments: color.map((it) => ({ color: it })),
-    });
-
-    const filterAndTransformPalettes = (
-      palettesObj: Record<string, string[]>,
-      visible: Record<string, boolean>
-    ): PaletteCard[] => {
-      return Object.entries(palettesObj)
-        .filter(([type]) => visible[type])
-        .map(([type, color]) => createPaletteCard(type, color));
-    };
-
-    const palettesCards = ref<PaletteCard[]>(
-      filterAndTransformPalettes(getPalette(), store.getters['palette/getSettingsMap'].palette)
-    );
-    const startPalette = ref(0);
-    const endPalette = ref(6);
-    const rememberChoose = ref(store.getters['palette/rememberImgMask']);
-    const imgMask = computed(() => store.getters['palette/imgMask']);
-    const originalImgMask = computed(() => store.getters['palette/getOriginalImgMask']);
+    const visible = ref(false);
+    let activeSegmentIndex = 0;
+    const selectedSegmentMap: Map<number, boolean> = new Map<number, boolean>();
+    const rememberChoose = ref(store.getters['myPalette/rememberImgMask']);
+    const imgMask = computed(() => store.getters['myPalette/imgMask']);
+    const originalImgMask = computed(() => store.getters['myPalette/getOriginalImgMask']);
     const currentUser = computed(() => store.getters['authFirebase/currentUser']);
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
-
-    onBeforeMount(() => {
-      initSelectedFirst();
+    const gapBetweenSegments = computed(() => {
+      return frameColors.value.length === 1 ? 0 : 0.003;
     });
-
     onMounted(() => {
       if (rememberChoose.value) {
         const file = imgMask.value;
@@ -215,7 +172,7 @@ export default defineComponent({
 
     const onFileSelected = async (file: File) => {
       imageUrl.value = await readFileAsDataURL(file);
-      await store.dispatch('palette/uploadImgMask', { file });
+      await store.dispatch('myPalette/uploadImgMask', { file });
     };
 
     const saveToGallery = async () => {
@@ -235,17 +192,12 @@ export default defineComponent({
           title: '',
           coloristicType: 'mask',
           maskType: '',
-          paletteType: selectedCard.value ? selectedCard.value.id : '',
+          paletteType: '',
           userId: currentUser.value?.uid,
         });
       } finally {
         isSaveToGallery.value = false;
       }
-    };
-
-    const selected = (item: PaletteCard) => {
-      selectedCard.value = item;
-      frameColors.value = item.colors.map((it) => ({ color: it }));
     };
 
     const openPopover = () => {
@@ -258,7 +210,7 @@ export default defineComponent({
         url,
         coloristicType: 'mask',
         maskType: '',
-        paletteType: selectedCard.value ? selectedCard.value.id : '',
+        paletteType: '',
         currentUserId: currentUser.value?.uid,
         canvas: editorCanvasRef.value?.getCanvasValue(),
         imageUrl: imageUrl.value,
@@ -277,15 +229,15 @@ export default defineComponent({
         imageUrl: url,
       }).then((value) => {
         if (value.originalFile) {
-          store.dispatch('palette/setOriginalImgMask', { file: value.originalFile });
+          store.dispatch('myPalette/setOriginalImgMask', { file: value.originalFile });
         }
-        store.dispatch('palette/uploadImgMask', { file: value.file });
+        store.dispatch('myPalette/uploadImgMask', { file: value.file });
         onFileSelected(value.file);
       });
     };
 
     watch(rememberChoose, (value: boolean) => {
-      store.dispatch('palette/setRememberImgMask', {
+      store.dispatch('myPalette/setRememberImgMask', {
         remember: value,
       });
     });
@@ -296,52 +248,71 @@ export default defineComponent({
 
     const openCameraModal = async () => {
       await openDialog(AppCameraModal, {
-        colorCards: palettesCards.value,
+        colorCards: [
+          {
+            segments: frameColors.value,
+          },
+        ],
       }).then((value) => {
-        store.dispatch('palette/uploadImgMask', { file: value.file });
+        store.dispatch('myPalette/uploadImgMask', { file: value.file });
         onFileSelected(value.file);
-        selected(value.selectedCard);
       });
     };
 
-    const nextPalette = () => {
-      startPalette.value === 0 ? initPositionEnd() : initPositionStart();
+    const selectedSegment = (ind: number) => {
+      activeSegmentIndex = ind;
+      if (!selectedSegmentMap.has(ind)) {
+        setColorsSegment(ind, true);
+        return;
+      }
+      selectedSegmentMap.get(ind) ? setColorsSegment(ind, false) : setColorsSegment(ind, true);
     };
 
-    const openPaletteSettings = async () => {
-      await openDialog(AppPaletteDeterminantSettingsModal, {}).then((value) => {
-        palettesCards.value = filterAndTransformPalettes(getPalette(), value.palette);
-        initPositionStart();
-        initSelectedFirst();
+    const setColorsSegment = (ind: number, isActive: boolean) => {
+      frameColors.value = frameColors.value.map((it, index) => {
+        return index === ind
+          ? {
+              color: MARK_COLOR_SEGMENT,
+            }
+          : {
+              color: it.color === MARK_COLOR_SEGMENT ? DEFAULT_COLOR_SEGMENT : it.color,
+            };
+      });
+      selectedSegmentMap.set(ind, isActive);
+      store.dispatch('myPalette/setFrameColors', {
+        frameColors: frameColors.value,
       });
     };
 
-    const initSelectedFirst = () => {
-      const [first] = palettesCards.value;
-      selectedCard.value = first;
-      frameColors.value = first.colors.map((it) => ({ color: it }));
-    };
+    watch(slider, (value) => {
+      const result = [];
+      for (let i = 0; i < value; i++) {
+        result.push({ color: DEFAULT_COLOR_SEGMENT });
+      }
+      frameColors.value = result;
+      store.dispatch('myPalette/setFrameColors', {
+        frameColors: frameColors.value,
+      });
+      store.dispatch('myPalette/setNumberSegments', slider);
+    });
 
-    const initPositionStart = () => {
-      startPalette.value = 0;
-      endPalette.value = 6;
-    };
-
-    const initPositionEnd = () => {
-      startPalette.value = 6;
-      endPalette.value = 12;
-    };
-
-    const order = (card: PaletteCard): number => {
-      return palettesCards.value.findIndex((it) => it.id === card.id);
+    const colorChange = (selectedHex: string) => {
+      frameColors.value = frameColors.value.map((it, index) => {
+        return index === activeSegmentIndex
+          ? {
+              color: selectedHex,
+            }
+          : it;
+      });
+      store.dispatch('myPalette/setFrameColors', {
+        frameColors: frameColors.value,
+      });
     };
 
     return {
       frameColors,
       imageUrl,
       onFileSelected,
-      selected,
-      selectedCard,
       visiblePopover,
       isMobile,
       openPopover,
@@ -355,13 +326,12 @@ export default defineComponent({
       openImageSettingsModal,
       saveToDevice,
       openCameraModal,
-      palettesCards,
       targetRef,
-      endPalette,
-      startPalette,
-      nextPalette,
-      openPaletteSettings,
-      order,
+      visible,
+      colorChange,
+      slider,
+      selectedSegment,
+      gapBetweenSegments,
     };
   },
 });
@@ -391,19 +361,6 @@ export default defineComponent({
     align-items: flex-start;
     justify-content: center;
     position: relative;
-
-    & .arrows {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      cursor: pointer;
-    }
-
-    @media (max-width: 600px) {
-      .selected-name {
-        font-size: 14px;
-      }
-    }
   }
 
   & .editor {
@@ -451,6 +408,26 @@ export default defineComponent({
     flex: 0 1 auto;
     align-self: flex-start; // не тянется вниз
     width: 100%;
+  }
+}
+
+.selected-slider {
+  width: 100%;
+
+  @media (max-width: 600px) {
+    padding: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .color-picker-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    & .color-picker-inner {
+      width: 50%;
+    }
   }
 }
 </style>
