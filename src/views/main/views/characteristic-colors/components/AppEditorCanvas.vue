@@ -16,6 +16,7 @@ export default defineComponent({
     segments: { type: Array as () => FrameColorSegmentType[], required: true },
     imageUrl: { type: [String, null], default: null },
     gapBetweenSegments: { type: Number, default: 0 },
+    isMarkSegment: { type: Boolean, default: false },
   },
   emits: ['update:imageUrl', 'selected-segment'],
   setup(props, { emit }) {
@@ -33,12 +34,14 @@ export default defineComponent({
     let isLoadImage = false;
     const render = async () => {
       if (!canvasRef.value) return;
+
       const ctx = canvasRef.value.getContext('2d')!;
       ctx.clearRect(0, 0, sizeRef.value, sizeRef.value);
       if (props.imageUrl && !isLoadImage) {
         imageRef.value = await loadImage(props.imageUrl);
         isLoadImage = true;
       }
+
       drawBaseImage(ctx);
       drawFrame(ctx);
     };
@@ -119,6 +122,7 @@ export default defineComponent({
 
     // Функция для определения сегмента по координатам клика
     const handleCanvasClick = (event: MouseEvent) => {
+      if (!props.isMarkSegment) return;
       if (!canvasRef.value) return;
 
       // Получаем координаты клика относительно canvas
@@ -227,7 +231,7 @@ export default defineComponent({
       () => store.getters['mobile/clientWidth'],
       (value) => {
         if (value < 600) {
-          thicknessRef.value = 58;
+          thicknessRef.value = 65;
           sizeRef.value = 340;
           nextTick(() => render());
           return;

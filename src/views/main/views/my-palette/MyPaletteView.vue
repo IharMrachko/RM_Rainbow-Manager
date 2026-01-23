@@ -24,6 +24,7 @@
           v-model:image-url="imageUrl"
           :segments="frameColors"
           :gap-between-segments="gapBetweenSegments"
+          :is-mark-segment="true"
           @selected-segment="selectedSegment($event)"
         ></app-editor-canvas>
       </section>
