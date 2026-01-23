@@ -3,7 +3,7 @@
     <div class="color-wrapper">
       <section class="selected">
         <div class="selected-slider">
-          <span>{{ t('numberOfSegments') }}: {{ slider }}</span>
+          <span class="selected-slider-count">{{ t('numberOfSegments') }}: {{ slider }}</span>
           <app-slider v-model="slider" :min="1" :max="12"></app-slider>
         </div>
 
@@ -422,6 +422,9 @@ export default defineComponent({
 }
 
 @media (max-width: 600px) {
+  .selected-slider-count {
+    font-size: 12px;
+  }
   .color-picker-wrapper {
     width: 100%;
     display: flex;
