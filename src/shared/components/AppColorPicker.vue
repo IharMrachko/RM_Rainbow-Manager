@@ -1,6 +1,6 @@
 <template>
   <div class="color-picker">
-    <div class="preview-row">
+    <div v-if="isPreviewRow" class="preview-row">
       <div class="preview" :style="{ background: hex }" aria-hidden="true"></div>
       <app-input v-model="hex" :is-label="false"></app-input>
     </div>
@@ -23,12 +23,12 @@
       </div>
     </div>
 
-    <div class="info">
+    <div v-if="isInfo" class="info">
       <div><strong>HEX:</strong> {{ hex }}</div>
       <div><strong>RGB:</strong> {{ rgb.join(', ') }}</div>
     </div>
 
-    <section class="combos">
+    <section v-if="isCombosSection" class="combos">
       <h4>{{ t('combinations') }}</h4>
       <div class="row">
         <div v-for="c in combos" :key="c.label" class="combo">
@@ -57,8 +57,21 @@ export default defineComponent({
       type: String,
       default: '#D4F880',
     },
+    isPreviewRow: {
+      type: Boolean,
+      default: true,
+    },
+    isInfo: {
+      type: Boolean,
+      default: true,
+    },
+    isCombosSection: {
+      type: Boolean,
+      default: true,
+    },
   },
-  setup(props) {
+  emits: ['update:modelValue', 'change'],
+  setup(props, { emit }) {
     const { t } = useI18n();
     const hex = ref(props.hexP);
     const hue = ref(chroma(hex.value).hsl()[0] ?? 0);
@@ -81,6 +94,7 @@ export default defineComponent({
       return chroma.valid(hex.value) ? chroma(hex.value) : chroma('#000');
     });
     const rgb = computed(() => color.value.rgb());
+
     const svBackground = computed(() => chroma.hsl(hue.value, 1, 0.5).hex());
     const svCursorStyle = computed(() => ({
       left: `${(sat.value * 100).toFixed(2)}%`,
@@ -117,6 +131,7 @@ export default defineComponent({
     const updateHexFromHSV = () => {
       const c = chroma.hsv(hue.value, sat.value, val.value);
       hex.value = c.hex();
+      emit('change', hex.value);
     };
 
     const syncFromHex = () => {
@@ -303,7 +318,7 @@ export default defineComponent({
 @media (max-width: 600px) {
   .sv {
     width: 160px;
-    height: 160px;
+    height: 100px;
   }
   .hue {
     width: 160px;

@@ -31,6 +31,14 @@
               <div v-if="!isShort" class="title">{{ t('paletteDeterminant') }}</div>
             </div>
           </router-link>
+          <router-link to="/main/my-palette" active-class="active-link">
+            <div class="sidebar-item">
+              <div class="icon">
+                <font-awesome-icon size="xl" :icon="['fas', 'mask']" />
+              </div>
+              <div v-if="!isShort" class="title">{{ t('myPalette') }}</div>
+            </div>
+          </router-link>
 
           <router-link to="/main/chroma" active-class="active-link">
             <div class="sidebar-item">

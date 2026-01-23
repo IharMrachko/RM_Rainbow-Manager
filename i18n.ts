@@ -123,7 +123,8 @@ const messages = {
     individualReadyText:
       'Individuals ready to unlock the power of color in their personal style journey.',
     fashionLoversText: 'Fashion lovers seeking clarity and confidence in every outfit choice.',
-    designersCravingText: 'Designers craving palettes that spark creativity and harmony.',
+    designersCravingText:
+      'Stylists  and colorists  craving palettes that spark creativity and harmony.',
     curiosMindText: 'Curious minds exploring the science and emotion behind color aesthetics.',
     getStarted: 'Start Your Color Journey',
     instantFramedPhotos: 'Instant Framed Photos',
@@ -179,6 +180,8 @@ const messages = {
     showOnlyDark: 'Show only dark ones',
     pleaseSelectAtLeastOneCharacteristic: 'Select at least one characteristic!',
     filter: 'Filter',
+    myPalette: 'My palette',
+    numberOfSegments: 'Number of segments',
   },
   ru: {
     login: 'Вход',
@@ -301,7 +304,7 @@ const messages = {
     individualReadyText: 'Для тех, кто готов раскрыть потенциал цвета в своем личном стиле.',
     fashionLoversText: 'Любители моды, стремящиеся к ясности и уверенности в каждом выборе наряда.',
     designersCravingText:
-      'Дизайнеры стремящиеся к цветовым палитрам, которые пробуждают творчество и гармонию.',
+      'Стилисты и колористы стремящиеся к цветовым палитрам, которые пробуждают творчество и гармонию.',
     curiosMindText: 'Любознательные умы изучающие научные и эмоциональные аспекты эстетики цвета.',
     getStarted: 'Начните цветовое путешествие',
     instantFramedPhotos: 'Фотографии в рамках',
@@ -361,6 +364,8 @@ const messages = {
     showOnlyDark: 'Показывать только темные',
     pleaseSelectAtLeastOneCharacteristic: 'Выберите хотя бы одну характерестику!',
     filter: 'Фильтр',
+    myPalette: 'Моя палитра',
+    numberOfSegments: 'Количесвто сегментов',
   },
 };
 

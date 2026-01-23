@@ -14,6 +14,7 @@ import PaletteView from '@/views/main/views/palette/PaletteView.vue';
 import FAQView from '@/views/open/views/FAQView.vue';
 import ContactUsView from '@/views/open/views/ContactUsView.vue';
 import PaletteDeterminantView from '@/views/main/views/palette-determinant/PaletteDeterminantView.vue';
+import MyPaletteView from '@/views/main/views/my-palette/MyPaletteView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -71,6 +72,12 @@ const routes: Array<RouteRecordRaw> = [
         path: 'palette-determinant',
         name: 'palette-determinant',
         component: PaletteDeterminantView,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'my-palette',
+        name: 'my-palette',
+        component: MyPaletteView,
         meta: { requiresAuth: true },
       },
       {

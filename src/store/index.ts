@@ -9,6 +9,7 @@ import { imageColor } from '@/store/modules/image-color';
 import { gallery } from '@/store/modules/firebase-gallery';
 import { folder } from '@/store/modules/firebase-folder';
 import { palette } from '@/store/modules/palette';
+import { myPalette } from '@/store/modules/my-palette';
 
 export default createStore({
   state: {},
@@ -26,6 +27,7 @@ export default createStore({
     gallery,
     folder,
     palette,
+    myPalette,
   },
   plugins: [createLogger()],
 });
