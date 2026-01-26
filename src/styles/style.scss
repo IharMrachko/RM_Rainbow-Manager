@@ -19,6 +19,7 @@ $type-colors: (
   --active-doing: #ffd700;
   --vh: 1vh; /* дефолтное значение, чтобы не было ошибок до инициализации */
   --kb: 0;
+  --color-bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .dark {
@@ -27,6 +28,7 @@ $type-colors: (
   --color-sub-text: #f3f3f3;
   --color-li: #fefefe;
   --color-wrap-bg: #111;
+  --color-bg-gradient: linear-gradient(135deg, #475569 0%, #334155 100%);
 
 
   .toast {

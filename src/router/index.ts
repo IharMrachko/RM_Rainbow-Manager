@@ -15,6 +15,7 @@ import FAQView from '@/views/open/views/FAQView.vue';
 import ContactUsView from '@/views/open/views/ContactUsView.vue';
 import PaletteDeterminantView from '@/views/main/views/palette-determinant/PaletteDeterminantView.vue';
 import MyPaletteView from '@/views/main/views/my-palette/MyPaletteView.vue';
+import ConsultView from '@/views/main/views/consult/ConsultView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -27,6 +28,11 @@ const routes: Array<RouteRecordRaw> = [
         path: 'home',
         name: 'home',
         component: HomeView,
+      },
+      {
+        path: 'consultation',
+        name: 'open-consultation',
+        component: ConsultView,
       },
       {
         path: 'FAQ',
@@ -102,6 +108,12 @@ const routes: Array<RouteRecordRaw> = [
         path: 'gallery',
         name: 'gallery',
         component: GalleryView,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'consultation',
+        name: 'main-consultation',
+        component: ConsultView,
         meta: { requiresAuth: true },
       },
     ],

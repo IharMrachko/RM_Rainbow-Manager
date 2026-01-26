@@ -36,6 +36,11 @@
       <div v-if="end === 3" class="see-more">
         <app-button severity="gradient" gradient title="seeMore" @click="end = 12"></app-button>
       </div>
+      <div v-if="end === 12" class="text-center" @click="close">
+        <router-link class="txt2" :to="{ name: 'main-consultation' }">
+          {{ t('remainingInquiries') }}
+        </router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -210,6 +215,29 @@ export default defineComponent({
 
 .see-more {
   width: 250px;
+  padding: 20px;
+}
+
+a {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #666666;
+  margin: 0;
+  text-decoration: none;
+  transition: all 0.4s;
+  -webkit-transition: all 0.4s;
+  -o-transition: all 0.4s;
+  -moz-transition: all 0.4s;
+}
+
+a:hover {
+  color: #57b846;
+}
+
+.text-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 20px;
 }
 </style>
