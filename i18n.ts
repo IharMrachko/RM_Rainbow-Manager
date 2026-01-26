@@ -182,6 +182,32 @@ const messages = {
     filter: 'Filter',
     myPalette: 'My palette',
     numberOfSegments: 'Number of segments',
+    consultation: 'Consultation',
+    close: 'Close',
+    revealYourInherentElegance: 'Reveal your inherent elegance',
+    haveYouEverContemplated: 'Have you ever contemplated',
+    whyCertainHues:
+      'why certain hues illuminate your presence while others render you virtually imperceptible?',
+    greedy:
+      "I'm Julia, and I understand that each of us possesses a unique color palette bestowed by nature — one that can unveil our innate beauty and instill profound confidence.",
+    myGoal:
+      'My purpose is to guide you in discovering that palette through the art of personal color analysis!',
+    whatWilGain: 'What will you gain by determining your color season?',
+    recoveredTime: 'Recovered time and conserved capital',
+    youWillCeaseAcquiring:
+      'You will cease acquiring garments destined to languish unworn in your wardrobe.',
+    assuredSelection: 'Assured selection',
+    youWillPossessPreciseClarity:
+      'You will possess precise clarity on which shades to select whether shopping for attire refining your makeup palette or coloring your hair.',
+    cohesiveHarmonious: 'A cohesive and harmonious presentation',
+    youWillAppearMore:
+      'You will appear more refreshed and expressive. Every element of your wardrobe will harmonize seamlessly.',
+    bidFarewell: 'Bid farewell to compromises and ceaseless experimentation!',
+    togetherWeWillDiscover:
+      'Together we will discover the colors that will actively enhance your presence!',
+    connectViaTelegram: 'Connect via Telegram',
+    demoLookbook: 'Demo lookbook',
+    remainingInquiries: 'Remaining inquiries? Schedule your consultation.',
   },
   ru: {
     login: 'Вход',
@@ -366,6 +392,29 @@ const messages = {
     filter: 'Фильтр',
     myPalette: 'Моя палитра',
     numberOfSegments: 'Количесвто сегментов',
+    consultation: 'Консультация',
+    close: 'Закрыть',
+    revealYourInherentElegance: 'Раскройте свою природную красоту',
+    haveYouEverContemplated: 'Вы когда-нибудь задумывались,',
+    whyCertainHues:
+      'почему некоторые оттенки заставляют вас сиять, а другие, наоборот, делают незаметной? ',
+    greedy:
+      'Меня зовут Юлия и я знаю, что у каждого из нас есть своя уникальная цветовая палитра, данная природой, которая способна раскрыть нашу естественную красоту и придать уверенности.',
+    myGoal: 'Моя цель – помочь вам найти эту палитру с помощью анализа цветотипа внешности!',
+    whatWilGain: 'Что вы получите, определив свой цветотип?',
+    recoveredTime: 'Сэкономленное время и деньги',
+    youWillCeaseAcquiring: 'Вы перестанете покупать вещи, которые потом пылятся в шкафу.',
+    assuredSelection: 'Уверенность в выборе',
+    youWillPossessPreciseClarity:
+      'Вы будете точно знать, какие оттенки выбирать в магазинах, при подборе макияжа или окрашивании волос.',
+    cohesiveHarmonious: 'Целостный и гармоничный образ',
+    youWillAppearMore:
+      'Вы будете выглядеть более свежо и выразительно. Все ваши вещи будут сочетаться друг с другом.',
+    bidFarewell: 'Забудьте о компромиссах и бесконечных экспериментах!',
+    togetherWeWillDiscover: 'Вместе мы найдем те цвета, которые будут работать на вас!',
+    connectViaTelegram: 'Написать в телеграмм',
+    demoLookbook: 'Демо цветотип',
+    remainingInquiries: 'Остались вопросы? Закажите консультацию!',
   },
 };
 

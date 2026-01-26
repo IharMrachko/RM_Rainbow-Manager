@@ -144,7 +144,6 @@ button {
   }
 
   &.gradient {
-    margin-top: 2rem;
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
     font-weight: 600;

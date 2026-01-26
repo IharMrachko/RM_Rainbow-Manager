@@ -14,9 +14,11 @@ import {
   faBirthdayCake,
   faBroom,
   faBrush,
+  faBullseye,
   faCamera,
   faCheck,
   faCheckCircle,
+  faCheckDouble,
   faCog,
   faContactCard,
   faCopy,
@@ -32,6 +34,7 @@ import {
   faFilter,
   faFolder,
   faGear,
+  faGift,
   faHome,
   faImages,
   faInfoCircle,
@@ -46,6 +49,7 @@ import {
   faPalette,
   faPencil,
   faPencilSquare,
+  faPiggyBank,
   faPlus,
   faQuestion,
   faQuestionCircle,
@@ -62,12 +66,14 @@ import {
   faTrash,
   faUndo,
   faUserPlus,
+  faUserTie,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import './styles/style.scss';
 import { i18n } from '../i18n';
 import { auth } from '@/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { faTelegram } from '@fortawesome/free-brands-svg-icons';
 
 library.add(
   faSearch,
@@ -126,8 +132,16 @@ library.add(
   faContactCard,
   faArrowLeft,
   faBrush,
-  faPaintBrush
+  faPaintBrush,
+  faUserTie,
+  faGift,
+  faPiggyBank,
+  faCheckDouble,
+  faBullseye
 );
+
+// @ts-ignore
+library.add(faTelegram);
 
 onAuthStateChanged(auth, (user) => {
   store.commit('authFirebase/setUser', user);
