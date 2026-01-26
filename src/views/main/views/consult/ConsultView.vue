@@ -114,17 +114,23 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { computed, defineComponent, onMounted } from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import { useI18n } from 'vue-i18n';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppPdfPreview from '@/shared/components/AppPdfPreview.vue';
+import { useStore } from 'vuex';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: { AppButton },
   setup() {
     const { t } = useI18n();
-
+    const store = useStore();
+    const pdfPath = computed(() => require(`@/assets/lookbook.pdf`));
+    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
+    const device = computed(() => store.getters['mobile/getDevice']);
     const openTelegram = () => {
       const contacts = {
         telegram: '@Yuliyaa_S',
@@ -153,8 +159,18 @@ export default defineComponent({
       }
     };
     const openPdfModal = () => {
+      if (isMobile.value) {
+        window.open(pdfPath.value, '_blank');
+        return;
+      }
       openDialog(AppPdfPreview, {});
     };
+
+    onMounted(() => {
+      if (device.value === 'ios') {
+        iNoBounce.enable();
+      }
+    });
     return {
       openTelegram,
       t,
