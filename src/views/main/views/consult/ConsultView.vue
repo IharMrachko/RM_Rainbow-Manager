@@ -168,7 +168,7 @@ export default defineComponent({
 
     onMounted(() => {
       if (device.value === 'ios') {
-        iNoBounce.enable();
+        iNoBounce.disable();
       }
     });
     return {
