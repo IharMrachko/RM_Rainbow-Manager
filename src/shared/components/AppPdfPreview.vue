@@ -52,7 +52,7 @@ export default defineComponent({
   emits: ['close'],
   setup(props, { emit }) {
     const supportsEmbed = ref(true);
-    const isLoading = ref(true);
+    const isLoading = ref(false);
 
     // Ключевое изменение: добавляем #page=1 в конец URL
     const pdfUrl = computed(() => {
