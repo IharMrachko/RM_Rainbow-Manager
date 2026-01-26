@@ -56,7 +56,22 @@ export default defineComponent({
   emits: ['resolve', 'reject', 'close'],
   setup(props, { emit }) {
     const fileSize = ref('');
-    const pdfPath = computed(() => require(`@/assets/${props.fileName}`));
+    const pdfPath = computed(() => {
+      const basePath = require(`@/assets/${props.fileName}`);
+
+      // Определяем мобильное устройство
+      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+      const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
+      const isAndroid = /android/i.test(userAgent);
+
+      if (isIOS || isAndroid) {
+        // Параметры для мобильных устройств
+        return `${basePath}#view=FitH&zoom=page-width&scrollbar=0&toolbar=0&navpanes=0`;
+      }
+
+      // Для десктопа
+      return `${basePath}#view=FitH`;
+    });
 
     const downloadPdf = () => {
       const link = document.createElement('a');
@@ -153,8 +168,35 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   border: none;
-}
+  /* Для мобильных - предотвращаем масштабирование */
+  @media (max-width: 600px) {
+    -webkit-overflow-scrolling: touch;
+    overflow: auto;
 
+    /* Принудительно масштабируем содержимое */
+    transform-origin: top left;
+  }
+}
+/* Специальные стили для iOS */
+@supports (-webkit-touch-callout: none) {
+  .pdf-iframe {
+    /* Отключаем возможность масштабирования пальцами */
+    touch-action: pan-x pan-y;
+
+    /* Фиксируем viewport */
+    max-width: 100vw;
+
+    /* Предотвращаем горизонтальный скролл */
+    overflow-x: hidden !important;
+    overflow-y: auto;
+  }
+
+  .pdf-viewer {
+    /* Для iOS Safe Area */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
 .pdf-loading p {
   margin: 0;
   color: #4a5568;
