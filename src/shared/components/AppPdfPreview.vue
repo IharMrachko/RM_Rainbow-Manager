@@ -40,6 +40,7 @@
 import { computed, defineComponent, onMounted, ref } from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   components: { AppModalHeader, AppButton },
@@ -55,16 +56,13 @@ export default defineComponent({
   },
   emits: ['resolve', 'reject', 'close'],
   setup(props, { emit }) {
+    const store = useStore();
+    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
     const fileSize = ref('');
     const pdfPath = computed(() => {
       const basePath = require(`@/assets/${props.fileName}`);
 
-      // Определяем мобильное устройство
-      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-      const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
-      const isAndroid = /android/i.test(userAgent);
-
-      if (isIOS || isAndroid) {
+      if (isMobile.value) {
         // Параметры для мобильных устройств
         return `${basePath}#view=FitH&zoom=page-width&scrollbar=0&toolbar=0&navpanes=0`;
       }
