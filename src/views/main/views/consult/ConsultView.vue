@@ -176,7 +176,8 @@ export default defineComponent({
   flex-wrap: wrap;
 
   @media (max-width: 600px) {
-    padding: 0;
+    padding: 0 0 60px 0;
+    height: 100dvh;
   }
 }
 

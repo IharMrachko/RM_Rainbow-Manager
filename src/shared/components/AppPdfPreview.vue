@@ -6,12 +6,6 @@
     <div class="wrapper">
       <div class="pdf-viewer">
         <iframe :src="pdfPath" class="pdf-iframe" :title="`Просмотр ${fileName}`"></iframe>
-
-        <!-- Индикатор загрузки -->
-        <div v-if="isLoading" class="pdf-loading">
-          <div class="spinner"></div>
-          <p>Загрузка документа...</p>
-        </div>
       </div>
 
       <!-- Панель управления -->
@@ -22,15 +16,6 @@
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-          </button>
-          <button class="control-button" title="Печать" @click="printPdf">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M6 9V2h12v7" />
-              <path
-                d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"
-              />
-              <path d="M6 14h12v8H6z" />
             </svg>
           </button>
           <button class="control-button" title="Открыть в новой вкладке" @click="openInNewTab">
@@ -82,16 +67,6 @@ export default defineComponent({
       document.body.removeChild(link);
     };
 
-    // Печать PDF
-    const printPdf = () => {
-      const printWindow = window.open(pdfPath.value, '_blank');
-      if (printWindow) {
-        printWindow.onload = () => {
-          printWindow.print();
-        };
-      }
-    };
-
     // Открыть в новой вкладке
     const openInNewTab = () => {
       window.open(pdfPath.value, '_blank');
@@ -120,7 +95,6 @@ export default defineComponent({
     };
     return {
       openInNewTab,
-      printPdf,
       downloadPdf,
       pdfPath,
       fileSize,
@@ -198,6 +172,10 @@ export default defineComponent({
   width: 100%;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
+
+  @media (max-width: 600px) {
+    justify-content: center;
+  }
 }
 
 .controls-left {
@@ -236,6 +214,10 @@ export default defineComponent({
   display: flex;
   align-items: center;
   gap: 20px;
+
+  @media (max-width: 600px) {
+    display: none;
+  }
 }
 
 .file-size {
