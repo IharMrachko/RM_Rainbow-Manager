@@ -29,4 +29,17 @@ module.exports = defineConfig({
       clientsClaim: true,
     },
   },
+  configureWebpack: {
+    module: {
+      rules: [
+        {
+          test: /\.(pdf)(\?.*)?$/,
+          type: 'asset/resource',
+          generator: {
+            filename: 'assets/pdf/[name].[hash:8][ext]',
+          },
+        },
+      ],
+    },
+  },
 });

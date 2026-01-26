@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, onMounted, onUnmounted } from 'vue';
 import { closeDialog, dialogsStore } from '@/shared/components/dialog/services/dialog.service';
 
 export default defineComponent({
@@ -37,6 +37,22 @@ export default defineComponent({
     const dialogsSt = dialogsStore;
 
     const close = closeDialog;
+    // Закрытие по ESC
+    const onKeydown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        const lstIndex = dialogsSt.dialogs.length - 1;
+        close(dialogsSt.dialogs[lstIndex].id);
+      }
+    };
+
+    // Добавляем обработчик ESC
+    onMounted(() => {
+      window.addEventListener('keydown', onKeydown);
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener('keydown', onKeydown);
+    });
     return {
       dialogsSt,
       close,

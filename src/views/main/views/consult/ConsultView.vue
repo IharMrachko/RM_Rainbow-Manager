@@ -90,7 +90,14 @@
           </div>
 
           <div class="action-buttons">
-            <AppPdfPreview :button-text="t('demoLookbook')" />
+            <app-button
+              :severity="'secondary'"
+              raised
+              :icon="['fas', 'eye']"
+              title="demoLookbook"
+              @click="openPdfModal"
+            >
+            </app-button>
             <app-button
               :severity="'secondary'"
               raised
@@ -108,12 +115,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import AppPdfPreview from '@/shared/components/AppPdfPreview.vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import { useI18n } from 'vue-i18n';
+import { openDialog } from '@/shared/components/dialog/services/dialog.service';
+import AppPdfPreview from '@/shared/components/AppPdfPreview.vue';
 
 export default defineComponent({
-  components: { AppButton, AppPdfPreview },
+  components: { AppButton },
   setup() {
     const { t } = useI18n();
 
@@ -144,9 +152,13 @@ export default defineComponent({
         window.open(`https://t.me/${contacts.telegram.replace('@', '')}`, '_blank');
       }
     };
+    const openPdfModal = () => {
+      openDialog(AppPdfPreview, {});
+    };
     return {
       openTelegram,
       t,
+      openPdfModal,
     };
   },
 });
@@ -189,6 +201,8 @@ export default defineComponent({
     @media (max-width: 600px) {
       font-size: 20px;
       margin-bottom: 0;
+      padding-left: 15px;
+      padding-right: 15px;
     }
 
     & .title-icon {
