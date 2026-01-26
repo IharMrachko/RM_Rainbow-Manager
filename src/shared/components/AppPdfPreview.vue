@@ -33,7 +33,7 @@
         </div>
 
         <div class="controls-right">
-          <app-button raised severity="gradient" @click="close">Закрыть</app-button>
+          <app-button raised severity="gradient" title="close" @click="close">Закрыть</app-button>
         </div>
       </div>
     </div>
@@ -110,11 +110,14 @@ export default defineComponent({
   flex-direction: column;
   border-radius: 20px;
   overflow: hidden;
+  background: var(--color-bg);
 
-  @media (max-width: 768px) {
+  @media (max-width: 600px) {
     width: 100vw;
-    height: 100vh;
+    height: 100%;
     border-radius: 0;
+    box-shadow: none;
+    border: none;
   }
 }
 
@@ -135,7 +138,6 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  background: #f5f5f5;
 }
 
 /* EMBED - основной способ */
