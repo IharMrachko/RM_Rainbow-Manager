@@ -178,7 +178,8 @@ export default defineComponent({
   @media (max-width: 600px) {
     padding: 0 0 60px 0;
     height: 100dvh;
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: auto;
   }
 }
 
