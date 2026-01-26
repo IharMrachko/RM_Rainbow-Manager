@@ -2,13 +2,25 @@
   <div ref="modalRef" class="modal-content neon">
     <app-modal-header :title="fileName" @close="close"></app-modal-header>
 
-    <!-- PDF просмотрщик -->
     <div class="wrapper">
       <div class="pdf-viewer">
-        <iframe :src="pdfPath" class="pdf-iframe" :title="`Просмотр ${fileName}`"></iframe>
+        <!-- Используем embed вместо iframe -->
+        <embed
+          :src="pdfUrl"
+          type="application/pdf"
+          class="pdf-embed"
+          :title="`Просмотр ${fileName}`"
+        />
+
+        <!-- Fallback для браузеров без поддержки embed -->
+        <iframe
+          v-if="!supportsEmbed"
+          :src="pdfUrl"
+          class="pdf-iframe"
+          :title="`Просмотр ${fileName}`"
+        ></iframe>
       </div>
 
-      <!-- Панель управления -->
       <div class="pdf-controls">
         <div class="controls-left">
           <button class="control-button" title="Скачать" @click="downloadPdf">
@@ -18,18 +30,10 @@
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
           </button>
-          <button class="control-button" title="Открыть в новой вкладке" @click="openInNewTab">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-              <polyline points="15 3 21 3 21 9" />
-              <line x1="10" y1="14" x2="21" y2="3" />
-            </svg>
-          </button>
         </div>
 
         <div class="controls-right">
-          <span v-if="fileSize" class="file-size">{{ fileSize }}</span>
-          <app-button raised severity="gradient" title="close" @click="close"></app-button>
+          <app-button raised severity="gradient" @click="close">Закрыть</app-button>
         </div>
       </div>
     </div>
@@ -40,7 +44,6 @@
 import { computed, defineComponent, onMounted, ref } from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
-import { useStore } from 'vuex';
 
 export default defineComponent({
   components: { AppModalHeader, AppButton },
@@ -49,68 +52,50 @@ export default defineComponent({
       type: String,
       default: 'lookbook.pdf',
     },
-    buttonText: {
-      type: String,
-      default: 'Предпросмотр PDF',
-    },
   },
-  emits: ['resolve', 'reject', 'close'],
+  emits: ['close'],
   setup(props, { emit }) {
-    const store = useStore();
-    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
-    const fileSize = ref('');
-    const pdfPath = computed(() => {
-      const basePath = require(`@/assets/${props.fileName}`);
+    const supportsEmbed = ref(true);
 
-      if (isMobile.value) {
-        // Параметры для мобильных устройств
-        return `${basePath}#view=FitH&zoom=page-width&scrollbar=0&toolbar=0&navpanes=0`;
+    // Ключевое изменение: добавляем #page=1 в конец URL
+    const pdfUrl = computed(() => {
+      const baseUrl = require(`@/assets/${props.fileName}`);
+
+      // Для iOS Safari PDF viewer
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+      if (isIOS) {
+        // ЭТО САМОЕ ВАЖНОЕ: добавляем якорь #page=1
+        return `${baseUrl}#page=1&view=FitH&scrollbar=1&toolbar=0&navpanes=0&zoom=page-width`;
       }
 
-      // Для десктопа
-      return `${basePath}#view=FitH`;
+      // Для других браузеров
+      return `${baseUrl}#view=FitH&zoom=page-width`;
+    });
+
+    onMounted(() => {
+      // Проверяем поддержку embed
+      const embed = document.createElement('embed');
+      supportsEmbed.value = 'type' in embed;
     });
 
     const downloadPdf = () => {
       const link = document.createElement('a');
-      link.href = pdfPath.value;
+      link.href = `/${props.fileName}`;
       link.download = props.fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     };
 
-    // Открыть в новой вкладке
-    const openInNewTab = () => {
-      window.open(pdfPath.value, '_blank');
-    };
-
-    // Получить размер файла
-    const initFileSize = async () => {
-      try {
-        const response = await fetch(pdfPath.value, { method: 'HEAD' });
-        const size = response.headers.get('content-length');
-        if (size) {
-          const sizeInMb = (parseInt(size) / (1024 * 1024)).toFixed(2);
-          fileSize.value = `${sizeInMb} MB`;
-        }
-      } catch (error) {
-        console.error('Не удалось получить размер файла:', error);
-      }
-    };
-
-    onMounted(() => {
-      initFileSize();
-    });
-
     const close = () => {
       emit('close');
     };
+
     return {
-      openInNewTab,
+      pdfUrl,
+      supportsEmbed,
       downloadPdf,
-      pdfPath,
-      fileSize,
       close,
     };
   },
@@ -119,108 +104,107 @@ export default defineComponent({
 
 <style scoped>
 .modal-content {
-  position: relative;
   width: 90vw;
   height: 90vh;
-  background: var(--color-bg);
   display: flex;
-  flex-direction: column; /* вертикально */
-  align-items: center;
-  justify-content: flex-start;
+  flex-direction: column;
   border-radius: 20px;
-  border: 1px solid #c5c5c5;
-  box-shadow: 0 0 5px #c5c5c5, 0 0 5px #c5c5c5, 0 0 5px #c5c5c5, 0 0 25px #c5c5c5;
+  overflow: hidden;
 
-  @media (max-width: 600px) {
+  @media (max-width: 768px) {
     width: 100vw;
-    height: 100%;
+    height: 100vh;
     border-radius: 0;
-    box-shadow: none;
-    border: none;
-  }
-
-  & .wrapper {
-    background: var(--color-wrap-bg);
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    height: calc(100% - 50px);
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    @media (max-width: 600px) {
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-    }
   }
 }
 
-/* PDF просмотрщик */
+.wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: white;
+}
+
+/* PDF viewer */
 .pdf-viewer {
+  flex: 1;
   width: 100%;
-  flex: 6;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: #f5f5f5;
 }
 
+/* EMBED - основной способ */
+.pdf-embed {
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  border: none;
+  display: block;
+}
+
+/* IFRAME - fallback */
 .pdf-iframe {
   width: 100%;
   height: 100%;
+  min-height: 500px;
   border: none;
-  /* Для мобильных - предотвращаем масштабирование */
-  @media (max-width: 600px) {
-    -webkit-overflow-scrolling: touch;
-    overflow: auto;
-
-    /* Принудительно масштабируем содержимое */
-    transform-origin: top left;
-  }
 }
-/* Специальные стили для iOS */
+
+/* iOS специфичные исправления */
 @supports (-webkit-touch-callout: none) {
-  .pdf-iframe {
-    /* Отключаем возможность масштабирования пальцами */
-    touch-action: pan-x pan-y;
-
-    /* Фиксируем viewport */
-    max-width: 100vw;
-
-    /* Предотвращаем горизонтальный скролл */
-    overflow-x: hidden !important;
-    overflow-y: auto;
-  }
-
   .pdf-viewer {
-    /* Для iOS Safe Area */
+    /* Разрешаем скролл */
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    /* Safe areas */
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .pdf-embed,
+  .pdf-iframe {
+    /* Фиксируем ширину */
+    max-width: 100vw;
+
+    /* Принудительно адаптируем */
+    width: 100% !important;
+
+    /* Включаем скролл */
+    overflow: auto !important;
   }
 }
-.pdf-loading p {
-  margin: 0;
-  color: #4a5568;
-  font-size: 16px;
+
+/* Особые стили для мобильных */
+@media (max-width: 768px) {
+  .pdf-viewer {
+    height: calc(100vh - 140px);
+  }
+
+  .pdf-embed,
+  .pdf-iframe {
+    /* На мобильных - полная ширина */
+    width: 100vw !important;
+    max-width: 100vw !important;
+  }
 }
 
 /* Панель управления */
 .pdf-controls {
-  padding: 20px 30px;
+  padding: 15px 20px;
   background: #f7fafc;
   border-top: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-
-  @media (max-width: 600px) {
-    justify-content: center;
-  }
-}
-
-.controls-left {
-  display: flex;
-  gap: 10px;
+  flex-shrink: 0;
+  min-height: 70px;
 }
 
 .control-button {
@@ -243,26 +227,5 @@ export default defineComponent({
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
-}
-
-.control-button svg {
-  width: 18px;
-  height: 18px;
-}
-
-.controls-right {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-
-  @media (max-width: 600px) {
-    display: none;
-  }
-}
-
-.file-size {
-  color: #718096;
-  font-size: 14px;
-  font-weight: 500;
 }
 </style>
