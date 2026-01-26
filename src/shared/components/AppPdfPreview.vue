@@ -3,6 +3,7 @@
     <app-modal-header :title="fileName" @close="close"></app-modal-header>
 
     <div class="wrapper">
+      <AppLoader v-if="isLoading"></AppLoader>
       <div class="pdf-viewer">
         <!-- Используем embed вместо iframe -->
         <embed
@@ -10,6 +11,7 @@
           type="application/pdf"
           class="pdf-embed"
           :title="`Просмотр ${fileName}`"
+          @load="load"
         />
 
         <!-- Fallback для браузеров без поддержки embed -->
@@ -22,19 +24,13 @@
       </div>
 
       <div class="pdf-controls">
-        <div class="controls-left">
-          <button class="control-button" title="Скачать" @click="downloadPdf">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-          </button>
-        </div>
-
-        <div class="controls-right">
-          <app-button raised severity="gradient" title="close" @click="close">Закрыть</app-button>
-        </div>
+        <button class="control-button" title="Скачать" @click="downloadPdf">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+        </button>
       </div>
     </div>
   </div>
@@ -42,11 +38,11 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted, ref } from 'vue';
-import AppButton from '@/shared/components/AppButton.vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
+import AppLoader from '@/shared/components/AppLoader.vue';
 
 export default defineComponent({
-  components: { AppModalHeader, AppButton },
+  components: { AppLoader, AppModalHeader },
   props: {
     fileName: {
       type: String,
@@ -56,6 +52,7 @@ export default defineComponent({
   emits: ['close'],
   setup(props, { emit }) {
     const supportsEmbed = ref(true);
+    const isLoading = ref(true);
 
     // Ключевое изменение: добавляем #page=1 в конец URL
     const pdfUrl = computed(() => {
@@ -92,11 +89,17 @@ export default defineComponent({
       emit('close');
     };
 
+    const load = () => {
+      isLoading.value = false;
+    };
+
     return {
       pdfUrl,
       supportsEmbed,
       downloadPdf,
       close,
+      isLoading,
+      load,
     };
   },
 });
