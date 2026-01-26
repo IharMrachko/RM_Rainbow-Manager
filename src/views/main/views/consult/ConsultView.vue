@@ -128,8 +128,6 @@ export default defineComponent({
   setup() {
     const { t } = useI18n();
     const store = useStore();
-    const pdfPath = computed(() => require(`@/assets/lookbook.pdf`));
-    const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
     const device = computed(() => store.getters['mobile/getDevice']);
     const openTelegram = () => {
       const contacts = {
@@ -159,10 +157,6 @@ export default defineComponent({
       }
     };
     const openPdfModal = () => {
-      if (isMobile.value) {
-        window.open(pdfPath.value, '_blank');
-        return;
-      }
       openDialog(AppPdfPreview, {});
     };
 
