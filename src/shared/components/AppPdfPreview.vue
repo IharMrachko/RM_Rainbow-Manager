@@ -92,13 +92,46 @@ export default defineComponent({
       }
     };
 
-    const downloadPdf = () => {
-      const link = document.createElement('a');
-      link.href = require(`@/assets/${props.fileName}`);
-      link.download = props.fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    const downloadPdf = async () => {
+      try {
+        const pdfUrl = require(`@/assets/${props.fileName}`);
+
+        // Загружаем файл как blob
+        const response = await fetch(pdfUrl);
+        if (!response.ok) throw new Error('Ошибка загрузки');
+
+        const blob = await response.blob();
+
+        // Создаем blob URL
+        const blobUrl = URL.createObjectURL(blob);
+
+        // Создаем ссылку для скачивания
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = props.fileName; // Ключевое: атрибут download
+
+        // Для iOS Safari нужно добавить ссылку в DOM и кликнуть
+        link.style.display = 'none';
+        document.body.appendChild(link);
+
+        // Инициируем клик
+        link.click();
+
+        // Очищаем
+        setTimeout(() => {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(blobUrl);
+        }, 100);
+      } catch (error) {
+        // Fallback
+        const link = document.createElement('a');
+        link.href = require(`@/assets/${props.fileName}`);
+        link.download = props.fileName;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     };
 
     const close = () => {
