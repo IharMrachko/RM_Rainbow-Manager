@@ -104,7 +104,7 @@ export default defineComponent({
 
     const downloadPdf = () => {
       const link = document.createElement('a');
-      link.href = `/${props.fileName}`;
+      link.href = require(`@/assets/${props.fileName}`);
       link.download = props.fileName;
       document.body.appendChild(link);
       link.click();
