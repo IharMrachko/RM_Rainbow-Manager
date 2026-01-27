@@ -96,42 +96,37 @@ export default defineComponent({
       try {
         const pdfUrl = require(`@/assets/${props.fileName}`);
 
-        // Загружаем файл как blob
-        const response = await fetch(pdfUrl);
-        if (!response.ok) throw new Error('Ошибка загрузки');
+        // Конвертируем PDF в base64 (data URL)
+        const base64Data = await convertToBase64(pdfUrl);
 
-        const blob = await response.blob();
-
-        // Создаем blob URL
-        const blobUrl = URL.createObjectURL(blob);
-
-        // Создаем ссылку для скачивания
+        // Используем data URL для скачивания (как с canvas)
         const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = props.fileName; // Ключевое: атрибут download
-
-        // Для iOS Safari нужно добавить ссылку в DOM и кликнуть
-        link.style.display = 'none';
-        document.body.appendChild(link);
-
-        // Инициируем клик
-        link.click();
-
-        // Очищаем
-        setTimeout(() => {
-          document.body.removeChild(link);
-          URL.revokeObjectURL(blobUrl);
-        }, 100);
-      } catch (error) {
-        // Fallback
-        const link = document.createElement('a');
-        link.href = require(`@/assets/${props.fileName}`);
+        link.href = base64Data;
         link.download = props.fileName;
-        link.style.display = 'none';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+      } catch (error) {
+        console.error('Ошибка:', error);
       }
+    };
+
+    // Функция конвертации в base64
+    const convertToBase64 = async (url: string): Promise<string> => {
+      const response = await fetch(url);
+      const blob = await response.blob();
+
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+          // Приводим тип к string (так как readAsDataURL всегда возвращает string)
+          resolve(reader.result as string);
+        };
+
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
     };
 
     const close = () => {
