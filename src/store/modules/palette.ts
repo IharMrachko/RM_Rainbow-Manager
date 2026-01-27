@@ -1,4 +1,5 @@
 import { Module } from 'vuex';
+import { compareObjects } from '@/helpers/compare-object.helper';
 
 export interface PaletteSettings {
   fullFill: boolean;
@@ -110,6 +111,18 @@ export const palette: Module<PaletteState, unknown> = {
     },
     getOriginalImgMask(state: PaletteState): File | null {
       return state.originalImgMask;
+    },
+    isCompareFilter(state: PaletteState): boolean {
+      const defaultPaletteSettings: PaletteSettings = {
+        fullFill: false,
+        onlySoft: true,
+        onlyBright: true,
+        onlyCold: true,
+        onlyWarm: true,
+        onlyLight: true,
+        onlyDark: true,
+      };
+      return compareObjects(defaultPaletteSettings, state.settings);
     },
   },
 };

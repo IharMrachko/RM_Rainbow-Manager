@@ -313,6 +313,7 @@ export default defineComponent({
 });
 </script>
 <style scoped lang="scss">
+@import '@/styles/style';
 .gallery-helper {
   padding: 20px;
   display: flex;
@@ -414,12 +415,7 @@ export default defineComponent({
   }
 
   & .filter-fill {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: red;
-    top: 6px;
+    @include filter-dot;
     right: 10px;
   }
 }

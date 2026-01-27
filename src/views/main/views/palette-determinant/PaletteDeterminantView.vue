@@ -34,13 +34,15 @@
         ></app-editor-canvas>
       </section>
       <section class="buttons" :class="{ isMobile: isMobile }">
-        <div v-if="!isMobile" class="btn">
+        <div v-if="!isMobile" class="btn filter">
           <app-button
             raised
             severity="secondary"
-            :icon="['fas', 'cog']"
+            :icon="['fas', 'filter']"
+            title="filter"
             @click="openPaletteSettings"
           ></app-button>
+          <div v-if="!isCompareFilter" class="filter-fill"></div>
         </div>
         <div v-if="!isMobile" class="btn">
           <app-button
@@ -88,8 +90,9 @@
     <app-popover v-model:visible="visiblePopover">
       <app-popover-wrapper>
         <app-popover-item @click="openPaletteSettings">
-          <font-awesome-icon size="xl" :icon="['fas', 'cog']" />
+          <font-awesome-icon size="xl" :icon="['fas', 'filter']" />
           <span>{{ t('filter') }}</span>
+          <div v-if="!isCompareFilter" class="popover-filter-fill"></div>
         </app-popover-item>
         <app-popover-item @click="openImageSettingsModal">
           <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
@@ -199,7 +202,7 @@ export default defineComponent({
     const originalImgMask = computed(() => store.getters['palette/getOriginalImgMask']);
     const currentUser = computed(() => store.getters['authFirebase/currentUser']);
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
-
+    const isCompareFilter = computed(() => store.getters['palette/isCompareFilter']);
     onBeforeMount(() => {
       initSelectedFirst();
     });
@@ -362,11 +365,13 @@ export default defineComponent({
       nextPalette,
       openPaletteSettings,
       order,
+      isCompareFilter,
     };
   },
 });
 </script>
 <style scoped lang="scss">
+@import '@/styles/style';
 .color-container {
   position: relative;
   overflow: auto;
@@ -453,5 +458,19 @@ export default defineComponent({
     align-self: flex-start; // не тянется вниз
     width: 100%;
   }
+}
+
+.btn.filter {
+  position: relative;
+}
+
+.filter-fill {
+  @include filter-dot;
+  left: 90px;
+}
+
+.popover-filter-fill {
+  @include filter-dot;
+  left: 33px;
 }
 </style>

@@ -13,5 +13,6 @@
   align-items: center;
   gap: 10px;
   color: #444;
+  position: relative;
 }
 </style>

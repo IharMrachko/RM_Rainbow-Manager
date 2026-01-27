@@ -58,9 +58,6 @@ body {
   color: var(--color-text);
   height: -webkit-fill-available;
   overflow: hidden;
-  //padding-top: env(safe-area-inset-top);
-  //padding-bottom: env(safe-area-inset-bottom);
-
 }
 
 a {
@@ -109,4 +106,20 @@ a {
 
 .sidebar-container.mobile-view .active-link .sidebar-item {
   color: #42b983; /* например, зелёный акцент */
+}
+
+// Переменные
+$filter-dot-size: 10px;
+$filter-dot-radius: 50%;
+$filter-dot-color: red;
+$filter-dot-top: 6px;
+
+// Миксин для круговых элементов
+@mixin filter-dot {
+  position: absolute;
+  width: $filter-dot-size;
+  height: $filter-dot-size;
+  border-radius: $filter-dot-radius;
+  background: $filter-dot-color;
+  top: $filter-dot-top;
 }
