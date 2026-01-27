@@ -248,5 +248,9 @@ export default defineComponent({
   justify-content: end;
   flex-shrink: 0;
   min-height: 70px;
+
+  @media (max-width: 600px) {
+    justify-content: center;
+  }
 }
 </style>
