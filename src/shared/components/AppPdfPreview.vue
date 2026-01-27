@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-content">
+  <div class="modal-content neon">
     <app-modal-header :title="fileName" @close="close"></app-modal-header>
 
     <div class="wrapper">
@@ -167,7 +167,6 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: white;
 }
 
 /* PDF viewer */
@@ -241,13 +240,16 @@ export default defineComponent({
 /* Панель управления */
 .pdf-controls {
   padding: 15px 20px;
-  background: #f7fafc;
   border-top: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: end;
   flex-shrink: 0;
   min-height: 70px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* для Safari */
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(256, 256, 256, 0.2);
 
   @media (max-width: 600px) {
     justify-content: center;
