@@ -8,7 +8,7 @@
       <div v-if="!isLoading" class="pdf-viewer">
         <!-- Для Android используем iframe с data: URL -->
         <iframe
-          v-if="isAndroid && pdfBlobUrl"
+          v-if="device === 'android' && pdfBlobUrl"
           :src="pdfBlobUrl"
           class="pdf-iframe"
           :title="`Просмотр ${fileName}`"
@@ -16,7 +16,7 @@
 
         <!-- Для iOS используем embed с прямым URL -->
         <embed
-          v-else-if="isIOS"
+          v-else-if="device === 'ios'"
           :src="pdfDirectUrl"
           type="application/pdf"
           class="pdf-embed"
@@ -33,21 +33,7 @@
       </div>
 
       <div class="pdf-controls">
-        <button class="control-button" title="Скачать" @click="downloadPdf">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
-          </svg>
-        </button>
-
-        <button class="control-button" title="Открыть в браузере" @click="openInBrowser">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-            <polyline points="15 3 21 3 21 9" />
-            <line x1="10" y1="14" x2="21" y2="3" />
-          </svg>
-        </button>
+        <app-button severity="success" title="download" @click="downloadPdf"></app-button>
       </div>
     </div>
   </div>
@@ -57,9 +43,12 @@
 import { computed, defineComponent, onMounted, onUnmounted, ref } from 'vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import AppLoader from '@/shared/components/AppLoader.vue';
+import AppButton from '@/shared/components/AppButton.vue';
+import { useStore } from 'vuex';
+import { Device } from '@/store/modules/mobile-view';
 
 export default defineComponent({
-  components: { AppLoader, AppModalHeader },
+  components: { AppButton, AppLoader, AppModalHeader },
   props: {
     fileName: {
       type: String,
@@ -68,16 +57,16 @@ export default defineComponent({
   },
   emits: ['close'],
   setup(props, { emit }) {
+    const store = useStore();
+    const device = ref<Device>(store.getters['mobile/getDevice']);
     const isLoading = ref(true);
     const pdfBlobUrl = ref<string>('');
-    const isIOS = ref(false);
-    const isAndroid = ref(false);
 
     // Прямой URL для iOS (самый стабильный)
     const pdfDirectUrl = computed(() => {
       const baseUrl = require(`@/assets/${props.fileName}?v=1.0`); // Фиксированная версия для кэширования
 
-      if (isIOS.value) {
+      if (device.value === 'ios') {
         return `${baseUrl}#page=1&view=FitH&scrollbar=1&toolbar=0&navpanes=0&zoom=page-width`;
       }
 
@@ -91,8 +80,7 @@ export default defineComponent({
         if (!response.ok) throw new Error('Ошибка загрузки PDF');
 
         const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        pdfBlobUrl.value = url;
+        pdfBlobUrl.value = URL.createObjectURL(blob);
 
         isLoading.value = false;
       } catch (error) {
@@ -111,10 +99,6 @@ export default defineComponent({
       document.body.removeChild(link);
     };
 
-    const openInBrowser = () => {
-      window.open(`/${props.fileName}`, '_blank');
-    };
-
     const close = () => {
       // Очищаем Blob URL
       if (pdfBlobUrl.value) {
@@ -124,13 +108,8 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      // Определяем устройство
-      const userAgent = navigator.userAgent.toLowerCase();
-      isIOS.value = /iphone|ipad|ipod/.test(userAgent);
-      isAndroid.value = /android/.test(userAgent);
-
       // Для Android загружаем как Blob
-      if (isAndroid.value) {
+      if (device.value === 'android') {
         loadPdfAsBlob();
       } else {
         // Для iOS и других используем прямой URL
@@ -156,10 +135,8 @@ export default defineComponent({
       isLoading,
       pdfBlobUrl,
       pdfDirectUrl,
-      isIOS,
-      isAndroid,
+      device,
       downloadPdf,
-      openInBrowser,
       close,
     };
   },
@@ -248,7 +225,7 @@ export default defineComponent({
 }
 
 /* Особые стили для мобильных */
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .pdf-viewer {
     height: calc(100vh - 140px);
   }
@@ -268,30 +245,8 @@ export default defineComponent({
   border-top: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: end;
   flex-shrink: 0;
   min-height: 70px;
-}
-
-.control-button {
-  width: 40px;
-  height: 40px;
-  border: none;
-  background: white;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: #4a5568;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.control-button:hover {
-  background: #667eea;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
 }
 </style>
