@@ -33,7 +33,9 @@
       </div>
 
       <div class="pdf-controls">
-        <app-button severity="success" title="download" @click="downloadPdf"></app-button>
+        <div class="btn-download">
+          <app-button severity="success" title="download" @click="downloadPdf"></app-button>
+        </div>
       </div>
     </div>
   </div>
@@ -251,6 +253,9 @@ export default defineComponent({
   border-top: 1px solid rgba(255, 255, 255, 0.3);
   background: rgba(256, 256, 256, 0.2);
 
+  & .btn-download {
+    width: 200px;
+  }
   @media (max-width: 600px) {
     justify-content: center;
   }
