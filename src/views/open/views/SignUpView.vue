@@ -302,6 +302,7 @@ export default defineComponent({
   padding: 1rem; // чтобы на маленьких экранах не прилипало к краям
   @media (max-width: 600px) {
     padding: 0;
+    height: calc(100vh - var(--header-height)); // тут
   }
 }
 
@@ -324,7 +325,7 @@ export default defineComponent({
     align-items: center;
     padding: 1.5rem;
     border-radius: 0;
-    height: 100vh;
+    height: calc(100vh + 100px); // тут
     margin-top: 0;
   }
 }
