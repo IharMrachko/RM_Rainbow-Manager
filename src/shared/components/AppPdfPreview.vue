@@ -92,41 +92,33 @@ export default defineComponent({
       }
     };
 
-    const downloadPdf = async () => {
-      try {
-        const pdfUrl = require(`@/assets/${props.fileName}`);
+    const downloadPdf = () => {
+      // 1. Получаем URL через require
+      const pdfUrl = require(`@/assets/${props.fileName}`);
 
-        // Конвертируем PDF в base64 (data URL)
-        const base64Data = await convertToBase64(pdfUrl);
+      // 2. Создаем ссылку напрямую (без fetch)
+      const link = document.createElement('a');
+      link.href = pdfUrl;
+      link.download = props.fileName;
 
-        // Используем data URL для скачивания (как с canvas)
-        const link = document.createElement('a');
-        link.href = base64Data;
-        link.download = props.fileName;
+      // 3. Для iOS добавляем в DOM
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        link.style.cssText = 'position: fixed; left: -9999px;';
         document.body.appendChild(link);
+
+        // Множественный клик для надежности
         link.click();
-        document.body.removeChild(link);
-      } catch (error) {
-        console.error('Ошибка:', error);
+        setTimeout(() => link.click(), 100);
+        setTimeout(() => link.click(), 200);
+
+        setTimeout(() => {
+          document.body.removeChild(link);
+        }, 3000);
+      } else {
+        // Android/Desktop - простой клик
+        link.click();
       }
-    };
-
-    // Функция конвертации в base64
-    const convertToBase64 = async (url: string): Promise<string> => {
-      const response = await fetch(url);
-      const blob = await response.blob();
-
-      return new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-
-        reader.onloadend = () => {
-          // Приводим тип к string (так как readAsDataURL всегда возвращает string)
-          resolve(reader.result as string);
-        };
-
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
     };
 
     const close = () => {
