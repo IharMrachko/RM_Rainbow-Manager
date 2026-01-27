@@ -136,8 +136,6 @@ export default defineComponent({
 
         // Пробуем все методы
         link.click();
-        setTimeout(() => link.click(), 200);
-        setTimeout(() => link.click(), 400);
 
         // Очистка
         setTimeout(() => {
