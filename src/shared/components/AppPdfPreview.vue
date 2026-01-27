@@ -92,32 +92,63 @@ export default defineComponent({
       }
     };
 
-    const downloadPdf = () => {
-      // 1. Получаем URL через require
+    const downloadPdf = async () => {
       const pdfUrl = require(`@/assets/${props.fileName}`);
-
-      // 2. Создаем ссылку напрямую (без fetch)
-      const link = document.createElement('a');
-      link.href = pdfUrl;
-      link.download = props.fileName;
-
-      // 3. Для iOS добавляем в DOM
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
       if (isIOS) {
+        // Для iOS: загружаем и меняем MIME type
+        await downloadForIOS(pdfUrl, props.fileName);
+      } else {
+        // Для Android/Desktop
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.download = props.fileName;
+        link.click();
+      }
+    };
+
+    const downloadForIOS = async (url: string, filename: string) => {
+      try {
+        // Загружаем файл
+        const response = await fetch(url);
+        const blob = await response.blob();
+
+        // Меняем MIME type на force-download
+        const forceBlob = new Blob([blob], {
+          type: 'application/octet-stream', // Это заставляет скачивать, а не открывать
+        });
+
+        const blobUrl = URL.createObjectURL(forceBlob);
+
+        // Создаем iframe (иногда работает на iOS)
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = blobUrl;
+        document.body.appendChild(iframe);
+
+        // И ссылку
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
         link.style.cssText = 'position: fixed; left: -9999px;';
         document.body.appendChild(link);
 
-        // Множественный клик для надежности
+        // Пробуем все методы
         link.click();
-        setTimeout(() => link.click(), 100);
         setTimeout(() => link.click(), 200);
+        setTimeout(() => link.click(), 400);
 
+        // Очистка
         setTimeout(() => {
+          document.body.removeChild(iframe);
           document.body.removeChild(link);
-        }, 3000);
-      } else {
-        // Android/Desktop - простой клик
-        link.click();
+          URL.revokeObjectURL(blobUrl);
+        }, 5000);
+      } catch (error) {
+        console.error('iOS download failed:', error);
+        // Fallback - открываем в новой вкладке
+        window.open(url, '_blank');
       }
     };
 
