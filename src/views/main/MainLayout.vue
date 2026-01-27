@@ -39,21 +39,20 @@
               <div v-if="!isShort" class="title">{{ t('myPalette') }}</div>
             </div>
           </router-link>
-
-          <router-link to="/main/chroma" active-class="active-link">
-            <div class="sidebar-item">
-              <div class="icon">
-                <font-awesome-icon size="xl" :icon="['fas', 'eye-dropper']" />
-              </div>
-              <div v-if="!isShort" class="title">{{ t('characteristicColor') }}</div>
-            </div>
-          </router-link>
           <router-link to="/main/palette" active-class="active-link">
             <div class="sidebar-item">
               <div class="icon">
                 <font-awesome-icon size="xl" :icon="['fas', 'palette']" />
               </div>
               <div v-if="!isShort" class="title">{{ t('palette') }}</div>
+            </div>
+          </router-link>
+          <router-link to="/main/chroma" active-class="active-link">
+            <div class="sidebar-item">
+              <div class="icon">
+                <font-awesome-icon size="xl" :icon="['fas', 'eye-dropper']" />
+              </div>
+              <div v-if="!isShort" class="title">{{ t('characteristicColor') }}</div>
             </div>
           </router-link>
 
