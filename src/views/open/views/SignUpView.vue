@@ -236,7 +236,7 @@ export default defineComponent({
 
     const focusInput = () => {
       if (device.value === 'ios') {
-        iNoBounce.enable();
+        // iNoBounce.enable();
         focus.set('focus', true);
       }
     };
@@ -244,12 +244,12 @@ export default defineComponent({
     const focusOutInput = () => {
       if (device.value === 'ios') {
         focus.set('focus', false);
-        setTimeout(() => {
-          if (!focus.get('focus')) {
-            iNoBounce.disable();
-            setTimeout(() => window.scrollTo(0, 0), 50);
-          }
-        }, 100);
+        // setTimeout(() => {
+        //   if (!focus.get('focus')) {
+        //     iNoBounce.disable();
+        //     setTimeout(() => window.scrollTo(0, 0), 50);
+        //   }
+        // }, 100);
       }
     };
 
