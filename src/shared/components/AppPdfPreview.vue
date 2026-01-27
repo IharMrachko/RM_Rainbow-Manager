@@ -33,8 +33,8 @@
       </div>
 
       <div class="pdf-controls">
-        <div class="btn-download">
-          <app-button severity="success" title="download" @click="downloadPdf"></app-button>
+        <div class="btn-close">
+          <app-button severity="warning" title="close" @click="close"></app-button>
         </div>
       </div>
     </div>
@@ -92,64 +92,6 @@ export default defineComponent({
       }
     };
 
-    const downloadPdf = async () => {
-      const pdfUrl = require(`@/assets/${props.fileName}`);
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-      if (isIOS) {
-        // Для iOS: загружаем и меняем MIME type
-        await downloadForIOS(pdfUrl, props.fileName);
-      } else {
-        // Для Android/Desktop
-        const link = document.createElement('a');
-        link.href = pdfUrl;
-        link.download = props.fileName;
-        link.click();
-      }
-    };
-
-    const downloadForIOS = async (url: string, filename: string) => {
-      try {
-        // Загружаем файл
-        const response = await fetch(url);
-        const blob = await response.blob();
-
-        // Меняем MIME type на force-download
-        const forceBlob = new Blob([blob], {
-          type: 'application/octet-stream', // Это заставляет скачивать, а не открывать
-        });
-
-        const blobUrl = URL.createObjectURL(forceBlob);
-
-        // Создаем iframe (иногда работает на iOS)
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = blobUrl;
-        document.body.appendChild(iframe);
-
-        // И ссылку
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = filename;
-        link.style.cssText = 'position: fixed; left: -9999px;';
-        document.body.appendChild(link);
-
-        // Пробуем все методы
-        link.click();
-
-        // Очистка
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-          document.body.removeChild(link);
-          URL.revokeObjectURL(blobUrl);
-        }, 5000);
-      } catch (error) {
-        console.error('iOS download failed:', error);
-        // Fallback - открываем в новой вкладке
-        window.open(url, '_blank');
-      }
-    };
-
     const close = () => {
       // Очищаем Blob URL
       if (pdfBlobUrl.value) {
@@ -187,7 +129,6 @@ export default defineComponent({
       pdfBlobUrl,
       pdfDirectUrl,
       device,
-      downloadPdf,
       close,
     };
   },
@@ -302,7 +243,7 @@ export default defineComponent({
   border-top: 1px solid rgba(255, 255, 255, 0.3);
   background: rgba(256, 256, 256, 0.2);
 
-  & .btn-download {
+  & .btn-close {
     width: 200px;
   }
   @media (max-width: 600px) {
