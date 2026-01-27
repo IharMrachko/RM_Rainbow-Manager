@@ -1,23 +1,32 @@
 <template>
-  <div ref="modalRef" class="modal-content neon">
+  <div class="modal-content">
     <app-modal-header :title="fileName" @close="close"></app-modal-header>
 
     <div class="wrapper">
       <AppLoader v-if="isLoading"></AppLoader>
-      <div class="pdf-viewer">
-        <!-- Используем embed вместо iframe -->
+
+      <div v-if="!isLoading" class="pdf-viewer">
+        <!-- Для Android используем iframe с data: URL -->
+        <iframe
+          v-if="isAndroid && pdfBlobUrl"
+          :src="pdfBlobUrl"
+          class="pdf-iframe"
+          :title="`Просмотр ${fileName}`"
+        ></iframe>
+
+        <!-- Для iOS используем embed с прямым URL -->
         <embed
-          :src="pdfUrl"
+          v-else-if="isIOS"
+          :src="pdfDirectUrl"
           type="application/pdf"
           class="pdf-embed"
           :title="`Просмотр ${fileName}`"
-          @load="load"
         />
 
-        <!-- Fallback для браузеров без поддержки embed -->
+        <!-- Для других устройств -->
         <iframe
-          v-if="!supportsEmbed"
-          :src="pdfUrl"
+          v-else
+          :src="pdfDirectUrl"
           class="pdf-iframe"
           :title="`Просмотр ${fileName}`"
         ></iframe>
@@ -31,13 +40,21 @@
             <line x1="12" y1="15" x2="12" y2="3" />
           </svg>
         </button>
+
+        <button class="control-button" title="Открыть в браузере" @click="openInBrowser">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <polyline points="15 3 21 3 21 9" />
+            <line x1="10" y1="14" x2="21" y2="3" />
+          </svg>
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from 'vue';
+import { computed, defineComponent, onMounted, onUnmounted, ref } from 'vue';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import AppLoader from '@/shared/components/AppLoader.vue';
 
@@ -51,30 +68,39 @@ export default defineComponent({
   },
   emits: ['close'],
   setup(props, { emit }) {
-    const supportsEmbed = ref(true);
-    const isLoading = ref(false);
+    const isLoading = ref(true);
+    const pdfBlobUrl = ref<string>('');
+    const isIOS = ref(false);
+    const isAndroid = ref(false);
 
-    // Ключевое изменение: добавляем #page=1 в конец URL
-    const pdfUrl = computed(() => {
-      const baseUrl = require(`@/assets/${props.fileName}`);
+    // Прямой URL для iOS (самый стабильный)
+    const pdfDirectUrl = computed(() => {
+      const baseUrl = require(`@/assets/${props.fileName}?v=1.0`); // Фиксированная версия для кэширования
 
-      // Для iOS Safari PDF viewer
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-      if (isIOS) {
-        // ЭТО САМОЕ ВАЖНОЕ: добавляем якорь #page=1
+      if (isIOS.value) {
         return `${baseUrl}#page=1&view=FitH&scrollbar=1&toolbar=0&navpanes=0&zoom=page-width`;
       }
 
-      // Для других браузеров
       return `${baseUrl}#view=FitH&zoom=page-width`;
     });
 
-    onMounted(() => {
-      // Проверяем поддержку embed
-      const embed = document.createElement('embed');
-      supportsEmbed.value = 'type' in embed;
-    });
+    // Загрузка PDF как Blob (для Android)
+    const loadPdfAsBlob = async () => {
+      try {
+        const response = await fetch(`/${props.fileName}`);
+        if (!response.ok) throw new Error('Ошибка загрузки PDF');
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        pdfBlobUrl.value = url;
+
+        isLoading.value = false;
+      } catch (error) {
+        console.error('Ошибка загрузки Blob:', error);
+        // Используем прямой URL как fallback
+        isLoading.value = false;
+      }
+    };
 
     const downloadPdf = () => {
       const link = document.createElement('a');
@@ -85,21 +111,56 @@ export default defineComponent({
       document.body.removeChild(link);
     };
 
+    const openInBrowser = () => {
+      window.open(`/${props.fileName}`, '_blank');
+    };
+
     const close = () => {
+      // Очищаем Blob URL
+      if (pdfBlobUrl.value) {
+        URL.revokeObjectURL(pdfBlobUrl.value);
+      }
       emit('close');
     };
 
-    const load = () => {
-      isLoading.value = false;
-    };
+    onMounted(() => {
+      // Определяем устройство
+      const userAgent = navigator.userAgent.toLowerCase();
+      isIOS.value = /iphone|ipad|ipod/.test(userAgent);
+      isAndroid.value = /android/.test(userAgent);
+
+      // Для Android загружаем как Blob
+      if (isAndroid.value) {
+        loadPdfAsBlob();
+      } else {
+        // Для iOS и других используем прямой URL
+        isLoading.value = false;
+      }
+
+      // Таймаут на случай если PDF не загрузится
+      setTimeout(() => {
+        if (isLoading.value) {
+          isLoading.value = false;
+        }
+      }, 10000);
+    });
+
+    onUnmounted(() => {
+      // Очищаем ресурсы
+      if (pdfBlobUrl.value) {
+        URL.revokeObjectURL(pdfBlobUrl.value);
+      }
+    });
 
     return {
-      pdfUrl,
-      supportsEmbed,
-      downloadPdf,
-      close,
       isLoading,
-      load,
+      pdfBlobUrl,
+      pdfDirectUrl,
+      isIOS,
+      isAndroid,
+      downloadPdf,
+      openInBrowser,
+      close,
     };
   },
 });
