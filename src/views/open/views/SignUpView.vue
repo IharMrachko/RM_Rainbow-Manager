@@ -167,8 +167,7 @@ import { parseDDMMYYYY } from '@/helpers/parser-date.helper';
 import AppImageLogin from '@/shared/components/AppImageLogin.vue';
 import { SignUp } from '@/store/modules/auth';
 import { usePasswordToggle } from '@/composables/usePasswordToggle';
-// @ts-ignore
-import iNoBounce from 'inobounce';
+
 import { useErrorMessage } from '@/composables/useError';
 
 export default defineComponent({
