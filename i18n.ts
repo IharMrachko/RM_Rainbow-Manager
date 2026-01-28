@@ -208,6 +208,8 @@ const messages = {
     connectViaTelegram: 'Connect via Telegram',
     demoLookbook: 'Demo lookbook',
     remainingInquiries: 'Remaining inquiries? Schedule your consultation.',
+    loginSuccessful: 'Login successful!',
+    loginWithGoogle: 'Login with Google',
   },
   ru: {
     login: 'Вход',
@@ -415,6 +417,8 @@ const messages = {
     connectViaTelegram: 'Написать в телеграмм',
     demoLookbook: 'Демо цветотип',
     remainingInquiries: 'Остались вопросы? Закажите консультацию!',
+    loginSuccessful: 'Вход выполнен успешно!',
+    loginWithGoogle: 'Вход через Google',
   },
 };
 

@@ -4,150 +4,80 @@
       <app-image-login></app-image-login>
       <div class="signUp-form">
         <h1 class="title">{{ t('signUp') }}</h1>
-        <app-stepper
-          v-model:active-index="idx"
-          :steps="steps"
-          orientation="horizontal"
-          :clickable="isNextStep"
-          :next-step="idx"
-          :linear="true"
-          :show-panel="true"
-        >
-          <template #panel="{ index }">
-            <div class="current-step">
-              <VForm :validation-schema="formGroup" @submit="onSubmit">
-                <section class="signUp-inputs">
-                  <Field v-slot="{ field, meta, errorMessage }" name="firstName">
-                    <div v-show="index === 0" class="input-wrapper">
-                      <app-input
-                        v-bind="field"
-                        v-model="firstName"
-                        label="firstName"
-                        placeholder="firstName"
-                        :icon="['fas', 'pencil']"
-                        :error="meta.touched && index === 0 ? errorMessage : ''"
-                        type="text"
-                        @focus="focusInput"
-                        @blur="focusOutInput"
-                      ></app-input>
-                      <div v-if="meta.touched && errorMessage" class="error-message">
-                        {{ errorValue(errorMessage) }}
-                      </div>
-                    </div>
-                  </Field>
-                  <Field v-slot="{ field, meta, errorMessage }" name="lastName">
-                    <div v-show="index === 0" class="input-wrapper">
-                      <app-input
-                        v-bind="field"
-                        v-model="lastName"
-                        label="lastName"
-                        placeholder="lastName"
-                        :icon="['fas', 'pencil']"
-                        :error="meta.touched && index === 0 ? errorMessage : ''"
-                        @focus="focusInput"
-                        @blur="focusOutInput"
-                      ></app-input>
-                      <div v-if="meta.touched && errorMessage" class="error-message">
-                        {{ errorValue(errorMessage) }}
-                      </div>
-                    </div>
-                  </Field>
-                  <Field v-slot="{ field, meta, errorMessage }" name="birthDate">
-                    <div v-show="index === 0" class="input-wrapper">
-                      <app-input
-                        v-bind="field"
-                        v-model="birthDate"
-                        label="birthDate"
-                        placeholder="birthDateMask"
-                        :icon="['fas', 'birthday-cake']"
-                        :error="meta.touched && index === 0 ? errorMessage : ''"
-                        @focus="focusInput"
-                        @blur="focusOutInput"
-                      ></app-input>
-                      <div v-if="meta.touched && errorMessage" class="error-message">
-                        {{ errorValue(errorMessage) }}
-                      </div>
-                    </div>
-                  </Field>
-                  <Field v-slot="{ field, meta, errorMessage }" name="email">
-                    <div v-show="index === 1" class="input-wrapper">
-                      <app-input
-                        v-bind="field"
-                        v-model="email"
-                        placeholder="example@gmail.com"
-                        label="email"
-                        :icon="['fas', 'envelope']"
-                        :error="meta.touched && index === 1 ? errorMessage : ''"
-                        type="email"
-                        @focus="focusInput"
-                        @blur="focusOutInput"
-                      ></app-input>
-                      <div v-if="meta.touched && errorMessage" class="error-message">
-                        {{ errorValue(errorMessage) }}
-                      </div>
-                    </div>
-                  </Field>
-                  <Field v-slot="{ field, meta, errorMessage }" name="password">
-                    <div v-show="index === 1" class="btn-password">
-                      <app-input
-                        v-bind="field"
-                        v-model="password"
-                        placeholder="password"
-                        label="password"
-                        :type="typeInput"
-                        :icon="['fas', 'lock']"
-                        :error="meta.touched && index === 1 ? errorMessage : ''"
-                        @focus="focusInput"
-                        @blur="focusOutInput"
-                      ></app-input>
-                      <div v-show="index === 1" class="icon-eye" @click="toggleEye">
-                        <font-awesome-icon :icon="eyeIcon" />
-                      </div>
-                      <div v-if="meta.touched && errorMessage" class="error-message">
-                        {{ errorValue(errorMessage) }}
-                      </div>
-                    </div>
-                  </Field>
-                  <Field v-slot="{ field, meta, errorMessage }" name="confirmPassword">
-                    <div v-show="index === 1" class="btn-password">
-                      <app-input
-                        v-bind="field"
-                        v-model="confirmPassword"
-                        placeholder="password"
-                        label="confirmPassword"
-                        :type="typeInput"
-                        :icon="['fas', 'lock']"
-                        :error="meta.touched && index === 1 ? errorMessage : ''"
-                        @focus="focusInput"
-                        @blur="focusOutInput"
-                      ></app-input>
-                      <div v-show="index === 1" class="icon-eye" @click="toggleEye">
-                        <font-awesome-icon :icon="eyeIcon" />
-                      </div>
-                      <div v-if="meta.touched && errorMessage" class="error-message">
-                        {{ errorValue(errorMessage) }}
-                      </div>
-                    </div>
-                  </Field>
-                </section>
-
-                <app-button
-                  v-if="index === 0"
-                  :disabled="!isNextStep"
-                  title="nextStep"
-                  @click="nextStep"
-                ></app-button>
-
-                <app-button
-                  v-if="index === 1"
-                  :loading="loading"
-                  type="submit"
-                  title="signUp"
-                ></app-button>
-              </VForm>
-            </div>
-          </template>
-        </app-stepper>
+        <VForm :validation-schema="formGroup" @submit="onSubmit">
+          <section class="signUp-inputs">
+            <Field v-slot="{ field, meta, errorMessage }" name="email">
+              <div class="input-wrapper">
+                <app-input
+                  v-bind="field"
+                  v-model="email"
+                  placeholder="example@gmail.com"
+                  label="email"
+                  :icon="['fas', 'envelope']"
+                  :error="meta.touched ? errorMessage : ''"
+                  type="email"
+                  @focus="focusInput"
+                  @blur="focusOutInput"
+                ></app-input>
+                <div v-if="meta.touched && errorMessage" class="error-message">
+                  {{ errorValue(errorMessage) }}
+                </div>
+              </div>
+            </Field>
+            <Field v-slot="{ field, meta, errorMessage }" name="password">
+              <div class="btn-password">
+                <app-input
+                  v-bind="field"
+                  v-model="password"
+                  placeholder="password"
+                  label="password"
+                  :type="typeInput"
+                  :icon="['fas', 'lock']"
+                  :error="meta.touched ? errorMessage : ''"
+                  @focus="focusInput"
+                  @blur="focusOutInput"
+                ></app-input>
+                <div class="icon-eye" @click="toggleEye">
+                  <font-awesome-icon :icon="eyeIcon" />
+                </div>
+                <div v-if="meta.touched && errorMessage" class="error-message">
+                  {{ errorValue(errorMessage) }}
+                </div>
+              </div>
+            </Field>
+            <Field v-slot="{ field, meta, errorMessage }" name="confirmPassword">
+              <div class="btn-password">
+                <app-input
+                  v-bind="field"
+                  v-model="confirmPassword"
+                  placeholder="password"
+                  label="confirmPassword"
+                  :type="typeInput"
+                  :icon="['fas', 'lock']"
+                  :error="meta.touched ? errorMessage : ''"
+                  @focus="focusInput"
+                  @blur="focusOutInput"
+                ></app-input>
+                <div class="icon-eye" @click="toggleEye">
+                  <font-awesome-icon :icon="eyeIcon" />
+                </div>
+                <div v-if="meta.touched && errorMessage" class="error-message">
+                  {{ errorValue(errorMessage) }}
+                </div>
+              </div>
+            </Field>
+          </section>
+          <div class="actions-btn">
+            <app-button :loading="loading" type="submit" title="signUp"></app-button>
+            <app-button
+              raised
+              severity="gradient"
+              title="loginWithGoogle"
+              :icon="['fab', 'google']"
+              @click="loginWithGoogle"
+            ></app-button>
+          </div>
+        </VForm>
       </div>
     </div>
   </section>
@@ -162,8 +92,6 @@ import { Field, Form as VForm } from 'vee-validate';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
-import AppStepper from '@/shared/components/AppStepper.vue';
-import { parseDDMMYYYY } from '@/helpers/parser-date.helper';
 import AppImageLogin from '@/shared/components/AppImageLogin.vue';
 import { SignUp } from '@/store/modules/auth';
 import { usePasswordToggle } from '@/composables/usePasswordToggle';
@@ -172,20 +100,12 @@ import iNoBounce from 'inobounce';
 import { useErrorMessage } from '@/composables/useError';
 
 export default defineComponent({
-  components: { AppImageLogin, AppStepper, Field, VForm, AppInput, AppButton },
+  components: { AppImageLogin, Field, VForm, AppInput, AppButton },
 
   setup() {
-    const idx = ref(0);
     const { t } = useI18n();
-    const steps = [
-      { id: 's2', title: 'profile' },
-      { id: 's3', title: 'confirmation' },
-    ];
     const router = useRouter();
     const store = useStore();
-    const firstName = ref('');
-    const lastName = ref('');
-    const birthDate = ref('');
     const email = ref('');
     const password = ref('');
     const confirmPassword = ref('');
@@ -195,18 +115,6 @@ export default defineComponent({
     const loading = computed(() => store.getters['authFirebase/isLoading']);
     const device = computed(() => store.getters['mobile/getDevice']);
     const formGroup = yup.object({
-      firstName: yup.string().required('validation.required'),
-      lastName: yup.string().required('validation.required'),
-      birthDate: yup
-        .date()
-        .transform((curr, orig) => {
-          if (!orig) return null;
-          const d = parseDDMMYYYY(orig as string);
-          return d ? d : new Date('invalid');
-        })
-        .typeError('validation.invalidDate')
-        .required('validation.required'),
-
       email: yup.string().required('validation.required').email('validation.email'),
       password: yup
         .string()
@@ -221,9 +129,6 @@ export default defineComponent({
     const onSubmit = async (form: SignUp) => {
       try {
         await store.dispatch('authFirebase/register', {
-          firstName: form.firstName,
-          lastName: form.lastName,
-          birthDate: parseDDMMYYYY(form.birthDate),
           email: form.email,
           password: form.password,
           role: 'USER',
@@ -253,18 +158,12 @@ export default defineComponent({
       }
     };
 
-    const isNextStep = computed(() => {
-      return (
-        firstName.value.trim() !== '' &&
-        lastName.value.trim() !== '' &&
-        birthDate.value.trim() !== '' &&
-        parseDDMMYYYY(birthDate.value as string) !== null
-      );
-    });
-
-    const nextStep = () => {
-      if (isNextStep.value) {
-        idx.value = 1;
+    const loginWithGoogle = async () => {
+      try {
+        await store.dispatch('authFirebase/loginWithGoogle');
+        await router.push('/main');
+      } catch (e) {
+        console.error(e);
       }
     };
 
@@ -275,20 +174,14 @@ export default defineComponent({
       password,
       loading,
       t,
-      idx,
-      steps,
-      firstName,
-      lastName,
-      birthDate,
       confirmPassword,
       toggleEye,
       typeInput,
       eyeIcon,
       focusInput,
       focusOutInput,
-      isNextStep,
       errorValue,
-      nextStep,
+      loginWithGoogle,
     };
   },
 });
@@ -364,6 +257,7 @@ export default defineComponent({
 
   @media (max-width: 480px) {
     font-size: 1.5rem;
+    margin-bottom: 50px;
   }
 }
 
@@ -390,5 +284,11 @@ export default defineComponent({
   font-size: 13px;
   font-weight: bold;
   right: 20px;
+}
+
+.actions-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 </style>

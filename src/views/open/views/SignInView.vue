@@ -46,7 +46,16 @@
               </div>
             </Field>
           </section>
-          <app-button :loading="loading" type="submit" title="login"></app-button>
+          <div class="actions-btn">
+            <app-button :loading="loading" type="submit" title="login"></app-button>
+            <app-button
+              raised
+              severity="gradient"
+              title="loginWithGoogle"
+              :icon="['fab', 'google']"
+              @click="loginWithGoogle"
+            ></app-button>
+          </div>
         </VForm>
 
         <section>
@@ -121,6 +130,15 @@ export default defineComponent({
       }
     };
 
+    const loginWithGoogle = async () => {
+      try {
+        await store.dispatch('authFirebase/loginWithGoogle');
+        await router.push('/main');
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
     return {
       formGroup,
       onSubmit,
@@ -134,6 +152,7 @@ export default defineComponent({
       focusInput,
       focusOutInput,
       errorValue,
+      loginWithGoogle,
     };
   },
 });
@@ -148,7 +167,7 @@ export default defineComponent({
   overflow: auto;
   @media (max-width: 600px) {
     padding: 0;
-    height: 100dvh;
+    height: calc(100vh - var(--header-height));
   }
 }
 
@@ -172,7 +191,7 @@ export default defineComponent({
     border-radius: 0;
     margin-top: 0;
     padding: 1.5rem;
-    height: 100dvh;
+    height: calc(100vh + 100px);
   }
 }
 
@@ -260,5 +279,11 @@ a:hover {
   font-size: 13px;
   font-weight: bold;
   right: 20px;
+}
+
+.actions-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 </style>

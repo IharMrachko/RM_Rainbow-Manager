@@ -1,14 +1,16 @@
 import { Module } from 'vuex';
 import {
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   User,
 } from 'firebase/auth';
 import { auth, db } from '@/firebase';
 import { errorMessages } from '@/helpers/error-message.helper';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { FirebaseError } from '@/interfaces/firebase-error.interface';
 
 export type Role = 'USER' | 'ADMIN' | 'SUPER_ADMIN';
@@ -21,10 +23,12 @@ export interface SignUp {
   email: string;
   role: Role;
 }
+
 export interface AuthState {
   user: User | null;
   loading: boolean;
 }
+
 export const authFirebase: Module<AuthState, unknown> = {
   namespaced: true,
   state: (): AuthState => ({
@@ -47,7 +51,11 @@ export const authFirebase: Module<AuthState, unknown> = {
   mutations: {
     setUser(state, user: User | null) {
       state.user = user;
-      localStorage.setItem('user', JSON.stringify(user));
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('user');
+      }
     },
     setLoading(state, value: boolean) {
       state.loading = value;
@@ -66,9 +74,6 @@ export const authFirebase: Module<AuthState, unknown> = {
 
         await addDoc(parentRef, {
           userId: userCredential.user.uid,
-          firstName: payload.firstName,
-          lastName: payload.lastName,
-          birthDate: payload.birthDate,
           email: payload.email,
           role: payload.role,
           createdAt: serverTimestamp(),
@@ -104,6 +109,15 @@ export const authFirebase: Module<AuthState, unknown> = {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         commit('setUser', userCredential.user);
+        dispatch(
+          'toast/addToast',
+          {
+            message: 'loginSuccessful',
+            severity: 'success',
+            duration: 3000,
+          },
+          { root: true }
+        );
       } catch (err) {
         const e = err as FirebaseError;
         dispatch(
@@ -121,10 +135,74 @@ export const authFirebase: Module<AuthState, unknown> = {
         commit('setLoading', false);
       }
     },
+
+    // Вход через Google
+    async loginWithGoogle({ commit, dispatch }) {
+      commit('setGoogleLoading', true);
+      try {
+        const provider = new GoogleAuthProvider();
+
+        // Добавляем дополнительные scope для получения информации о пользователе
+        provider.addScope('profile');
+        provider.addScope('email');
+
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        await dispatch('checkAndCreateUserInDatabase', user);
+
+        commit('setUser', user);
+
+        dispatch(
+          'toast/addToast',
+          {
+            message: 'loginSuccessful',
+            severity: 'success',
+            duration: 3000,
+          },
+          { root: true }
+        );
+      } catch (err) {
+        const e = err as FirebaseError;
+        dispatch(
+          'toast/addToast',
+          {
+            message: e.code ? errorMessages[e.code] || e.message : 'unknownError',
+            severity: 'error',
+            duration: 3000,
+          },
+          { root: true }
+        );
+        throw err;
+      }
+    },
+
+    // Проверка и создание пользователя в базе данных
+    async checkAndCreateUserInDatabase(_, user: User) {
+      try {
+        // Проверяем, существует ли пользователь уже в нашей коллекции
+        const userRef = doc(db, 'users', 'Asbe4RDbnbYilRIWtx4F', 'items', user.uid);
+
+        // Можно проверить существование документа или просто создать/обновить
+        const userData = {
+          userId: user.uid,
+          firstName: user.displayName?.split(' ')[0] || '',
+          lastName: user.displayName?.split(' ')[1] || '',
+          email: user.email,
+          role: 'USER',
+          createdAt: serverTimestamp(),
+        };
+
+        await setDoc(userRef, userData, { merge: true });
+      } catch (e) {
+        console.error(e);
+      }
+    },
+
     async logout({ commit }) {
       await signOut(auth);
       commit('setUser', null);
     },
+
     async resetPassword({ dispatch }, email: string) {
       try {
         await sendPasswordResetEmail(auth, email);

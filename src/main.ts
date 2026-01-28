@@ -73,7 +73,7 @@ import './styles/style.scss';
 import { i18n } from '../i18n';
 import { auth } from '@/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { faTelegram } from '@fortawesome/free-brands-svg-icons';
+import { faGoogle, faTelegram } from '@fortawesome/free-brands-svg-icons';
 
 library.add(
   faSearch,
@@ -141,7 +141,7 @@ library.add(
 );
 
 // @ts-ignore
-library.add(faTelegram);
+library.add(faTelegram, faGoogle);
 
 onAuthStateChanged(auth, (user) => {
   store.commit('authFirebase/setUser', user);
