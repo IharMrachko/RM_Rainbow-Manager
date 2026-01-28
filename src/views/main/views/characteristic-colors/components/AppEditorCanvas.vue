@@ -36,12 +36,32 @@ export default defineComponent({
     const startAngleRef = ref<number | null>(null); // начало отрисовки сегментов, например, начало по часовой стрелке с 12 часов
     const offsetXRef = ref(0); // смещение изображения по оси X
     const offsetYRef = ref(0); // смещение изображения по оси Y
-
+    const pixelRatio = ref(1);
+    // Определяем pixel ratio устройства
+    const getPixelRatio = () => {
+      return window.devicePixelRatio || 1;
+    };
     let isLoadImage = false;
     const render = async () => {
       if (!canvasRef.value) return;
-
+      const canvas = canvasRef.value;
       const ctx = canvasRef.value.getContext('2d')!;
+      const ratio = getPixelRatio();
+      pixelRatio.value = ratio;
+      // Устанавливаем внутренний размер в зависимости от pixel ratio
+      canvas.width = sizeRef.value * ratio;
+      canvas.height = sizeRef.value * ratio;
+
+      // Устанавливаем CSS размер (тот что видит пользователь)
+      canvas.style.width = `${sizeRef.value}px`;
+      canvas.style.height = `${sizeRef.value}px`;
+
+      // Масштабируем контекст для четкой отрисовки
+      ctx.scale(ratio, ratio);
+
+      // Включаем сглаживание
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
       ctx.clearRect(0, 0, sizeRef.value, sizeRef.value);
       if (props.imageUrl && !isLoadImage) {
         imageRef.value = await loadImage(props.imageUrl);
@@ -112,7 +132,8 @@ export default defineComponent({
       const startOffset = startAngleRef.value ?? -Math.PI / 2;
       ctx.lineWidth = thickness; // Устанавливаем толщину линии для всех дуг
       // Перебираем все сегменты и рисуем каждый как дугу
-
+      // Включаем сглаживание для линий
+      ctx.imageSmoothingEnabled = true;
       props.segments.forEach((seg, i) => {
         ctx.beginPath(); // Начинаем новый путь для текущего сегмента
         ctx.strokeStyle = seg.color; // Устанавливаем цвет обводки для текущего сегмента
@@ -281,10 +302,6 @@ export default defineComponent({
 <style scoped>
 /* Оптимизация для мобильных устройств */
 .high-quality-canvas {
-  image-rendering: -webkit-optimize-contrast; /* Safari */
-  image-rendering: crisp-edges; /* Firefox */
-  image-rendering: pixelated; /* Chrome */
-
   /* Улучшение сглаживания на Android */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
