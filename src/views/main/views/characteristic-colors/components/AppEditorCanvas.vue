@@ -1,6 +1,12 @@
 <template>
   <div>
-    <canvas ref="canvasRef" :width="sizeRef" :height="sizeRef" @click="handleCanvasClick"></canvas>
+    <canvas
+      ref="canvasRef"
+      class="high-quality-canvas"
+      :width="sizeRef"
+      :height="sizeRef"
+      @click="handleCanvasClick"
+    ></canvas>
   </div>
 </template>
 
@@ -272,4 +278,39 @@ export default defineComponent({
   },
 });
 </script>
-<style scoped></style>
+<style scoped>
+/* Оптимизация для мобильных устройств */
+.high-quality-canvas {
+  image-rendering: -webkit-optimize-contrast; /* Safari */
+  image-rendering: crisp-edges; /* Firefox */
+  image-rendering: pixelated; /* Chrome */
+
+  /* Улучшение сглаживания на Android */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Предотвращение размытия при трансформациях */
+  backface-visibility: hidden;
+  transform: translateZ(0);
+
+  /* Фиксированный размер для предотвращения масштабирования браузером */
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  display: block;
+}
+
+/* Медиа-запросы для Android */
+@media screen and (-webkit-min-device-pixel-ratio: 1.5) {
+  .high-quality-canvas {
+    image-rendering: -webkit-optimize-contrast;
+  }
+}
+
+/* Для очень плотных пикселей (Retina) */
+@media screen and (-webkit-min-device-pixel-ratio: 2), screen and (min-resolution: 192dpi) {
+  .high-quality-canvas {
+    image-rendering: crisp-edges;
+  }
+}
+</style>
