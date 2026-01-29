@@ -12,6 +12,7 @@ import AppToaster from '@/shared/components/AppToaster.vue';
 import AppDialog from '@/shared/components/dialog/AppDialog.vue';
 
 import { Device } from '@/store/modules/mobile-view';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   components: { AppDialog, AppToaster },
@@ -19,6 +20,8 @@ export default defineComponent({
     const windowWidth = ref(document.documentElement.clientWidth);
     const store = useStore();
     const { locale } = useI18n();
+    const router = useRouter();
+    const isAuthenticated = store.getters['authFirebase/isAuthenticated'];
     store.dispatch('theme/initTheme');
     store.dispatch('language/initLanguage');
     const device = ref<Device>('desktop');
@@ -29,6 +32,9 @@ export default defineComponent({
       else if (/android/.test(ua)) device.value = 'android';
       else device.value = 'desktop';
       store.dispatch('mobile/setDevice', { device: device.value });
+      if (isAuthenticated) {
+        router.push('main');
+      }
     });
 
     watch(
