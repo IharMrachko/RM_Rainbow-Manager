@@ -15,9 +15,9 @@ import { FirebaseError } from '@/interfaces/firebase-error.interface';
 
 export type Role = 'USER' | 'ADMIN' | 'SUPER_ADMIN';
 export interface SignUp {
-  firstName: string;
-  lastName: string;
-  birthDate: string;
+  firstName?: string;
+  lastName?: string;
+  birthDate?: string;
   password: string;
   confirmPassword?: string;
   email: string;
@@ -27,6 +27,7 @@ export interface SignUp {
 export interface AuthState {
   user: User | null;
   loading: boolean;
+  isLoadingGoogle: boolean;
 }
 
 export const authFirebase: Module<AuthState, unknown> = {
@@ -34,6 +35,7 @@ export const authFirebase: Module<AuthState, unknown> = {
   state: (): AuthState => ({
     user: null,
     loading: false,
+    isLoadingGoogle: false,
   }),
   getters: {
     isAuthenticated: (state: AuthState) => {
@@ -43,6 +45,7 @@ export const authFirebase: Module<AuthState, unknown> = {
     },
     currentUser: (state: AuthState) => state.user,
     isLoading: (state: AuthState) => state.loading,
+    isLoadingGoogle: (state: AuthState) => state.isLoadingGoogle,
     getUserId: () => {
       const raw = localStorage.getItem('user');
       return raw ? JSON.parse(raw).uid : null;
@@ -59,6 +62,9 @@ export const authFirebase: Module<AuthState, unknown> = {
     },
     setLoading(state, value: boolean) {
       state.loading = value;
+    },
+    setLoadingGoogle(state, value: boolean) {
+      state.isLoadingGoogle = value;
     },
   },
   actions: {
@@ -138,7 +144,7 @@ export const authFirebase: Module<AuthState, unknown> = {
 
     // Вход через Google
     async loginWithGoogle({ commit, dispatch }) {
-      commit('setGoogleLoading', true);
+      commit('setLoadingGoogle', true);
       try {
         const provider = new GoogleAuthProvider();
 
@@ -173,6 +179,8 @@ export const authFirebase: Module<AuthState, unknown> = {
           { root: true }
         );
         throw err;
+      } finally {
+        commit('setLoadingGoogle', false);
       }
     },
 

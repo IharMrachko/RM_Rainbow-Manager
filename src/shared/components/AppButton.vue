@@ -20,6 +20,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    preventDefault: {
+      type: Boolean,
+      default: false,
+    },
     title: {
       type: String,
       default: '',
@@ -54,7 +58,10 @@ export default defineComponent({
       { raised: props.raised, gradient: props.gradient },
     ]);
 
-    const clickBtn = () => {
+    const clickBtn = (event: Event) => {
+      if (props.preventDefault) {
+        event.preventDefault();
+      }
       emit('click');
     };
     return { t, classes, clickBtn };

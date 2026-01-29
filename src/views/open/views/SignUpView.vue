@@ -73,7 +73,9 @@
               raised
               severity="gradient"
               title="loginWithGoogle"
+              prevent-default
               :icon="['fab', 'google']"
+              :loading="loadingGoogle"
               @click="loginWithGoogle"
             ></app-button>
           </div>
@@ -113,6 +115,7 @@ export default defineComponent({
     const { errorValue } = useErrorMessage();
     const focus: Map<string, boolean> = new Map<string, boolean>();
     const loading = computed(() => store.getters['authFirebase/isLoading']);
+    const loadingGoogle = computed(() => store.getters['authFirebase/isLoadingGoogle']);
     const device = computed(() => store.getters['mobile/getDevice']);
     const formGroup = yup.object({
       email: yup.string().required('validation.required').email('validation.email'),
@@ -182,6 +185,7 @@ export default defineComponent({
       focusOutInput,
       errorValue,
       loginWithGoogle,
+      loadingGoogle,
     };
   },
 });

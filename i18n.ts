@@ -210,6 +210,8 @@ const messages = {
     remainingInquiries: 'Remaining inquiries? Schedule your consultation.',
     loginSuccessful: 'Login successful!',
     loginWithGoogle: 'Login with Google',
+    popupClosedByUser: 'Popup closed by user',
+    cancelled: 'Cancelled',
   },
   ru: {
     login: 'Вход',
@@ -419,6 +421,8 @@ const messages = {
     remainingInquiries: 'Остались вопросы? Закажите консультацию!',
     loginSuccessful: 'Вход выполнен успешно!',
     loginWithGoogle: 'Вход через Google',
+    popupClosedByUser: 'Попак закрыт пользователем',
+    cancelled: 'Отмена',
   },
 };
 

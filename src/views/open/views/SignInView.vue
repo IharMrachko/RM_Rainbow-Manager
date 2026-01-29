@@ -53,7 +53,9 @@
               severity="gradient"
               title="loginWithGoogle"
               :icon="['fab', 'google']"
-              @click="loginWithGoogle"
+              :loading="loadingGoogle"
+              prevent-default
+              @click="loginWithGoogle($event)"
             ></app-button>
           </div>
         </VForm>
@@ -94,6 +96,7 @@ export default defineComponent({
     const { typeInput, eyeIcon, toggleEye } = usePasswordToggle();
     const { errorValue } = useErrorMessage();
     const loading = computed(() => store.getters['authFirebase/isLoading']);
+    const loadingGoogle = computed(() => store.getters['authFirebase/isLoadingGoogle']);
     const device = computed(() => store.getters['mobile/getDevice']);
     const focus: Map<string, boolean> = new Map<string, boolean>();
     const formGroup = yup.object({
@@ -153,6 +156,7 @@ export default defineComponent({
       focusOutInput,
       errorValue,
       loginWithGoogle,
+      loadingGoogle,
     };
   },
 });
