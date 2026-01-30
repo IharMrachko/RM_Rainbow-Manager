@@ -81,76 +81,83 @@ export default defineComponent({
       initFirstCard();
     });
 
+    const sharedImageUrl = ref<string>(''); // Для передачи в модалку
+
     const onFileSelected = async (file: File) => {
       if (!file) return;
 
-      // Для Android создаем blob с особыми параметрами
-      if (/Android/.test(navigator.userAgent)) {
-        imageUrl.value = await createAndroidSafeUrl(file);
-      } else {
-        imageUrl.value = URL.createObjectURL(file);
-      }
+      try {
+        const urls = await createDistinctUrlsFromFile(file);
 
-      await loadImage(imageUrl.value);
-      initFirstCard();
-    };
+        imageUrl.value = urls.localUrl;
+        sharedImageUrl.value = urls.sharedUrl; // <-- Передавайте этот URL
 
-    const createAndroidSafeUrl = async (file: File): Promise<string> => {
-      // Вариант 1: Пробуем blob URL с cache busting
-      const blobUrl = URL.createObjectURL(file);
+        await loadImage(imageUrl.value);
+        initFirstCard();
+      } catch (error) {
+        console.error('Failed to create distinct URLs:', error);
 
-      // Тестируем blob URL
-      const isBlobWorking = await testBlobUrlLoad(blobUrl);
+        // Простой fallback
+        const blobUrl = URL.createObjectURL(file);
+        imageUrl.value = blobUrl;
+        sharedImageUrl.value = blobUrl;
 
-      if (isBlobWorking) {
-        return blobUrl;
-      } else {
-        // Вариант 2: Используем data URL
-        URL.revokeObjectURL(blobUrl);
-        return await fileToBase64(file);
+        await loadImage(imageUrl.value);
+        initFirstCard();
       }
     };
 
-    const fileToBase64 = (file: File): Promise<string> => {
+    const createDistinctUrlsFromFile = async (
+      file: File
+    ): Promise<{
+      localUrl: string; // Для этого компонента
+      sharedUrl: string; // Для передачи другим компонентам
+      safeUrl: string; // Самый безопасный вариант
+    }> => {
+      // 1. Читаем файл в ArrayBuffer (один раз)
+      const arrayBuffer = await file.arrayBuffer();
+
+      // 2. Создаем три РАЗНЫХ Blob (хотя данные одинаковые)
+      const blob1 = new Blob([arrayBuffer], { type: file.type });
+      const blob2 = new Blob([new Uint8Array(arrayBuffer)], { type: file.type });
+      const blob3 = new Blob([arrayBuffer.slice(0)], { type: file.type });
+
+      return {
+        // Для локального использования - data URL
+        localUrl: await blobToDataUrl(blob1),
+
+        // Для передачи - blob URL (первый)
+        sharedUrl: URL.createObjectURL(blob2),
+
+        // Самый безопасный - data URL с меткой
+        safeUrl: await createUniqueDataUrl(blob3, file.name),
+      };
+    };
+
+    // Создание уникального data URL
+    const createUniqueDataUrl = async (blob: Blob, filename: string): Promise<string> => {
+      const dataUrl = await blobToDataUrl(blob);
+
+      // Добавляем уникальный идентификатор чтобы URL всегда был разный
+      const uniqueId = Date.now() + Math.random().toString(36).substr(2, 9);
+
+      // Можно добавить метаданные в data URL
+      return `${dataUrl}#${filename}_${uniqueId}`;
+    };
+
+    // Конвертация Blob в data URL
+    const blobToDataUrl = (blob: Blob): Promise<string> => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-
-        // Ограничиваем размер для Android
-        const MAX_SIZE_MB = 10;
-        if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-          reject(new Error(`File too large for Android (max ${MAX_SIZE_MB}MB)`));
-          return;
-        }
-
         reader.onload = () => resolve(reader.result as string);
         reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    };
-
-    const testBlobUrlLoad = (url: string): Promise<boolean> => {
-      return new Promise((resolve) => {
-        const img = new Image();
-
-        // Для Android добавляем специальные атрибуты
-        img.crossOrigin = 'anonymous';
-        img.decoding = 'async';
-        img.loading = 'eager';
-
-        img.onload = () => resolve(true);
-        img.onerror = () => resolve(false);
-
-        // Добавляем cache busting для Android
-        const androidUrl = url + '#t=' + Date.now();
-        img.src = androidUrl;
-
-        // Таймаут
-        setTimeout(() => resolve(false), 3000);
+        reader.readAsDataURL(blob);
       });
     };
 
     const imageUrlChange = (url: string) => {
       imageUrl.value = url;
+      sharedImageUrl.value = url;
       paletteCards.value = defaultPaletteCards.map((card) => ({ ...card }));
       initFirstCard();
     };
@@ -227,7 +234,7 @@ export default defineComponent({
 
       openDialog(AppPaletteModal, {
         results: results,
-        imageUrl: imageUrl.value,
+        imageUrl: sharedImageUrl.value,
         paletteCards: paletteCards.value,
       });
     };
