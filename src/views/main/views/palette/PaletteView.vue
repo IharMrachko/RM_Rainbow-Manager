@@ -37,7 +37,7 @@
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onBeforeMount, onUnmounted, ref } from 'vue';
+import { defineComponent, onBeforeMount, ref } from 'vue';
 import AppImageNotUploaded from '@/shared/components/AppImageNotUploaded.vue';
 import AppImageColorPicker from '@/shared/components/AppImageColorPicker.vue';
 import AppPaletteFillCard from '@/views/main/views/palette/components/AppPaletteFillCard.vue';
@@ -76,64 +76,35 @@ export default defineComponent({
     const weights = { l: 1.0, c: 1.0, h: 1.5 };
     const tolerance = { l: 10, c: 20, h: 15 };
     const palettes: Record<Palette, string[]> = palettesObj;
-    const device = computed(() => store.getters['mobile/getDevice']);
+
     onBeforeMount(() => {
       initFirstCard();
     });
 
-    const onFileSelected = async (file: File) => {
+    const onFileSelected = (file: File) => {
       if (!file) return;
 
-      // Очищаем старые ресурсы
-      cleanupImageResources();
+      // Решение 1: Использовать FileReader вместо blob URL
+      const reader = new FileReader();
 
-      // Для Android используем base64, для остальных - blob URL
-      if (device.value === 'android') {
-        // Android: используем FileReader для base64
-        imageUrl.value = await fileToBase64(file);
-      } else {
-        // Другие устройства: blob URL
-        imageUrl.value = URL.createObjectURL(file);
-      }
-
-      await loadImage(imageUrl.value);
-      initFirstCard();
-    };
-
-    const cleanupImageResources = () => {
-      // 1. Освобождаем blob URL если он существует
-      if (imageUrl.value && imageUrl.value.startsWith('blob:')) {
-        try {
-          URL.revokeObjectURL(imageUrl.value);
-        } catch (e) {
-          console.warn('Error revoking blob URL:', e);
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          // Используем data URL вместо blob URL
+          imageUrl.value = e.target.result as string;
+          loadImage(imageUrl.value);
+          initFirstCard();
         }
-      }
+      };
 
-      // 2. Очищаем ссылку на изображение
-      if (imgEl.value) {
-        // Очищаем src чтобы браузер мог освободить память
-        imgEl.value.src = '';
-        imgEl.value = null;
-      }
+      reader.onerror = (error) => {
+        console.error('FileReader error:', error);
+        // Fallback на blob URL
+        imageUrl.value = URL.createObjectURL(file);
+        loadImage(imageUrl.value);
+        initFirstCard();
+      };
 
-      // 3. Очищаем URL
-      imageUrl.value = '';
-
-      // 4. Очищаем palette cards
-      paletteCards.value = defaultPaletteCards.map((card) => ({ ...card }));
-
-      // 5. Сбрасываем selected card
-      selectedCard.value = null;
-    };
-
-    const fileToBase64 = (file: File): Promise<string> => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      reader.readAsDataURL(file);
     };
 
     const imageUrlChange = (url: string) => {
@@ -244,10 +215,6 @@ export default defineComponent({
         hueDelta(h1, h2) <= tolerance.h
       );
     };
-
-    onUnmounted(() => {
-      cleanupImageResources();
-    });
 
     return {
       imgEl,
