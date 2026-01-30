@@ -167,16 +167,32 @@ export default defineComponent({
       const ctx = canvas.getContext('2d')!;
       const rect = canvas.getBoundingClientRect();
 
+      // Учитываем devicePixelRatio
+      const dpr = window.devicePixelRatio || 1;
+
+      // 1. Проверяем границы в CSS координатах
       if (xCss < 0 || yCss < 0 || xCss > rect.width || yCss > rect.height) return;
 
-      const pixel = ctx.getImageData(xCss, yCss, 1, 1).data;
+      // 2. Преобразуем CSS координаты в canvas координаты с учетом DPR
+      // canvas.width = CANVAS_W * dpr, но отображается как CANVAS_W px
+      // Поэтому масштаб = dpr
+      const canvasX = xCss * dpr;
+      const canvasY = yCss * dpr;
+
+      // 3. Получаем цвет пикселя в canvas координатах
+      const pixel = ctx.getImageData(Math.floor(canvasX), Math.floor(canvasY), 1, 1).data;
       const [r, g, b] = pixel;
+
       currentRgb.value = [r, g, b];
       currentHex.value = rgbToHex(r, g, b);
       selectedHex.value = currentHex.value;
       emit('selectedHex', selectedHex.value);
+
+      // 4. Перерисовываем изображение
       drawImage();
 
+      // 5. Рисуем круг в CSS координатах (они правильные для отрисовки)
+      // НО: поскольку мы в контексте с ctx.scale(dpr, dpr), нужно разделить на dpr
       ctx.beginPath();
       ctx.arc(xCss, yCss, 14, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(255,255,255,0)';
