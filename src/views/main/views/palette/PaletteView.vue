@@ -83,9 +83,28 @@ export default defineComponent({
 
     const onFileSelected = (file: File) => {
       if (!file) return;
-      imageUrl.value = URL.createObjectURL(file);
-      loadImage(imageUrl.value);
-      initFirstCard();
+
+      // Решение 1: Использовать FileReader вместо blob URL
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          // Используем data URL вместо blob URL
+          imageUrl.value = e.target.result as string;
+          loadImage(imageUrl.value);
+          initFirstCard();
+        }
+      };
+
+      reader.onerror = (error) => {
+        console.error('FileReader error:', error);
+        // Fallback на blob URL
+        imageUrl.value = URL.createObjectURL(file);
+        loadImage(imageUrl.value);
+        initFirstCard();
+      };
+
+      reader.readAsDataURL(file);
     };
 
     const imageUrlChange = (url: string) => {
