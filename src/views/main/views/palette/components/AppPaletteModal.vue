@@ -5,6 +5,7 @@
       <section v-for="(item, index) in results.slice(0, end)" :key="item" class="wrapper-item">
         <div class="canvas-item">
           <span class="rating">{{ index + 1 }}. {{ t(item.name) }}</span>
+          {{ imageUrl }}
           <app-editor-canvas
             :ref="(el: InstanceType<typeof AppEditorCanvas> | null) => (editorCanvasRefs[index] = el)"
             :image-url="imageUrl"
