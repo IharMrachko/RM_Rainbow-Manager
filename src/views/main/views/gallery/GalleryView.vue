@@ -494,13 +494,28 @@ export default defineComponent({
   transform: translateY(100%);
 }
 
-.clue {
+// Базовый миксин для абсолютного центрирования
+@mixin absolute-center {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
 
-  & .clue-wrapper {
+// Базовый миксин для адаптивного контейнера
+@mixin responsive-container($mobile-top: 30%) {
+  @media (max-width: 600px) {
+    width: 100%;
+    padding: 20px;
+    top: $mobile-top;
+  }
+}
+
+// Стили для центрированных блоков с контентом
+.centered-block {
+  @include absolute-center;
+
+  &-wrapper {
     width: 700px;
     margin: 0 auto;
 
@@ -509,20 +524,27 @@ export default defineComponent({
     }
   }
 
-  @media (max-width: 600px) {
-    width: 100%;
-    padding: 20px;
-    top: 20%;
+  @include responsive-container;
+}
+
+// Конкретные компоненты (могут наследовать или использовать миксины)
+.clue {
+  @extend .centered-block;
+
+  &-wrapper {
+    width: 700px;
+    margin: 0 auto;
+
+    @media (max-width: 600px) {
+      width: 100%;
+    }
   }
 }
 
 .not-found {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  @include absolute-center;
 
-  & .not-found-wrapper {
+  &-wrapper {
     width: 700px;
     display: flex;
     justify-content: center;
@@ -532,10 +554,6 @@ export default defineComponent({
     }
   }
 
-  @media (max-width: 600px) {
-    width: 100%;
-    padding: 20px;
-    top: 20%;
-  }
+  @include responsive-container;
 }
 </style>
