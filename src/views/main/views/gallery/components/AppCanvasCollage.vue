@@ -339,31 +339,46 @@ export default defineComponent({
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Загружаем изображения сначала
+        // Загружаем изображения
         const imagesData = await loadAllImagesData(
           props.images.slice(0, columns.value * rows.value)
         );
 
         if (imagesData.length === 0) return;
 
-        // Рассчитываем размеры canvas с учетом изображений
+        // Рассчитываем базовые размеры
         await calculateSizeBasedOnImages(imagesData);
 
-        canvas.width = currentWidth.value;
-        canvas.height = currentHeight.value;
+        // Умножаем на devicePixelRatio для высокого качества
+        const dpr = window.devicePixelRatio || 1;
+        const displayWidth = currentWidth.value;
+        const displayHeight = currentHeight.value;
 
-        // Очищаем canvas
+        // Устанавливаем реальные размеры canvas (в пикселях)
+        canvas.width = displayWidth * dpr;
+        canvas.height = displayHeight * dpr;
+
+        // Масштабируем отображение
+        canvas.style.width = `${displayWidth}px`;
+        canvas.style.height = `${displayHeight}px`;
+
+        // Масштабируем контекст
+        ctx.scale(dpr, dpr);
+
+        // Настраиваем сглаживание
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Рисуем фон
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Очищаем canvas
+        ctx.clearRect(0, 0, displayWidth, displayHeight);
 
-        // Расчет размеров ячеек
-        const cellWidth = canvas.width / columns.value;
-        const cellHeight = canvas.height / rows.value;
+        // Рисуем белый фон
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, displayWidth, displayHeight);
+
+        // Расчет размеров ячеек (в display pixels)
+        const cellWidth = displayWidth / columns.value;
+        const cellHeight = displayHeight / rows.value;
 
         // Рисуем изображения
         for (let row = 0; row < rows.value; row++) {
@@ -375,13 +390,12 @@ export default defineComponent({
             const cellX = col * cellWidth;
             const cellY = row * cellHeight;
 
-            // Учитываем padding внутри ячейки
+            // Учитываем padding
             const paddedWidth = cellWidth - props.padding * 2;
             const paddedHeight = cellHeight - props.padding * 2;
             const paddedX = cellX + props.padding;
             const paddedY = cellY + props.padding;
 
-            // Стандартное заполнение
             const { width, height, x, y } = calculateImageSize(
               imageData,
               paddedWidth,
@@ -391,13 +405,29 @@ export default defineComponent({
 
             const drawX = paddedX + x;
             const drawY = paddedY + y;
+
+            // Настройки рендеринга для высокого качества
+            ctx.save();
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
-            ctx.drawImage(imageData.img, drawX, drawY, width, height);
+
+            // Рисуем с учетом devicePixelRatio
+            ctx.drawImage(
+              imageData.img,
+              0,
+              0,
+              imageData.width,
+              imageData.height,
+              drawX,
+              drawY,
+              width,
+              height
+            );
+
+            ctx.restore();
           }
         }
       } catch (err) {
-        error.value = err instanceof Error ? err.message : 'Произошла ошибка при создании коллажа';
         console.error('Ошибка создания коллажа:', err);
       } finally {
         loading.value = false;
@@ -405,6 +435,7 @@ export default defineComponent({
     };
 
     const downloadCollage = (filename: string = 'collage.png') => {
+      toggleImageOverlayPanel();
       if (!canvasRef.value) return;
       const url = canvasRef.value.toDataURL('image/png');
       const link = document.createElement('a');
