@@ -81,30 +81,74 @@ export default defineComponent({
       initFirstCard();
     });
 
-    const onFileSelected = (file: File) => {
+    const onFileSelected = async (file: File) => {
       if (!file) return;
 
-      // Решение 1: Использовать FileReader вместо blob URL
-      const reader = new FileReader();
+      try {
+        // Пробуем FileReader с таймаутом
+        const dataUrl = await readFileAsDataURLWithTimeout(file, 5000); // 5 секунд таймаут
 
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          // Используем data URL вместо blob URL
-          imageUrl.value = e.target.result as string;
-          loadImage(imageUrl.value);
-          initFirstCard();
+        if (dataUrl) {
+          // Успешно получили data URL
+          imageUrl.value = dataUrl;
+        } else {
+          // Fallback на blob URL
+          imageUrl.value = URL.createObjectURL(file);
         }
-      };
 
-      reader.onerror = (error) => {
-        console.error('FileReader error:', error);
-        // Fallback на blob URL
-        imageUrl.value = URL.createObjectURL(file);
-        loadImage(imageUrl.value);
+        await loadImage(imageUrl.value);
         initFirstCard();
-      };
+      } catch (error) {
+        console.error('File processing error:', error);
 
-      reader.readAsDataURL(file);
+        // Последний fallback - сразу blob URL
+        imageUrl.value = URL.createObjectURL(file);
+        await loadImage(imageUrl.value);
+        initFirstCard();
+      }
+    };
+
+    // Функция для чтения файла как Data URL с таймаутом
+    const readFileAsDataURLWithTimeout = (file: File, timeoutMs: number): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        let timeoutId: number;
+
+        const cleanup = () => {
+          clearTimeout(timeoutId);
+          reader.onload = null;
+          reader.onerror = null;
+          reader.onabort = null;
+        };
+
+        reader.onload = (e) => {
+          cleanup();
+          if (e.target?.result) {
+            resolve(e.target.result as string);
+          } else {
+            reject(new Error('No result from FileReader'));
+          }
+        };
+
+        reader.onerror = (error) => {
+          cleanup();
+          reject(new Error(`FileReader error: ${error}`));
+        };
+
+        reader.onabort = () => {
+          cleanup();
+          reject(new Error('FileReader aborted'));
+        };
+
+        // Таймаут для мобильных устройств
+        timeoutId = setTimeout(() => {
+          cleanup();
+          reader.abort();
+          reject(new Error(`FileReader timeout after ${timeoutMs}ms`));
+        }, timeoutMs);
+
+        reader.readAsDataURL(file);
+      });
     };
 
     const imageUrlChange = (url: string) => {
