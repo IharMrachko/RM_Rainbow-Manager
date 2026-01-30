@@ -2,7 +2,7 @@
   <div ref="modalRef" class="modal-content neon">
     <app-modal-header :title="t('top3')" @close="close"></app-modal-header>
     <div class="wrapper">
-      <section v-for="(item, index) in results.slice(0, end)" :key="item" class="wrapper-item">
+      <section v-for="(item, index) in results.slice(0, 1)" :key="item" class="wrapper-item">
         <div class="canvas-item">
           <span class="rating">{{ index + 1 }}. {{ t(item.name) }}</span>
           <app-editor-canvas
