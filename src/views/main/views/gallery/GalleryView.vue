@@ -227,7 +227,6 @@ export default defineComponent({
       await openDialog(AppCanvasCollage, {
         images: selected.value.map((it) => it.src),
         padding: 5,
-        fillMode: 'contain',
       }).then((result) => {
         if (result?.update) {
           initUserGalleryItems(true, search.value);
@@ -436,7 +435,7 @@ export default defineComponent({
   & .icon-ellipsis-h {
     cursor: pointer;
     display: flex;
-    flex: 1.2;
+    flex: 0.8;
     align-items: center;
     justify-content: center;
   }

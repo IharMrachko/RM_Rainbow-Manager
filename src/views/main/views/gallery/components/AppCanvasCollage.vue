@@ -391,7 +391,8 @@ export default defineComponent({
 
             const drawX = paddedX + x;
             const drawY = paddedY + y;
-
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
             ctx.drawImage(imageData.img, drawX, drawY, width, height);
           }
         }
