@@ -73,10 +73,12 @@
               raised
               severity="gradient"
               title="loginWithGoogle"
-              prevent-default
               :icon="['fab', 'google']"
               :loading="loadingGoogle"
-              @click="loginWithGoogle"
+              @click="
+                $event.preventDefault();
+                loginWithGoogle();
+              "
             ></app-button>
           </div>
         </VForm>

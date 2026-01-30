@@ -54,8 +54,10 @@
               title="loginWithGoogle"
               :icon="['fab', 'google']"
               :loading="loadingGoogle"
-              prevent-default
-              @click="loginWithGoogle($event)"
+              @click="
+                $event.preventDefault();
+                loginWithGoogle();
+              "
             ></app-button>
           </div>
         </VForm>

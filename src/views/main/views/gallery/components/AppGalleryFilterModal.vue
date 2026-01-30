@@ -1,6 +1,6 @@
 <template>
   <div ref="modalRef" class="modal-content neon">
-    <app-modal-header @close="close"></app-modal-header>
+    <app-modal-header :title="t('filter')" @close="close"></app-modal-header>
     <section class="wrapper-filter">
       <div class="filter-dropdown">
         <app-dropdown
@@ -16,6 +16,12 @@
         >
           <div class="folders-overlay-container">
             <div class="folders-options-wrapper">
+              <div v-if="isFolderExist" class="noResults">
+                {{ t('noResults') }}
+              </div>
+              <div v-if="existFolders.length === 0" class="noResults">
+                {{ t('noFolders') }}
+              </div>
               <app-option v-for="item in folders" :key="item.id" :value="item">
                 <div class="option-folder-item">
                   <img :src="require('@/assets/rainbow-folder.png')" alt="Rainbow Folder" />
@@ -132,6 +138,7 @@ export default defineComponent({
   setup(_, { emit }) {
     const { t } = useI18n();
     const store = useStore();
+    const search = ref('');
     const device = computed(() => store.getters['mobile/getDevice']);
     const cards = ref<MaskCard[]>(colorCards.map((it) => ({ ...it, name: t(it.type) })));
     const palettesCards = ref<PaletteCard[]>(
@@ -152,6 +159,10 @@ export default defineComponent({
     ]);
 
     const folders = computed(() => store.getters['folder/getFilterFolders']);
+    const existFolders = ref(store.getters['folder/getFolders']);
+    const isFolderExist = computed(
+      () => existFolders.value.length > 0 && folders.value.length === 0 && !!search.value.trim()
+    );
     const folder = ref<Folder | null>(store.getters['gallery/getFilter']?.folder);
 
     const close = () => {
@@ -159,6 +170,7 @@ export default defineComponent({
     };
 
     const searchFolder = (value: string) => {
+      search.value = value;
       store.dispatch('folder/filterFolder', value);
     };
 
@@ -177,7 +189,6 @@ export default defineComponent({
       coloristicType.value = null;
       maskType.value = null;
       paletteType.value = null;
-      store.dispatch('gallery/setFilter', null);
     };
 
     onMounted(() => {
@@ -231,6 +242,8 @@ export default defineComponent({
       palettesCards,
       focusInput,
       focusOutInput,
+      isFolderExist,
+      existFolders,
     };
   },
 });
@@ -350,5 +363,11 @@ img {
 .folders-options-wrapper {
   max-height: 300px;
   overflow-y: auto;
+}
+
+.noResults {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
 }
 </style>

@@ -20,10 +20,6 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    preventDefault: {
-      type: Boolean,
-      default: false,
-    },
     title: {
       type: String,
       default: '',
@@ -59,10 +55,7 @@ export default defineComponent({
     ]);
 
     const clickBtn = (event: Event) => {
-      if (props.preventDefault) {
-        event.preventDefault();
-      }
-      emit('click');
+      emit('click', event);
     };
     return { t, classes, clickBtn };
   },
