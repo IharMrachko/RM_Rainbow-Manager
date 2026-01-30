@@ -90,7 +90,7 @@ export default defineComponent({
         const urls = await createDistinctUrlsFromFile(file);
 
         imageUrl.value = urls.localUrl;
-        sharedImageUrl.value = urls.sharedUrl; // <-- Передавайте этот URL
+        sharedImageUrl.value = urls.safeUrl; // <-- Передавайте этот URL
 
         await loadImage(imageUrl.value);
         initFirstCard();
