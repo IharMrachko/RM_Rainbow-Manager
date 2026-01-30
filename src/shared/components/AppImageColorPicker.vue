@@ -217,16 +217,32 @@ export default defineComponent({
 
     const drawImage = () => {
       const canvas = canvasEl.value;
-      if (!canvas) return;
+      if (!canvas || !imgEl.value) return;
 
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      canvas.width = CANVAS_W;
-      canvas.height = CANVAS_H;
+      // Получаем DPR устройства
+      const dpr = window.devicePixelRatio || 1;
 
+      // Устанавливаем реальные размеры canvas (в пикселях устройства)
+      canvas.width = CANVAS_W * dpr;
+      canvas.height = CANVAS_H * dpr;
+
+      // Масштабируем отображение на CSS уровне
+      canvas.style.width = `${CANVAS_W}px`;
+      canvas.style.height = `${CANVAS_H}px`;
+
+      // Масштабируем контекст
+      ctx.scale(dpr, dpr);
+
+      // Настраиваем сглаживание для высокого качества
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+
+      // Очищаем canvas
       ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
-      if (!imgEl.value) return;
+
       const natW = imgEl.value.naturalWidth;
       const natH = imgEl.value.naturalHeight;
       const ratioImg = natW / natH;
@@ -244,7 +260,12 @@ export default defineComponent({
       const offsetX = (CANVAS_W - drawW) / 2;
       const offsetY = (CANVAS_H - drawH) / 2;
 
+      // Рисуем с настройками качества
+      ctx.save();
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(imgEl.value, 0, 0, natW, natH, offsetX, offsetY, drawW, drawH);
+      ctx.restore();
     };
 
     const { resetImage, zoomPlus, zoomMinus, zoom } = useCanvasSaver(canvasEl, drawImage);
