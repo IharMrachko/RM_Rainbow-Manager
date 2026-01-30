@@ -84,70 +84,68 @@ export default defineComponent({
     const onFileSelected = async (file: File) => {
       if (!file) return;
 
-      try {
-        // Пробуем FileReader с таймаутом
-        const dataUrl = await readFileAsDataURLWithTimeout(file, 5000); // 5 секунд таймаут
-
-        if (dataUrl) {
-          // Успешно получили data URL
-          imageUrl.value = dataUrl;
-        } else {
-          // Fallback на blob URL
-          imageUrl.value = URL.createObjectURL(file);
-        }
-
-        await loadImage(imageUrl.value);
-        initFirstCard();
-      } catch (error) {
-        console.error('File processing error:', error);
-
-        // Последний fallback - сразу blob URL
+      // Для Android создаем blob с особыми параметрами
+      if (/Android/.test(navigator.userAgent)) {
+        imageUrl.value = await createAndroidSafeUrl(file);
+      } else {
         imageUrl.value = URL.createObjectURL(file);
-        await loadImage(imageUrl.value);
-        initFirstCard();
+      }
+
+      await loadImage(imageUrl.value);
+      initFirstCard();
+    };
+
+    const createAndroidSafeUrl = async (file: File): Promise<string> => {
+      // Вариант 1: Пробуем blob URL с cache busting
+      const blobUrl = URL.createObjectURL(file);
+
+      // Тестируем blob URL
+      const isBlobWorking = await testBlobUrlLoad(blobUrl);
+
+      if (isBlobWorking) {
+        return blobUrl;
+      } else {
+        // Вариант 2: Используем data URL
+        URL.revokeObjectURL(blobUrl);
+        return await fileToBase64(file);
       }
     };
 
-    // Функция для чтения файла как Data URL с таймаутом
-    const readFileAsDataURLWithTimeout = (file: File, timeoutMs: number): Promise<string> => {
+    const fileToBase64 = (file: File): Promise<string> => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        let timeoutId: number;
 
-        const cleanup = () => {
-          clearTimeout(timeoutId);
-          reader.onload = null;
-          reader.onerror = null;
-          reader.onabort = null;
-        };
+        // Ограничиваем размер для Android
+        const MAX_SIZE_MB = 10;
+        if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+          reject(new Error(`File too large for Android (max ${MAX_SIZE_MB}MB)`));
+          return;
+        }
 
-        reader.onload = (e) => {
-          cleanup();
-          if (e.target?.result) {
-            resolve(e.target.result as string);
-          } else {
-            reject(new Error('No result from FileReader'));
-          }
-        };
-
-        reader.onerror = (error) => {
-          cleanup();
-          reject(new Error(`FileReader error: ${error}`));
-        };
-
-        reader.onabort = () => {
-          cleanup();
-          reject(new Error('FileReader aborted'));
-        };
-
-        // Таймаут для мобильных устройств
-        timeoutId = setTimeout(() => {
-          cleanup();
-          reader.abort();
-          reject(new Error(`FileReader timeout after ${timeoutMs}ms`));
-        }, timeoutMs);
-
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
         reader.readAsDataURL(file);
+      });
+    };
+
+    const testBlobUrlLoad = (url: string): Promise<boolean> => {
+      return new Promise((resolve) => {
+        const img = new Image();
+
+        // Для Android добавляем специальные атрибуты
+        img.crossOrigin = 'anonymous';
+        img.decoding = 'async';
+        img.loading = 'eager';
+
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+
+        // Добавляем cache busting для Android
+        const androidUrl = url + '#t=' + Date.now();
+        img.src = androidUrl;
+
+        // Таймаут
+        setTimeout(() => resolve(false), 3000);
       });
     };
 
