@@ -70,11 +70,9 @@
         <section class="selected-section" :class="{ mobile: isMobile }">
           <div v-if="isSelectedMode && selected.length" class="icon">
             <font-awesome-icon size="lg" :icon="['fas', 'images']" @click="openCollageModal" />
+            {{ selected.length }}
           </div>
 
-          <div v-if="isSelectedMode && selected.length" class="icon">
-            <font-awesome-icon size="lg" :icon="['fas', 'check']" /> {{ selected.length }}
-          </div>
           <div v-if="isSelectedMode && selected.length" class="icon" @click="clearSelected">
             <font-awesome-icon size="lg" :icon="['fas', 'broom']" />
           </div>

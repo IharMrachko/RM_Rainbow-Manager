@@ -26,7 +26,7 @@
       </div>
     </app-overlay-panel>
     <div ref="containerRef" class="canvas-container">
-      <canvas ref="canvasRef"></canvas>
+      <canvas ref="canvasRef" class="high-quality-canvas"></canvas>
       <AppLoader v-if="loading" />
     </div>
 
@@ -142,13 +142,7 @@ export default defineComponent({
 
     // Расчет оптимального соотношения сторон canvas на основе ячеек
     const calculateOptimalAspectRatio = () => {
-      if (props.canvasAspectRatio) {
-        return props.canvasAspectRatio;
-      }
-
-      // Если изображения загружены, можно рассчитать на основе их соотношений
-      // Пока используем пропорцию по количеству колонок и строк
-      return columns.value / rows.value;
+      return window.devicePixelRatio || 1;
     };
 
     // Расчет размеров canvas, чтобы изображения максимально заполняли ячейки
@@ -343,18 +337,14 @@ export default defineComponent({
       try {
         const canvas = canvasRef.value;
         const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          throw new Error('Не удалось получить контекст canvas');
-        }
+        if (!ctx) return;
 
         // Загружаем изображения сначала
         const imagesData = await loadAllImagesData(
           props.images.slice(0, columns.value * rows.value)
         );
 
-        if (imagesData.length === 0) {
-          throw new Error('Нет изображений для отображения');
-        }
+        if (imagesData.length === 0) return;
 
         // Рассчитываем размеры canvas с учетом изображений
         await calculateSizeBasedOnImages(imagesData);
@@ -363,6 +353,8 @@ export default defineComponent({
         canvas.height = currentHeight.value;
 
         // Очищаем canvas
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // Рисуем фон
@@ -639,6 +631,37 @@ export default defineComponent({
     gap: 15px;
     border-bottom: 1px solid #eaeaeb;
     cursor: pointer;
+  }
+}
+
+/* Оптимизация для мобильных устройств */
+.high-quality-canvas {
+  /* Улучшение сглаживания на Android */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Предотвращение размытия при трансформациях */
+  backface-visibility: hidden;
+  transform: translateZ(0);
+
+  /* Фиксированный размер для предотвращения масштабирования браузером */
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  display: block;
+}
+
+/* Медиа-запросы для Android */
+@media screen and (-webkit-min-device-pixel-ratio: 1.5) {
+  .high-quality-canvas {
+    image-rendering: -webkit-optimize-contrast;
+  }
+}
+
+/* Для очень плотных пикселей (Retina) */
+@media screen and (-webkit-min-device-pixel-ratio: 2), screen and (min-resolution: 192dpi) {
+  .high-quality-canvas {
+    image-rendering: crisp-edges;
   }
 }
 </style>
