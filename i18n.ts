@@ -212,6 +212,13 @@ const messages = {
     loginWithGoogle: 'Login with Google',
     popupClosedByUser: 'Popup closed by user',
     cancelled: 'Cancelled',
+    noResults: 'No results were found for your query!',
+    galleryEmpty:
+      'Your gallery space currently stands vacant yet it awaits transformation into the canvas for your creative vision.' +
+      'Begin by archiving your photographic captures within the gallery and you will unlock access to sophisticated collage creation tools seamlessly interconnect moments experiment with compositional forms and breathe new life into memories through compelling visual narratives.',
+    maximumSelectedCollage:
+      'A maximum of six photographs may be selected for inclusion in a collage!',
+    noFolders: 'Folders have not been created yet!',
   },
   ru: {
     login: 'Вход',
@@ -421,8 +428,13 @@ const messages = {
     remainingInquiries: 'Остались вопросы? Закажите консультацию!',
     loginSuccessful: 'Вход выполнен успешно!',
     loginWithGoogle: 'Вход через Google',
-    popupClosedByUser: 'Попак закрыт пользователем',
+    popupClosedByUser: 'Попап закрыт пользователем',
     cancelled: 'Отмена',
+    noResults: 'По вашему запросу ничего не найдено!',
+    galleryEmpty:
+      'Пространство вашей галереи пока пустует — но оно готово стать холстом для ваших идей.Начните сохранять свои фотографии в галерею, и перед вами откроется инструмент для создания коллажей: соединяйте моменты, играйте с формами, оживляйте воспоминания в новых визуальных нарративах.',
+    maximumSelectedCollage: 'В коллаж можно выбрать максимум 6 фотографий!',
+    noFolders: 'Папки ещё не созданы!',
   },
 };
 

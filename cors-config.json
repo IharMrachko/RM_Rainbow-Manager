@@ -1,0 +1,15 @@
+[
+  {
+    "origin": [
+      "http://localhost:8080",
+      "https://rainbow-manager-2c361.firebaseapp.com",
+      "https://rainbow-manager-2c361.web.app",
+      "https://rainbow-manager.store",
+      "https://rainbow-manager.com",
+      "https://iharmrachko.github.io"
+    ],
+    "method": ["GET", "PUT", "POST", "DELETE"],
+    "responseHeader": ["Content-Type", "Content-Disposition"],
+    "maxAgeSeconds": 3600
+  }
+]

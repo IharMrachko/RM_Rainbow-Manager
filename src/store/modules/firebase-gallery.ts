@@ -27,7 +27,7 @@ import { MaskCard } from '@/types/mask-card.type';
 import { PaletteCard } from '@/types/palette-card.type';
 import { Palette } from '@/types/palette.type';
 
-type GalleryOptions = {
+export type GalleryOptions = {
   coloristicType?: ColoristicType | null;
   title?: string;
   pageSize?: number;
@@ -236,12 +236,11 @@ export const gallery: Module<GalleryState, unknown> = {
           maskType,
           coloristicType,
           title,
-          pageSize = 20,
+          pageSize = 50,
           lastDoc,
           folderId,
         } = options;
         const itemsRef = collection(db, 'gallery', 'NoUcXcCCYhRoogXFHJfV', 'items');
-
         const constraints: QueryConstraint[] = [where('userId', '==', userId)];
         const constraintsForCount: QueryConstraint[] = [where('userId', '==', userId)];
         if (coloristicType) {

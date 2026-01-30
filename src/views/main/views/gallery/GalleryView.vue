@@ -1,5 +1,15 @@
 <template>
   <div class="gallery-container">
+    <section v-if="isClueSection" class="clue">
+      <div class="clue-wrapper">
+        <font-awesome-icon size="xl" :icon="['fas', 'exclamation-triangle']" />
+        {{ t('galleryEmpty') }}
+        <font-awesome-icon size="xl" :icon="['fas', 'images']" @click="openCollageModal" />
+      </div>
+    </section>
+    <section v-if="isNotFoundSection" class="not-found">
+      <div class="not-found-wrapper">{{ t('noResults') }}</div>
+    </section>
     <AppLoader v-if="isLoading"></AppLoader>
     <div ref="galleryRef" class="gallery-wrapper">
       <section class="gallery-helper" :class="{ hidden: isHidden }">
@@ -46,7 +56,8 @@
       </section>
       <footer class="footer" :class="{ hidden: isHidden }">
         <div class="icon-list-ol">
-          <font-awesome-icon size="sm" :icon="['fas', 'list-ol']" /> {{ totalImages }}
+          <font-awesome-icon size="lg" :icon="['fas', 'list-ol']" />
+          <span> {{ totalImages }}</span>
         </div>
         <div class="icon-ellipsis-h">
           <font-awesome-icon
@@ -58,14 +69,17 @@
         </div>
         <section class="selected-section" :class="{ mobile: isMobile }">
           <div v-if="isSelectedMode && selected.length" class="icon">
-            <font-awesome-icon size="sm" :icon="['fas', 'check']" /> {{ selected.length }}
+            <font-awesome-icon size="lg" :icon="['fas', 'images']" @click="openCollageModal" />
           </div>
 
-          <div v-if="isSelectedMode && selected.length" class="icon" @click="openDeleteModal">
-            <font-awesome-icon size="sm" :icon="['fas', 'fa-trash']" />
+          <div v-if="isSelectedMode && selected.length" class="icon">
+            <font-awesome-icon size="lg" :icon="['fas', 'check']" /> {{ selected.length }}
           </div>
           <div v-if="isSelectedMode && selected.length" class="icon" @click="clearSelected">
-            <font-awesome-icon size="sm" :icon="['fas', 'broom']" />
+            <font-awesome-icon size="lg" :icon="['fas', 'broom']" />
+          </div>
+          <div v-if="isSelectedMode && selected.length" class="icon" @click="openDeleteModal">
+            <font-awesome-icon size="lg" :icon="['fas', 'fa-trash']" />
           </div>
         </section>
       </footer>
@@ -95,14 +109,15 @@ import AppLoader from '@/shared/components/AppLoader.vue';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppGalleryFilterModal from '@/views/main/views/gallery/components/AppGalleryFilterModal.vue';
 import { useI18n } from 'vue-i18n';
-import { filterObjectForEmpty, isObjectEmpty } from '@/helpers/object-empty.helper';
 import AppCheckbox from '@/shared/components/AppCheckbox.vue';
 import AppConfirmModal from '@/shared/components/AppConfirmModal.vue';
-import { Image } from '@/store/modules/firebase-gallery';
+import { GalleryOptions, Image } from '@/store/modules/firebase-gallery';
 import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopover from '@/shared/components/AppPopover.vue';
 import AppVirtualScrollGrid from '@/shared/components/AppVirtualScrollGrid.vue';
+import AppCanvasCollage from '@/views/main/views/gallery/components/AppCanvasCollage.vue';
+import { filterObjectForEmpty, isObjectEmpty } from '@/helpers/object-empty.helper';
 
 export default defineComponent({
   components: {
@@ -134,28 +149,59 @@ export default defineComponent({
       const val = filter.value;
       return !val || isObjectEmpty(filterObjectForEmpty(val));
     });
+
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
+    const isClueSection = computed(() => {
+      return (
+        !isInit.value &&
+        !isLoading.value &&
+        !search.value?.trim() &&
+        isFilterEmpty.value &&
+        images.value.length === 0
+      );
+    });
+    const isNotFoundSection = computed(() => {
+      return (
+        !isInit.value &&
+        !isLoading.value &&
+        images.value?.length === 0 &&
+        (!!search.value?.trim() || !isFilterEmpty.value)
+      );
+    });
     const isSelectedMode = ref(false);
     const chooseAll = ref(false);
     const visiblePopover = ref(false);
     const isHidden = ref(false);
+    const isInit = ref(true);
     let lastScrollTop = 0;
     let timeout: ReturnType<typeof setTimeout> | null = null;
 
     onMounted(async () => {
       await store.dispatch('folder/getFolders', currentUserId.value);
+      await initUserGalleryItems(true, search.value);
+      isSelectedMode.value = !!selected.value.length;
+      isInit.value = false;
+    });
+
+    const initUserGalleryItems = async (reset = false, search: string) => {
       await store.dispatch('gallery/initUserGalleryItems', {
         userId: currentUserId.value,
         options: {
-          title: search.value,
-          coloristicType: filter.value?.coloristicType?.id,
-          maskType: filter.value?.maskType?.type,
-          folderId: filter.value?.folder?.id,
-          paletteType: filter.value?.paletteType?.id,
+          ...galleryOptions(search),
         },
-        reset: true,
+        reset,
       });
-    });
+    };
+
+    const galleryOptions = (search: string): GalleryOptions => {
+      return {
+        title: search,
+        coloristicType: filter.value?.coloristicType?.id,
+        maskType: filter.value?.maskType?.type,
+        folderId: filter.value?.folder?.id,
+        paletteType: filter.value?.paletteType?.id,
+      };
+    };
 
     const openCardModal = async (index: number) => {
       await openDialog(AppImageModal, {
@@ -167,17 +213,25 @@ export default defineComponent({
     const openFilterModal = async () => {
       await openDialog(AppGalleryFilterModal, {}).then((isSetFilter) => {
         if (isSetFilter) {
-          store.dispatch('gallery/initUserGalleryItems', {
-            userId: currentUserId.value,
-            options: {
-              title: search.value,
-              coloristicType: filter.value?.coloristicType?.id,
-              maskType: filter.value?.maskType?.type,
-              folderId: filter.value?.folder?.id,
-              paletteType: filter.value?.paletteType?.id,
-            },
-            reset: true,
-          });
+          initUserGalleryItems(true, search.value);
+        }
+      });
+    };
+
+    const openCollageModal = async () => {
+      if (selected.value.length > 6) {
+        await store.dispatch('toast/addToast', {
+          message: 'maximumSelectedCollage',
+          severity: 'warning',
+        });
+        return;
+      }
+      await openDialog(AppCanvasCollage, {
+        images: selected.value.map((it) => it.src),
+        padding: 5,
+      }).then((result) => {
+        if (result?.update) {
+          initUserGalleryItems(true, search.value);
         }
       });
     };
@@ -192,11 +246,7 @@ export default defineComponent({
           await store.dispatch('gallery/initUserGalleryItems', {
             userId: currentUserId.value,
             options: {
-              title: search.value,
-              coloristicType: filter.value?.coloristicType?.id,
-              maskType: filter.value?.maskType?.type,
-              folderId: filter.value?.folder?.id,
-              paletteType: filter.value?.paletteType?.id,
+              ...galleryOptions(search.value),
               lastDoc: lastDoc.value,
             },
           });
@@ -223,20 +273,18 @@ export default defineComponent({
 
     watch(search, (newVal) => {
       if (timeout) clearTimeout(timeout);
+      isInit.value = true;
       timeout = setTimeout(() => {
-        store.dispatch('gallery/initUserGalleryItems', {
-          userId: currentUserId.value,
-          options: {
-            title: newVal,
-            ...filter,
-          },
-          reset: true,
-        });
+        initUserGalleryItems(true, newVal);
+        isInit.value = false;
       }, 300);
     });
 
     watch(isSelectedMode, (isSelectedMode) => {
       store.dispatch('gallery/setSelectedMode', isSelectedMode);
+      if (!isSelectedMode) {
+        clearSelected();
+      }
     });
 
     watch(chooseAll, (isChooseAll) => {
@@ -308,6 +356,9 @@ export default defineComponent({
       getCurrentIndex,
       heightImagesContainer,
       galleryRef,
+      openCollageModal,
+      isClueSection,
+      isNotFoundSection,
     };
   },
 });
@@ -378,12 +429,15 @@ export default defineComponent({
 
   & .icon-list-ol {
     flex: 1;
+    display: flex;
+    gap: 10px;
+    align-items: center;
   }
 
   & .icon-ellipsis-h {
     cursor: pointer;
     display: flex;
-    flex: 1.2;
+    flex: 0.5;
     align-items: center;
     justify-content: center;
   }
@@ -440,5 +494,50 @@ export default defineComponent({
 
 .footer.hidden {
   transform: translateY(100%);
+}
+
+.clue {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  & .clue-wrapper {
+    width: 700px;
+    margin: 0 auto;
+
+    @media (max-width: 600px) {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
+    padding: 20px;
+    top: 20%;
+  }
+}
+
+.not-found {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  & .not-found-wrapper {
+    width: 700px;
+    display: flex;
+    justify-content: center;
+
+    @media (max-width: 600px) {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
+    padding: 20px;
+    top: 20%;
+  }
 }
 </style>
