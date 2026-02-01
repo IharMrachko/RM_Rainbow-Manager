@@ -295,12 +295,12 @@ export default defineComponent({
       try {
         await navigator.clipboard.writeText(link);
         await store.dispatch('toast/addToast', {
-          message: 'Ссылка скопирована!',
+          message: 'linkCopied',
           severity: 'success',
         });
       } catch (err) {
         await store.dispatch('toast/addToast', {
-          message: 'Ошибка копирования!',
+          message: 'copyError',
           severity: 'error',
         });
       }

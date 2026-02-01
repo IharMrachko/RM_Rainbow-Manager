@@ -221,6 +221,9 @@ const messages = {
     noFolders: 'Folders have not been created yet!',
     reCAPTCHAInitializationError: 'reCAPTCHA Initialization Error',
     reCAPTCHAHasExpired: 'reCAPTCHA has expired. Please complete the verification again.',
+    linkCopied: 'Link copied!',
+    copyError: 'Copy error!',
+    colorCopied: 'Color copied!',
   },
   ru: {
     login: 'Вход',
@@ -439,6 +442,9 @@ const messages = {
     noFolders: 'Папки ещё не созданы!',
     reCAPTCHAInitializationError: 'Ошибка инициализации reCAPTCHA',
     reCAPTCHAHasExpired: 'reCAPTCHA истекла. Пожалуйста, пройдите проверку снова.',
+    linkCopied: 'Ссылка скопирована!',
+    copyError: 'Ошибка копирования!',
+    colorCopied: 'Цвет скопирован!',
   },
 };
 

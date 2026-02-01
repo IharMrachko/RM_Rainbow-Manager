@@ -104,7 +104,6 @@ library.add(
   faTrash,
   faMask,
   faFolder,
-  faCopy,
   faLink,
   faBroom,
   faCheck,
@@ -137,7 +136,8 @@ library.add(
   faGift,
   faPiggyBank,
   faCheckDouble,
-  faBullseye
+  faBullseye,
+  faCopy
 );
 
 // @ts-ignore

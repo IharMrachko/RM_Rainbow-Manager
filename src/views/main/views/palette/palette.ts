@@ -833,18 +833,18 @@ export const softSummerPaletteShort: string[] = [
 ];
 
 export const softAutumnPaletteShort: string[] = [
-  '#83926B',
-  '#534F43',
-  '#E5CF93',
-  '#98795D',
-  '#F09896',
-  '#B74F5A',
-  '#43836B',
-  '#7E7D5E',
-  '#55608D',
-  '#164C6E',
-  '#8B2E36',
   '#6E5841',
+  '#A7A781',
+  '#F1C795',
+  '#A4474F',
+  '#FFA99A',
+  '#43836B',
+  '#534F43',
+  '#C6977B',
+  '#5474A5',
+  '#164C6E',
+  '#C5A771',
+  '#8B2E36',
 ];
 
 export const brightWinterPaletteShort: string[] = [

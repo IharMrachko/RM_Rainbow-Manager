@@ -3,6 +3,9 @@
     <div v-if="isPreviewRow" class="preview-row">
       <div class="preview" :style="{ background: hex }" aria-hidden="true"></div>
       <app-input v-model="hex" :is-label="false"></app-input>
+      <div class="copy-icon" @click="copyTextColor">
+        <font-awesome-icon size="xl" :icon="['fas', 'copy']" />
+      </div>
     </div>
 
     <div class="controls">
@@ -49,6 +52,7 @@ import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, ref, w
 import chroma from 'chroma-js';
 import { useI18n } from 'vue-i18n';
 import AppInput from '@/shared/components/AppInput.vue';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   components: { AppInput },
@@ -73,6 +77,7 @@ export default defineComponent({
   emits: ['update:modelValue', 'change'],
   setup(props, { emit }) {
     const { t } = useI18n();
+    const store = useStore();
     const hex = ref(props.hexP);
     const hue = ref(chroma(hex.value).hsl()[0] ?? 0);
     const sat = ref(chroma(hex.value).hsl()[1] ?? 1);
@@ -219,6 +224,21 @@ export default defineComponent({
       syncFromHex();
     });
 
+    const copyTextColor = async () => {
+      try {
+        await navigator.clipboard.writeText(hex.value);
+        await store.dispatch('toast/addToast', {
+          message: 'colorCopied',
+          severity: 'success',
+        });
+      } catch (err) {
+        await store.dispatch('toast/addToast', {
+          message: 'copyError',
+          severity: 'error',
+        });
+      }
+    };
+
     return {
       hex,
       hue,
@@ -236,6 +256,7 @@ export default defineComponent({
       combos,
       scaleColors,
       t,
+      copyTextColor,
     };
   },
 });
@@ -252,6 +273,10 @@ export default defineComponent({
   gap: 12px;
   align-items: center;
   margin-bottom: 10px;
+
+  & .copy-icon {
+    cursor: pointer;
+  }
 }
 .preview {
   width: 48px;
