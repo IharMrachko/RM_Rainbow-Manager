@@ -1,6 +1,6 @@
 <template>
   <div class="login-pic" @mousemove="handleMouseMove" @mouseleave="resetTransform">
-    <img ref="imageRef" src="../../assets/img-01.png" alt="" />
+    <img ref="imageRef" src="../../assets/rainbow.png" alt="" />
   </div>
 </template>
 <script lang="ts">

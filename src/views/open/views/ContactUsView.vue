@@ -41,7 +41,6 @@ export default defineComponent({
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 1rem;
   overflow: auto;
   @media (max-width: 600px) {
     padding: 0;
@@ -51,17 +50,13 @@ export default defineComponent({
 
 .wrap-contact {
   width: 100%;
-  max-width: 960px;
   background: var(--color-wrap-bg);
-  border-radius: 10px;
   overflow: hidden;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   padding: 2rem;
   gap: 2rem;
-  height: 80vh;
-  margin-top: 20px;
 
   @media (max-width: 600px) {
     flex-direction: column;
@@ -74,7 +69,7 @@ export default defineComponent({
 }
 
 .contacts {
-  flex: 1 1 50%;
+  flex: 1 1 40%;
   display: flex;
   flex-direction: column;
   gap: 6rem;

@@ -219,6 +219,8 @@ const messages = {
     maximumSelectedCollage:
       'A maximum of six photographs may be selected for inclusion in a collage!',
     noFolders: 'Folders have not been created yet!',
+    reCAPTCHAInitializationError: 'reCAPTCHA Initialization Error',
+    reCAPTCHAHasExpired: 'reCAPTCHA has expired. Please complete the verification again.',
   },
   ru: {
     login: 'Вход',
@@ -435,6 +437,8 @@ const messages = {
       'Пространство вашей галереи пока пустует — но оно готово стать холстом для ваших идей.Начните сохранять свои фотографии в галерею, и перед вами откроется инструмент для создания коллажей: соединяйте моменты, играйте с формами, оживляйте воспоминания в новых визуальных нарративах.',
     maximumSelectedCollage: 'В коллаж можно выбрать максимум 6 фотографий!',
     noFolders: 'Папки ещё не созданы!',
+    reCAPTCHAInitializationError: 'Ошибка инициализации reCAPTCHA',
+    reCAPTCHAHasExpired: 'reCAPTCHA истекла. Пожалуйста, пройдите проверку снова.',
   },
 };
 

@@ -4,7 +4,7 @@
       <app-image-login></app-image-login>
       <div class="signUp-form">
         <h1 class="title">{{ t('signUp') }}</h1>
-        <VForm :validation-schema="formGroup" @submit="onSubmit">
+        <VForm v-slot="{ meta: formMeta }" :validation-schema="formGroup" @submit="onSubmit">
           <section class="signUp-inputs">
             <Field v-slot="{ field, meta, errorMessage }" name="email">
               <div class="input-wrapper">
@@ -66,9 +66,15 @@
                 </div>
               </div>
             </Field>
+            <div v-if="showRecaptcha" id="recaptcha-container" class="recaptcha-container"></div>
           </section>
           <div class="actions-btn">
-            <app-button :loading="loading" type="submit" title="signUp"></app-button>
+            <app-button
+              :loading="loading"
+              type="submit"
+              title="signUp"
+              :disabled="!formMeta.valid || !formMeta.dirty || !isRecaptchaReady"
+            ></app-button>
             <app-button
               raised
               severity="gradient"
@@ -88,7 +94,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from 'vue';
+import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref } from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import AppInput from '@/shared/components/AppInput.vue';
 import * as yup from 'yup';
@@ -102,6 +108,12 @@ import { usePasswordToggle } from '@/composables/usePasswordToggle';
 // @ts-ignore
 import iNoBounce from 'inobounce';
 import { useErrorMessage } from '@/composables/useError';
+// Импортируем Firebase
+import {
+  getAuth,
+  RecaptchaVerifier,
+  RecaptchaVerifier as FirebaseRecaptchaVerifier,
+} from 'firebase/auth';
 
 export default defineComponent({
   components: { AppImageLogin, Field, VForm, AppInput, AppButton },
@@ -116,9 +128,17 @@ export default defineComponent({
     const { typeInput, eyeIcon, toggleEye } = usePasswordToggle();
     const { errorValue } = useErrorMessage();
     const focus: Map<string, boolean> = new Map<string, boolean>();
+
+    // Добавляем состояния для reCAPTCHA
+    const showRecaptcha = ref(true);
+    const isRecaptchaReady = ref(false);
+    const recaptchaVerifier = ref<FirebaseRecaptchaVerifier | null>(null);
+
     const loading = computed(() => store.getters['authFirebase/isLoading']);
     const loadingGoogle = computed(() => store.getters['authFirebase/isLoadingGoogle']);
     const device = computed(() => store.getters['mobile/getDevice']);
+
+    // Расширяем схему валидации для reCAPTCHA
     const formGroup = yup.object({
       email: yup.string().required('validation.required').email('validation.email'),
       password: yup
@@ -131,6 +151,75 @@ export default defineComponent({
         .oneOf([yup.ref('password')], 'validation.passwordsMatch'),
     });
 
+    // Инициализация reCAPTCHA
+    // Исправленная функция initializeRecaptcha:
+    const initializeRecaptcha = () => {
+      try {
+        const auth = getAuth();
+
+        // Очищаем предыдущую reCAPTCHA если есть
+        if (recaptchaVerifier.value) {
+          recaptchaVerifier.value.clear();
+        }
+
+        // ПРАВИЛЬНЫЙ ПОРЯДОК АРГУМЕНТОВ:
+        // 1. Auth instance
+        // 2. Container ID или элемент
+        // 3. Параметры
+        recaptchaVerifier.value = new RecaptchaVerifier(
+          auth, // Первый параметр - Auth instance
+          'recaptcha-container', // Второй параметр - ID контейнера
+          {
+            size: 'normal', // 'normal', 'compact', 'invisible'
+            callback: () => {
+              //reCAPTCHA успешно пройдена
+              isRecaptchaReady.value = true;
+            },
+            'expired-callback': () => {
+              //reCAPTCHA истекла
+              isRecaptchaReady.value = false;
+              store.dispatch('toast/addToast', {
+                message: 'reCAPTCHAHasExpired',
+                severity: 'warning',
+              });
+              resetRecaptcha();
+            },
+            'error-callback': (error: unknown) => {
+              console.error('reCAPTCHA ошибка:', error);
+              store.dispatch('toast/addToast', {
+                message: 'reCAPTCHAInitializationError',
+                severity: 'error',
+              });
+              isRecaptchaReady.value = false;
+            },
+          }
+        );
+
+        // Рендерим виджет
+        recaptchaVerifier.value.render().then(() => {
+          //reCAPTCHA виджет отрендерен
+        });
+      } catch (error) {
+        console.error('Ошибка инициализации reCAPTCHA:', error);
+        store.dispatch('toast/addToast', {
+          message: 'reCAPTCHAInitializationError',
+          severity: 'error',
+        });
+      }
+    };
+
+    // Сброс reCAPTCHA
+    const resetRecaptcha = () => {
+      if (recaptchaVerifier.value) {
+        recaptchaVerifier.value.clear();
+        isRecaptchaReady.value = false;
+        // Переинициализируем через небольшую задержку
+        setTimeout(() => {
+          initializeRecaptcha();
+        }, 500);
+      }
+    };
+
     const onSubmit = async (form: SignUp) => {
       try {
         await store.dispatch('authFirebase/register', {
@@ -138,9 +227,11 @@ export default defineComponent({
           password: form.password,
           role: 'USER',
         });
+
         await router.push('/main');
       } catch (e) {
         console.error(e);
+        resetRecaptcha();
       }
     };
 
@@ -169,8 +260,22 @@ export default defineComponent({
         await router.push('/main');
       } catch (e) {
         console.error(e);
+        resetRecaptcha();
       }
     };
+
+    // Инициализируем reCAPTCHA при монтировании компонента
+    onMounted(async () => {
+      // Ждем следующего тика обновления DOM
+      await nextTick();
+      initializeRecaptcha();
+    });
+    // Очищаем reCAPTCHA при размонтировании
+    onUnmounted(() => {
+      if (recaptchaVerifier.value) {
+        recaptchaVerifier.value.clear();
+      }
+    });
 
     return {
       formGroup,
@@ -188,6 +293,8 @@ export default defineComponent({
       errorValue,
       loginWithGoogle,
       loadingGoogle,
+      showRecaptcha,
+      isRecaptchaReady,
     };
   },
 });
@@ -198,44 +305,40 @@ export default defineComponent({
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 1rem; // чтобы на маленьких экранах не прилипало к краям
+  overflow: auto;
   @media (max-width: 600px) {
     padding: 0;
-    height: calc(100vh - var(--header-height)); // тут
+    height: calc(100vh - var(--header-height));
   }
 }
 
 .wrap-signUp {
   width: 100%;
-  max-width: 960px;
   background: var(--color-wrap-bg);
-  border-radius: 10px;
   overflow: hidden;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   padding: 2rem;
   gap: 2rem;
-  margin-top: 20px;
-  height: 80vh;
 
   @media (max-width: 600px) {
     flex-direction: column;
     align-items: center;
     padding: 1.5rem;
     border-radius: 0;
-    height: calc(100vh + 100px); // тут
+    height: calc(100vh + 150px); // Увеличиваем высоту для reCAPTCHA
     margin-top: 0;
   }
 }
 
 .signUp-form {
-  flex: 1 1 50%;
+  flex: 1 1 40%;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 1rem;
 
-  @media (max-width: 768px) {
+  @media (max-width: 600px) {
     width: 100%;
     gap: 1rem;
   }
@@ -245,11 +348,11 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem; // Уменьшили отступ для места под reCAPTCHA
 
-  @media (max-width: 480px) {
+  @media (max-width: 600px) {
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
 
   & .input-wrapper {
@@ -260,16 +363,30 @@ export default defineComponent({
 .title {
   font-size: 2rem;
   text-align: center;
+  margin-bottom: 1rem;
 
-  @media (max-width: 480px) {
+  @media (max-width: 600px) {
     font-size: 1.5rem;
-    margin-bottom: 50px;
+    margin-bottom: 30px; // Уменьшили отступ
   }
 }
 
-.current-step {
-  width: 100%;
-  height: 370px;
+// Стили для контейнера reCAPTCHA
+.recaptcha-container {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+  min-height: 78px; // Минимальная высота для reCAPTCHA
+
+  & > div {
+    transform: scale(0.9); // Можно настроить масштаб
+    transform-origin: center;
+  }
+
+  @media (max-width: 600px) {
+    transform: scale(0.85);
+    margin: 0.5rem 0;
+  }
 }
 
 .btn-password {

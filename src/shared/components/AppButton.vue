@@ -180,11 +180,11 @@ button {
 }
 
 .btn:disabled {
-  background-color: #ccc; // тусклый фон
-  color: #666; // тусклый текст
-  cursor: not-allowed; // курсор "запрещено"
-  opacity: 0.7; // лёгкая прозрачность
-  pointer-events: none; // полностью убираем кликабельность
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.7;
+  pointer-events: none;
 }
 
 /* Лоадер */
