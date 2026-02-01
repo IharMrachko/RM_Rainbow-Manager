@@ -7,7 +7,7 @@
           <span class="rating">{{ index + 1 }}. {{ t(item.name) }}</span>
           <app-editor-canvas
             :ref="(el: InstanceType<typeof AppEditorCanvas> | null) => (editorCanvasRefs[index] = el)"
-            :image-url="imageUrl"
+            :image-url="uniqueImageUrls(index)"
             :segments="item.segments"
           ></app-editor-canvas>
         </div>
@@ -86,6 +86,28 @@ export default defineComponent({
       emit('close');
     };
 
+    // исходный URL
+
+    // Создаем computed для уникальных URL
+    const uniqueImageUrls = (index: number): string => {
+      const baseUrl = props.imageUrl;
+
+      if (!baseUrl) return '';
+
+      // Проверяем тип URL
+      if (baseUrl.startsWith('data:') || baseUrl.startsWith('blob:')) {
+        // Data или Blob URL - возвращаем как есть (они уже уникальны)
+        return baseUrl;
+      }
+
+      // Для обычных URL добавляем параметры
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(2, 9);
+      const separator = baseUrl.includes('?') ? '&' : '?';
+
+      return `${baseUrl}${separator}t=${timestamp}&i=${index}&r=${random}`;
+    };
+
     const saveToDevice = (editorCanvasRef: EditorCanvasRef) => {
       editorCanvasRef.triggerSaveImage();
     };
@@ -132,6 +154,7 @@ export default defineComponent({
       isSaveToGallery,
       saveToGallery,
       end,
+      uniqueImageUrls,
     };
   },
 });
