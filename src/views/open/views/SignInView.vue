@@ -192,7 +192,7 @@ export default defineComponent({
     border-radius: 0;
     margin-top: 0;
     padding: 1.5rem;
-    height: calc(100vh + 100px);
+    height: calc(100vh + 150px);
   }
 }
 

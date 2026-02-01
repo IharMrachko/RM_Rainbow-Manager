@@ -327,7 +327,7 @@ export default defineComponent({
     align-items: center;
     padding: 1.5rem;
     border-radius: 0;
-    height: calc(100vh + 150px); // Увеличиваем высоту для reCAPTCHA
+    height: calc(100vh + 180px); // Увеличиваем высоту для reCAPTCHA
     margin-top: 0;
   }
 }
