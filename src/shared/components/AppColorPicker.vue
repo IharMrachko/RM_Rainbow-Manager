@@ -36,7 +36,7 @@
         <div><strong>HEX:</strong> {{ hex }}</div>
         <div><strong>RGB:</strong> {{ rgb.join(', ') }}</div>
       </div>
-      <div class="info-button" @click="openCombinationCanvasModal">
+      <div v-if="isInfoBtn" class="info-button" @click="openCombinationCanvasModal">
         <app-button :icon="['fas', 'eye']" raised severity="secondary"></app-button>
       </div>
     </div>
@@ -87,6 +87,10 @@ export default defineComponent({
     isCombosSection: {
       type: Boolean,
       default: true,
+    },
+    isInfoBtn: {
+      type: Boolean,
+      default: false,
     },
   },
   emits: ['update:modelValue', 'change'],

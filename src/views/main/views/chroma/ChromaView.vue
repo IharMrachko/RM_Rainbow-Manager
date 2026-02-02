@@ -12,7 +12,7 @@
         @is-hidden-overflow="isHiddenOverflow = $event"
       ></app-image-color-picker>
     </div>
-    <app-color-picker :hex-p="selectedHex"></app-color-picker>
+    <app-color-picker :is-info-btn="true" :hex-p="selectedHex"></app-color-picker>
   </div>
 </template>
 
