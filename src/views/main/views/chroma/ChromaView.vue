@@ -1,6 +1,5 @@
 <template>
   <div class="chroma-wrapper" :class="{ hiddenOverflow: isHiddenOverflow }">
-    {{ isHiddenOverflow }}
     <div class="photo-picker">
       <app-image-not-uploaded v-if="!imgEl" @on-file-selected="onFileSelected">
       </app-image-not-uploaded>
@@ -69,7 +68,7 @@ export default defineComponent({
   background: var(--color-wrap-bg);
   height: 100dvh;
   gap: 20px;
-  overflow: hidden;
+  overflow: auto;
 
   /* Скрыть скроллбар в разных браузерах */
   scrollbar-width: none; /* Firefox */
