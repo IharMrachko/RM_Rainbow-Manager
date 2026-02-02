@@ -27,8 +27,13 @@
     </div>
 
     <div v-if="isInfo" class="info">
-      <div><strong>HEX:</strong> {{ hex }}</div>
-      <div><strong>RGB:</strong> {{ rgb.join(', ') }}</div>
+      <div class="info-colors">
+        <div><strong>HEX:</strong> {{ hex }}</div>
+        <div><strong>RGB:</strong> {{ rgb.join(', ') }}</div>
+      </div>
+      <div class="info-button" @click="openCombinationCanvasModal">
+        <app-button :icon="['fas', 'eye']" raised severity="secondary"></app-button>
+      </div>
     </div>
 
     <section v-if="isCombosSection" class="combos">
@@ -53,9 +58,12 @@ import chroma from 'chroma-js';
 import { useI18n } from 'vue-i18n';
 import AppInput from '@/shared/components/AppInput.vue';
 import { useStore } from 'vuex';
+import AppButton from '@/shared/components/AppButton.vue';
+import AppCombinationColorsCanvasModal from '@/views/main/views/chroma/components/AppCombinationColorsCanvasModal.vue';
+import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 
 export default defineComponent({
-  components: { AppInput },
+  components: { AppButton, AppInput },
   props: {
     hexP: {
       type: String,
@@ -239,6 +247,17 @@ export default defineComponent({
       }
     };
 
+    const openCombinationCanvasModal = async () => {
+      await openDialog(AppCombinationColorsCanvasModal, {
+        colorItems: combos.value,
+        scaleItems: scaleColors.value.map((it) => ({ label: '', color: it })),
+        mainColor: {
+          label: '',
+          color: hex.value,
+        },
+      });
+    };
+
     return {
       hex,
       hue,
@@ -257,6 +276,7 @@ export default defineComponent({
       scaleColors,
       t,
       copyTextColor,
+      openCombinationCanvasModal,
     };
   },
 });
@@ -287,13 +307,29 @@ export default defineComponent({
 
 .controls {
   display: flex;
+  flex-direction: column;
   gap: 12px;
-  align-items: flex-start;
-  flex-wrap: wrap;
+  margin-bottom: 12px;
+
+  @media (max-width: 600px) {
+    align-items: center;
+  }
 }
+
+.info {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 20px;
+
+  @media (max-width: 600px) {
+    justify-content: space-between;
+  }
+}
+
 .sv {
   width: 220px;
-  height: 220px;
+  height: 180px;
   border-radius: 8px;
   position: relative;
   background: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));

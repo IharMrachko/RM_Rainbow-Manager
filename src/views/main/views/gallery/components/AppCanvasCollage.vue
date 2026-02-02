@@ -434,13 +434,13 @@ export default defineComponent({
       }
     };
 
-    const downloadCollage = (filename: string = 'collage.png') => {
+    const downloadCollage = () => {
       toggleImageOverlayPanel();
       if (!canvasRef.value) return;
       const url = canvasRef.value.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = url;
-      link.download = filename;
+      link.download = 'collage.png';
       link.click();
     };
 
