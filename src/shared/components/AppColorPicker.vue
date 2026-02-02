@@ -2,7 +2,12 @@
   <div class="color-picker">
     <div v-if="isPreviewRow" class="preview-row">
       <div class="preview" :style="{ background: hex }" aria-hidden="true"></div>
-      <app-input v-model="hex" :is-label="false"></app-input>
+      <app-input
+        v-model="hex"
+        :is-label="false"
+        @focus="focusInput"
+        @blur="focusOutInput"
+      ></app-input>
       <div class="copy-icon" @click="copyTextColor">
         <font-awesome-icon size="xl" :icon="['fas', 'copy']" />
       </div>
@@ -61,6 +66,8 @@ import { useStore } from 'vuex';
 import AppButton from '@/shared/components/AppButton.vue';
 import AppCombinationColorsCanvasModal from '@/views/main/views/chroma/components/AppCombinationColorsCanvasModal.vue';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: { AppButton, AppInput },
@@ -90,6 +97,8 @@ export default defineComponent({
     const hue = ref(chroma(hex.value).hsl()[0] ?? 0);
     const sat = ref(chroma(hex.value).hsl()[1] ?? 1);
     const val = ref(chroma(hex.value).hsl()[2] ?? 0.5);
+
+    const device = computed(() => store.getters['mobile/getDevice']);
 
     // refs to DOM
     const svEl = ref<HTMLElement | null>(null);
@@ -258,6 +267,19 @@ export default defineComponent({
       });
     };
 
+    const focusInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.enable();
+      }
+    };
+
+    const focusOutInput = () => {
+      if (device.value === 'ios') {
+        iNoBounce.disable();
+        setTimeout(() => window.scrollTo(0, 0), 50);
+      }
+    };
+
     return {
       hex,
       hue,
@@ -277,6 +299,8 @@ export default defineComponent({
       t,
       copyTextColor,
       openCombinationCanvasModal,
+      focusInput,
+      focusOutInput,
     };
   },
 });
