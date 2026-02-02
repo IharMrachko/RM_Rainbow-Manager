@@ -774,7 +774,6 @@ export default defineComponent({
     // Ресайз обработчик
     let resizeTimeout: number;
     const handleResize = (): void => {
-      isLoading.value = true;
       clearTimeout(resizeTimeout);
       resizeTimeout = window.setTimeout(() => {
         updateDimensions();
