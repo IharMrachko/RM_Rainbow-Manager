@@ -224,6 +224,7 @@ const messages = {
     linkCopied: 'Link copied!',
     copyError: 'Copy error!',
     colorCopied: 'Color copied!',
+    mainColor: 'Main color',
   },
   ru: {
     login: 'Вход',
@@ -445,6 +446,7 @@ const messages = {
     linkCopied: 'Ссылка скопирована!',
     copyError: 'Ошибка копирования!',
     colorCopied: 'Цвет скопирован!',
+    mainColor: 'Основной цвет',
   },
 };
 
