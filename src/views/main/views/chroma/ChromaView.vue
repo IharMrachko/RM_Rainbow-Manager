@@ -17,10 +17,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import AppColorPicker from '@/shared/components/AppColorPicker.vue';
 import AppImageNotUploaded from '@/shared/components/AppImageNotUploaded.vue';
 import AppImageColorPicker from '@/shared/components/AppImageColorPicker.vue';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: {
@@ -48,6 +50,10 @@ export default defineComponent({
       });
       imgEl.value = img;
     };
+
+    onMounted(() => {
+      iNoBounce.disable();
+    });
 
     return {
       imgEl,
