@@ -79,14 +79,10 @@ export default defineComponent({
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
     const CANVAS_W = isMobile.value ? 350 : 450;
     const CANVAS_H = isMobile.value ? 350 : 450;
-    const device = computed(() => store.getters['mobile/getDevice']);
     let cleanup: (() => void) | null = null;
     let isDrawing = false;
 
     onMounted(() => {
-      if (device.value === 'ios') {
-        iNoBounce.disable();
-      }
       drawImage();
       initCanvasEvents();
     });
