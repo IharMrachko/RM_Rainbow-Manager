@@ -75,19 +75,19 @@
               title="signUp"
               :disabled="!formMeta.valid || !formMeta.dirty || !isRecaptchaReady"
             ></app-button>
-            <app-button
-              raised
-              severity="gradient"
-              title="loginWithGoogle"
-              :icon="['fab', 'google']"
-              :loading="loadingGoogle"
-              @click="
-                $event.preventDefault();
-                loginWithGoogle();
-              "
-            ></app-button>
           </div>
         </VForm>
+        <app-button
+          raised
+          severity="gradient"
+          title="loginWithGoogle"
+          :icon="['fab', 'google']"
+          :loading="loadingGoogle"
+          @click="
+            $event.preventDefault();
+            loginWithGoogle();
+          "
+        ></app-button>
       </div>
     </div>
   </section>

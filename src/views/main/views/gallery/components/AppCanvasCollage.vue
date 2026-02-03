@@ -92,26 +92,33 @@ export default defineComponent({
       type: Number,
       default: 5,
     },
-
     fillMode: {
       type: String as () => 'contain' | 'cover' | 'stretch',
-      default: 'cover', // По умолчанию cover для максимального заполнения
+      default: 'cover',
     },
     containerScale: {
       type: Number,
-      default: 0.95, // Какую часть контейнера занимает canvas (0-1)
+      default: 1,
     },
     minCellSize: {
       type: Number,
-      default: 50, // Минимальный размер ячейки в пикселях
+      default: 50,
     },
     maintainAspectRatio: {
       type: Boolean,
-      default: true, // Сохранять соотношение сторон canvas
+      default: true,
     },
     canvasAspectRatio: {
       type: Number,
-      default: null as unknown as number, // Фиксированное соотношение сторон canvas
+      default: null as unknown as number,
+    },
+    maxImages: {
+      type: Number,
+      default: 9,
+    },
+    targetCanvasRatio: {
+      type: Number,
+      default: 4 / 3,
     },
   },
   emits: ['resolve', 'reject', 'close'],
@@ -131,123 +138,142 @@ export default defineComponent({
     const folder = ref<Folder | null>(null);
     const device = computed(() => store.getters['mobile/getDevice']);
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
-    const columns = computed(() => {
-      return isMobile.value ? 2 : 3;
-    });
-    const rows = computed(() => {
-      return isMobile.value ? 3 : 2;
-    });
     const currentUser = computed(() => store.getters['authFirebase/currentUser']);
+
+    const columns = ref(3);
+    const rows = ref(2);
+
     let resizeObserver: ResizeObserver | null = null;
 
-    // Расчет оптимального соотношения сторон canvas на основе ячеек
-    const calculateOptimalAspectRatio = () => {
-      return window.devicePixelRatio || 1;
+    // Функция для вычисления оптимальной сетки на основе количества изображений
+    // ПРАВИЛЬНАЯ ФУНКЦИЯ РАСЧЕТА СЕТКИ
+    const calculateOptimalGrid = (imageCount: number) => {
+      if (imageCount <= 0) return { columns: 1, rows: 1 };
+
+      const displayCount = Math.min(imageCount, props.maxImages);
+
+      // ОСНОВНОЕ ПРАВИЛО: для малого количества фото используем столько колонок, сколько фото
+      if (displayCount <= 3 && !isMobile.value) {
+        // 1-3 фото: одна строка, столько колонок сколько фото
+        return { columns: displayCount, rows: 1 };
+      }
+
+      // Для мобильных: максимум 2 колонки
+      if (isMobile.value) {
+        const columns = Math.min(2, displayCount);
+        const rows = Math.ceil(displayCount / columns);
+        return { columns, rows };
+      }
+
+      // Для десктопа: для 4+ фото используем 3 колонки
+      const columns = 3;
+      const rows = Math.ceil(displayCount / columns);
+
+      return { columns, rows };
     };
 
-    // Расчет размеров canvas, чтобы изображения максимально заполняли ячейки
-    const calculateCanvasSize = () => {
-      if (!containerRef.value) {
-        currentWidth.value = 800;
-        currentHeight.value = 600;
-        return;
-      }
+    // Расчет соотношения сторон canvas на основе сетки и среднего соотношения изображений
+    // Новая функция: расчет размеров canvas на основе контейнера
+    const calculateCanvasSizeFromContainer = () => {
+      if (!containerRef.value) return;
 
-      const containerWidth = containerRef.value.clientWidth;
-      const containerHeight = containerRef.value.clientHeight;
+      // Получаем реальные размеры контейнера
+      const containerRect = containerRef.value.getBoundingClientRect();
+      const containerWidth = Math.floor(containerRect.width);
+      const containerHeight = Math.floor(containerRect.height);
 
-      // Определяем соотношение сторон
-      const aspectRatio = calculateOptimalAspectRatio();
+      // Определяем соотношение сторон canvas (ширина сетки / высота сетки)
+      const aspectRatio = columns.value / rows.value;
 
-      if (props.maintainAspectRatio) {
-        // Сохраняем соотношение сторон
-        const maxWidth = containerWidth * props.containerScale;
-        const maxHeight = containerHeight * props.containerScale;
-
-        let width, height;
-
-        // Проверяем, какое ограничение сработает первым
-        if (maxWidth / aspectRatio <= maxHeight) {
-          width = maxWidth;
-          height = maxWidth / aspectRatio;
-        } else {
-          height = maxHeight;
-          width = maxHeight * aspectRatio;
-        }
-
-        // Проверяем минимальный размер ячеек
-        const cellWidth = width / columns.value;
-        const cellHeight = height / rows.value;
-
-        if (cellWidth < props.minCellSize || cellHeight < props.minCellSize) {
-          // Пересчитываем с учетом минимальных размеров ячеек
-          const minCanvasWidth = props.minCellSize * columns.value;
-          const minCanvasHeight = props.minCellSize * rows.value;
-
-          if (minCanvasWidth / aspectRatio <= minCanvasHeight) {
-            width = minCanvasWidth;
-            height = minCanvasWidth / aspectRatio;
-          } else {
-            height = minCanvasHeight;
-            width = minCanvasHeight * aspectRatio;
-          }
-
-          // Не превышаем размеры контейнера
-          width = Math.min(width, maxWidth);
-          height = Math.min(height, maxHeight);
-        }
-
-        currentWidth.value = Math.round(width);
-        currentHeight.value = Math.round(height);
-      } else {
-        // Занимаем всю доступную область
-        currentWidth.value = Math.round(containerWidth * props.containerScale);
-        currentHeight.value = Math.round(containerHeight * props.containerScale);
-      }
-    };
-
-    // Альтернативный алгоритм: подгон под среднее соотношение сторон изображений
-    const calculateSizeBasedOnImages = async (imagesData: ImageData[]) => {
-      if (!containerRef.value || imagesData.length === 0) {
-        calculateCanvasSize();
-        return;
-      }
-
-      const containerWidth = containerRef.value.clientWidth;
-      const containerHeight = containerRef.value.clientHeight;
-
-      // Вычисляем среднее соотношение сторон всех изображений
-      const totalAspectRatio = imagesData.reduce((sum, img) => sum + img.aspectRatio, 0);
-      const avgAspectRatio = totalAspectRatio / imagesData.length;
-
-      // Оптимальное соотношение сторон canvas
-      const canvasAspectRatio =
-        props.canvasAspectRatio ||
-        Math.max(0.5, Math.min(2, avgAspectRatio * (columns.value / rows.value)));
-
+      // Максимальные размеры с учетом масштаба (95% от контейнера)
       const maxWidth = containerWidth * props.containerScale;
       const maxHeight = containerHeight * props.containerScale;
 
       let width, height;
 
-      if (maxWidth / canvasAspectRatio <= maxHeight) {
-        width = maxWidth;
-        height = maxWidth / canvasAspectRatio;
-      } else {
+      // ПРОСТАЯ ЛОГИКА: начинаем с максимальной ширины
+      width = maxWidth;
+      height = width / aspectRatio;
+
+      // Если не помещается по высоте, пересчитываем по высоте
+      if (height > maxHeight) {
         height = maxHeight;
-        width = maxHeight * canvasAspectRatio;
+        width = height * aspectRatio;
       }
 
-      currentWidth.value = Math.round(width);
-      currentHeight.value = Math.round(height);
+      // Проверяем минимальный размер ячеек
+      const cellWidth = width / columns.value;
+      const cellHeight = height / rows.value;
+
+      // Если ячейки слишком маленькие, увеличиваем canvas
+      if (cellWidth < props.minCellSize || cellHeight < props.minCellSize) {
+        // Вычисляем минимально необходимые размеры
+        const neededWidth = props.minCellSize * columns.value;
+        const neededHeight = props.minCellSize * rows.value;
+
+        // Проверяем, помещаются ли минимальные размеры в контейнер
+        if (neededWidth <= maxWidth && neededHeight <= maxHeight) {
+          // Помещаются - используем минимально необходимые размеры
+          width = neededWidth;
+          height = neededHeight;
+
+          // Корректируем соотношение сторон
+          const currentAspectRatio = width / height;
+          if (Math.abs(currentAspectRatio - aspectRatio) > 0.01) {
+            if (currentAspectRatio > aspectRatio) {
+              // Слишком широко, уменьшаем ширину
+              width = height * aspectRatio;
+            } else {
+              // Слишком узко, уменьшаем высоту
+              height = width / aspectRatio;
+            }
+          }
+        } else {
+          // Не помещаются, масштабируем
+          const scaleX = maxWidth / neededWidth;
+          const scaleY = maxHeight / neededHeight;
+          const scale = Math.min(scaleX, scaleY);
+
+          width = neededWidth * scale;
+          height = neededHeight * scale;
+
+          // Корректируем соотношение сторон
+          const currentAspectRatio = width / height;
+          if (Math.abs(currentAspectRatio - aspectRatio) > 0.01) {
+            if (currentAspectRatio > aspectRatio) {
+              width = height * aspectRatio;
+            } else {
+              height = width / aspectRatio;
+            }
+          }
+        }
+      }
+
+      // Убедимся, что не превышаем максимальные размеры (двойная проверка)
+      if (width > maxWidth) {
+        width = maxWidth;
+        height = width / aspectRatio;
+      }
+
+      if (height > maxHeight) {
+        height = maxHeight;
+        width = height * aspectRatio;
+      }
+
+      // Округляем до четных чисел для предотвращения размытия
+      currentWidth.value = Math.floor(width);
+      currentHeight.value = Math.floor(height);
     };
 
     const initResizeObserver = () => {
       if (!containerRef.value) return;
 
-      resizeObserver = new ResizeObserver(() => {
-        calculateCanvasSize();
-        createCollage();
+      resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.target === containerRef.value) {
+            createCollage();
+          }
+        }
       });
 
       resizeObserver.observe(containerRef.value);
@@ -276,7 +302,6 @@ export default defineComponent({
       return Promise.all(imagePromises);
     };
 
-    // Улучшенный расчет размеров изображения для максимального заполнения
     const calculateImageSize = (
       image: ImageData,
       cellWidth: number,
@@ -298,22 +323,18 @@ export default defineComponent({
       let width, height, x, y;
 
       if (fillMode === 'cover') {
-        // Заполняем всю ячейку, обрезая если нужно
         if (imageAspectRatio > cellAspectRatio) {
-          // Ширина изображения больше, подгоняем по ширине
           width = cellWidth;
           height = cellWidth / imageAspectRatio;
           x = 0;
           y = (cellHeight - height) / 2;
         } else {
-          // Высота изображения больше, подгоняем по высоте
           height = cellHeight;
           width = cellHeight * imageAspectRatio;
           x = (cellWidth - width) / 2;
           y = 0;
         }
       } else {
-        // contain - помещаем целиком
         if (imageAspectRatio > cellAspectRatio) {
           width = cellWidth;
           height = cellWidth / imageAspectRatio;
@@ -340,21 +361,25 @@ export default defineComponent({
         if (!ctx) return;
 
         // Загружаем изображения
-        const imagesData = await loadAllImagesData(
-          props.images.slice(0, columns.value * rows.value)
-        );
+        const imagesToDisplay = props.images.slice(0, props.maxImages);
+        const imagesData = await loadAllImagesData(imagesToDisplay);
 
         if (imagesData.length === 0) return;
 
-        // Рассчитываем базовые размеры
-        await calculateSizeBasedOnImages(imagesData);
+        // Рассчитываем оптимальную сетку
+        const grid = calculateOptimalGrid(imagesData.length);
+        columns.value = grid.columns;
+        rows.value = grid.rows;
+
+        // Рассчитываем размер canvas на основе контейнера
+        calculateCanvasSizeFromContainer();
 
         // Умножаем на devicePixelRatio для высокого качества
         const dpr = window.devicePixelRatio || 1;
         const displayWidth = currentWidth.value;
         const displayHeight = currentHeight.value;
 
-        // Устанавливаем реальные размеры canvas (в пикселях)
+        // Устанавливаем реальные размеры canvas
         canvas.width = displayWidth * dpr;
         canvas.height = displayHeight * dpr;
 
@@ -369,14 +394,12 @@ export default defineComponent({
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
 
-        // Очищаем canvas
+        // Очищаем canvas и рисуем белый фон
         ctx.clearRect(0, 0, displayWidth, displayHeight);
-
-        // Рисуем белый фон
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, displayWidth, displayHeight);
 
-        // Расчет размеров ячеек (в display pixels)
+        // Расчет размеров ячеек
         const cellWidth = displayWidth / columns.value;
         const cellHeight = displayHeight / rows.value;
 
@@ -406,12 +429,11 @@ export default defineComponent({
             const drawX = paddedX + x;
             const drawY = paddedY + y;
 
-            // Настройки рендеринга для высокого качества
+            // Рисуем изображение
             ctx.save();
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
-            // Рисуем с учетом devicePixelRatio
             ctx.drawImage(
               imageData.img,
               0,
@@ -429,6 +451,7 @@ export default defineComponent({
         }
       } catch (err) {
         console.error('Ошибка создания коллажа:', err);
+        error.value = 'Ошибка при создании коллажа';
       } finally {
         loading.value = false;
       }
@@ -445,14 +468,16 @@ export default defineComponent({
     };
 
     const handleResize = () => {
-      calculateCanvasSize();
       createCollage();
     };
 
     onMounted(() => {
       nextTick(() => {
-        calculateCanvasSize();
-        createCollage();
+        // Небольшая задержка для гарантированного получения размеров контейнера
+        setTimeout(() => {
+          createCollage();
+        }, 100);
+
         initResizeObserver();
         window.addEventListener('resize', handleResize);
       });
@@ -484,7 +509,7 @@ export default defineComponent({
           userId: currentUser.value?.uid,
           paletteType: '',
           folderId: folder.value?.id ? folder.value?.id : '',
-        }); // вернет URL
+        });
         emit('resolve', { update: true });
       } finally {
         isSaveGallery.value = false;
@@ -549,7 +574,7 @@ export default defineComponent({
   width: 90vw;
   height: 90vh;
   display: flex;
-  flex-direction: column; /* вертикально */
+  flex-direction: column;
   border-radius: 20px;
   border: 1px solid #c5c5c5;
   box-shadow: 0 0 5px #c5c5c5, 0 0 5px #c5c5c5, 0 0 5px #c5c5c5, 0 0 25px #c5c5c5;
@@ -564,22 +589,22 @@ export default defineComponent({
     border: none;
   }
 
-  /* Фиксированный header */
   .header {
-    flex: 0 0 auto; /* Фиксированная высота */
+    flex: 0 0 auto;
     width: 100%;
   }
 
-  /* Canvas занимает всё оставшееся пространство */
   .canvas-container {
     position: relative;
-    flex: 1 1 auto; /* Занимает всё доступное пространство */
+    flex: 1 1 auto; /* Занимает все доступное пространство */
     width: 100%;
-    overflow: hidden; /* Чтобы canvas не выходил за пределы */
+    height: 100%; /* Важно: явно задаем высоту */
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #fff;
+    box-sizing: border-box; /* Учитываем padding и border в размерах */
 
     canvas {
       display: block;
@@ -588,12 +613,15 @@ export default defineComponent({
       width: auto;
       height: auto;
       object-fit: contain;
+      /* Убираем все внешние отступы и рамки */
+      margin: 0;
+      padding: 0;
+      border: none;
     }
   }
 
-  /* Фиксированный footer */
   .footer {
-    flex: 0 0 auto; /* Фиксированная высота */
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -601,7 +629,6 @@ export default defineComponent({
     width: 100%;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
-    /* матовое стекло */
     background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -666,31 +693,22 @@ export default defineComponent({
   }
 }
 
-/* Оптимизация для мобильных устройств */
 .high-quality-canvas {
-  /* Улучшение сглаживания на Android */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  /* Предотвращение размытия при трансформациях */
   backface-visibility: hidden;
   transform: translateZ(0);
-
-  /* Фиксированный размер для предотвращения масштабирования браузером */
-  width: 100%;
+  width: auto;
   height: auto;
-  max-width: 100%;
   display: block;
 }
 
-/* Медиа-запросы для Android */
 @media screen and (-webkit-min-device-pixel-ratio: 1.5) {
   .high-quality-canvas {
     image-rendering: -webkit-optimize-contrast;
   }
 }
 
-/* Для очень плотных пикселей (Retina) */
 @media screen and (-webkit-min-device-pixel-ratio: 2), screen and (min-resolution: 192dpi) {
   .high-quality-canvas {
     image-rendering: crisp-edges;
