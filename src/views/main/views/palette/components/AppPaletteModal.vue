@@ -198,6 +198,11 @@ export default defineComponent({
   flex-direction: column;
   align-items: center;
   width: 100%;
+  min-height: 550px;
+
+  @media (max-width: 600px) {
+    min-height: 400px;
+  }
 }
 
 .wrapper-item {

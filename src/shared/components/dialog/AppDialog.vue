@@ -41,7 +41,9 @@ export default defineComponent({
     const onKeydown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         const lstIndex = dialogsSt.dialogs.length - 1;
-        close(dialogsSt.dialogs[lstIndex].id);
+        if (lstIndex !== -1) {
+          close(dialogsSt.dialogs[lstIndex].id);
+        }
       }
     };
 

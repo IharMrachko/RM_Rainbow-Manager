@@ -121,7 +121,7 @@ import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import AppDropdown from '@/shared/components/dropdown/AppDropdown.vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import AppOption from '@/shared/components/dropdown/AppOption.vue';
-import { Folder } from '@/store/modules/firebase-folder';
+import { Folder } from '@/store/modules/folder';
 import { useStore } from 'vuex';
 import { colorCards } from '@/views/main/views/characteristic-colors/components/color-card.constanst';
 import { useI18n } from 'vue-i18n';

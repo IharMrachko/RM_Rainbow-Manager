@@ -26,7 +26,7 @@
 import { computed, defineComponent, PropType, ref } from 'vue';
 import { useStore } from 'vuex';
 import AppCheckbox from '@/shared/components/AppCheckbox.vue';
-import { Image } from '@/store/modules/firebase-gallery';
+import { Image } from '@/store/modules/gallery';
 
 export default defineComponent({
   components: { AppCheckbox },

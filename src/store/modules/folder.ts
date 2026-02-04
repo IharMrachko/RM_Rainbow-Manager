@@ -35,28 +35,28 @@ export const folder: Module<FolderState, unknown> = {
     isLoading: false,
   }),
   mutations: {
-    SET_FOLDERS(state, folders: Folder[]) {
+    SET_FOLDERS(state: FolderState, folders: Folder[]): void {
       state.items = folders;
       state.filterItems = folders;
     },
-    ADD_FOLDERS(state, folder: Folder) {
+    ADD_FOLDERS(state: FolderState, folder: Folder): void {
       state.items.push(folder);
     },
-    SET_LOADING(state, value: boolean) {
+    SET_LOADING(state: FolderState, value: boolean): void {
       state.isLoading = value;
     },
-    REMOVE_FOLDER(state, folderId: string) {
+    REMOVE_FOLDER(state: FolderState, folderId: string): void {
       state.items = state.items.filter((f) => f.id !== folderId);
       state.filterItems = state.items;
     },
-    UPDATE_FOLDER(state, updated: Folder) {
+    UPDATE_FOLDER(state: FolderState, updated: Folder): void {
       const idx = state.items.findIndex((f) => f.id === updated.id);
       if (idx !== -1) {
         state.items[idx] = { ...state.items[idx], ...updated };
         state.filterItems[idx] = { ...state.items[idx], ...updated };
       }
     },
-    FILTER_FOLDER(state, search: string) {
+    FILTER_FOLDER(state: FolderState, search: string): void {
       if (!search) {
         state.filterItems = state.items;
         return;
@@ -178,8 +178,8 @@ export const folder: Module<FolderState, unknown> = {
         commit('SET_LOADING', false);
       }
     },
-    filterFolder(ctx, search: string) {
-      ctx.commit('FILTER_FOLDER', search);
+    filterFolder({ commit }, search: string) {
+      commit('FILTER_FOLDER', search);
     },
   },
   getters: {

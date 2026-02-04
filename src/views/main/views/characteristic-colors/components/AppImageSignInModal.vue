@@ -48,7 +48,7 @@ import { ColoristicType } from '@/types/coloristic.type';
 import AppModalHeader from '@/shared/components/AppModalHeader.vue';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppFolderModal from '@/shared/components/folder-modal/AppFolderModal.vue';
-import { Folder } from '@/store/modules/firebase-folder';
+import { Folder } from '@/store/modules/folder';
 import { useI18n } from 'vue-i18n';
 import { Palette } from '@/types/palette.type';
 import { paletteI18nHelper } from '@/helpers/palette-i18n.helper';

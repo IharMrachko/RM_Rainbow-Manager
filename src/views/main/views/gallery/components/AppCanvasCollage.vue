@@ -70,7 +70,7 @@ import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
 import iNoBounce from 'inobounce';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppFolderModal from '@/shared/components/folder-modal/AppFolderModal.vue';
-import { Folder } from '@/store/modules/firebase-folder';
+import { Folder } from '@/store/modules/folder';
 
 interface ImageData {
   img: HTMLImageElement;

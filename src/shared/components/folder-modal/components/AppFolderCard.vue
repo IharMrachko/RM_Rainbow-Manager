@@ -42,7 +42,7 @@
 <script lang="ts">
 import { defineComponent, PropType, ref } from 'vue';
 import AppOverlayPanel from '@/shared/components/AppOverlayPanel.vue';
-import { Folder } from '@/store/modules/firebase-folder';
+import { Folder } from '@/store/modules/folder';
 import { useStore } from 'vuex';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppFolderCreate from '@/shared/components/folder-modal/components/AppFolderCreate.vue';

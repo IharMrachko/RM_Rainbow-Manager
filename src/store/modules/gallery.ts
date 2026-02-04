@@ -20,7 +20,7 @@ import { Module } from 'vuex';
 import { ColoristicType } from '@/types/coloristic.type';
 import { MaskType } from '@/types/mask.type';
 import { tokenizeTitle } from '@/helpers/tokenize-title.helper';
-import { Folder } from '@/store/modules/firebase-folder';
+import { Folder } from '@/store/modules/folder';
 import { FirebaseError } from '@/interfaces/firebase-error.interface';
 import { errorMessages } from '@/helpers/error-message.helper';
 import { MaskCard } from '@/types/mask-card.type';

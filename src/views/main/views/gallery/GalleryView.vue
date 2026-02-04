@@ -109,7 +109,7 @@ import AppGalleryFilterModal from '@/views/main/views/gallery/components/AppGall
 import { useI18n } from 'vue-i18n';
 import AppCheckbox from '@/shared/components/AppCheckbox.vue';
 import AppConfirmModal from '@/shared/components/AppConfirmModal.vue';
-import { GalleryOptions, Image } from '@/store/modules/firebase-gallery';
+import { GalleryOptions, Image } from '@/store/modules/gallery';
 import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopover from '@/shared/components/AppPopover.vue';

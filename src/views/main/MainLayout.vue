@@ -34,7 +34,7 @@
           <router-link to="/main/my-palette" active-class="active-link">
             <div class="sidebar-item">
               <div class="icon">
-                <font-awesome-icon size="xl" :icon="['fas', 'mask']" />
+                <font-awesome-icon size="xl" :icon="['fas', 'fill-drip']" />
               </div>
               <div v-if="!isShort" class="title">{{ t('myPalette') }}</div>
             </div>
@@ -42,9 +42,9 @@
           <router-link to="/main/palette" active-class="active-link">
             <div class="sidebar-item">
               <div class="icon">
-                <font-awesome-icon size="xl" :icon="['fas', 'palette']" />
+                <font-awesome-icon size="xl" :icon="['fas', 'camera']" />
               </div>
-              <div v-if="!isShort" class="title">{{ t('palette') }}</div>
+              <div v-if="!isShort" class="title">{{ t('analysisByPhoto') }}</div>
             </div>
           </router-link>
           <router-link to="/main/chroma" active-class="active-link">
