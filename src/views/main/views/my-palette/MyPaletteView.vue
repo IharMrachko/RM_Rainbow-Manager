@@ -583,7 +583,7 @@ export default defineComponent({
   flex: 2;
 }
 .undo {
-  flex: 1;
+  width: 80px;
 }
 
 .color-picker-actions {
@@ -592,10 +592,9 @@ export default defineComponent({
   gap: 10px;
 
   @media (max-width: 600px) {
-    flex-direction: row;
     justify-content: end;
     flex-wrap: wrap;
-    flex: 1;
+    width: 80px;
   }
 }
 
