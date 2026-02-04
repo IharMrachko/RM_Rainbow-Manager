@@ -349,6 +349,7 @@ export default defineComponent({
     gap: 15px;
     flex-wrap: nowrap;
     overflow: auto;
+    height: calc(100dvh - var(--tabs-height-with-padding));
   }
   .color-container .color-wrapper .selected {
     flex: 0 1 auto;
