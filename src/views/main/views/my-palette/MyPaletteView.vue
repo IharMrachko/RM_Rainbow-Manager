@@ -579,7 +579,9 @@ export default defineComponent({
 .template-name {
   margin-left: 10px;
 }
-
+.color-picker-inner {
+  flex: 2;
+}
 .undo {
   flex: 1;
 }
