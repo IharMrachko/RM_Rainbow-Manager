@@ -16,7 +16,55 @@
               @change="colorChange($event)"
             ></app-color-picker>
           </div>
+          <section v-if="!isMobile" class="color-picker-actions">
+            <span v-if="templateRef?.name">{{ t('template') }}: {{ templateRef?.name }}</span>
+            <div v-if="templateRef?.name" class="btn">
+              <app-button
+                raised
+                severity="secondary"
+                title="resetTemplate"
+                @click="cancelledTemplate"
+              ></app-button>
+            </div>
+            <div v-if="!isChangeTemplate" class="btn">
+              <app-button
+                raised
+                severity="secondary"
+                title="Сохранить изменения"
+                @click="openCreateTemplateModal('update')"
+              ></app-button>
+            </div>
+          </section>
+          <section v-if="isMobile" class="color-picker-actions">
+            <div v-if="templateRef?.name" class="btn">
+              <app-button
+                raised
+                severity="secondary"
+                :icon="['fas', 'undo']"
+                @click="cancelledTemplate"
+              ></app-button>
+            </div>
+            <div v-if="!isChangeTemplate" class="btn">
+              <app-button
+                raised
+                severity="secondary"
+                :icon="['fas', 'save']"
+                @click="openCreateTemplateModal('update')"
+              ></app-button>
+            </div>
+            <div class="btn">
+              <app-button
+                raised
+                severity="secondary"
+                :icon="['fas', 'plus']"
+                @click="openCreateTemplateModal('create')"
+              ></app-button>
+            </div>
+          </section>
         </div>
+        <span v-if="templateRef?.name && isMobile"
+          >{{ t('template') }}: {{ templateRef?.name }}</span
+        >
       </section>
       <section class="editor">
         <app-editor-canvas
@@ -29,6 +77,24 @@
         ></app-editor-canvas>
       </section>
       <section class="buttons" :class="{ isMobile: isMobile }">
+        <div v-if="!isMobile" class="btn">
+          <app-button
+            raised
+            severity="secondary"
+            title="addTemplate"
+            :icon="['fas', 'plus']"
+            @click="openCreateTemplateModal('create')"
+          ></app-button>
+        </div>
+        <div v-if="!isMobile" class="btn">
+          <app-button
+            raised
+            severity="secondary"
+            title="myTemplates"
+            :icon="['fas', 'fill-drip']"
+            @click="openPaletteTemplatesModal"
+          ></app-button>
+        </div>
         <div v-if="!isMobile" class="btn">
           <app-button
             raised
@@ -74,6 +140,10 @@
     </div>
     <app-popover v-model:visible="visiblePopover">
       <app-popover-wrapper>
+        <app-popover-item @click="openPaletteTemplatesModal">
+          <font-awesome-icon size="xl" :icon="['fas', 'fill-drip']" />
+          <span>{{ t('myTemplates') }}</span>
+        </app-popover-item>
         <app-popover-item @click="openImageSettingsModal">
           <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
           <span>{{ t('pickPhoto') }}</span>
@@ -128,6 +198,9 @@ import {
   DEFAULT_COLOR_SEGMENT,
   MARK_COLOR_SEGMENT,
 } from '@/views/main/views/my-palette/my-palette.constants';
+import AppCreatePaletteTemplateModal from '@/views/main/views/my-palette/components/AppCreatePaletteTemplateModal.vue';
+import AppPaletteTemplatesModal from '@/views/main/views/my-palette/components/AppPaletteTemplatesModal.vue';
+import { PaletteTemplate } from '@/store/modules/my-palette';
 
 export default defineComponent({
   components: {
@@ -152,6 +225,9 @@ export default defineComponent({
     const isSaveToGallery = ref(false);
     const targetRef = ref<HTMLElement | null>(null);
     const visible = ref(false);
+    const templateRef = ref<PaletteTemplate | null>(
+      store.getters['myPalette/getSelectedPaletteTemplate']
+    );
     let activeSegmentIndex = 0;
     const selectedSegmentMap: Map<number, boolean> = new Map<number, boolean>();
     const rememberChoose = ref(store.getters['myPalette/rememberImgMask']);
@@ -161,6 +237,18 @@ export default defineComponent({
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
     const gapBetweenSegments = computed(() => {
       return frameColors.value.length === 1 ? 0 : 0.003;
+    });
+    const isChangeTemplate = computed(() => {
+      if (templateRef.value) {
+        return (
+          frameColors.value.length === templateRef.value.segments.length &&
+          frameColors.value.every(
+            (it, index) => it.color === templateRef.value?.segments[index].color
+          )
+        );
+      } else {
+        return true;
+      }
     });
     onMounted(() => {
       if (rememberChoose.value) {
@@ -237,6 +325,49 @@ export default defineComponent({
       });
     };
 
+    const openCreateTemplateModal = async (mode: 'create' | 'update') => {
+      if (mode === 'create') {
+        await openDialog(AppCreatePaletteTemplateModal, {
+          card: {
+            segments: frameColors.value,
+          },
+        });
+      } else {
+        await openDialog(AppCreatePaletteTemplateModal, {
+          id: templateRef.value?.id,
+          name: templateRef.value?.name,
+          card: {
+            segments: frameColors.value,
+          },
+        }).then((name: string) => {
+          if (name && templateRef.value) {
+            templateRef.value = {
+              ...templateRef.value,
+              name,
+            };
+          }
+        });
+      }
+    };
+
+    const openPaletteTemplatesModal = async () => {
+      await openDialog(AppPaletteTemplatesModal, {
+        selectedTemplate: templateRef.value,
+      }).then((template: PaletteTemplate) => {
+        if (template) {
+          templateRef.value = template;
+          frameColors.value = template.segments;
+          slider.value = template.segments.length;
+          if (rememberChoose.value) {
+            store.dispatch('myPalette/setFrameColors', {
+              frameColors: template.segments,
+            });
+            store.dispatch('myPalette/selectedTemplate', templateRef.value);
+          }
+        }
+      });
+    };
+
     watch(rememberChoose, (value: boolean) => {
       store.dispatch('myPalette/setRememberImgMask', {
         remember: value,
@@ -288,13 +419,23 @@ export default defineComponent({
     watch(slider, (value) => {
       const result = [];
       for (let i = 0; i < value; i++) {
-        result.push({ color: DEFAULT_COLOR_SEGMENT });
+        const color = templateRef.value
+          ? {
+              color: templateRef.value.segments[i]
+                ? templateRef.value.segments[i].color
+                : DEFAULT_COLOR_SEGMENT,
+            }
+          : { color: DEFAULT_COLOR_SEGMENT };
+        result.push(color);
+
+        frameColors.value = result;
+        if (rememberChoose.value) {
+          store.dispatch('myPalette/setFrameColors', {
+            frameColors: frameColors.value,
+          });
+          store.dispatch('myPalette/setNumberSegments', slider);
+        }
       }
-      frameColors.value = result;
-      store.dispatch('myPalette/setFrameColors', {
-        frameColors: frameColors.value,
-      });
-      store.dispatch('myPalette/setNumberSegments', slider);
     });
 
     const colorChange = (selectedHex: string) => {
@@ -308,6 +449,12 @@ export default defineComponent({
       store.dispatch('myPalette/setFrameColors', {
         frameColors: frameColors.value,
       });
+    };
+
+    const cancelledTemplate = () => {
+      templateRef.value = null;
+      slider.value = 1;
+      store.dispatch('myPalette/selectedTemplate', null);
     };
 
     return {
@@ -333,6 +480,11 @@ export default defineComponent({
       slider,
       selectedSegment,
       gapBetweenSegments,
+      openCreateTemplateModal,
+      openPaletteTemplatesModal,
+      templateRef,
+      isChangeTemplate,
+      cancelledTemplate,
     };
   },
 });
@@ -422,6 +574,18 @@ export default defineComponent({
   }
 }
 
+.color-picker-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  @media (max-width: 600px) {
+    flex-direction: row;
+    justify-content: end;
+    flex-wrap: wrap;
+  }
+}
+
 @media (max-width: 600px) {
   .selected-slider-count {
     font-size: 12px;
@@ -429,11 +593,8 @@ export default defineComponent({
   .color-picker-wrapper {
     width: 100%;
     display: flex;
-    justify-content: center;
-
-    & .color-picker-inner {
-      width: 50%;
-    }
+    justify-content: space-between;
+    align-items: center;
   }
 }
 </style>

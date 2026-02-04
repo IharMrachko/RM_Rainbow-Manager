@@ -1,17 +1,11 @@
 <template>
-  <div>
-    <canvas
-      ref="canvasRef"
-      class="high-quality-canvas"
-      :width="sizeRef"
-      :height="sizeRef"
-      @click="handleCanvasClick"
-    ></canvas>
+  <div ref="containerRef">
+    <canvas ref="canvasRef" class="high-quality-canvas" @click="handleCanvasClick"></canvas>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, onMounted, ref, watch } from 'vue';
+import { defineComponent, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { FrameColorSegmentType } from '@/types/frame-color-segment.type';
 import { useCanvasSaver } from '@/composables/useCanvasSaver';
 import { useStore } from 'vuex';
@@ -27,42 +21,101 @@ export default defineComponent({
   emits: ['update:imageUrl', 'selected-segment'],
   setup(props, { emit }) {
     const store = useStore();
+    const containerRef = ref<HTMLElement | null>(null);
     const canvasRef = ref<HTMLCanvasElement | null>(null);
     const imageRef = ref<HTMLImageElement | null>(null);
     const originalUrlRef = ref<string | null>(null);
     const thicknessRef = ref(90);
-    const sizeRef = ref(480);
-    const rotationRef = ref(0); // поворот изображения
-    const startAngleRef = ref<number | null>(null); // начало отрисовки сегментов, например, начало по часовой стрелке с 12 часов
-    const offsetXRef = ref(0); // смещение изображения по оси X
-    const offsetYRef = ref(0); // смещение изображения по оси Y
+    const sizeRef = ref(480); // сохраняем для вычислений, но теперь она будет динамической
+    const rotationRef = ref(0);
+    const startAngleRef = ref<number | null>(null);
+    const offsetXRef = ref(0);
+    const offsetYRef = ref(0);
     const pixelRatio = ref(1);
-    // Определяем pixel ratio устройства
+    const resizeObserver = ref<ResizeObserver | null>(null);
+    let resizeTimer: number | null = null;
+    let isLoadImage = false;
+
+    const debouncedRender = () => {
+      if (resizeTimer) {
+        clearTimeout(resizeTimer);
+      }
+
+      resizeTimer = setTimeout(() => {
+        render();
+      }, 100) as unknown as number;
+    };
+
+    const initResizeObserver = () => {
+      if (!containerRef.value || typeof ResizeObserver === 'undefined') return;
+
+      resizeObserver.value = new ResizeObserver(debouncedRender);
+      resizeObserver.value.observe(containerRef.value);
+    };
+
     const getPixelRatio = () => {
       return window.devicePixelRatio || 1;
     };
-    let isLoadImage = false;
+
+    // Функция для получения размера контейнера
+    const getContainerSize = () => {
+      if (!containerRef.value) return 480; // fallback значение
+
+      const container = containerRef.value;
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      // Берем меньшую сторону для квадратного канваса
+      const minSize = Math.min(width, height);
+
+      // Ограничиваем минимальный и максимальный размер
+      const clampedSize = Math.max(200, Math.min(minSize, 800));
+
+      return clampedSize;
+    };
+
+    // Обновляем размер на основе контейнера
+    const updateSizeFromContainer = () => {
+      const newSize = getContainerSize();
+      sizeRef.value = newSize;
+
+      // Обновляем толщину пропорционально размеру
+      if (newSize < 400) {
+        thicknessRef.value = 58;
+      } else {
+        thicknessRef.value = 90;
+      }
+
+      return newSize;
+    };
+
     const render = async () => {
       if (!canvasRef.value) return;
+
+      // Обновляем размер из контейнера
+      updateSizeFromContainer();
+
       const canvas = canvasRef.value;
-      const ctx = canvasRef.value.getContext('2d')!;
+      const ctx = canvas.getContext('2d')!;
       const ratio = getPixelRatio();
       pixelRatio.value = ratio;
-      // Устанавливаем внутренний размер в зависимости от pixel ratio
+
+      // Устанавливаем внутренний размер
       canvas.width = sizeRef.value * ratio;
       canvas.height = sizeRef.value * ratio;
 
-      // Устанавливаем CSS размер (тот что видит пользователь)
+      // Устанавливаем CSS размер
       canvas.style.width = `${sizeRef.value}px`;
       canvas.style.height = `${sizeRef.value}px`;
 
-      // Масштабируем контекст для четкой отрисовки
+      // Масштабируем контекст
       ctx.scale(ratio, ratio);
 
       // Включаем сглаживание
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       ctx.clearRect(0, 0, sizeRef.value, sizeRef.value);
+
       if (props.imageUrl && !isLoadImage) {
         imageRef.value = await loadImage(props.imageUrl);
         isLoadImage = true;
@@ -87,99 +140,80 @@ export default defineComponent({
     };
 
     const drawBaseImage = (ctx: CanvasRenderingContext2D) => {
-      const radius = sizeRef.value / 2; // Вычисляем радиус круга, исходя из размера компонента
-      const thickness = thicknessRef.value; // Толщина рамки (обводка вокруг изображения)
+      const radius = sizeRef.value / 2;
+      const thickness = thicknessRef.value;
       const img = imageRef.value;
       if (!img) return;
 
-      ctx.save(); // Сохраняем текущие настройки канваса
-      ctx.beginPath(); // Начинаем путь для вырезания круглой области
-      // Рисуем круг с центром в середине канваса и радиусом, уменьшенным на толщину
+      ctx.save();
+      ctx.beginPath();
       ctx.arc(radius, radius, radius - thickness, 0, 2 * Math.PI);
-      ctx.closePath(); // Закрываем путь
-      ctx.clip(); // Ограничиваем область рисования кругом (всё вне круга будет обрезано)
-      // Перемещаем начало координат в центр круга + возможные смещения
+      ctx.closePath();
+      ctx.clip();
       ctx.translate(radius + (offsetXRef.value ?? 0), radius + (offsetYRef.value ?? 0));
-      ctx.rotate((rotationRef.value * Math.PI) / 180); // Поворачиваем канвас на заданный угол (в градусах → радианы)
+      ctx.rotate((rotationRef.value * Math.PI) / 180);
 
-      const baseSize = sizeRef.value - thickness * 2; // Вычисляем базовый размер изображения (с учётом толщины рамки)
-      const minSide = Math.min(img.width, img.height); // Находим меньшую сторону изображения (для обрезки по центру)
-      const targetSize = baseSize * zoom.value; // Итоговый размер изображения после масштабирования
-      // Рисуем изображение:
-      // - обрезаем его по центру до квадратной области minSide × minSide
-      // - размещаем его по центру канваса
-      // - масштабируем до targetSize × targetSize
+      const baseSize = sizeRef.value - thickness * 2;
+      const minSide = Math.min(img.width, img.height);
+      const targetSize = baseSize * zoom.value;
+
       ctx.drawImage(
         img,
-        (img.width - minSide) / 2, // x-координата обрезки
-        (img.height - minSide) / 2, // y-координата обрезки
-        minSide, // ширина обрезки
-        minSide, // высота обрезки
-        -targetSize / 2, // x-координата на канвасе
-        -targetSize / 2, // y-координата на канвасе
-        targetSize, // ширина на канвасе
-        targetSize // высота на канвасе
+        (img.width - minSide) / 2,
+        (img.height - minSide) / 2,
+        minSide,
+        minSide,
+        -targetSize / 2,
+        -targetSize / 2,
+        targetSize,
+        targetSize
       );
-      // Восстанавливаем сохранённое состояние канваса
       ctx.restore();
     };
 
     const drawFrame = (ctx: CanvasRenderingContext2D) => {
-      const radius = sizeRef.value / 2; // Вычисляем радиус круга (половина размера компонента)
-      const thickness = thicknessRef.value; // Толщина линии, которая будет использоваться для рисования дуг
-      const step = (2 * Math.PI) / props.segments.length; // Угол одного сегмента (в радианах), равный 2π / количество сегментов
-      // Начальный угол смещения (если не задан — по умолчанию вверх, то есть -π/2)
+      const radius = sizeRef.value / 2;
+      const thickness = thicknessRef.value;
+      const step = (2 * Math.PI) / props.segments.length;
       const startOffset = startAngleRef.value ?? -Math.PI / 2;
-      ctx.lineWidth = thickness; // Устанавливаем толщину линии для всех дуг
-      // Перебираем все сегменты и рисуем каждый как дугу
-      // Включаем сглаживание для линий
+      ctx.lineWidth = thickness;
+
       ctx.imageSmoothingEnabled = true;
       props.segments.forEach((seg, i) => {
-        ctx.beginPath(); // Начинаем новый путь для текущего сегмента
-        ctx.strokeStyle = seg.color; // Устанавливаем цвет обводки для текущего сегмента
-        const start = i * step + startOffset + props.gapBetweenSegments; // Вычисляем начальный угол дуги для сегмента i
-        const end = (i + 1) * step + startOffset - props.gapBetweenSegments; // Вычисляем конечный угол дуги для сегмента i
-        // Рисуем дугу по окружности с заданным радиусом и углами
-        // Центр круга: (radius, radius)
-        // Радиус: radius - thickness / 2 (чтобы линия была по центру толщины)
+        ctx.beginPath();
+        ctx.strokeStyle = seg.color;
+        const start = i * step + startOffset + props.gapBetweenSegments;
+        const end = (i + 1) * step + startOffset - props.gapBetweenSegments;
         ctx.arc(radius, radius, radius - thickness / 2, start, end);
-        ctx.stroke(); // Отрисовываем дугу на канвасе
+        ctx.stroke();
       });
     };
 
-    // Функция для определения сегмента по координатам клика
     const handleCanvasClick = (event: MouseEvent) => {
       if (!props.isMarkSegment) return;
       if (!canvasRef.value) return;
 
-      // Получаем координаты клика относительно canvas
       const rect = canvasRef.value.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
 
-      // Вычисляем расстояние от центра
       const centerX = sizeRef.value / 2;
       const centerY = sizeRef.value / 2;
       const radius = sizeRef.value / 2;
 
-      // Вычисляем расстояние от точки клика до центра
       const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
 
-      // Проверяем, находится ли клик в пределах рамки (сегментов)
       const innerRadius = radius - thicknessRef.value;
       const outerRadius = radius;
 
       if (distance >= innerRadius && distance <= outerRadius) {
-        // Клик в пределах рамки - вычисляем угол
         const clickAngle = Math.atan2(y - centerY, x - centerX);
 
-        // Нормализуем угол от 0 до 2π
         let normalizedAngle = clickAngle;
         if (normalizedAngle < 0) {
           normalizedAngle += 2 * Math.PI;
         }
 
-        // Учитываем начальное смещение
         const startOffset = startAngleRef.value ?? -Math.PI / 2;
         let adjustedAngle = normalizedAngle - startOffset;
         if (adjustedAngle < 0) {
@@ -189,11 +223,9 @@ export default defineComponent({
           adjustedAngle -= 2 * Math.PI;
         }
 
-        // Вычисляем индекс сегмента
         const step = (2 * Math.PI) / props.segments.length;
         let segmentIndex = Math.floor(adjustedAngle / step);
 
-        // Корректируем индекс, если он выходит за границы
         if (segmentIndex >= props.segments.length) {
           segmentIndex = props.segments.length - 1;
         } else if (segmentIndex < 0) {
@@ -203,12 +235,10 @@ export default defineComponent({
         emit('selected-segment', segmentIndex);
         highlightSegment(segmentIndex);
       } else {
-        // Клик вне рамки
         render();
       }
     };
 
-    // Функция для визуального выделения сегмента (опционально)
     const highlightSegment = (segmentIndex: number) => {
       if (!canvasRef.value) return;
       render();
@@ -218,10 +248,7 @@ export default defineComponent({
       const step = (2 * Math.PI) / props.segments.length;
       const startOffset = startAngleRef.value ?? -Math.PI / 2;
 
-      // Сохраняем текущее состояние канваса
       ctx.save();
-
-      // Рисуем подсветку поверх сегмента
       ctx.beginPath();
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
       ctx.lineWidth = thickness;
@@ -231,12 +258,28 @@ export default defineComponent({
 
       ctx.arc(radius, radius, radius - thickness / 2, start, end);
       ctx.stroke();
-
-      // Восстанавливаем состояние
       ctx.restore();
     };
 
-    onMounted(render);
+    onMounted(() => {
+      // Инициализируем ResizeObserver
+      initResizeObserver();
+
+      // Первоначальный рендер
+      nextTick(() => {
+        render();
+      });
+    });
+
+    onUnmounted(() => {
+      if (resizeObserver.value) {
+        resizeObserver.value.disconnect();
+      }
+      if (resizeTimer) {
+        clearTimeout(resizeTimer);
+      }
+    });
+
     watch(
       () => props.imageUrl,
       (url) => {
@@ -256,27 +299,9 @@ export default defineComponent({
 
     watch(
       () => store.getters['mobile/clientWidth'],
-      (value) => {
-        if (value < 600) {
-          thicknessRef.value = 58;
-          sizeRef.value = 340;
-          nextTick(() => render());
-          return;
-        }
-
-        if (value < 1024) {
-          thicknessRef.value = 70;
-          sizeRef.value = 400;
-          nextTick(() => render());
-          return;
-        }
-
-        if (value > 1024) {
-          thicknessRef.value = 90;
-          sizeRef.value = 520;
-          nextTick(() => render());
-          return;
-        }
+      () => {
+        // Используем тот же таймер, что и в ResizeObserver
+        debouncedRender();
       },
       { immediate: true }
     );
@@ -289,17 +314,28 @@ export default defineComponent({
     );
 
     return {
+      containerRef,
       canvasRef,
       triggerSaveImage,
       sizeRef,
       getCanvasValue,
       getImageSrc,
       handleCanvasClick,
+      thicknessRef,
     };
   },
 });
 </script>
+
 <style scoped>
+/* Контейнер должен занимать всю доступную ширину/высоту */
+div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 /* Оптимизация для мобильных устройств */
 .high-quality-canvas {
   /* Улучшение сглаживания на Android */
@@ -310,10 +346,9 @@ export default defineComponent({
   backface-visibility: hidden;
   transform: translateZ(0);
 
-  /* Фиксированный размер для предотвращения масштабирования браузером */
-  width: 100%;
-  height: auto;
+  /* Автоматическая адаптация размера */
   max-width: 100%;
+  max-height: 100%;
   display: block;
 }
 

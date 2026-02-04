@@ -73,7 +73,7 @@ import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppFolderModal from '@/shared/components/folder-modal/AppFolderModal.vue';
-import { Folder } from '@/store/modules/firebase-folder';
+import { Folder } from '@/store/modules/folder';
 // @ts-ignore
 import iNoBounce from 'inobounce';
 

@@ -47,7 +47,7 @@ import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppFolderCreate from '@/shared/components/folder-modal/components/AppFolderCreate.vue';
 import { useStore } from 'vuex';
 import AppLoader from '@/shared/components/AppLoader.vue';
-import { Folder } from '@/store/modules/firebase-folder';
+import { Folder } from '@/store/modules/folder';
 // @ts-ignore
 import iNoBounce from 'inobounce';
 

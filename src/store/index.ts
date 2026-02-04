@@ -6,8 +6,8 @@ import { authFirebase } from '@/store/modules/auth';
 import { mobile } from '@/store/modules/mobile-view';
 import { burgerMenu } from '@/store/modules/burger-menu';
 import { imageColor } from '@/store/modules/image-color';
-import { gallery } from '@/store/modules/firebase-gallery';
-import { folder } from '@/store/modules/firebase-folder';
+import { gallery } from '@/store/modules/gallery';
+import { folder } from '@/store/modules/folder';
 import { palette } from '@/store/modules/palette';
 import { myPalette } from '@/store/modules/my-palette';
 

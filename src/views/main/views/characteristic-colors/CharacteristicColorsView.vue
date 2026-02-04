@@ -54,5 +54,6 @@ export default defineComponent({
   position: relative;
   overflow: auto;
   height: 100dvh;
+  background: var(--color-wrap-bg);
 }
 </style>

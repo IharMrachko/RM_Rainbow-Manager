@@ -31,6 +31,7 @@ import {
   faEyeDropper,
   faEyeSlash,
   faFileUpload,
+  faFillDrip,
   faFilter,
   faFolder,
   faGear,
@@ -137,7 +138,8 @@ library.add(
   faPiggyBank,
   faCheckDouble,
   faBullseye,
-  faCopy
+  faCopy,
+  faFillDrip
 );
 
 // @ts-ignore
