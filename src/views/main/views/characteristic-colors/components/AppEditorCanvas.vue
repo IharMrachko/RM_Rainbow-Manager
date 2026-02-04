@@ -36,20 +36,9 @@ export default defineComponent({
     let resizeTimer: number | null = null;
     let isLoadImage = false;
 
-    const debouncedRender = () => {
-      if (resizeTimer) {
-        clearTimeout(resizeTimer);
-      }
-
-      resizeTimer = setTimeout(() => {
-        render();
-      }, 100) as unknown as number;
-    };
-
     const initResizeObserver = () => {
       if (!containerRef.value || typeof ResizeObserver === 'undefined') return;
-
-      resizeObserver.value = new ResizeObserver(debouncedRender);
+      resizeObserver.value = new ResizeObserver(render);
       resizeObserver.value.observe(containerRef.value);
     };
 
@@ -78,7 +67,6 @@ export default defineComponent({
     const updateSizeFromContainer = () => {
       const newSize = getContainerSize();
       sizeRef.value = newSize;
-
       // Обновляем толщину пропорционально размеру
       if (newSize < 400) {
         thicknessRef.value = 58;
@@ -91,7 +79,6 @@ export default defineComponent({
 
     const render = async () => {
       if (!canvasRef.value) return;
-
       // Обновляем размер из контейнера
       updateSizeFromContainer();
 
@@ -292,7 +279,6 @@ export default defineComponent({
           zoom.value = 1;
           originalUrlRef.value = url;
         }
-
         render();
       }
     );
@@ -300,8 +286,7 @@ export default defineComponent({
     watch(
       () => store.getters['mobile/clientWidth'],
       () => {
-        // Используем тот же таймер, что и в ResizeObserver
-        debouncedRender();
+        render();
       },
       { immediate: true }
     );
