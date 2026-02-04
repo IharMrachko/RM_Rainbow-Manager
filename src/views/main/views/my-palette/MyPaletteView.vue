@@ -3,11 +3,25 @@
     <div class="color-wrapper">
       <section class="selected">
         <div class="selected-slider">
-          <span class="selected-slider-count">{{ t('numberOfSegments') }}: {{ slider }}</span>
+          <span class="selected-slider-count">{{ t('numberOfSegments') }}: {{ slider }} </span>
+          <span v-if="templateRef?.name" class="template-name"
+            >{{ t('template') }}: {{ templateRef?.name }}</span
+          >
           <app-slider v-model="slider" :min="1" :max="12"></app-slider>
         </div>
 
         <div class="color-picker-wrapper">
+          <div v-if="isMobile" class="undo">
+            <div v-if="templateRef?.name" class="btn">
+              <app-button
+                raised
+                severity="secondary"
+                :icon="['fas', 'undo']"
+                @click="cancelledTemplate"
+              ></app-button>
+            </div>
+          </div>
+
           <div class="color-picker-inner">
             <app-color-picker
               :is-preview-row="false"
@@ -17,7 +31,6 @@
             ></app-color-picker>
           </div>
           <section v-if="!isMobile" class="color-picker-actions">
-            <span v-if="templateRef?.name">{{ t('template') }}: {{ templateRef?.name }}</span>
             <div v-if="templateRef?.name" class="btn">
               <app-button
                 raised
@@ -36,14 +49,6 @@
             </div>
           </section>
           <section v-if="isMobile" class="color-picker-actions">
-            <div v-if="templateRef?.name" class="btn">
-              <app-button
-                raised
-                severity="secondary"
-                :icon="['fas', 'undo']"
-                @click="cancelledTemplate"
-              ></app-button>
-            </div>
             <div v-if="!isChangeTemplate" class="btn">
               <app-button
                 raised
@@ -62,9 +67,6 @@
             </div>
           </section>
         </div>
-        <span v-if="templateRef?.name && isMobile"
-          >{{ t('template') }}: {{ templateRef?.name }}</span
-        >
       </section>
       <section class="editor">
         <app-editor-canvas
@@ -574,6 +576,14 @@ export default defineComponent({
   }
 }
 
+.template-name {
+  margin-left: 10px;
+}
+
+.undo {
+  flex: 1;
+}
+
 .color-picker-actions {
   display: flex;
   flex-direction: column;
@@ -587,7 +597,8 @@ export default defineComponent({
 }
 
 @media (max-width: 600px) {
-  .selected-slider-count {
+  .selected-slider-count,
+  .template-name {
     font-size: 12px;
   }
   .color-picker-wrapper {
@@ -595,6 +606,7 @@ export default defineComponent({
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 20px;
   }
 }
 </style>
