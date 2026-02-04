@@ -595,6 +595,7 @@ export default defineComponent({
     flex-direction: row;
     justify-content: end;
     flex-wrap: wrap;
+    flex: 1;
   }
 }
 
