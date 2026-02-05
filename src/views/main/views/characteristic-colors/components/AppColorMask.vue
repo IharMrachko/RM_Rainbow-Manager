@@ -341,6 +341,8 @@ export default defineComponent({
     //bottom: 80px;
     //left: 50%;
     //transform: translateX(-50%);
+    justify-content: center;
+    display: flex;
   }
 
   .color-container .color-wrapper {

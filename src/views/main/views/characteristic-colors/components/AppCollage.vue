@@ -387,7 +387,7 @@ export default defineComponent({
 <style scoped>
 .collage-wrapper {
   position: relative;
-  height: calc(100dvh - var(--tabs-height-with-padding));
+  height: calc(100dvh - var(--tabs-height-with-padding) - var(--header-height));
   width: 100%;
   background: var(--color-wrap-bg);
   display: flex;
@@ -396,14 +396,18 @@ export default defineComponent({
   overflow: hidden;
 
   @media (max-width: 600px) {
-    padding: 10px 5px 5px 5px;
+    padding: 20px;
     overflow: auto;
     align-content: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-wrap: nowrap;
   }
 }
 
 .collage-container {
-  flex: 4;
+  flex: 5;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -424,10 +428,12 @@ export default defineComponent({
 
 @media (max-width: 600px) {
   .buttons {
-    position: absolute;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%);
+    //position: absolute;
+    //bottom: 80px;
+    //left: 50%;
+    //transform: translateX(-50%);
+    justify-content: center;
+    display: flex;
   }
 }
 </style>
