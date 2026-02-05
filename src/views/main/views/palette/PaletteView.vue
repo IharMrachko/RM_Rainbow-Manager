@@ -306,7 +306,7 @@ export default defineComponent({
   @media (max-width: 600px) {
     overflow: auto;
     align-content: start;
-    padding: 0;
+    padding: 0 0 20px 0;
     gap: 0;
   }
 }

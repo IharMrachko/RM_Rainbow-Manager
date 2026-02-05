@@ -17,7 +17,7 @@ export default defineComponent({
     imageUrl: { type: [String, null], default: null },
     gapBetweenSegments: { type: Number, default: 0 },
     isMarkSegment: { type: Boolean, default: false },
-    frameThicknessPercent: { type: Number, default: 15 }, // Новый пропс для настройки толщины в процентах
+    frameThicknessPercent: { type: Number, default: 16 }, // Новый пропс для настройки толщины в процентах
   },
   emits: ['update:imageUrl', 'selected-segment'],
   setup(props, { emit }) {
