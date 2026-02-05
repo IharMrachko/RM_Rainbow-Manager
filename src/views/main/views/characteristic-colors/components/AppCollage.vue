@@ -501,6 +501,7 @@ export default defineComponent({
   .buttons {
     justify-content: center;
     display: flex;
+    font-size: 20px;
   }
 
   .collage-container {

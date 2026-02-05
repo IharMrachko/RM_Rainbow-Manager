@@ -289,10 +289,9 @@ export default defineComponent({
   width: 100%;
   flex-wrap: wrap;
   background: var(--color-wrap-bg);
-  height: 100dvh;
   gap: 20px;
   overflow: hidden;
-
+  height: calc(100dvh - var(--header-height));
   /* Скрыть скроллбар в разных браузерах */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE и Edge */
@@ -306,7 +305,7 @@ export default defineComponent({
   @media (max-width: 600px) {
     overflow: auto;
     align-content: start;
-    padding: 0 0 40px 0;
+    padding: 0;
     gap: 0;
   }
 }

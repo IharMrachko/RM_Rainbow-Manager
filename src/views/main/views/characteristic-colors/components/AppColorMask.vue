@@ -339,6 +339,7 @@ export default defineComponent({
   .color-wrapper .buttons {
     justify-content: center;
     display: flex;
+    font-size: 20px;
   }
 
   .color-container .color-wrapper {
