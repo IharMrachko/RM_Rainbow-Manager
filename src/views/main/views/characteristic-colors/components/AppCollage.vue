@@ -1,6 +1,6 @@
 <template>
   <div class="collage-wrapper">
-    <div class="collage-container">
+    <div ref="containerRef" class="collage-container">
       <canvas ref="canvas"></canvas>
     </div>
 
@@ -78,7 +78,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref, watch } from 'vue';
+import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import AppButton from '@/shared/components/AppButton.vue';
 import { colorCards } from '@/views/main/views/characteristic-colors/components/color-card.constanst';
 import { useStore } from 'vuex';
@@ -93,12 +93,6 @@ import { openDialog } from '@/shared/components/dialog/services/dialog.service';
 import AppImageSignInModal from '@/views/main/views/characteristic-colors/components/AppImageSignInModal.vue';
 import AppImageSettingsModal from '@/shared/components/AppImageSettingsModal.vue';
 
-const mobileHeight = 410;
-const mobileWidth = 320;
-const desktopHeight = 550;
-const desktopWidth = 960;
-const desktopThickness = 30;
-const mobileThickness = 20;
 export default defineComponent({
   components: {
     AppCheckbox,
@@ -114,11 +108,9 @@ export default defineComponent({
     const { t } = useI18n();
     const visiblePopover = ref(false);
     const store = useStore();
+    const containerRef = ref<HTMLElement | null>(null);
     const canvas = ref<HTMLCanvasElement | null>(null);
     const imageRef = ref<HTMLImageElement | null>(null);
-    const width = ref(desktopWidth);
-    const height = ref(desktopHeight);
-    const photoScaleRef = ref(1);
     const originalUrlRef = ref<string | null>(null);
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
     const currentUser = computed(() => store.getters['authFirebase/currentUser']);
@@ -127,7 +119,40 @@ export default defineComponent({
     const isSaveToGallery = ref(false);
     const sharedWithMask = ref(store.getters['imageColor/shareImgMask']);
     const rememberChoose = ref(store.getters['imageColor/rememberImgCollage']);
+    const resizeObserver = ref<ResizeObserver | null>(null);
     let isLoadImage = false;
+
+    // Функция для получения размеров контейнера
+    const getContainerSize = () => {
+      if (!containerRef.value) {
+        return { width: 0, height: 0 };
+      }
+
+      const container = containerRef.value;
+      const computedStyle = window.getComputedStyle(container);
+
+      // Получаем внутренние размеры с учетом padding
+      const containerWidth =
+        container.clientWidth -
+        parseFloat(computedStyle.paddingLeft) -
+        parseFloat(computedStyle.paddingRight);
+
+      const containerHeight =
+        container.clientHeight -
+        parseFloat(computedStyle.paddingTop) -
+        parseFloat(computedStyle.paddingBottom);
+
+      return {
+        width: Math.max(1, Math.floor(containerWidth)),
+        height: Math.max(1, Math.floor(containerHeight)),
+      };
+    };
+
+    // Функция для вычисления толщины рамки на основе радиуса
+    const calculateThickness = (radius: number): number => {
+      const thickness = Math.max(4, radius * 0.35); // минимум 4px, максимум 35% от радиуса
+      return Math.floor(thickness);
+    };
 
     const onFileSelected = async (file: File) => {
       isLoadImage = false;
@@ -135,50 +160,72 @@ export default defineComponent({
       await store.dispatch('imageColor/uploadImgCollage', { file });
       await render();
     };
+
     const render = async () => {
-      if (!canvas.value) return;
+      if (!canvas.value || !containerRef.value) return;
+
+      const containerSize = getContainerSize();
+      const containerWidth = containerSize.width;
+      const containerHeight = containerSize.height;
+
+      if (containerWidth === 0 || containerHeight === 0) return;
+
       const ctx = canvas.value.getContext('2d')!;
       const dpr = window.devicePixelRatio || 1;
 
-      // Retina‑поддержка
-      canvas.value.width = width.value * dpr;
-      canvas.value.height = height.value * dpr;
-      canvas.value.style.width = width.value + 'px';
-      canvas.value.style.height = height.value + 'px';
+      // Устанавливаем размеры канваса
+      canvas.value.width = containerWidth * dpr;
+      canvas.value.height = containerHeight * dpr;
+      canvas.value.style.width = containerWidth + 'px';
+      canvas.value.style.height = containerHeight + 'px';
+
+      // Сбрасываем трансформации и масштабируем для Retina
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
 
-      ctx.clearRect(0, 0, width.value, height.value);
+      // Очищаем канвас
+      ctx.clearRect(0, 0, containerWidth, containerHeight);
 
+      // Загружаем изображение если нужно
       if (imageUrl.value && !isLoadImage) {
         imageRef.value = await loadImage(imageUrl.value);
         isLoadImage = true;
       }
 
-      const isMobile = width.value === mobileWidth;
-      const cols = isMobile ? 2 : 3;
-      const rows = isMobile ? 3 : 2;
-      const gap = 10;
-      const rowGap = 8;
-      const photoScale = isMobile ? photoScaleRef.value * 1.2 : photoScaleRef.value;
+      // Определяем количество колонок и строк
+      let cols = 3; // десктоп: 3 колонки
+      let rows = 2; // десктоп: 2 строки
 
+      // Мобильная версия или маленький контейнер
+      if (containerWidth < 600 || isMobile.value) {
+        cols = 2;
+        rows = 3;
+      }
+
+      // Фиксированные отступы
+      const gap = 15; // отступ между колонками
+      const rowGap = 10; // отступ между строками
+
+      // Вычисляем размер ячейки
       const totalGapX = gap * (cols - 1);
-      const cellW = (width.value - totalGapX) / cols;
-
-      let radius = (cellW / 2) * photoScale - desktopThickness;
-      if (radius < 1) radius = 1;
+      const cellWidth = Math.floor((containerWidth - totalGapX) / cols);
 
       const totalGapY = rowGap * (rows - 1);
-      const cellH = (height.value - totalGapY) / rows;
+      const cellHeight = Math.floor((containerHeight - totalGapY) / rows);
+
+      // Вычисляем радиус круга (90% от меньшей стороны ячейки, минимум 20px)
+      const maxRadius = Math.min(cellWidth, cellHeight) / 2;
+      const radius = Math.max(20, maxRadius * 0.9);
 
       let idx = 0;
       for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
-          const cx = col * (cellW + gap) + cellW / 2;
-          const cy = row * (cellH + rowGap) + cellH / 2;
+          // Центр круга в центре ячейки
+          const centerX = Math.floor(col * (cellWidth + gap) + cellWidth / 2);
+          const centerY = Math.floor(row * (cellHeight + rowGap) + cellHeight / 2);
 
           const card = colorCards[idx % colorCards.length];
-          drawImageWithFrame(ctx, imageRef.value, cx, cy, radius, card.segments);
+          drawImageWithFrame(ctx, imageRef.value, centerX, centerY, radius, card.segments);
 
           idx++;
         }
@@ -195,82 +242,73 @@ export default defineComponent({
     const drawImageWithFrame = (
       ctx: CanvasRenderingContext2D,
       img: HTMLImageElement | null,
-      cx: number,
-      cy: number,
+      centerX: number,
+      centerY: number,
       radius: number,
       segmentsArr: { color: string }[]
     ) => {
-      const thickness = width.value === mobileWidth ? mobileThickness : desktopThickness;
+      const thickness = calculateThickness(radius);
 
-      // если есть картинка — рисуем её
+      // Рисуем изображение если есть
       if (img) {
         ctx.save();
         ctx.beginPath();
-        ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+        ctx.arc(centerX, centerY, radius - thickness, 0, 2 * Math.PI);
         ctx.closePath();
         ctx.clip();
 
-        // вычисляем квадратную область из центра исходного изображения
         const minSide = Math.min(img.width, img.height);
         const sx = (img.width - minSide) / 2;
         const sy = (img.height - minSide) / 2;
 
-        // итоговый размер (с учётом толщины рамки)
-        const targetSize = (radius * 2 - thickness * 2) * zoom.value; // можно добавить zoom, если нужно
+        const targetSize = (radius * 2 - thickness * 2) * zoom.value;
 
-        // рисуем квадратную область по центру круга
         ctx.drawImage(
           img,
           sx,
           sy,
           minSide,
-          minSide, // обрезка по центру
-          cx - targetSize / 2, // x на канвасе
-          cy - targetSize / 2, // y на канвасе
+          minSide,
+          centerX - targetSize / 2,
+          centerY - targetSize / 2,
           targetSize,
-          targetSize // размер на канвасе
+          targetSize
         );
 
         ctx.restore();
       }
-      // рамка из 12 сегментов
+
+      // Рисуем рамку из сегментов
       const segments = segmentsArr.length;
       const step = (2 * Math.PI) / segments;
 
       ctx.lineWidth = thickness;
       for (let i = 0; i < segments; i++) {
-        const start = i * step - Math.PI / 2; // сдвиг на 90° вверх
+        const start = i * step - Math.PI / 2;
         const end = (i + 1) * step - Math.PI / 2;
         ctx.beginPath();
         ctx.strokeStyle = segmentsArr[i].color;
-        ctx.arc(cx, cy, radius - thickness / 2, start, end);
+        ctx.arc(centerX, centerY, radius - thickness / 2, start, end);
         ctx.stroke();
       }
     };
 
-    watch(
-      () => store.getters['mobile/clientWidth'],
-      (value) => {
-        if (value < 600) {
-          width.value = mobileWidth;
-          height.value = mobileHeight;
-        }
+    // Инициализация ResizeObserver
+    const initResizeObserver = () => {
+      if (!containerRef.value || typeof ResizeObserver === 'undefined') return;
 
-        if (value > 1024) {
-          width.value = desktopWidth;
-          height.value = desktopHeight;
-        }
+      resizeObserver.value = new ResizeObserver(() => {
         render();
-      },
-      { immediate: true }
-    );
+      });
+
+      resizeObserver.value.observe(containerRef.value);
+    };
 
     const openPopover = () => {
       visiblePopover.value = true;
     };
 
     const saveToGallery = async () => {
-      // сохраняем в Firebase Storage
       if (!isLoadImage) {
         await store.dispatch('toast/addToast', {
           message: 'uploadImage',
@@ -291,7 +329,7 @@ export default defineComponent({
           maskType: '',
           userId: currentUser.value?.uid,
           paletteType: '',
-        }); // вернет URL
+        });
       } finally {
         isSaveToGallery.value = false;
         if (isMobile.value) emit('isLoading', false);
@@ -326,7 +364,10 @@ export default defineComponent({
     );
 
     onMounted(() => {
-      render();
+      initResizeObserver();
+
+      nextTick(render);
+
       if (store.getters['imageColor/rememberImgCollage']) {
         const file = store.getters['imageColor/imgCollage'];
         if (file) {
@@ -334,6 +375,23 @@ export default defineComponent({
         }
       }
     });
+
+    onUnmounted(() => {
+      if (resizeObserver.value) {
+        resizeObserver.value.disconnect();
+      }
+    });
+
+    // Обработчик изменения размера окна
+    watch(
+      () => store.getters['mobile/clientWidth'],
+      () => {
+        setTimeout(() => {
+          render();
+        }, 50);
+      },
+      { immediate: true }
+    );
 
     const openImageModal = async () => {
       const url = getCanvasSrc();
@@ -365,7 +423,9 @@ export default defineComponent({
         onFileSelected(value.file);
       });
     };
+
     return {
+      containerRef,
       canvas,
       saveImage,
       isMobile,
@@ -384,6 +444,7 @@ export default defineComponent({
   },
 });
 </script>
+
 <style scoped>
 .collage-wrapper {
   position: relative;
@@ -408,9 +469,19 @@ export default defineComponent({
 
 .collage-container {
   flex: 5;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  min-height: 300px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Канвас должен заполнять контейнер */
+.collage-container canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .buttons:not(.isMobile) {
@@ -428,12 +499,12 @@ export default defineComponent({
 
 @media (max-width: 600px) {
   .buttons {
-    //position: absolute;
-    //bottom: 80px;
-    //left: 50%;
-    //transform: translateX(-50%);
     justify-content: center;
     display: flex;
+  }
+
+  .collage-container {
+    min-height: 400px;
   }
 }
 </style>

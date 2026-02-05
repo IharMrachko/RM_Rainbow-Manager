@@ -337,10 +337,6 @@ export default defineComponent({
 
 @media (max-width: 600px) {
   .color-wrapper .buttons {
-    //position: absolute;
-    //bottom: 80px;
-    //left: 50%;
-    //transform: translateX(-50%);
     justify-content: center;
     display: flex;
   }
@@ -351,7 +347,6 @@ export default defineComponent({
     gap: 15px;
     flex-wrap: nowrap;
     overflow: auto;
-    //height: calc(100dvh - var(--tabs-height-with-padding));
   }
   .color-container .color-wrapper .selected {
     flex: 0 1 auto;
