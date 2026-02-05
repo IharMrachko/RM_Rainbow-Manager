@@ -1,36 +1,38 @@
 <template>
-  <div class="chroma-wrapper" :class="{ hiddenOverflow: isHiddenOverflow }">
-    <div class="photo-picker">
-      <app-image-not-uploaded v-if="!imgEl" @on-file-selected="onFileSelected">
-      </app-image-not-uploaded>
-      <app-image-color-picker
-        v-if="imgEl"
-        ref="imageColorPickerRef"
-        :image-element="imgEl"
-        :is-show-section-info="false"
-        @selected-hex="onSelectedHex"
-        @is-hidden-overflow="isHiddenOverflow = $event"
-        @image-url-changed="imageUrlChange"
-      ></app-image-color-picker>
-    </div>
-    <div class="palette-fill">
-      <span class="reminder">
-        <font-awesome-icon size="xl" :icon="['fas', 'exclamation-triangle']" />
-        {{ t('reminderPickColor') }}</span
-      >
-      <div class="preview-row">
-        <app-palette-fill-card
-          v-for="item in paletteCards"
-          :key="item.id"
-          :selected-hex="item"
-          :is-selected="selectedCard?.id === item?.id"
-          @selected="onSelectedCard"
-        >
-        </app-palette-fill-card>
+  <div class="chroma-container">
+    <div class="chroma-wrapper" :class="{ hiddenOverflow: isHiddenOverflow }">
+      <div class="photo-picker">
+        <app-image-not-uploaded v-if="!imgEl" @on-file-selected="onFileSelected">
+        </app-image-not-uploaded>
+        <app-image-color-picker
+          v-if="imgEl"
+          ref="imageColorPickerRef"
+          :image-element="imgEl"
+          :is-show-section-info="false"
+          @selected-hex="onSelectedHex"
+          @is-hidden-overflow="isHiddenOverflow = $event"
+          @image-url-changed="imageUrlChange"
+        ></app-image-color-picker>
       </div>
-      <div class="btn-wrap">
-        <div class="btn">
-          <app-button title="define" @click="range"></app-button>
+      <div class="palette-fill">
+        <span class="reminder">
+          <font-awesome-icon size="xl" :icon="['fas', 'exclamation-triangle']" />
+          {{ t('reminderPickColor') }}</span
+        >
+        <div class="preview-row">
+          <app-palette-fill-card
+            v-for="item in paletteCards"
+            :key="item.id"
+            :selected-hex="item"
+            :is-selected="selectedCard?.id === item?.id"
+            @selected="onSelectedCard"
+          >
+          </app-palette-fill-card>
+        </div>
+        <div class="btn-wrap">
+          <div class="btn">
+            <app-button title="define" @click="range"></app-button>
+          </div>
         </div>
       </div>
     </div>
@@ -283,12 +285,17 @@ export default defineComponent({
 });
 </script>
 <style scoped>
+.chroma-container {
+  position: relative;
+  overflow: auto;
+  height: 100dvh;
+  background: var(--color-wrap-bg);
+}
 .chroma-wrapper {
   padding: 20px;
   display: flex;
   width: 100%;
   flex-wrap: wrap;
-  background: var(--color-wrap-bg);
   gap: 20px;
   overflow: hidden;
   height: calc(100dvh - var(--header-height));

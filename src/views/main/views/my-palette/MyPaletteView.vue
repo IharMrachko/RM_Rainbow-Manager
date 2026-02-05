@@ -496,6 +496,7 @@ export default defineComponent({
   position: relative;
   overflow: auto;
   height: 100dvh;
+  background: var(--color-wrap-bg);
 }
 
 .color-wrapper {
@@ -503,7 +504,6 @@ export default defineComponent({
   display: flex;
   width: 100%;
   flex-wrap: wrap;
-  background: var(--color-wrap-bg);
   height: calc(100dvh - var(--header-height));
   gap: 20px;
 
