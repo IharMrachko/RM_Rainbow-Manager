@@ -418,7 +418,7 @@ const messages = {
     pleaseSelectAtLeastOneCharacteristic: 'Выберите хотя бы одну характерестику!',
     filter: 'Фильтр',
     myPalette: 'Моя палитра',
-    numberOfSegments: 'Количесвто сегментов',
+    numberOfSegments: 'Количество сегментов',
     consultation: 'Консультация',
     close: 'Закрыть',
     revealYourInherentElegance: 'Раскройте свою природную красоту',
