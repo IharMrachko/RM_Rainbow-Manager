@@ -17,6 +17,7 @@ export default defineComponent({
     imageUrl: { type: [String, null], default: null },
     gapBetweenSegments: { type: Number, default: 0 },
     isMarkSegment: { type: Boolean, default: false },
+    frameThicknessPercent: { type: Number, default: 15 }, // Новый пропс для настройки толщины в процентах
   },
   emits: ['update:imageUrl', 'selected-segment'],
   setup(props, { emit }) {
@@ -25,15 +26,13 @@ export default defineComponent({
     const canvasRef = ref<HTMLCanvasElement | null>(null);
     const imageRef = ref<HTMLImageElement | null>(null);
     const originalUrlRef = ref<string | null>(null);
-    const thicknessRef = ref(90);
-    const sizeRef = ref(480); // сохраняем для вычислений, но теперь она будет динамической
+    const sizeRef = ref(480);
     const rotationRef = ref(0);
     const startAngleRef = ref<number | null>(null);
     const offsetXRef = ref(0);
     const offsetYRef = ref(0);
     const pixelRatio = ref(1);
     const resizeObserver = ref<ResizeObserver | null>(null);
-    let resizeTimer: number | null = null;
     let isLoadImage = false;
 
     const initResizeObserver = () => {
@@ -46,9 +45,14 @@ export default defineComponent({
       return window.devicePixelRatio || 1;
     };
 
+    // Функция для вычисления толщины рамки в пикселях
+    const getThickness = () => {
+      return (sizeRef.value * props.frameThicknessPercent) / 100;
+    };
+
     // Функция для получения размера контейнера
     const getContainerSize = () => {
-      if (!containerRef.value) return 480; // fallback значение
+      if (!containerRef.value) return 480;
 
       const container = containerRef.value;
       const width = container.clientWidth;
@@ -67,13 +71,6 @@ export default defineComponent({
     const updateSizeFromContainer = () => {
       const newSize = getContainerSize();
       sizeRef.value = newSize;
-      // Обновляем толщину пропорционально размеру
-      if (newSize < 400) {
-        thicknessRef.value = 58;
-      } else {
-        thicknessRef.value = 90;
-      }
-
       return newSize;
     };
 
@@ -128,7 +125,7 @@ export default defineComponent({
 
     const drawBaseImage = (ctx: CanvasRenderingContext2D) => {
       const radius = sizeRef.value / 2;
-      const thickness = thicknessRef.value;
+      const thickness = getThickness();
       const img = imageRef.value;
       if (!img) return;
 
@@ -160,7 +157,7 @@ export default defineComponent({
 
     const drawFrame = (ctx: CanvasRenderingContext2D) => {
       const radius = sizeRef.value / 2;
-      const thickness = thicknessRef.value;
+      const thickness = getThickness();
       const step = (2 * Math.PI) / props.segments.length;
       const startOffset = startAngleRef.value ?? -Math.PI / 2;
       ctx.lineWidth = thickness;
@@ -187,10 +184,11 @@ export default defineComponent({
       const centerX = sizeRef.value / 2;
       const centerY = sizeRef.value / 2;
       const radius = sizeRef.value / 2;
+      const thickness = getThickness();
 
       const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
 
-      const innerRadius = radius - thicknessRef.value;
+      const innerRadius = radius - thickness;
       const outerRadius = radius;
 
       if (distance >= innerRadius && distance <= outerRadius) {
@@ -231,7 +229,7 @@ export default defineComponent({
       render();
       const ctx = canvasRef.value.getContext('2d')!;
       const radius = sizeRef.value / 2;
-      const thickness = thicknessRef.value;
+      const thickness = getThickness();
       const step = (2 * Math.PI) / props.segments.length;
       const startOffset = startAngleRef.value ?? -Math.PI / 2;
 
@@ -261,9 +259,6 @@ export default defineComponent({
     onUnmounted(() => {
       if (resizeObserver.value) {
         resizeObserver.value.disconnect();
-      }
-      if (resizeTimer) {
-        clearTimeout(resizeTimer);
       }
     });
 
@@ -298,6 +293,14 @@ export default defineComponent({
       }
     );
 
+    // Добавляем watch для изменения процента толщины
+    watch(
+      () => props.frameThicknessPercent,
+      () => {
+        render();
+      }
+    );
+
     return {
       containerRef,
       canvasRef,
@@ -306,7 +309,6 @@ export default defineComponent({
       getCanvasValue,
       getImageSrc,
       handleCanvasClick,
-      thicknessRef,
     };
   },
 });
