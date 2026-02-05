@@ -135,7 +135,7 @@
         <font-awesome-icon
           v-if="isMobile"
           :icon="['fas', 'ellipsis-h']"
-          size="lg"
+          size="xl"
           @click.stop="openPopover"
         />
       </section>
