@@ -191,10 +191,4 @@ export default defineComponent({
     width: 100%;
   }
 }
-
-@media (max-width: 600px) {
-  .logout {
-    //margin-bottom: 75px;
-  }
-}
 </style>
