@@ -73,13 +73,18 @@ export default defineComponent({
   flex-direction: column;
   gap: 2rem;
   justify-content: space-between;
-  /* матовое стекло */
-  background: var(--color-bg); /* полупрозрачный белый */
+
+  /* Разные фоны для мобильной и десктопной версий */
+  background: rgba(255, 255, 255, 0.2); /* Дефолт для десктопа */
+
+  /* Эффект матового стекла для десктопа */
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px); /* для Safari */
+
   border-right: 1px solid rgba(255, 255, 255, 0.3);
   padding: 15px;
   height: calc(100dvh - var(--header-height));
+
   & .main-section {
     cursor: pointer;
     max-height: 70vh;
@@ -103,12 +108,25 @@ export default defineComponent({
   }
 }
 
+/* Для мобильной версии меняем фон */
+.mobile-view .sidebar-container {
+  background: var(--color-bg); /* Сплошной фон для мобильной версии */
+  backdrop-filter: none; /* Отключаем размытие если нужен сплошной фон */
+  -webkit-backdrop-filter: none;
+}
+
 .mobile-view {
   position: fixed;
   width: 100% !important;
   z-index: 9;
-  backdrop-filter: blur(40px);
   bottom: 0;
   top: var(--header-height);
+
+  /* Можно добавить размытие для всей мобильной панели */
+  background: rgba(var(--color-bg-rgb), 0.95); /* Если нужно полупрозрачное */
+
+  /* Или эффект стекла для мобильной версии тоже, но с другим фоном */
+  /* backdrop-filter: blur(20px); */
+  /* -webkit-backdrop-filter: blur(20px); */
 }
 </style>
