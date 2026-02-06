@@ -13,15 +13,17 @@
   <Teleport to="body">
     <aside
       v-if="isMobile && isBurgerMenuOpen"
-      class="sidebar-container mobile-view"
+      class="mobile-view"
       :style="{ width: isShort ? '60px' : '220px' }"
     >
-      <section class="main-section" @click="setBurgerMenu">
-        <slot name="main" :is-short="isShort" />
-      </section>
-      <section class="additional-section">
-        <slot name="additional" :is-short="isShort" :toggle="toggle" />
-      </section>
+      <div class="sidebar-container">
+        <section class="main-section" @click="setBurgerMenu">
+          <slot name="main" :is-short="isShort" />
+        </section>
+        <section class="additional-section">
+          <slot name="additional" :is-short="isShort" :toggle="toggle" />
+        </section>
+      </div>
     </aside>
   </Teleport>
 </template>
@@ -72,12 +74,12 @@ export default defineComponent({
   gap: 2rem;
   justify-content: space-between;
   /* матовое стекло */
-  background: rgba(255, 255, 255, 0.2); /* полупрозрачный белый */
+  background: var(--color-bg); /* полупрозрачный белый */
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px); /* для Safari */
   border-right: 1px solid rgba(255, 255, 255, 0.3);
   padding: 15px;
-  height: calc(100vh - var(--header-height));
+  height: calc(100dvh - var(--header-height));
   & .main-section {
     cursor: pointer;
     max-height: 70vh;

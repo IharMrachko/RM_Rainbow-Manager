@@ -179,7 +179,6 @@ export default defineComponent({
 
   & .footer {
     display: flex;
-    flex-direction: column;
     align-content: center;
     justify-content: center;
     gap: 12px;
@@ -195,6 +194,10 @@ export default defineComponent({
 
     @media (max-width: 600px) {
       border-radius: 0;
+    }
+
+    & .btn {
+      flex: 0.7;
     }
   }
 }

@@ -14,19 +14,21 @@
       </div>
     </section>
     <footer class="footer">
-      <app-input
-        v-model="signIn"
-        :icon="['fas', 'fa-pencil']"
-        :is-label="false"
-        @focus="focusInput"
-        @blur="focusOutInput"
-      ></app-input>
-      <div class="btn" @click="saveTemplate">
-        <app-button
-          :loading="isLoading"
-          severity="warning"
-          :title="id ? 'update' : 'save'"
-        ></app-button>
+      <div class="footer-wrapper">
+        <app-input
+          v-model="signIn"
+          :icon="['fas', 'fa-pencil']"
+          :is-label="false"
+          @focus="focusInput"
+          @blur="focusOutInput"
+        ></app-input>
+        <div class="btn" @click="saveTemplate">
+          <app-button
+            :loading="isLoading"
+            severity="warning"
+            :title="id ? 'update' : 'save'"
+          ></app-button>
+        </div>
       </div>
     </footer>
   </div>
@@ -166,8 +168,7 @@ export default defineComponent({
 
   & .footer {
     display: flex;
-    flex-direction: column;
-    align-content: center;
+    align-items: center;
     justify-content: center;
     gap: 12px;
     padding: 10px;
@@ -182,6 +183,13 @@ export default defineComponent({
 
     @media (max-width: 600px) {
       border-radius: 0;
+    }
+
+    & .footer-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 70%;
     }
   }
 }
