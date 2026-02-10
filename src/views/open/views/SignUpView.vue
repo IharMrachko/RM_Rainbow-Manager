@@ -227,7 +227,12 @@ export default defineComponent({
           password: form.password,
           role: 'USER',
         });
-
+        // @ts-ignore - отключаем проверку TypeScript
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((window as any).ym) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (window as any).ym(106223859, 'reachGoal', 'success-registration');
+        }
         await router.push('/main');
       } catch (e) {
         console.error(e);
