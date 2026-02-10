@@ -16,6 +16,9 @@ import ContactUsView from '@/views/open/views/ContactUsView.vue';
 import PaletteDeterminantView from '@/views/main/views/palette-determinant/PaletteDeterminantView.vue';
 import MyPaletteView from '@/views/main/views/my-palette/MyPaletteView.vue';
 import ConsultView from '@/views/main/views/consult/ConsultView.vue';
+import CutPaletteColorView from '@/views/main/views/cut-palette-color/views/CutPaletteColorView.vue';
+import CutPaletteCololorCanvasEditView from '@/views/main/views/cut-palette-color/views/CutPaletteCololorCanvasEditView.vue';
+import CutPaletteColorContainer from '@/views/main/views/cut-palette-color/CutPaletteColorContainer.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -91,6 +94,26 @@ const routes: Array<RouteRecordRaw> = [
         name: 'chroma',
         component: ChromaView,
         meta: { requiresAuth: true },
+      },
+      {
+        path: 'cut-palette-color',
+        name: 'cut-palette-color',
+        component: CutPaletteColorContainer,
+        meta: { requiresAuth: true },
+        children: [
+          {
+            path: '',
+            name: 'cut-palette-color-view',
+            component: CutPaletteColorView,
+            meta: { requiresAuth: true },
+          },
+          {
+            path: 'edit',
+            name: 'edit',
+            component: CutPaletteCololorCanvasEditView,
+            meta: { requiresAuth: true },
+          },
+        ],
       },
       {
         path: 'palette',

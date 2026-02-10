@@ -64,6 +64,7 @@ export default defineComponent({
 
     @media (max-width: 600px) {
       justify-content: center;
+      font-size: 20px;
     }
   }
 }

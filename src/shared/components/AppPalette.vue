@@ -1,35 +1,44 @@
 <template>
   <div class="palette">
-    <div class="palette-left">
-      <div
+    <div class="palette-left" :style="{ gap: gap, width: width }">
+      <app-palette-item
         v-for="value in item.segments.slice(0, 35)"
         :key="value"
-        class="palette-item"
-        :style="{ backgroundColor: value.color }"
-      ></div>
+        :color="value.color"
+        :selected-mode="selectedMode"
+        :selected-colors="selectedColors"
+        @selected-color="selectedColor($event)"
+      ></app-palette-item>
     </div>
-    <div class="palette-right">
-      <div
+    <div
+      v-if="item.segments.slice(35, 65).length > 0"
+      class="palette-right"
+      :style="{ gap: gap, width: width }"
+    >
+      <app-palette-item
         v-for="value in item.segments.slice(35, 65)"
         :key="value"
-        class="palette-item"
-        :style="{ backgroundColor: value.color }"
-      ></div>
+        :color="value.color"
+        :selected-mode="selectedMode"
+        :selected-colors="selectedColors"
+        @selected-color="selectedColor($event)"
+      ></app-palette-item>
     </div>
     <div v-if="paletteCards.length" class="my-color">
-      <div
+      <app-palette-item
         v-for="value in paletteCards"
         :key="value"
-        class="palette-item"
-        :style="{ backgroundColor: value.color }"
-      ></div>
+        :color="value.color"
+      ></app-palette-item>
     </div>
   </div>
 </template>
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
+import AppPaletteItem from '@/shared/components/AppPaletteItem.vue';
 
 export default defineComponent({
+  components: { AppPaletteItem },
   props: {
     paletteCards: {
       type: Array as PropType<{ id: number; color: string }[]>,
@@ -39,6 +48,32 @@ export default defineComponent({
       type: Object as PropType<{ segments: { color: string }[] }>,
       required: true,
     },
+    gap: {
+      type: String,
+      default: '2px',
+    },
+    width: {
+      type: String,
+      default: '160px',
+    },
+    selectedMode: {
+      type: Boolean,
+      default: false,
+    },
+    selectedColors: {
+      type: Set as PropType<Set<string>>,
+      default: () => new Set(),
+    },
+  },
+  emits: ['selectedColor'],
+  setup(_, { emit }) {
+    const selectedColor = (item: { color: string; selected: boolean }) => {
+      emit('selectedColor', item);
+    };
+
+    return {
+      selectedColor,
+    };
   },
 });
 </script>
@@ -46,8 +81,6 @@ export default defineComponent({
 .palette {
   position: relative;
   display: flex;
-  height: 220px;
-  margin-top: 60px;
 
   @media (max-width: 600px) {
     margin: 12px auto;
@@ -56,22 +89,21 @@ export default defineComponent({
   & .palette-left {
     display: flex;
     flex-wrap: wrap;
-    width: 160px;
-    gap: 2px;
+    /* Выравниваем элементы по верхнему краю */
+    align-items: flex-start;
+    /* Или растягиваем строки */
+    align-content: flex-start;
   }
 
   & .palette-right {
     display: flex;
     flex-wrap: wrap;
-    width: 160px;
-    gap: 2px;
     height: 187px;
+    /* Выравниваем элементы по верхнему краю */
+    align-items: flex-start;
+    /* Или растягиваем строки */
+    align-content: flex-start;
   }
-}
-
-.palette-item {
-  width: 30px;
-  height: 30px;
 }
 
 .my-color {

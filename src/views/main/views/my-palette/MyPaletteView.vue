@@ -34,6 +34,7 @@
             <div v-if="templateRef?.name" class="btn">
               <app-button
                 raised
+                :icon="['fas', 'undo']"
                 severity="secondary"
                 title="resetTemplate"
                 @click="cancelledTemplate"
@@ -42,8 +43,9 @@
             <div v-if="!isChangeTemplate" class="btn">
               <app-button
                 raised
+                :icon="['fas', 'save']"
                 severity="secondary"
-                title="Сохранить изменения"
+                title="saveChanges"
                 @click="openCreateTemplateModal('update')"
               ></app-button>
             </div>

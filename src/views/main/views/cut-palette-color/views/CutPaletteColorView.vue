@@ -1,7 +1,7 @@
 <template>
   <div class="color-container">
     <div class="color-wrapper">
-      <section class="selected">
+      <section v-if="visibleSelectedSection" class="selected">
         <app-color-card
           v-for="card in palettesCards.slice(startPalette, endPalette)"
           :key="card.id"
@@ -26,12 +26,51 @@
         </div>
         <span class="selected-name">{{ t(selectedCard.name) }}</span>
       </section>
+      <div v-if="isMobile" class="chevron" @click="toggleSelectedSection">
+        <font-awesome-icon
+          :icon="['fas', visibleSelectedSection ? 'chevron-down' : 'chevron-up']"
+          size="xl"
+        />
+      </div>
       <section class="editor">
-        <app-editor-canvas
-          ref="editorCanvasRef"
-          v-model:image-url="imageUrl"
-          :segments="frameColors"
-        ></app-editor-canvas>
+        <app-palette
+          :item="selectedCard"
+          gap="8px"
+          :width="isMobile ? '160px' : '200px'"
+          :selected-mode="true"
+          :selected-colors="selectedColors"
+          @selected-color="selectedColor($event)"
+        ></app-palette>
+        <div class="selected-colors">
+          <div v-if="selectedColors.size === 0" class="empty-message">
+            <span class="reminder">
+              <font-awesome-icon size="xl" :icon="['fas', 'exclamation-triangle']" />
+              {{ t('selectTopColors') }}</span
+            >
+          </div>
+
+          <template v-else>
+            <div
+              v-for="color in selectedColors"
+              :key="color"
+              class="selected-color"
+              :style="{ background: color }"
+            ></div>
+          </template>
+        </div>
+        <div v-if="isMobile" class="btns">
+          <div class="bnt-next">
+            <app-button
+              raised
+              severity="secondary"
+              title="reset"
+              @click="cancelledTemplate"
+            ></app-button>
+          </div>
+          <div class="bnt-next">
+            <app-button severity="success" title="next" @click="nextStep"></app-button>
+          </div>
+        </div>
       </section>
       <section class="buttons" :class="{ isMobile: isMobile }">
         <div v-if="!isMobile" class="btn filter">
@@ -47,37 +86,14 @@
         <div v-if="!isMobile" class="btn">
           <app-button
             raised
-            title="pickPhoto"
+            :icon="['fas', 'undo']"
             severity="secondary"
-            :icon="['fas', 'sliders']"
-            @click="openImageSettingsModal"
+            title="reset"
+            @click="cancelledTemplate"
           ></app-button>
         </div>
         <div v-if="!isMobile" class="btn">
-          <app-button
-            raised
-            :icon="['fas', 'camera']"
-            severity="secondary"
-            title="takePhoto"
-            @click="openCameraModal"
-          ></app-button>
-        </div>
-        <div v-if="!isMobile" class="btn">
-          <app-button severity="success" title="download" @click="saveToDevice"></app-button>
-        </div>
-        <div v-if="!isMobile" class="btn">
-          <app-button
-            severity="warning"
-            title="saveToGallery"
-            :loading="isSaveToGallery"
-            @click="saveToGallery"
-          ></app-button>
-        </div>
-        <div v-if="!isMobile" class="btn">
-          <app-button severity="info" title="addSign" @click="openImageModal"></app-button>
-        </div>
-        <div v-if="!isMobile" class="checkbox">
-          <AppCheckbox v-model="rememberChoose" label="rememberChoose"></AppCheckbox>
+          <app-button severity="success" title="next" @click="nextStep"></app-button>
         </div>
         <font-awesome-icon
           v-if="isMobile"
@@ -94,85 +110,48 @@
           <span>{{ t('filter') }}</span>
           <div v-if="!isCompareFilter" class="popover-filter-fill"></div>
         </app-popover-item>
-        <app-popover-item @click="openImageSettingsModal">
-          <font-awesome-icon size="xl" :icon="['fas', 'sliders']" />
-          <span>{{ t('pickPhoto') }}</span>
-        </app-popover-item>
-        <app-popover-item @click="openCameraModal">
-          <font-awesome-icon size="xl" :icon="['fas', 'camera']" />
-          <span>{{ t('takePhoto') }}</span>
-        </app-popover-item>
-        <app-popover-item @click="saveToDevice">
-          <font-awesome-icon size="xl" :icon="['fas', 'download']" />
-          <span>{{ t('download') }}</span>
-        </app-popover-item>
-      </app-popover-wrapper>
-      <app-popover-wrapper>
-        <app-popover-item @click="saveToGallery">
-          <font-awesome-icon size="xl" :icon="['fas', 'images']" />
-          <span>{{ t('saveToGallery') }}</span>
-        </app-popover-item>
-        <app-popover-item @click="openImageModal">
-          <font-awesome-icon size="xl" :icon="['fas', 'fa-pencil-square']" />
-          <span>{{ t('addSign') }}</span>
-        </app-popover-item>
-      </app-popover-wrapper>
-      <app-popover-wrapper>
-        <app-popover-item>
-          <AppCheckbox v-model="rememberChoose"></AppCheckbox>
-          <span>{{ t('rememberChoose') }}</span>
-        </app-popover-item>
       </app-popover-wrapper>
     </app-popover>
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onBeforeMount, onMounted, ref, watch } from 'vue';
-
-import AppCheckbox from '@/shared/components/AppCheckbox.vue';
+import { computed, defineComponent, onBeforeMount, ref } from 'vue';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
 import AppPopover from '@/shared/components/AppPopover.vue';
-import AppEditorCanvas from '@/views/main/views/characteristic-colors/components/AppEditorCanvas.vue';
 import AppButton from '@/shared/components/AppButton.vue';
-import { EditorCanvasRef } from '@/interfaces/editor-canvas-ref.interface';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
-import { readFileAsDataURL } from '@/helpers/read-file-as-data-url';
 import { openDialog } from '@/shared/components/dialog/services/dialog.service';
-import AppImageSignInModal from '@/views/main/views/characteristic-colors/components/AppImageSignInModal.vue';
-import AppImageSettingsModal from '@/shared/components/AppImageSettingsModal.vue';
-import AppCameraModal from '@/shared/components/AppCameraModal.vue';
 import { palettesObj, palettesObjShort } from '@/views/main/views/palette/palette';
 import { Palette } from '@/types/palette.type';
 import { PaletteCard } from '@/types/palette-card.type';
 import AppColorCard from '@/views/main/views/characteristic-colors/components/AppColorCard.vue';
 import AppPaletteDeterminantSettingsModal from '@/views/main/views/palette-determinant/components/AppPaletteDeterminantSettingsModal.vue';
+import AppPalette from '@/shared/components/AppPalette.vue';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   components: {
+    AppPalette,
     AppColorCard,
-    AppCheckbox,
     AppPopoverItem,
     AppPopoverWrapper,
     AppPopover,
     AppButton,
-    AppEditorCanvas,
   },
   setup(_) {
-    const editorCanvasRef = ref<EditorCanvasRef | null>(null);
     const { t } = useI18n();
-    const uploader = ref();
     const store = useStore();
+    const router = useRouter();
     const visiblePopover = ref(false);
     const selectedCard = ref<null | PaletteCard>(null);
     const frameColors = ref();
-    const imageUrl = ref<string | null>(null);
-    const isSaveToGallery = ref(false);
     const targetRef = ref<HTMLElement | null>(null);
-
+    const visibleSelectedSection = ref(true);
+    const selectedColors = ref<Set<string>>(store.getters['cutPaletteColors/getSelectedColors']);
     const getPalette = (): Record<Palette, string[]> => {
-      const fullFill = store.getters['palette/getSettingsMap'].fullFill;
+      const fullFill = store.getters['cutPaletteColors/getSettingsMap'].fullFill;
       return fullFill ? palettesObj : palettesObjShort;
     };
 
@@ -193,58 +172,18 @@ export default defineComponent({
     };
 
     const palettesCards = ref<PaletteCard[]>(
-      filterAndTransformPalettes(getPalette(), store.getters['palette/getSettingsMap'].palette)
+      filterAndTransformPalettes(
+        getPalette(),
+        store.getters['cutPaletteColors/getSettingsMap'].palette
+      )
     );
     const startPalette = ref(0);
     const endPalette = ref(6);
-    const rememberChoose = ref(store.getters['palette/rememberImgMask']);
-    const imgMask = computed(() => store.getters['palette/imgMask']);
-    const originalImgMask = computed(() => store.getters['palette/getOriginalImgMask']);
-    const currentUser = computed(() => store.getters['authFirebase/currentUser']);
     const isMobile = computed(() => store.getters['mobile/breakPoint'] === 'mobile');
-    const isCompareFilter = computed(() => store.getters['palette/isCompareFilter']);
+    const isCompareFilter = computed(() => store.getters['cutPaletteColors/isCompareFilter']);
     onBeforeMount(() => {
       initSelectedFirst();
     });
-
-    onMounted(() => {
-      if (rememberChoose.value) {
-        const file = imgMask.value;
-        if (file) {
-          onFileSelected(file);
-        }
-      }
-    });
-
-    const onFileSelected = async (file: File) => {
-      imageUrl.value = await readFileAsDataURL(file);
-      await store.dispatch('palette/uploadImgMask', { file });
-    };
-
-    const saveToGallery = async () => {
-      if (!imageUrl.value) {
-        await store.dispatch('toast/addToast', {
-          message: 'uploadImage',
-          severity: 'warning',
-        });
-        return;
-      }
-      isSaveToGallery.value = true;
-      visiblePopover.value = false;
-
-      try {
-        await store.dispatch('gallery/saveImageToGallery', {
-          canvas: editorCanvasRef.value?.getCanvasValue(),
-          title: '',
-          coloristicType: 'mask',
-          maskType: '',
-          paletteType: selectedCard.value ? selectedCard.value.id : '',
-          userId: currentUser.value?.uid,
-        });
-      } finally {
-        isSaveToGallery.value = false;
-      }
-    };
 
     const selected = (item: PaletteCard) => {
       selectedCard.value = item;
@@ -255,79 +194,28 @@ export default defineComponent({
       visiblePopover.value = true;
     };
 
-    const openImageModal = async () => {
-      const url = editorCanvasRef.value?.getImageSrc();
-      await openDialog(AppImageSignInModal, {
-        url,
-        coloristicType: 'mask',
-        maskType: '',
-        paletteType: selectedCard.value ? selectedCard.value.id : '',
-        currentUserId: currentUser.value?.uid,
-        canvas: editorCanvasRef.value?.getCanvasValue(),
-        imageUrl: imageUrl.value,
-      });
-    };
-
-    const openImageSettingsModal = async () => {
-      visiblePopover.value = false;
-      const originalFile = originalImgMask.value;
-      let url = null;
-      if (originalFile) {
-        url = await readFileAsDataURL(originalFile);
-      }
-
-      await openDialog(AppImageSettingsModal, {
-        imageUrl: url,
-      }).then((value) => {
-        if (value.originalFile) {
-          store.dispatch('palette/setOriginalImgMask', { file: value.originalFile });
-        }
-        store.dispatch('palette/uploadImgMask', { file: value.file });
-        onFileSelected(value.file);
-      });
-    };
-
-    watch(rememberChoose, (value: boolean) => {
-      store.dispatch('palette/setRememberImgMask', {
-        remember: value,
-      });
-    });
-
-    const saveToDevice = () => {
-      editorCanvasRef.value?.triggerSaveImage();
-    };
-
-    const openCameraModal = async () => {
-      await openDialog(AppCameraModal, {
-        colorCards: palettesCards.value,
-      }).then((value) => {
-        store.dispatch('palette/uploadImgMask', { file: value.file });
-        onFileSelected(value.file);
-        selected(value.selectedCard);
-      });
-    };
-
     const nextPalette = () => {
       startPalette.value === 0 ? initPositionEnd() : initPositionStart();
     };
 
     const openPaletteSettings = async () => {
       await openDialog(AppPaletteDeterminantSettingsModal, {
-        fullFill: store.getters['palette/getSettings'].fullFill,
-        onlySoft: store.getters['palette/getSettings'].onlySoft,
-        onlyBright: store.getters['palette/getSettings'].onlyBright,
-        onlyCold: store.getters['palette/getSettings'].onlyCold,
-        onlyWarm: store.getters['palette/getSettings'].onlyWarm,
-        onlyLight: store.getters['palette/getSettings'].onlyLight,
-        onlyDark: store.getters['palette/getSettings'].onlyDark,
+        fullFill: store.getters['cutPaletteColors/getSettings'].fullFill,
+        onlySoft: store.getters['cutPaletteColors/getSettings'].onlySoft,
+        onlyBright: store.getters['cutPaletteColors/getSettings'].onlyBright,
+        onlyCold: store.getters['cutPaletteColors/getSettings'].onlyCold,
+        onlyWarm: store.getters['cutPaletteColors/getSettings'].onlyWarm,
+        onlyLight: store.getters['cutPaletteColors/getSettings'].onlyLight,
+        onlyDark: store.getters['cutPaletteColors/getSettings'].onlyDark,
       }).then((value) => {
-        store.dispatch('palette/setSettings', value);
+        store.dispatch('cutPaletteColors/setSettings', value);
         palettesCards.value = filterAndTransformPalettes(
           getPalette(),
-          store.getters['palette/getSettingsMap'].palette
+          store.getters['cutPaletteColors/getSettingsMap'].palette
         );
         initPositionStart();
         initSelectedFirst();
+        selectedColors.value = new Set();
       });
     };
 
@@ -351,25 +239,44 @@ export default defineComponent({
       return palettesCards.value.findIndex((it) => it.id === card.id);
     };
 
+    const selectedColor = (item: { color: string; selected: boolean }) => {
+      if (item.selected) {
+        selectedColors.value.add(item.color);
+      } else {
+        selectedColors.value.delete(item.color);
+      }
+      selectedColors.value = new Set(selectedColors.value);
+      store.dispatch('cutPaletteColors/selectedColors', selectedColors.value);
+    };
+
+    const cancelledTemplate = () => {
+      selectedColors.value = new Set();
+      store.dispatch('cutPaletteColors/selectedColors', selectedColors.value);
+    };
+
+    const nextStep = () => {
+      if (selectedColors.value.size === 0) {
+        store.dispatch('toast/addToast', {
+          message: 'selectOneColor',
+          severity: 'warning',
+        });
+        return;
+      }
+      router.push('/main/cut-palette-color/edit');
+    };
+
+    const toggleSelectedSection = () => {
+      visibleSelectedSection.value = !visibleSelectedSection.value;
+    };
+
     return {
       frameColors,
-      imageUrl,
-      onFileSelected,
       selected,
       selectedCard,
       visiblePopover,
       isMobile,
       openPopover,
-      uploader,
       t,
-      saveToGallery,
-      isSaveToGallery,
-      editorCanvasRef,
-      rememberChoose,
-      openImageModal,
-      openImageSettingsModal,
-      saveToDevice,
-      openCameraModal,
       palettesCards,
       targetRef,
       endPalette,
@@ -378,12 +285,19 @@ export default defineComponent({
       openPaletteSettings,
       order,
       isCompareFilter,
+      selectedColor,
+      selectedColors,
+      cancelledTemplate,
+      nextStep,
+      visibleSelectedSection,
+      toggleSelectedSection,
     };
   },
 });
 </script>
 <style scoped lang="scss">
 @import '@/styles/style';
+
 .color-container {
   position: relative;
   overflow: auto;
@@ -422,14 +336,18 @@ export default defineComponent({
       }
     }
   }
-
   & .editor {
     display: flex;
     flex-direction: column;
     align-items: center;
     flex: 2;
-  }
+    gap: 2rem;
+    overflow: auto;
 
+    @media (max-width: 600px) {
+      gap: 0;
+    }
+  }
   & .buttons:not(.isMobile) {
     width: 301px;
     display: flex;
@@ -482,5 +400,58 @@ export default defineComponent({
 .popover-filter-fill {
   @include filter-dot;
   left: 33px;
+}
+
+.selected-colors {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  padding: 10px;
+  border: 1px solid var(--active-doing);
+  width: 100%;
+  height: 200px;
+  min-height: 200px;
+  overflow: auto;
+  /* Выравниваем элементы по верхнему краю */
+  align-items: flex-start;
+  /* Или растягиваем строки */
+  align-content: flex-start;
+
+  & .selected-color {
+    height: 30px;
+    width: 30px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+}
+
+.bnt-next {
+  width: 100%;
+}
+
+.chevron {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.btns {
+  margin-top: 15px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.empty-message {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  @media (max-width: 600px) {
+    font-size: 12px;
+  }
 }
 </style>
