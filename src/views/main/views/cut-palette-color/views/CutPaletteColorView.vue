@@ -115,7 +115,7 @@
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onBeforeMount, ref } from 'vue';
+import { computed, defineComponent, onBeforeMount, onMounted, ref } from 'vue';
 import AppPopoverWrapper from '@/shared/components/AppPopoverWrapper.vue';
 import AppPopoverItem from '@/shared/components/AppPopoverItem.vue';
 import AppPopover from '@/shared/components/AppPopover.vue';
@@ -130,6 +130,8 @@ import AppColorCard from '@/views/main/views/characteristic-colors/components/Ap
 import AppPaletteDeterminantSettingsModal from '@/views/main/views/palette-determinant/components/AppPaletteDeterminantSettingsModal.vue';
 import AppPalette from '@/shared/components/AppPalette.vue';
 import { useRouter } from 'vue-router';
+// @ts-ignore
+import iNoBounce from 'inobounce';
 
 export default defineComponent({
   components: {
@@ -268,6 +270,10 @@ export default defineComponent({
     const toggleSelectedSection = () => {
       visibleSelectedSection.value = !visibleSelectedSection.value;
     };
+
+    onMounted(() => {
+      iNoBounce.disable();
+    });
 
     return {
       frameColors,
