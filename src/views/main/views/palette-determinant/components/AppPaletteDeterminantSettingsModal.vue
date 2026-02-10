@@ -2,13 +2,13 @@
   <div ref="modalRef" class="modal-content neon">
     <app-modal-header @close="close"></app-modal-header>
     <section class="wrapper-filter">
-      <AppCheckbox v-model="fullFill" label="fullFill"></AppCheckbox>
-      <AppCheckbox v-model="onlySoft" label="showOnlySoft"></AppCheckbox>
-      <AppCheckbox v-model="onlyBright" label="showOnlyBright"></AppCheckbox>
-      <AppCheckbox v-model="onlyCold" label="showOnlyCold"></AppCheckbox>
-      <AppCheckbox v-model="onlyWarm" label="showOnlyWarm"></AppCheckbox>
-      <AppCheckbox v-model="onlyLight" label="showOnlyLight"></AppCheckbox>
-      <AppCheckbox v-model="onlyDark" label="showOnlyDark"></AppCheckbox>
+      <AppCheckbox v-model="fullFillRef" label="fullFill"></AppCheckbox>
+      <AppCheckbox v-model="onlySoftRef" label="showOnlySoft"></AppCheckbox>
+      <AppCheckbox v-model="onlyBrightRef" label="showOnlyBright"></AppCheckbox>
+      <AppCheckbox v-model="onlyColdRef" label="showOnlyCold"></AppCheckbox>
+      <AppCheckbox v-model="onlyWarmRef" label="showOnlyWarm"></AppCheckbox>
+      <AppCheckbox v-model="onlyLightRef" label="showOnlyLight"></AppCheckbox>
+      <AppCheckbox v-model="onlyDarkRef" label="showOnlyDark"></AppCheckbox>
     </section>
     <footer class="footer">
       <div class="btn" @click="applyFilter">
@@ -26,25 +26,55 @@ import { useStore } from 'vuex';
 
 export default defineComponent({
   components: { AppCheckbox, AppButton, AppModalHeader },
+  props: {
+    fullFill: {
+      type: Boolean,
+      default: false,
+    },
+    onlySoft: {
+      type: Boolean,
+      default: true,
+    },
+    onlyBright: {
+      type: Boolean,
+      default: true,
+    },
+    onlyCold: {
+      type: Boolean,
+      default: true,
+    },
+    onlyWarm: {
+      type: Boolean,
+      default: true,
+    },
+    onlyLight: {
+      type: Boolean,
+      default: true,
+    },
+    onlyDark: {
+      type: Boolean,
+      default: true,
+    },
+  },
   emits: ['resolve', 'reject', 'close'],
-  setup(_, { emit }) {
+  setup(props, { emit }) {
     const store = useStore();
-    const fullFill = ref(store.getters['palette/getSettings'].fullFill);
-    const onlySoft = ref(store.getters['palette/getSettings'].onlySoft);
-    const onlyBright = ref(store.getters['palette/getSettings'].onlyBright);
-    const onlyCold = ref(store.getters['palette/getSettings'].onlyCold);
-    const onlyWarm = ref(store.getters['palette/getSettings'].onlyWarm);
-    const onlyLight = ref(store.getters['palette/getSettings'].onlyLight);
-    const onlyDark = ref(store.getters['palette/getSettings'].onlyDark);
+    const fullFillRef = ref(props.fullFill);
+    const onlySoftRef = ref(props.onlySoft);
+    const onlyBrightRef = ref(props.onlyBright);
+    const onlyColdRef = ref(props.onlyCold);
+    const onlyWarmRef = ref(props.onlyWarm);
+    const onlyLightRef = ref(props.onlyLight);
+    const onlyDarkRef = ref(props.onlyDark);
 
     const clearAll = computed(() => {
       return (
-        !onlySoft.value &&
-        !onlyBright.value &&
-        !onlyCold.value &&
-        !onlyWarm.value &&
-        !onlyLight.value &&
-        !onlyDark.value
+        !onlySoftRef.value &&
+        !onlyBrightRef.value &&
+        !onlyColdRef.value &&
+        !onlyWarmRef.value &&
+        !onlyLightRef.value &&
+        !onlyDarkRef.value
       );
     });
 
@@ -60,27 +90,27 @@ export default defineComponent({
         });
         return;
       }
-      store.dispatch('palette/setSettings', {
-        fullFill: fullFill.value,
-        onlySoft: onlySoft.value,
-        onlyBright: onlyBright.value,
-        onlyCold: onlyCold.value,
-        onlyWarm: onlyWarm.value,
-        onlyDark: onlyDark.value,
-        onlyLight: onlyLight.value,
+
+      emit('resolve', {
+        fullFill: fullFillRef.value,
+        onlySoft: onlySoftRef.value,
+        onlyBright: onlyBrightRef.value,
+        onlyCold: onlyColdRef.value,
+        onlyWarm: onlyWarmRef.value,
+        onlyDark: onlyDarkRef.value,
+        onlyLight: onlyLightRef.value,
       });
-      emit('resolve', store.getters['palette/getSettingsMap']);
     };
     return {
       close,
       applyFilter,
-      fullFill,
-      onlySoft,
-      onlyBright,
-      onlyCold,
-      onlyWarm,
-      onlyLight,
-      onlyDark,
+      fullFillRef,
+      onlySoftRef,
+      onlyBrightRef,
+      onlyColdRef,
+      onlyWarmRef,
+      onlyLightRef,
+      onlyDarkRef,
     };
   },
 });

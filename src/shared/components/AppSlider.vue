@@ -391,7 +391,6 @@ export default defineComponent({
 .slider-container {
   position: relative;
   width: 100%;
-  padding: 20px 0;
   user-select: none;
 
   @media (max-width: 600px) {

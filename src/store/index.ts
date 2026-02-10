@@ -10,6 +10,7 @@ import { gallery } from '@/store/modules/gallery';
 import { folder } from '@/store/modules/folder';
 import { palette } from '@/store/modules/palette';
 import { myPalette } from '@/store/modules/my-palette';
+import { cutPaletteColors } from '@/store/modules/cut-palette';
 
 export default createStore({
   state: {},
@@ -28,6 +29,7 @@ export default createStore({
     folder,
     palette,
     myPalette,
+    cutPaletteColors,
   },
   plugins: [createLogger()],
 });

@@ -218,6 +218,7 @@ export default defineComponent({
 }
 
 .palette-wrap {
+  margin-top: 60px;
   @media (max-width: 600px) {
     margin: 12px auto;
   }

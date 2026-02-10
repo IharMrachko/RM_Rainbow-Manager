@@ -52,7 +52,15 @@
               <div class="icon">
                 <font-awesome-icon size="xl" :icon="['fas', 'eye-dropper']" />
               </div>
-              <div v-if="!isShort" class="title">{{ t('characteristicColor') }}</div>
+              <div v-if="!isShort" class="title">{{ t('pickColor') }}</div>
+            </div>
+          </router-link>
+          <router-link to="/main/cut-palette-color" active-class="active-link">
+            <div class="sidebar-item">
+              <div class="icon">
+                <font-awesome-icon size="xl" :icon="['fas', 'scissors']" />
+              </div>
+              <div v-if="!isShort" class="title">{{ t('cutPalette') }}</div>
             </div>
           </router-link>
 
