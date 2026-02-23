@@ -8,7 +8,7 @@ interface LanguageState {
 export const language: Module<LanguageState, unknown> = {
   namespaced: true,
   state: () => ({
-    language: 'ru',
+    language: navigator.language.split('-')[0] as LanguageType,
   }),
   mutations: {
     INIT_LANGUAGE(state: LanguageState): void {

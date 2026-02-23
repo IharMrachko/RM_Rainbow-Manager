@@ -29,6 +29,12 @@ export default defineComponent({
       else if (/android/.test(ua)) device.value = 'android';
       else device.value = 'desktop';
       store.dispatch('mobile/setDevice', { device: device.value });
+      const user = localStorage.getItem('user');
+      if (user) {
+        store.dispatch('activeUser/setActiveUser', {
+          email: JSON.parse(user)?.email,
+        });
+      }
     });
 
     watch(

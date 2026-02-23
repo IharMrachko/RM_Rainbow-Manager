@@ -11,6 +11,7 @@ import { folder } from '@/store/modules/folder';
 import { palette } from '@/store/modules/palette';
 import { myPalette } from '@/store/modules/my-palette';
 import { cutPaletteColors } from '@/store/modules/cut-palette';
+import { activeUser } from '@/store/modules/statistic';
 
 export default createStore({
   state: {},
@@ -30,6 +31,7 @@ export default createStore({
     palette,
     myPalette,
     cutPaletteColors,
+    activeUser,
   },
   plugins: [createLogger()],
 });
