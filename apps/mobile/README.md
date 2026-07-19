@@ -13,21 +13,16 @@ cd apps/mobile
 npm start
 ```
 
-## Firebase
+## Firebase (do not commit real keys)
 
-Copy keys into `src/environments/environment.ts` (same values as Vue `VUE_APP_FIREBASE_*`):
+1. Copy Vue root `.env.local` values (`VUE_APP_FIREBASE_*`) into:
+   - `src/environments/environment.ts`
+   - `src/environments/environment.prod.ts`
+2. Download `google-services.json` from Firebase Console → Project settings → Your apps (Android) and place it at:
+   - `android/app/google-services.json`
+   - Template: `android/app/google-services.json.example`
 
-```ts
-firebase: {
-  apiKey: '...',
-  authDomain: '...',
-  projectId: '...',
-  storageBucket: '...',
-  messagingSenderId: '...',
-  appId: '...',
-  measurementId: '...',
-}
-```
+These credential files are gitignored. Never commit real API keys.
 
 ## Capacitor
 
