@@ -3,8 +3,14 @@ name: CI/CD Vue 3
 on:
   pull_request:
     branches: [ main ] # Запуск при создании/обновлении PR в main
+    paths-ignore:
+      - 'apps/mobile/**'
+      - 'packages/**'
   push:
     branches: [ main ] # Запуск после merge в main
+    paths-ignore:
+      - 'apps/mobile/**'
+      - 'packages/**'
 
 jobs:
   build-and-deploy:

@@ -7,6 +7,9 @@ import parser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 
 export default [
+  {
+    ignores: ['apps/**', 'packages/**', 'dist/**', 'coverage/**', 'node_modules/**'],
+  },
   js.configs.recommended,
   ...vue.configs['flat/recommended'],
   configPrettier,
