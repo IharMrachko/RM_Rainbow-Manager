@@ -1,0 +1,34 @@
+<div class="ion-page shell" id="main-content">
+
+  <ion-router-outlet></ion-router-outlet>
+
+
+
+  <nav class="rm-tabbar" aria-label="Primary">
+
+    @for (tab of tabs; track tab.url) {
+
+      <a
+
+        class="rm-tabbar__item"
+
+        [class.is-active]="isTabActive(tab)"
+
+        [routerLink]="tab.url"
+
+        routerDirection="root"
+
+      >
+
+        <ion-icon [name]="tab.icon"></ion-icon>
+
+        <span>{{ tab.titleKey | translate }}</span>
+
+      </a>
+
+    }
+
+  </nav>
+
+</div>
+

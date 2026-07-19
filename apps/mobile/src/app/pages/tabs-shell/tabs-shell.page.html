@@ -1,0 +1,105 @@
+<ion-menu
+  menuId="app-menu"
+  contentId="tabs-main"
+  type="overlay"
+  [swipeGesture]="true"
+>
+  <ion-header>
+    <ion-toolbar class="app-menu__toolbar">
+      <ion-title>
+        <span class="app-menu__brand">🌈</span>
+        {{ 'menu' | translate }}
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content class="app-menu__content">
+    <ion-list lines="none" class="app-menu__list">
+      @for (item of menuTools; track item.url) {
+        <ion-item
+          [class.is-active]="isMenuActive(item.url)"
+          (click)="navigateMenu(item.url)"
+        >
+          <ion-icon slot="start" [name]="item.icon"></ion-icon>
+          <ion-label>{{ item.titleKey | translate }}</ion-label>
+        </ion-item>
+      }
+    </ion-list>
+
+    <div class="app-menu__divider"></div>
+
+    <div class="app-menu__settings">
+      <p class="app-menu__label">{{ 'themeSettings' | translate }}</p>
+      <div class="choice-row">
+        <button
+          type="button"
+          class="choice-btn"
+          [class.is-active]="!theme.isDark"
+          (click)="setTheme(false)"
+        >
+          <span class="choice-btn__icon">☀️</span>
+          <span>{{ 'light' | translate }}</span>
+        </button>
+        <button
+          type="button"
+          class="choice-btn"
+          [class.is-active]="theme.isDark"
+          (click)="setTheme(true)"
+        >
+          <span class="choice-btn__icon">🌙</span>
+          <span>{{ 'dark' | translate }}</span>
+        </button>
+      </div>
+
+      <p class="app-menu__label">{{ 'languageSettings' | translate }}</p>
+      <div class="choice-row">
+        <button
+          type="button"
+          class="choice-btn"
+          [class.is-active]="language.language === 'ru'"
+          (click)="setLanguage('ru')"
+        >
+          <span class="choice-btn__icon">RU</span>
+          <span>Русский</span>
+        </button>
+        <button
+          type="button"
+          class="choice-btn"
+          [class.is-active]="language.language === 'en'"
+          (click)="setLanguage('en')"
+        >
+          <span class="choice-btn__icon">EN</span>
+          <span>English</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="app-menu__divider"></div>
+
+    <ion-list lines="none" class="app-menu__list">
+      <ion-item class="app-menu__logout" (click)="logout()">
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        <ion-label>{{ 'logout' | translate }}</ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-menu>
+
+<div
+  class="ion-page"
+  id="tabs-main"
+  [class.tabs-main--no-bar]="!showTabBar"
+>
+  <ion-tabs>
+    @if (showTabBar) {
+      <ion-tab-bar slot="bottom" class="rm-ion-tabbar">
+        @for (tab of tabs; track tab.url) {
+          <ion-tab-button [tab]="tab.tab" [href]="tab.url">
+            <ion-icon [name]="tab.icon"></ion-icon>
+            <ion-label>{{ tab.titleKey | translate }}</ion-label>
+          </ion-tab-button>
+        }
+      </ion-tab-bar>
+    }
+  </ion-tabs>
+</div>

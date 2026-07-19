@@ -1,0 +1,8 @@
+.shell {
+  background: var(--rm-surface);
+}
+
+/* Router outlet fills the page; tabbar floats above content */
+ion-router-outlet {
+  background: var(--rm-surface);
+}

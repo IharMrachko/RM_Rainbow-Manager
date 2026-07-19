@@ -1,0 +1,44 @@
+<div class="char-page">
+  <div class="char-topbar">
+    <ion-button fill="clear" color="dark" class="char-menu-btn" (click)="openMenu()">
+      <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+    </ion-button>
+    <h1 class="char-topbar__title">{{ 'pickColor' | translate }}</h1>
+    <div class="char-topbar__actions">
+      <ion-button
+        fill="solid"
+        color="primary"
+        class="char-cam-btn"
+        [disabled]="!canOpenReport"
+        (click)="openColorReport()"
+      >
+        <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
+      </ion-button>
+      <ion-button fill="solid" color="primary" class="char-cam-btn" (click)="openSourcePicker()">
+        <ion-icon slot="icon-only" name="camera-outline"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+
+  <div class="char-scroll">
+    @if (image) {
+      <div class="picker-zone">
+        <app-image-color-picker
+          [image]="image"
+          [showReplace]="false"
+          (selectedHex)="onHex($event)"
+          (colorPicked)="onColorPicked($event)"
+        ></app-image-color-picker>
+      </div>
+
+      <app-color-analyzer [hex]="hex"></app-color-analyzer>
+    } @else {
+      <button type="button" class="photo-zone" (click)="openSourcePicker()">
+        <div class="photo-zone__empty">
+          <ion-icon name="camera-outline"></ion-icon>
+          <p>{{ 'tapCameraOrArea' | translate }}</p>
+        </div>
+      </button>
+    }
+  </div>
+</div>

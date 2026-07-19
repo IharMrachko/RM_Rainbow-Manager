@@ -1,0 +1,190 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="page-toolbar">
+    <ion-buttons slot="start">
+      @if (selectMode) {
+        <ion-button fill="clear" (click)="exitSelectMode()">
+          <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+        </ion-button>
+      } @else {
+        <ion-button fill="clear" (click)="openAppMenu()">
+          <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+        </ion-button>
+      }
+    </ion-buttons>
+    <ion-title>
+      @if (selectMode) {
+        {{ 'selectedCount' | translate: { count: selectedCount } }}
+      } @else {
+        {{ 'gallery' | translate }}
+      }
+    </ion-title>
+    <ion-buttons slot="end">
+      @if (selectMode) {
+        <ion-button
+          [disabled]="!selectedCount"
+          (click)="openCollage()"
+          [attr.aria-label]="'collage' | translate"
+        >
+          <ion-icon name="images-outline"></ion-icon>
+        </ion-button>
+        <ion-button
+          color="danger"
+          [disabled]="!selectedCount"
+          (click)="confirmDeleteSelected()"
+          [attr.aria-label]="'delete' | translate"
+        >
+          <ion-icon name="trash-outline"></ion-icon>
+        </ion-button>
+      } @else {
+        <ion-button (click)="toggleSelectMode()" [color]="selectMode ? 'primary' : undefined">
+          <ion-icon [name]="selectMode ? 'checkbox' : 'checkbox-outline'"></ion-icon>
+        </ion-button>
+        <ion-button
+          (click)="openFolders()"
+          [attr.aria-label]="'folder' | translate"
+        >
+          <ion-icon name="folder-outline"></ion-icon>
+        </ion-button>
+        <ion-button
+          class="filter-btn"
+          [class.filter-btn--active]="hasActiveFilter"
+          [color]="hasActiveFilter ? 'primary' : undefined"
+          (click)="openFilter()"
+        >
+          <ion-icon name="filter"></ion-icon>
+          @if (hasActiveFilter) {
+            <span class="filter-badge">{{ activeFilterCount }}</span>
+          }
+        </ion-button>
+        <ion-button (click)="reload()">
+          <ion-icon name="refresh"></ion-icon>
+        </ion-button>
+      }
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content
+  class="page-content"
+  [scrollY]="!paintSelecting"
+  [scrollEvents]="true"
+  (ionScroll)="onContentScroll($event)"
+  (ionScrollEnd)="onContentScrollEnd()"
+>
+  <div class="gallery-search" [class.is-hidden]="searchHidden || selectMode">
+    <ion-input
+      class="gallery-search__input"
+      type="search"
+      inputmode="search"
+      enterkeyhint="search"
+      fill="outline"
+      mode="md"
+      [clearInput]="true"
+      [placeholder]="'search' | translate"
+      [value]="search"
+      (ionInput)="onSearchChange($any($event).detail.value)"
+      (ionFocus)="onSearchFocus()"
+    >
+      <ion-icon slot="start" name="search-outline" aria-hidden="true"></ion-icon>
+    </ion-input>
+  </div>
+
+  @if (loading) {
+    <div class="center">
+      <ion-spinner></ion-spinner>
+    </div>
+  }
+
+  @if (!loading && errorMessage) {
+    <div class="feature-card ion-margin">
+      <div class="feature-card__header">{{ 'gallery' | translate }}</div>
+      <div class="feature-card__body">{{ errorMessage }}</div>
+      <ion-button expand="block" class="ion-margin-top" (click)="reload()">
+        {{ 'retry' | translate }}
+      </ion-button>
+    </div>
+  }
+
+  @if (isEmptyGallery) {
+    <div class="rm-empty">
+      <div class="rm-empty__icon"><ion-icon name="images"></ion-icon></div>
+      <div class="rm-empty__title">{{ 'gallery' | translate }}</div>
+      <div>{{ 'galleryEmpty' | translate }}</div>
+    </div>
+  }
+
+  @if (isNotFound) {
+    <div class="rm-empty">
+      <div class="rm-empty__title">{{ 'noResults' | translate }}</div>
+    </div>
+  }
+
+  @if (selectMode && items.length) {
+    <div class="toolbar-row ion-padding-horizontal">
+      <ion-button fill="clear" size="small" (click)="toggleSelectAll()">
+        {{ 'chooseAll' | translate }}
+      </ion-button>
+      <ion-button
+        fill="clear"
+        size="small"
+        [disabled]="!selectedCount"
+        (click)="clearSelection()"
+      >
+        {{ 'clearSelection' | translate }}
+      </ion-button>
+    </div>
+  }
+
+  @if (!loading && items.length) {
+    <div
+      class="grid ion-padding"
+      [class.grid--select]="selectMode"
+      [class.grid--painting]="paintSelecting"
+    >
+      @for (item of items; track item.id; let i = $index) {
+        <button
+          type="button"
+          class="cell"
+          [attr.data-gallery-id]="item.id"
+          [class.selected]="isSelected(item.id)"
+          (pointerdown)="onCellPointerDown($event, item)"
+          (click)="onCardClick(item, i)"
+        >
+          <img [src]="item.src" [alt]="item.title || 'gallery'" loading="lazy" draggable="false" />
+          @if (selectMode) {
+            <span class="cell__check" [class.cell__check--on]="isSelected(item.id)">
+              <ion-icon [name]="isSelected(item.id) ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+            </span>
+          }
+          @if (item.title) {
+            <div class="cell__meta">
+              <small>{{ item.title }}</small>
+            </div>
+          }
+          <span class="cell__index">{{ 'photo' | translate }} {{ i + 1 }}</span>
+        </button>
+      }
+    </div>
+  }
+
+  @if (!loading && loadingMore) {
+    <div class="center center--more">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  }
+
+  @if (!loading && total) {
+    <div class="footer-count">
+      <ion-icon name="list"></ion-icon>
+      <span>{{ items.length }} / {{ total }}</span>
+    </div>
+  }
+
+  <ion-infinite-scroll
+    threshold="20%"
+    [disabled]="!hasMore || loading || loadingMore || paintSelecting"
+    (ionInfinite)="loadMore($event)"
+  >
+    <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>

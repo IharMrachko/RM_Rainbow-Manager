@@ -1,0 +1,96 @@
+<ion-header class="ion-no-border">
+
+  <ion-toolbar class="page-toolbar">
+
+    <ion-title>{{ 'appName' | translate }}</ion-title>
+
+  </ion-toolbar>
+
+</ion-header>
+
+
+
+<ion-content class="page-content">
+
+  <div class="hub">
+
+    <section class="hub-hero rm-rise">
+
+      <p class="hub-kicker">{{ 'appName' | translate }}</p>
+
+      <h1 class="hub-title">{{ 'welcome' | translate }}</h1>
+
+      <p class="hub-lead">{{ 'welcomeHint' | translate }}</p>
+
+    </section>
+
+
+
+    <section class="rm-rise rm-rise-delay-1">
+
+      <h2 class="rm-section-title">{{ 'tools' | translate }}</h2>
+
+      <div class="rm-tool-grid">
+
+        @for (tool of tools; track tool.url) {
+
+          <button
+
+            type="button"
+
+            class="rm-tool-tile"
+
+            (click)="open(tool.url)"
+
+          >
+
+            <span class="rm-tool-tile__icon">
+
+              <ion-icon [name]="tool.icon"></ion-icon>
+
+            </span>
+
+            <span class="rm-tool-tile__label">{{ tool.titleKey | translate }}</span>
+
+            <span class="rm-tool-tile__hint">{{ tool.hintKey | translate }}</span>
+
+          </button>
+
+        }
+
+      </div>
+
+    </section>
+
+
+
+    <section class="quick rm-rise rm-rise-delay-2">
+
+      <h2 class="rm-section-title">{{ 'quickAccess' | translate }}</h2>
+
+      <div class="quick-row">
+
+        <ion-button fill="outline" routerLink="/main/gallery" routerDirection="root">
+
+          <ion-icon name="images" slot="start"></ion-icon>
+
+          {{ 'gallery' | translate }}
+
+        </ion-button>
+
+        <ion-button fill="outline" routerLink="/main/ai-agent" routerDirection="root">
+
+          <ion-icon name="flash" slot="start"></ion-icon>
+
+          {{ 'aiAgent' | translate }}
+
+        </ion-button>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</ion-content>
+

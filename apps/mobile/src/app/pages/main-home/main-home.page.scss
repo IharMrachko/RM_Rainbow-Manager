@@ -1,0 +1,72 @@
+.hub {
+  padding: 8px 16px 8px;
+}
+
+.hub-hero {
+  position: relative;
+  padding: 22px 18px 20px;
+  border-radius: var(--rm-radius-lg);
+  background: var(--rm-hero-gradient);
+  color: #fff;
+  margin-bottom: 20px;
+  overflow: hidden;
+  box-shadow: 0 16px 36px rgba(91, 110, 245, 0.28);
+}
+
+.hub-hero::after {
+  content: '';
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  right: -40px;
+  top: -50px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.28), transparent 70%);
+  pointer-events: none;
+}
+
+.hub-kicker {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.hub-title {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 8px;
+  font-family: var(--rm-font-display);
+  font-size: 1.55rem;
+  line-height: 1.15;
+}
+
+.hub-lead {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  max-width: 28ch;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  opacity: 0.92;
+}
+
+.quick {
+  margin-top: 22px;
+}
+
+.quick-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.quick-row ion-button {
+  margin: 0;
+  --border-radius: 14px;
+  font-weight: 600;
+}

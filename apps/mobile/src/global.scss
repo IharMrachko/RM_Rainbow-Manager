@@ -1,0 +1,583 @@
+/*
+ * Rainbow Manager — mobile global styles
+ */
+
+@import '@angular/cdk/overlay-prebuilt.css';
+@import '@ionic/angular/css/core.css';
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/display.css';
+@import '@ionic/angular/css/padding.css';
+@import '@ionic/angular/css/float-elements.css';
+@import '@ionic/angular/css/text-alignment.css';
+@import '@ionic/angular/css/text-transformation.css';
+@import '@ionic/angular/css/flex-utils.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--rm-surface);
+  color: var(--rm-ink);
+  font-family: var(--rm-font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+.rm-display {
+  font-family: var(--rm-font-display);
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+ion-router-outlet,
+#main-content {
+  background: var(--rm-surface);
+}
+
+/*
+ * Do NOT force pointer-events: auto on .ion-page.
+ * Ionic 8 uses .ion-page-overlay-passthrough { pointer-events: none } so
+ * ModalController / ActionSheet / Toast can receive taps above nested outlets.
+ * A previous ion-menu tap-steal hack with !important broke all overlays.
+ */
+
+ion-input,
+ion-textarea,
+ion-searchbar {
+  pointer-events: auto;
+}
+
+/* ---------- Page chrome ---------- */
+
+ion-content.page-content {
+  --background: var(--rm-surface);
+  --color: var(--rm-ink);
+  --padding-bottom: 16px;
+}
+
+ion-toolbar.page-toolbar {
+  --background: rgba(238, 240, 247, 0.82);
+  --color: var(--rm-ink);
+  --border-width: 0;
+  --min-height: 52px;
+  backdrop-filter: var(--rm-header-blur);
+  -webkit-backdrop-filter: var(--rm-header-blur);
+}
+
+html.dark ion-toolbar.page-toolbar {
+  --background: rgba(18, 19, 26, 0.88);
+}
+
+ion-title {
+  font-family: var(--rm-font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+/* ---------- Mobile surface blocks (replaces desktop “feature cards”) ---------- */
+
+.feature-card,
+.rm-sheet {
+  width: 100%;
+  max-width: none;
+  margin: 0 0 var(--rm-space);
+  border-radius: var(--rm-radius-lg);
+  background: var(--rm-elevated);
+  color: var(--rm-ink);
+  box-shadow: 0 1px 0 var(--rm-line), 0 10px 28px rgba(22, 24, 42, 0.06);
+  border: 1px solid var(--rm-line);
+  overflow: hidden;
+}
+
+html.dark .feature-card,
+html.dark .rm-sheet {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.feature-card__header,
+.rm-sheet__header {
+  padding: 14px 16px 10px;
+  font-family: var(--rm-font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  background: transparent;
+  color: var(--rm-ink);
+  border-bottom: 1px solid var(--rm-line);
+}
+
+.feature-card__body,
+.rm-sheet__body {
+  padding: 14px 16px 16px;
+  color: var(--rm-muted);
+  line-height: 1.5;
+}
+
+.rm-section-title {
+  margin: 4px 2px 10px;
+  font-family: var(--rm-font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--rm-ink);
+}
+
+.rm-hint {
+  margin: 0 2px 12px;
+  font-size: 0.9rem;
+  color: var(--rm-muted);
+  line-height: 1.4;
+}
+
+.rm-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.rm-actions {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.rm-chip-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.rm-chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* Primary CTA */
+.rm-cta,
+ion-button.rm-cta {
+  --border-radius: 14px;
+  --box-shadow: 0 8px 20px rgba(91, 110, 245, 0.28);
+  font-weight: 600;
+  min-height: 48px;
+}
+
+/* Ensure ion-button solid look even if color attrs lag */
+ion-button.button-solid,
+ion-button[color='primary']:not([fill='clear']):not([fill='outline']) {
+  --background: var(--ion-color-primary, #5b6ef5);
+  --color: #ffffff;
+}
+
+/* Empty / status states */
+.rm-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+  gap: 8px;
+  color: var(--rm-muted);
+}
+
+.rm-empty__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: var(--rm-brand-gradient);
+  color: #fff;
+  font-size: 26px;
+  margin-bottom: 6px;
+}
+
+.rm-empty__title {
+  font-family: var(--rm-font-display);
+  font-size: 1.15rem;
+  color: var(--rm-ink);
+  font-weight: 700;
+}
+
+/* Tool tiles (home hub) */
+.rm-tool-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.rm-tool-tile {
+  appearance: none;
+  border: 1px solid var(--rm-line);
+  background: var(--rm-elevated);
+  border-radius: var(--rm-radius-md);
+  padding: 16px 14px;
+  text-align: left;
+  color: var(--rm-ink);
+  min-height: 112px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 8px 22px rgba(22, 24, 42, 0.05);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rm-tool-tile:active {
+  transform: scale(0.98);
+}
+
+.rm-tool-tile__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 20px;
+  background: var(--rm-brand-gradient);
+}
+
+.rm-tool-tile__label {
+  font-family: var(--rm-font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.rm-tool-tile__hint {
+  font-size: 0.75rem;
+  color: var(--rm-muted);
+  line-height: 1.3;
+}
+
+/* Bottom tab bar (legacy custom nav — kept for main-shell if still referenced) */
+.rm-tabbar {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+  height: var(--rm-tab-h);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  padding: 8px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--rm-line);
+  box-shadow: 0 12px 40px rgba(22, 24, 42, 0.16);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+}
+
+.rm-tabbar--docked {
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  flex-shrink: 0;
+  z-index: 10;
+  margin: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+  width: auto;
+}
+
+html.dark .rm-tabbar {
+  background: rgba(30, 31, 43, 0.94);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.rm-tabbar__item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  border-radius: 16px;
+  color: var(--rm-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  min-width: 0;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
+}
+
+.rm-tabbar__item ion-icon {
+  font-size: 22px;
+}
+
+.rm-tabbar__item.is-active {
+  color: var(--rm-brand-a);
+  background: rgba(91, 110, 245, 0.12);
+}
+
+.rm-tabbar__item:active {
+  transform: scale(0.96);
+}
+
+/* Ionic tab bar — compact; do NOT add safe-area to height (Ionic already pads it). */
+ion-tab-bar.rm-ion-tabbar {
+  --background: rgba(255, 255, 255, 0.96);
+  --border: 0;
+  --color: var(--rm-muted, #5c6178);
+  --color-selected: var(--rm-brand-a, #5b6ef5);
+  --min-height: 46px;
+  min-height: 46px !important;
+  height: auto !important;
+  max-height: none;
+  padding-top: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  border-top: 1px solid var(--rm-line, rgba(22, 24, 42, 0.1));
+  box-shadow: 0 -2px 12px rgba(22, 24, 42, 0.06);
+}
+
+html.dark ion-tab-bar.rm-ion-tabbar {
+  --background: rgba(30, 31, 43, 0.96);
+}
+
+ion-tab-bar.rm-ion-tabbar ion-tab-button {
+  --color: var(--rm-muted, #5c6178);
+  --color-selected: var(--rm-brand-a, #5b6ef5);
+  --padding-top: 4px;
+  --padding-bottom: 4px;
+  min-height: 46px;
+  max-height: 46px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+ion-tab-bar.rm-ion-tabbar ion-tab-button ion-icon {
+  font-size: 20px;
+  margin-bottom: 0;
+}
+
+ion-tab-bar.rm-ion-tabbar ion-tab-button ion-label {
+  font-size: 10px;
+  line-height: 1.1;
+  margin: 0;
+}
+
+/* Auth / marketing hero */
+.rm-hero {
+  position: relative;
+  min-height: 42vh;
+  padding: calc(24px + env(safe-area-inset-top, 0px)) 20px 28px;
+  background: var(--rm-hero-gradient);
+  color: #fff;
+  overflow: hidden;
+}
+
+.rm-hero::after {
+  content: '';
+  position: absolute;
+  inset: auto -30% -45% -10%;
+  height: 75%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent 68%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.rm-hero__brand {
+  font-family: var(--rm-font-display);
+  font-weight: 800;
+}
+
+.rm-panel {
+  position: relative;
+  z-index: 2;
+  padding: 0 16px 24px;
+}
+
+ion-card {
+  background: var(--rm-elevated);
+  color: var(--rm-ink);
+  border-radius: var(--rm-radius-md);
+  box-shadow: none;
+  border: 1px solid var(--rm-line);
+}
+
+/* Segment polish */
+ion-segment {
+  --background: var(--rm-surface-2);
+  border-radius: 14px;
+  padding: 3px;
+}
+
+ion-segment-button {
+  --indicator-color: var(--rm-elevated);
+  --color-checked: var(--rm-ink);
+  --border-radius: 12px;
+  --border-width: 0 !important;
+  --border-color: transparent !important;
+  --border-style: none !important;
+  --indicator-box-shadow: none !important;
+  min-height: 36px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+ion-segment-button::part(native) {
+  border: none;
+}
+
+/*
+ * Ionic iOS segment draws a vertical divider via :host::before + border-left.
+ * That pseudo lives on the host, so target it from the page (not ::part).
+ */
+ion-segment-button::before {
+  display: none !important;
+  content: none !important;
+  border: none !important;
+  border-left: 0 none transparent !important;
+  width: 0 !important;
+  opacity: 0 !important;
+  margin: 0 !important;
+}
+
+/* List rows in More */
+.rm-list {
+  background: var(--rm-elevated);
+  border-radius: var(--rm-radius-lg);
+  border: 1px solid var(--rm-line);
+  overflow: hidden;
+}
+
+.rm-list ion-item {
+  --padding-start: 14px;
+  --inner-padding-end: 14px;
+  --min-height: 52px;
+  font-weight: 500;
+}
+
+.rm-list ion-icon[slot='start'] {
+  color: var(--rm-brand-a);
+  font-size: 22px;
+  margin-inline-end: 12px;
+}
+
+/* Soft motion entrance for hub */
+@keyframes rm-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rm-rise {
+  animation: rm-rise 0.45s ease both;
+}
+
+.rm-rise-delay-1 {
+  animation-delay: 0.06s;
+}
+
+.rm-rise-delay-2 {
+  animation-delay: 0.12s;
+}
+
+/* Full-screen in-app camera with live mask overlay */
+ion-modal.mask-camera-modal {
+  --width: 100%;
+  --height: 100%;
+  --border-radius: 0;
+  --box-shadow: none;
+}
+
+/* Centered choice sheets (source / save / settings) */
+ion-modal.choice-sheet-modal,
+ion-modal.settings-sheet-modal {
+  --width: 92%;
+  --max-width: 380px;
+  --height: auto;
+  --max-height: 90%;
+  --border-radius: 22px;
+  --box-shadow: 0 16px 40px rgba(22, 24, 42, 0.22);
+  --backdrop-opacity: 0.45;
+  align-items: center;
+  justify-content: center;
+}
+
+ion-modal.choice-sheet-modal::part(content),
+ion-modal.settings-sheet-modal::part(content) {
+  border-radius: 22px;
+  max-height: 90%;
+  overflow: auto;
+}
+
+/* ---------- Angular CDK Overlay sheets ---------- */
+
+.cdk-overlay-container {
+  z-index: 10000;
+}
+
+/*
+ * Alerts / action sheets opened from CDK sheets also need to beat
+ * `.cdk-overlay-container` (10000). Toast is re-parented in ToastService.
+ */
+/*
+ * When ConfirmService / ToastService re-parent overlays onto body,
+ * keep them above `.cdk-overlay-container` (10000).
+ */
+ion-alert,
+ion-action-sheet,
+ion-popover,
+ion-loading,
+ion-toast {
+  z-index: 40000 !important;
+}
+
+.rm-cdk-backdrop {
+  background: rgba(22, 24, 42, 0.45);
+}
+
+.cdk-overlay-pane.rm-cdk-panel {
+  width: 100% !important;
+  max-width: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  pointer-events: auto;
+}
+
+.cdk-overlay-pane.rm-cdk-panel--stacked {
+  z-index: 10050 !important;
+}
+
+.cdk-overlay-pane.rm-cdk-panel--fullscreen {
+  top: 0 !important;
+  bottom: 0 !important;
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+.rm-cdk-panel > * {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.rm-cdk-panel--fullscreen > * {
+  height: 100%;
+}

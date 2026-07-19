@@ -1,0 +1,26 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="page-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/sign-in" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'forgot' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-content ion-padding">
+  <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()">
+    <ion-input
+      class="auth-input"
+      formControlName="email"
+      type="email"
+      fill="solid"
+      [label]="'email' | translate"
+      labelPlacement="stacked"
+      autocomplete="email"
+      inputmode="email"
+    ></ion-input>
+    <ion-button expand="block" type="submit" class="rm-cta ion-margin-top" [disabled]="loading">
+      {{ 'send' | translate }}
+    </ion-button>
+  </form>
+</ion-content>

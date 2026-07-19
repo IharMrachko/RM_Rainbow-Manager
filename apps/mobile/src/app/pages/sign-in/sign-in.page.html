@@ -1,0 +1,69 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="page-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'signIn' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-content">
+  <div class="auth">
+    <div class="auth-intro rm-rise">
+      <h1>{{ 'signIn' | translate }}</h1>
+      <p>{{ 'welcomeHint' | translate }}</p>
+    </div>
+
+    <form class="auth-form rm-rise rm-rise-delay-1" [formGroup]="form" (ngSubmit)="submit()">
+      <ion-input
+        class="auth-input"
+        formControlName="email"
+        type="email"
+        fill="solid"
+        [label]="'email' | translate"
+        labelPlacement="stacked"
+        autocomplete="email"
+        inputmode="email"
+      ></ion-input>
+
+      <ion-input
+        class="auth-input"
+        formControlName="password"
+        type="password"
+        fill="solid"
+        [label]="'password' | translate"
+        labelPlacement="stacked"
+        autocomplete="current-password"
+      ></ion-input>
+
+      <ion-button expand="block" type="submit" class="rm-cta ion-margin-top" [disabled]="loading() || loadingGoogle()">
+        @if (loading()) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          <span>{{ 'signIn' | translate }}</span>
+        }
+      </ion-button>
+
+      <ion-button
+        expand="block"
+        fill="outline"
+        class="ion-margin-top"
+        type="button"
+        (click)="google()"
+        [disabled]="loadingGoogle() || loading()"
+      >
+        @if (loadingGoogle()) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          <span>Google</span>
+        }
+
+      </ion-button>
+
+      <div class="links">
+        <a routerLink="/sign-up">{{ 'signUp' | translate }}</a>
+        <a routerLink="/forgot">{{ 'forgot' | translate }}</a>
+      </div>
+    </form>
+  </div>
+</ion-content>

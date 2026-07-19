@@ -1,0 +1,160 @@
+/**
+ * Rainbow Manager — mobile design tokens
+ * Brand accents from Vue; surfaces tuned for phone UX (not full-bleed gradient chrome).
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap');
+
+:root {
+  /* Typography */
+  --rm-font-display: 'Syne', system-ui, sans-serif;
+  --rm-font-body: 'Outfit', system-ui, sans-serif;
+
+  /* Surfaces — cool mist */
+  --rm-surface: #eef0f7;
+  --rm-surface-2: #e4e7f2;
+  --rm-elevated: #ffffff;
+  --rm-ink: #16182a;
+  --rm-muted: #5c6178;
+  --rm-line: rgba(22, 24, 42, 0.08);
+
+  /* Brand */
+  --rm-brand-a: #5b6ef5;
+  --rm-brand-b: #8b5cf6;
+  --rm-brand-c: #c44ec4;
+  --rm-accent-gold: #e8b923;
+  --rm-hero-gradient: linear-gradient(145deg, #c44ec4 0%, #5b6ef5 52%, #3d4fc4 100%);
+  --rm-brand-gradient: linear-gradient(135deg, #5b6ef5 0%, #8b5cf6 55%, #c44ec4 100%);
+
+  /* Layout */
+  --rm-radius-sm: 12px;
+  --rm-radius-md: 16px;
+  --rm-radius-lg: 22px;
+  --rm-space: 16px;
+  --rm-tab-h: 48px;
+  --rm-header-blur: blur(16px) saturate(1.2);
+
+  /* Legacy Vue token aliases */
+  --color-bg: var(--rm-surface);
+  --color-text: var(--rm-ink);
+  --color-sub-text: var(--rm-muted);
+  --color-wrap-bg: var(--rm-elevated);
+  --color-li: #555555;
+  --active-doing: var(--rm-accent-gold);
+  --color-bg-gradient: var(--rm-brand-gradient);
+
+  /* Ionic */
+  --ion-font-family: var(--rm-font-body);
+  --ion-color-primary: #5b6ef5;
+  --ion-color-primary-rgb: 91, 110, 245;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #5061d8;
+  --ion-color-primary-tint: #6b7df6;
+
+  --ion-color-secondary: #8b5cf6;
+  --ion-color-secondary-rgb: 139, 92, 246;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #7a51d8;
+  --ion-color-secondary-tint: #976cf7;
+
+  --ion-color-tertiary: #c44ec4;
+  --ion-color-tertiary-rgb: 196, 78, 196;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #ac45ac;
+  --ion-color-tertiary-tint: #ca60ca;
+
+  --ion-color-success: #2f9e6b;
+  --ion-color-success-rgb: 47, 158, 107;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #298b5e;
+  --ion-color-success-tint: #44a87a;
+
+  --ion-color-warning: #e8a317;
+  --ion-color-warning-rgb: 232, 163, 23;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #cc8f14;
+  --ion-color-warning-tint: #eaac2e;
+
+  --ion-color-danger: #e5484d;
+  --ion-color-danger-rgb: 229, 72, 77;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #ca3f44;
+  --ion-color-danger-tint: #e85a5f;
+
+  --ion-color-medium: #5c6178;
+  --ion-color-medium-rgb: 92, 97, 120;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #515569;
+  --ion-color-medium-tint: #6c7185;
+
+  --ion-color-light: #e4e7f2;
+  --ion-color-light-rgb: 228, 231, 242;
+  --ion-color-light-contrast: #16182a;
+  --ion-color-light-contrast-rgb: 22, 24, 42;
+  --ion-color-light-shade: #c9cbd5;
+  --ion-color-light-tint: #e7e9f3;
+
+  --ion-background-color: var(--rm-surface);
+  --ion-background-color-rgb: 238, 240, 247;
+  --ion-text-color: var(--rm-ink);
+  --ion-text-color-rgb: 22, 24, 42;
+  --ion-toolbar-background: rgba(238, 240, 247, 0.86);
+  --ion-item-background: var(--rm-elevated);
+  --ion-card-background: var(--rm-elevated);
+  --ion-border-color: var(--rm-line);
+}
+
+html.dark,
+html.ion-palette-dark {
+  --rm-surface: #12131a;
+  --rm-surface-2: #1a1b26;
+  --rm-elevated: #1e1f2b;
+  --rm-ink: #f0f1f7;
+  --rm-muted: #a6abc0;
+  --rm-line: rgba(255, 255, 255, 0.08);
+  --rm-hero-gradient: linear-gradient(145deg, #2a3148 0%, #1e2438 100%);
+  --rm-brand-gradient: linear-gradient(135deg, #475569 0%, #334155 100%);
+
+  --color-bg: var(--rm-surface);
+  --color-text: var(--rm-ink);
+  --color-sub-text: var(--rm-muted);
+  --color-wrap-bg: var(--rm-elevated);
+  --color-li: #fefefe;
+  --color-bg-gradient: var(--rm-brand-gradient);
+
+  --ion-background-color: var(--rm-surface);
+  --ion-background-color-rgb: 18, 19, 26;
+  --ion-text-color: var(--rm-ink);
+  --ion-text-color-rgb: 240, 241, 247;
+  --ion-toolbar-background: rgba(18, 19, 26, 0.9);
+  --ion-item-background: var(--rm-elevated);
+  --ion-card-background: var(--rm-elevated);
+  --ion-border-color: var(--rm-line);
+
+  --ion-color-step-50: #1a1b26;
+  --ion-color-step-100: #222330;
+  --ion-color-step-150: #2a2b3a;
+  --ion-color-step-200: #333445;
+  --ion-color-step-250: #3b3c4f;
+  --ion-color-step-300: #44455a;
+  --ion-color-step-350: #4d4e64;
+  --ion-color-step-400: #55566e;
+  --ion-color-step-450: #5e5f79;
+  --ion-color-step-500: #666683;
+  --ion-color-step-550: #777792;
+  --ion-color-step-600: #8888a1;
+  --ion-color-step-650: #9999b0;
+  --ion-color-step-700: #aaaabf;
+  --ion-color-step-750: #bbbbce;
+  --ion-color-step-800: #ccccdd;
+  --ion-color-step-850: #ddddec;
+  --ion-color-step-900: #eeeeef;
+  --ion-color-step-950: #f5f5f7;
+}

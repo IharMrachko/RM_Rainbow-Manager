@@ -1,0 +1,108 @@
+<div class="char-page">
+  <div class="char-topbar">
+    <ion-button fill="clear" color="dark" class="char-menu-btn" (click)="openMenu()">
+      <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+    </ion-button>
+    <h1 class="char-topbar__title">{{ 'characteristicColors' | translate }}</h1>
+    <div class="char-topbar__actions">
+      @if (hasPhoto) {
+        <ion-button
+          fill="solid"
+          color="primary"
+          class="char-save-btn"
+          [disabled]="!canSave || isLoading()"
+          (click)="openSaveTarget()"
+        >
+          @if (isLoading()) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            <ion-icon slot="icon-only" name="save-outline"></ion-icon>
+          }
+        </ion-button>
+      }
+      <ion-button fill="solid" color="primary" class="char-cam-btn" (click)="openSourcePicker()">
+        <ion-icon slot="icon-only" name="camera-outline"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+
+  <ion-segment mode="md" scrollable="false" class="char-seg" [value]="tab" (ionChange)="onTabChange($event)">
+    <ion-segment-button value="mask">
+      <ion-label>{{ 'mask' | translate }}</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="collage">
+      <ion-label>{{ 'collage' | translate }}</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <div class="char-scroll">
+    @if (tab === 'mask') {
+      @if (imageUrl) {
+        <div class="photo-zone has-image">
+          <app-editor-canvas
+            #maskEditor
+            [segments]="segments"
+            [imageUrl]="imageUrl"
+            [frameThicknessPercent]="frameThickness"
+            [showControls]="true"
+            [allowGestures]="true"
+            [viewState]="editorView"
+            (viewStateChange)="onEditorViewChange($event)"
+          ></app-editor-canvas>
+        </div>
+
+        <swiper-container
+          class="chips-swiper"
+          slides-per-view="auto"
+          space-between="8"
+          free-mode="true"
+        >
+          @for (card of cards; track card.id) {
+            <swiper-slide>
+              <ion-chip
+                [outline]="selectedId !== card.id"
+                [color]="selectedId === card.id ? 'primary' : 'medium'"
+                (click)="select(card.id)"
+              >
+                {{ card.type | translate }}
+              </ion-chip>
+            </swiper-slide>
+          }
+        </swiper-container>
+      } @else {
+        <button type="button" class="photo-zone" (click)="openSourcePicker()">
+          <div class="photo-zone__empty">
+            <ion-icon name="camera-outline"></ion-icon>
+            <p>{{ 'tapCameraOrArea' | translate }}</p>
+          </div>
+        </button>
+      }
+    }
+
+    @if (tab === 'collage') {
+      @if (activeImage; as img) {
+        <div class="collage-grid">
+          @for (card of cards; track card.id) {
+            <div class="collage-item">
+              <app-editor-canvas
+                [segments]="card.segments"
+                [imageUrl]="img"
+                [frameThicknessPercent]="frameThickness"
+                [showControls]="false"
+                [allowGestures]="false"
+                [viewState]="editorView"
+              ></app-editor-canvas>
+            </div>
+          }
+        </div>
+      } @else {
+        <button type="button" class="photo-zone" (click)="openSourcePicker()">
+          <div class="photo-zone__empty">
+            <ion-icon name="camera-outline"></ion-icon>
+            <p>{{ 'tapCameraOrArea' | translate }}</p>
+          </div>
+        </button>
+      }
+    }
+  </div>
+</div>

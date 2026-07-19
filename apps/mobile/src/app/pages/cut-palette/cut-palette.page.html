@@ -1,0 +1,118 @@
+<div class="char-page" [class.is-step2]="step === 2">
+  <div class="char-topbar">
+    @if (step === 2) {
+      <ion-button fill="clear" color="dark" class="char-menu-btn" (click)="back()">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    } @else {
+      <ion-button fill="clear" color="dark" class="char-menu-btn" (click)="openMenu()">
+        <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+      </ion-button>
+    }
+    <h1 class="char-topbar__title">{{ 'cutPalette' | translate }}</h1>
+    <div class="char-topbar__actions">
+      @if (step === 2) {
+        <ion-button
+          fill="solid"
+          color="primary"
+          class="char-gear-btn"
+          [class.is-active]="settingsOpen"
+          (click)="toggleSettings()"
+          [attr.aria-label]="'settings' | translate"
+        >
+          <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
+        </ion-button>
+        <ion-button
+          fill="solid"
+          color="primary"
+          class="char-save-btn"
+          [disabled]="!canSave || loading"
+          (click)="openSaveTarget()"
+        >
+          @if (loading) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            <ion-icon slot="icon-only" name="save-outline"></ion-icon>
+          }
+        </ion-button>
+      }
+    </div>
+  </div>
+
+  <div class="char-scroll" [class.char-scroll--edit]="step === 2">
+    @if (step === 1) {
+      <p class="hint">{{ 'selectPalette' | translate }}</p>
+
+      <app-sheet-select
+        [label]="'palette' | translate"
+        [placeholder]="'selectPalette' | translate"
+        [value]="selected"
+        [emptyValue]="selected"
+        [options]="paletteOptions"
+        (valueChange)="onPaletteChange($event)"
+      ></app-sheet-select>
+
+      <div class="grid">
+        @for (c of colors; track $index) {
+          <button
+            type="button"
+            class="cell"
+            [class.on]="selectedColors.includes(c)"
+            [style.background]="c"
+            (click)="toggleColor(c)"
+          ></button>
+        }
+      </div>
+
+      <div class="panel">
+        <div class="panel__row">
+          <span class="panel__title">
+            {{ 'selectedColors' | translate }} ({{ selectedColors.length }})
+          </span>
+        </div>
+
+        @if (selectedColors.length === 0) {
+          <p class="tip">{{ 'selectTopColors' | translate }}</p>
+        } @else {
+          <div class="selected-row">
+            @for (c of selectedColors; track $index) {
+              <span [style.background]="c"></span>
+            }
+          </div>
+        }
+
+        <div class="actions-row">
+          <ion-button expand="block" fill="outline" (click)="clear()" [disabled]="!selectedColors.length">
+            {{ 'clear' | translate }}
+          </ion-button>
+          <ion-button
+            expand="block"
+            color="primary"
+            (click)="goEdit()"
+            [disabled]="!selectedColors.length"
+          >
+            {{ 'next' | translate }}
+          </ion-button>
+        </div>
+      </div>
+    }
+
+    @if (step === 2) {
+      <div class="preview-zone">
+        <app-cut-grid-canvas
+          [colors]="selectedColors"
+          [shape]="editor.shape"
+          [columns]="editor.columns"
+          [rows]="editor.rows"
+          [elementSize]="editor.elementSize"
+          [spacing]="editor.spacing"
+          [enableShadow]="true"
+          [shadowBlur]="editor.shadowBlur"
+          [shadowOffsetY]="editor.shadowOffsetY"
+          [shadowOpacity]="editor.shadowOpacity"
+          [rotation]="editor.rotation"
+        ></app-cut-grid-canvas>
+      </div>
+    }
+  </div>
+</div>

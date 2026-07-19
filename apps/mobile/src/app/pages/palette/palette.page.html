@@ -1,0 +1,122 @@
+<div class="char-page">
+  <div class="char-topbar">
+    @if (showResults) {
+      <ion-button fill="clear" color="dark" class="char-menu-btn" (click)="closeResults()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+      <h1 class="char-topbar__title">{{ 'top3' | translate }}</h1>
+      <div class="char-topbar__actions"></div>
+    } @else {
+      <ion-button fill="clear" color="dark" class="char-menu-btn" (click)="openMenu()">
+        <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+      </ion-button>
+      <h1 class="char-topbar__title">{{ 'analysisByPhoto' | translate }}</h1>
+      <div class="char-topbar__actions">
+        <ion-button fill="solid" color="primary" class="char-cam-btn" (click)="openSourcePicker()">
+          <ion-icon slot="icon-only" name="camera-outline"></ion-icon>
+        </ion-button>
+      </div>
+    }
+  </div>
+
+  <div class="char-scroll">
+    @if (showResults) {
+      @for (item of visibleResults; track item.name; let i = $index) {
+        <section class="result-card">
+          <div class="result-card__title">
+            <span class="result-card__rank">{{ i + 1 }}.</span>
+            <span>{{ item.name | translate }}</span>
+          </div>
+
+          <app-editor-canvas
+            [segments]="item.segments"
+            [imageUrl]="imageUrl"
+            [frameThicknessPercent]="16"
+            [showControls]="false"
+            [allowGestures]="false"
+          ></app-editor-canvas>
+
+          <div class="result-card__swatches">
+            @for (seg of item.segments; track $index) {
+              <span [style.background]="seg.color"></span>
+            }
+          </div>
+
+          <div class="result-card__actions">
+            <ion-button
+              size="small"
+              fill="outline"
+              [disabled]="busyIndex === i"
+              (click)="saveToDevice(i)"
+            >
+              @if (busyIndex === i && busyKind === 'device') {
+                <ion-spinner name="crescent"></ion-spinner>
+              } @else {
+                {{ 'saveToDevice' | translate }}
+              }
+            </ion-button>
+            <ion-button
+              size="small"
+              fill="solid"
+              color="primary"
+              [disabled]="busyIndex === i"
+              (click)="saveToGallery(i)"
+            >
+              @if (busyIndex === i && busyKind === 'gallery') {
+                <ion-spinner name="crescent"></ion-spinner>
+              } @else {
+                {{ 'saveToAppGallery' | translate }}
+              }
+            </ion-button>
+          </div>
+        </section>
+      }
+
+      @if (visibleCount < results.length) {
+        <ion-button expand="block" fill="outline" class="see-more-btn" (click)="seeMore()">
+          {{ 'seeMore' | translate }}
+        </ion-button>
+      }
+    } @else if (image) {
+      <p class="hint">{{ 'reminderPickColor' | translate }}</p>
+
+      <div class="slots">
+        @for (slot of slots; track slot.id; let i = $index) {
+          <button
+            type="button"
+            class="slot"
+            [class.active]="activeSlot === i"
+            [class.filled]="isSlotFilled(slot.color)"
+            [style.background]="slot.color"
+            (click)="selectSlot(i)"
+          ></button>
+        }
+      </div>
+
+      <div class="picker-zone">
+        <app-image-color-picker
+          [image]="image"
+          [showReplace]="false"
+          (selectedHex)="onHex($event)"
+        ></app-image-color-picker>
+      </div>
+
+      <ion-button
+        expand="block"
+        color="primary"
+        class="define-btn"
+        [disabled]="!canDefine"
+        (click)="define()"
+      >
+        {{ 'define' | translate }}
+      </ion-button>
+    } @else {
+      <button type="button" class="photo-zone" (click)="openSourcePicker()">
+        <div class="photo-zone__empty">
+          <ion-icon name="camera-outline"></ion-icon>
+          <p>{{ 'tapCameraOrArea' | translate }}</p>
+        </div>
+      </button>
+    }
+  </div>
+</div>

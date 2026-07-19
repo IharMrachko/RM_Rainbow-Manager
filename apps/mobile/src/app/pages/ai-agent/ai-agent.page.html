@@ -1,0 +1,76 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="page-toolbar">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="openAppMenu()">
+        <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'aiAgent' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-content chat-content">
+  <div class="chat" [class.chat--empty]="!answers.length">
+    @if (!answers.length) {
+      <div class="empty">
+        <div class="empty__icon">
+          <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+        </div>
+        <p class="empty__hint">{{ 'askAiHint' | translate }}</p>
+      </div>
+    }
+
+    @for (item of answers; track item.id) {
+      <div class="msg">
+        <div class="ask-wrap">
+          @if (item.url) {
+            <img [src]="item.url" alt="" />
+          }
+          <div class="ask">{{ item.ask }}</div>
+        </div>
+        @if (item.answerHtml) {
+          <div class="answer" [innerHTML]="item.answerHtml"></div>
+        } @else {
+          <div class="answer answer--loading">
+            <ion-spinner name="dots"></ion-spinner>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</ion-content>
+
+<ion-footer class="composer-footer">
+  <div class="composer">
+    @if (imagePreview) {
+      <div class="attach">
+        <img [src]="imagePreview" alt="" />
+        <button type="button" class="attach__clear" (click)="clearImage()">
+          <ion-icon name="close"></ion-icon>
+        </button>
+      </div>
+    }
+    <div class="composer__row">
+      <button type="button" class="composer__icon-btn" (click)="imgInput.click()" aria-label="attach">
+        <ion-icon name="image-outline"></ion-icon>
+      </button>
+      <input #imgInput type="file" accept="image/*" hidden (change)="onImage($event)" />
+      <ion-textarea
+        class="composer__input"
+        [placeholder]="'askAiShort' | translate"
+        [(ngModel)]="prompt"
+        autoGrow="true"
+        rows="1"
+      ></ion-textarea>
+      <button
+        type="button"
+        class="composer__send"
+        (click)="send()"
+        [disabled]="loading || (!prompt.trim() && !imageBase64)"
+        aria-label="send"
+      >
+        <ion-icon name="send"></ion-icon>
+      </button>
+    </div>
+  </div>
+</ion-footer>

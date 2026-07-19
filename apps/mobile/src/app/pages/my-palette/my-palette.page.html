@@ -1,0 +1,109 @@
+<div class="char-page">
+  <div class="char-topbar">
+    <ion-button fill="clear" color="dark" class="char-menu-btn" (click)="openMenu()">
+      <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+    </ion-button>
+    <h1 class="char-topbar__title">{{ 'myPalette' | translate }}</h1>
+    <div class="char-topbar__actions">
+      @if (hasPhoto) {
+        <ion-button
+          fill="solid"
+          color="primary"
+          class="char-save-btn"
+          [disabled]="!canSave || loading"
+          (click)="openSaveTarget()"
+        >
+          @if (loading) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            <ion-icon slot="icon-only" name="save-outline"></ion-icon>
+          }
+        </ion-button>
+      }
+      <ion-button fill="solid" color="primary" class="char-cam-btn" (click)="openSourcePicker()">
+        <ion-icon slot="icon-only" name="camera-outline"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+
+  <div class="char-scroll">
+    @if (imageUrl) {
+      <div class="photo-zone has-image">
+        <app-editor-canvas
+          #maskEditor
+          [segments]="segments"
+          [imageUrl]="imageUrl"
+          [frameThicknessPercent]="frameThickness"
+          [showControls]="true"
+          [allowGestures]="true"
+          [isMarkSegment]="true"
+          [viewState]="editorView"
+          (viewStateChange)="onEditorViewChange($event)"
+          (selectedSegment)="onSegmentSelected($event)"
+        ></app-editor-canvas>
+      </div>
+
+      <div class="panel">
+        <div class="panel__row">
+          <span class="panel__title">{{ 'numberOfSegments' | translate }}: {{ segmentCount }}</span>
+        </div>
+        <ion-range
+          [min]="1"
+          [max]="12"
+          [snaps]="true"
+          [ticks]="true"
+          [value]="segmentCount"
+          (ionChange)="onCountChange($any($event.detail.value))"
+        ></ion-range>
+
+        <p class="tip">{{ 'tapSegmentHint' | translate }}</p>
+        <div class="swatches">
+          @for (c of colors; track $index) {
+            <button
+              type="button"
+              class="swatch"
+              [class.active]="activeIndex === $index"
+              [style.background]="c"
+              (click)="onSwatchTap($index)"
+            ></button>
+          }
+        </div>
+
+        <div class="panel__row panel__row--thickness">
+          <span class="panel__title">{{ 'frameThickness' | translate }}: {{ frameThickness }}%</span>
+        </div>
+        <ion-range [min]="8" [max]="28" [(ngModel)]="frameThickness"></ion-range>
+      </div>
+
+      <div class="actions-row">
+        <ion-button size="small" fill="outline" (click)="addTemplate()">
+          {{ 'addTemplate' | translate }}
+        </ion-button>
+        <ion-button size="small" fill="outline" (click)="openTemplates()">
+          {{ 'myTemplates' | translate }}
+        </ion-button>
+        @if (selectedTemplate && isTemplateDirty) {
+          <ion-button size="small" fill="solid" color="primary" (click)="updateTemplate()">
+            {{ 'updateTemplate' | translate }}
+          </ion-button>
+        }
+        @if (selectedTemplate) {
+          <ion-button size="small" fill="clear" color="medium" (click)="resetTemplate()">
+            {{ 'resetTemplate' | translate }}
+          </ion-button>
+        }
+      </div>
+
+      @if (selectedTemplate) {
+        <div class="template-badge">{{ selectedTemplate.name }}</div>
+      }
+    } @else {
+      <button type="button" class="photo-zone" (click)="openSourcePicker()">
+        <div class="photo-zone__empty">
+          <ion-icon name="camera-outline"></ion-icon>
+          <p>{{ 'tapCameraOrArea' | translate }}</p>
+        </div>
+      </button>
+    }
+  </div>
+</div>

@@ -1,0 +1,19 @@
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 16px;
+  border-radius: var(--rm-radius-lg, 22px);
+  background: var(--rm-elevated, #fff);
+  border: 1px solid var(--rm-line, rgba(22, 24, 42, 0.08));
+  box-shadow: 0 1px 0 var(--rm-line), 0 10px 28px rgba(22, 24, 42, 0.06);
+}
+
+.auth-input {
+  --background: var(--rm-surface-2, #e4e7f2);
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --border-radius: 14px;
+  --highlight-color-focused: var(--ion-color-primary, #5b6ef5);
+  pointer-events: auto;
+}

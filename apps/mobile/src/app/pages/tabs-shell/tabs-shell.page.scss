@@ -1,0 +1,139 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+#tabs-main {
+  height: 100%;
+  --rm-tabbar-space: 56px;
+}
+
+#tabs-main.tabs-main--no-bar {
+  --rm-tabbar-space: 0px;
+}
+
+/* Force compact tab bar (shadow host) */
+:host ::ng-deep ion-tab-bar.rm-ion-tabbar {
+  --min-height: 46px;
+  min-height: 46px !important;
+}
+
+:host ::ng-deep ion-tab-bar.rm-ion-tabbar ion-tab-button {
+  min-height: 46px;
+  max-height: 46px;
+}
+
+.app-menu__toolbar {
+  --background: var(--rm-elevated, #fff);
+  --color: var(--rm-ink, #16182a);
+  --border-width: 0;
+}
+
+.app-menu__brand {
+  margin-right: 8px;
+}
+
+.app-menu__content {
+  --background: var(--rm-elevated, #fff);
+  --padding-start: 10px;
+  --padding-end: 10px;
+  --padding-top: 8px;
+  --padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+.app-menu__list {
+  background: transparent;
+  padding: 0;
+}
+
+.app-menu__list ion-item {
+  --background: transparent;
+  --background-hover: rgba(59, 130, 246, 0.08);
+  --background-activated: rgba(59, 130, 246, 0.12);
+  --color: var(--rm-ink, #16182a);
+  --padding-start: 12px;
+  --inner-padding-end: 12px;
+  --min-height: 46px;
+  --border-radius: 12px;
+  margin-bottom: 2px;
+  font-weight: 600;
+}
+
+.app-menu__list ion-item.is-active {
+  --background: rgba(59, 130, 246, 0.12);
+  --color: #2563eb;
+}
+
+.app-menu__list ion-icon {
+  color: var(--rm-muted, #5c6178);
+  font-size: 1.25rem;
+}
+
+.app-menu__list ion-item.is-active ion-icon {
+  color: #2563eb;
+}
+
+.app-menu__logout {
+  --color: #ef4444;
+}
+
+.app-menu__logout ion-icon {
+  color: #ef4444;
+}
+
+.app-menu__divider {
+  height: 1px;
+  margin: 12px 8px;
+  background: var(--rm-line, rgba(22, 24, 42, 0.1));
+}
+
+.app-menu__settings {
+  padding: 4px 8px 8px;
+}
+
+.app-menu__label {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--rm-muted, #5c6178);
+}
+
+.app-menu__settings .app-menu__label + .choice-row + .app-menu__label {
+  margin-top: 10px;
+}
+
+.choice-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.choice-btn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 8px;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  background: var(--rm-surface-2, #f3f4f6);
+  color: var(--rm-ink, #16182a);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.choice-btn__icon {
+  font-size: 0.95rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.choice-btn.is-active {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.14);
+  color: #2563eb;
+}

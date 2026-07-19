@@ -1,0 +1,20 @@
+.more {
+  padding: 8px 16px 16px;
+  display: grid;
+  gap: 18px;
+}
+
+.more-settings {
+  margin-top: 4px;
+}
+
+.lang {
+  min-width: 110px;
+  max-width: 130px;
+}
+
+.logout {
+  --border-radius: 14px;
+  margin-top: 4px;
+  font-weight: 600;
+}

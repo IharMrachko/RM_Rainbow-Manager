@@ -1,0 +1,36 @@
+<ion-content [fullscreen]="true" class="page-content landing">
+  <div class="rm-hero">
+    <img
+      class="rm-hero__visual"
+      src="assets/rainbow.png"
+      alt=""
+      aria-hidden="true"
+    />
+    <div class="rm-hero__copy">
+      <h1 class="rm-hero__brand"><span>Rainbow</span> <span>Manager</span></h1>
+      <p class="rm-hero__lead">{{ 'welcomeHint' | translate }}</p>
+    </div>
+  </div>
+
+  <div class="rm-panel">
+    <div class="landing-sheet rm-rise">
+      <h2>{{ 'welcome' | translate }}</h2>
+
+      <ion-button
+        expand="block"
+        class="rm-cta"
+        color="primary"
+        (click)="goMain()"
+      >
+        {{ auth.isAuthenticated ? ('tools' | translate) : ('signIn' | translate) }}
+      </ion-button>
+
+      <div class="landing-links">
+        <a routerLink="/contacts">{{ 'contacts' | translate }}</a>
+        @if (!auth.isAuthenticated) {
+          <a routerLink="/sign-up">{{ 'signUp' | translate }}</a>
+        }
+      </div>
+    </div>
+  </div>
+</ion-content>
