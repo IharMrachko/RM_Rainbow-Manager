@@ -8,6 +8,8 @@ export const FIREBASE_PATHS = {
   folderItems: 'bCxB7W5QIQZQAOSBcbfa',
   paletteTemplatesRoot: 'palette-templates',
   paletteTemplatesItems: 'kFDy9AD2SVL64PG7hOl1',
+  lookbookRoot: 'lookbooks',
+  lookbookItems: 'RmLookbookItems01',
   statisticsRoot: 'statistics',
 } as const;
 

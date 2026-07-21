@@ -11,29 +11,56 @@ import {
   IonTabBar,
   IonTabButton,
   IonTabs,
-  IonTitle,
   IonToolbar,
   MenuController,
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
+import {
+  faBookOpen,
+  faCamera,
+  faEyeDropper,
+  faFillDrip,
+  faImages,
+  faMicrochip,
+  faPaintbrush,
+  faRainbow,
+  faScissors,
+  faUserTie,
+} from '@fortawesome/free-solid-svg-icons';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { AppMenuService } from '../../core/services/app-menu.service';
 import { AppLanguage, LanguageService } from '../../core/services/language.service';
 import { ThemeService } from '../../core/services/theme.service';
+import {
+  SheetSelectComponent,
+  SheetSelectOption,
+} from '../../shared/components/sheet-select.component';
 
 interface NavItem {
   titleKey: string;
   url: string;
-  icon: string;
+  iconPath: string;
+  iconViewBox: string;
 }
 
 interface TabItem {
   tab: string;
   titleKey: string;
   url: string;
-  icon: string;
+  iconPath: string;
+  iconViewBox: string;
+}
+
+function menuIcon(definition: {
+  icon: [number, number, unknown, unknown, string | string[]];
+}): Pick<NavItem, 'iconPath' | 'iconViewBox'> {
+  const [width, height, , , path] = definition.icon;
+  return {
+    iconPath: Array.isArray(path) ? path.join(' ') : path,
+    iconViewBox: `0 0 ${width} ${height}`,
+  };
 }
 
 @Component({
@@ -43,7 +70,6 @@ interface TabItem {
     IonMenu,
     IonHeader,
     IonToolbar,
-    IonTitle,
     IonContent,
     IonList,
     IonItem,
@@ -52,6 +78,7 @@ interface TabItem {
     IonTabs,
     IonTabBar,
     IonTabButton,
+    SheetSelectComponent,
   ],
   selector: 'app-tabs-shell',
   templateUrl: './tabs-shell.page.html',
@@ -59,43 +86,49 @@ interface TabItem {
 })
 export class TabsShellPage implements OnInit, OnDestroy {
   activeUrl = '';
+  readonly languageOptions: SheetSelectOption[] = [
+    { value: 'ru', label: 'RU · Русский' },
+    { value: 'en', label: 'EN · English' },
+  ];
 
   readonly tabs: TabItem[] = [
     {
       tab: 'characteristics',
       titleKey: 'tabCharacteristics',
       url: '/tabs/characteristics',
-      icon: 'color-palette',
+      ...menuIcon(faRainbow),
     },
     {
       tab: 'palette-determinant',
       titleKey: 'tabPicker',
       url: '/tabs/palette-determinant',
-      icon: 'scan-outline',
+      ...menuIcon(faPaintbrush),
     },
     {
       tab: 'palette',
       titleKey: 'tabAnalysis',
       url: '/tabs/palette',
-      icon: 'camera-outline',
+      ...menuIcon(faCamera),
     },
     {
       tab: 'gallery',
       titleKey: 'gallery',
       url: '/tabs/gallery',
-      icon: 'images',
+      ...menuIcon(faImages),
     },
   ];
 
   readonly menuTools: NavItem[] = [
-    { titleKey: 'characteristicColors', url: '/tabs/characteristics', icon: 'color-palette' },
-    { titleKey: 'myPalette', url: '/tabs/my-palette', icon: 'color-palette' },
-    { titleKey: 'paletteDeterminant', url: '/tabs/palette-determinant', icon: 'scan-outline' },
-    { titleKey: 'analysisByPhoto', url: '/tabs/palette', icon: 'camera-outline' },
-    { titleKey: 'cutPalette', url: '/tabs/cut', icon: 'cut' },
-    { titleKey: 'pickColor', url: '/tabs/chroma', icon: 'eyedrop' },
-    { titleKey: 'aiAgent', url: '/tabs/ai-agent', icon: 'chatbubble-ellipses-outline' },
-    { titleKey: 'consultation', url: '/tabs/consultation', icon: 'help-circle-outline' },
+    { titleKey: 'characteristicColors', url: '/tabs/characteristics', ...menuIcon(faRainbow) },
+    { titleKey: 'paletteDeterminant', url: '/tabs/palette-determinant', ...menuIcon(faPaintbrush) },
+    { titleKey: 'cutPalette', url: '/tabs/cut', ...menuIcon(faScissors) },
+    { titleKey: 'myPalette', url: '/tabs/my-palette', ...menuIcon(faFillDrip) },
+    { titleKey: 'analysisByPhoto', url: '/tabs/palette', ...menuIcon(faCamera) },
+    { titleKey: 'pickColor', url: '/tabs/chroma', ...menuIcon(faEyeDropper) },
+    { titleKey: 'aiAgent', url: '/tabs/ai-agent', ...menuIcon(faMicrochip) },
+    { titleKey: 'gallery', url: '/tabs/gallery', ...menuIcon(faImages) },
+    { titleKey: 'lookbook', url: '/tabs/lookbook', ...menuIcon(faBookOpen) },
+    { titleKey: 'consultation', url: '/tabs/consultation', ...menuIcon(faUserTie) },
   ];
 
   private subs = new Subscription();

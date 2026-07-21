@@ -1,0 +1,4 @@
+node_modules/
+lib/
+.puppeteer_cache/
+*.local

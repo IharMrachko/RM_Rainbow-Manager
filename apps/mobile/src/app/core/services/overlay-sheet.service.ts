@@ -27,6 +27,7 @@ export interface OverlaySheetOpenOptions extends Partial<OverlayConfig> {
 export class OverlaySheetRef<T> {
   private readonly closed$ = new Subject<T | undefined>();
   private settled = false;
+  private onDisposed: (() => void) | null = null;
 
   constructor(
     private readonly overlayRef: OverlayRef,
@@ -44,6 +45,11 @@ export class OverlaySheetRef<T> {
     }
   }
 
+  /** Wire stack cleanup before attach. */
+  setDisposeHandler(handler: () => void): void {
+    this.onDisposed = handler;
+  }
+
   close(result?: T): void {
     if (this.settled) {
       return;
@@ -51,6 +57,13 @@ export class OverlaySheetRef<T> {
     this.settled = true;
     this.closed$.next(result);
     this.closed$.complete();
+    // Drop from service stack immediately (don't wait for detachments).
+    try {
+      this.onDisposed?.();
+    } catch {
+      /* ignore */
+    }
+    this.onDisposed = null;
     this.overlayRef.dispose();
   }
 
@@ -117,6 +130,13 @@ export class OverlaySheetService {
       closeOnEscape,
     });
     this.stack.push(sheetRef as OverlaySheetRef<unknown>);
+    sheetRef.setDisposeHandler(() => {
+      const idx = this.stack.indexOf(sheetRef as OverlaySheetRef<unknown>);
+      if (idx >= 0) {
+        this.stack.splice(idx, 1);
+      }
+      this.syncMenuSwipe();
+    });
     this.syncMenuSwipe();
 
     const injector = Injector.create({
@@ -128,13 +148,6 @@ export class OverlaySheetService {
     });
 
     overlayRef.attach(new ComponentPortal(component, null, injector));
-    overlayRef.detachments().subscribe(() => {
-      const idx = this.stack.indexOf(sheetRef as OverlaySheetRef<unknown>);
-      if (idx >= 0) {
-        this.stack.splice(idx, 1);
-      }
-      this.syncMenuSwipe();
-    });
 
     return firstValueFrom(sheetRef.afterClosed());
   }

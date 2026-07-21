@@ -1,4 +1,5 @@
 import { Component, Inject, ViewEncapsulation } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   OVERLAY_SHEET_DATA,
@@ -9,7 +10,10 @@ import {
 export interface ChoiceSheetOption<T = string> {
   value: T;
   labelKey: string;
+  /** Emoji or plain text glyph */
   icon?: string;
+  /** Ionic icon name, e.g. book-outline */
+  ionIcon?: string;
 }
 
 export interface ChoiceSheetData<T = string> {
@@ -20,7 +24,7 @@ export interface ChoiceSheetData<T = string> {
 
 @Component({
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslateModule, IonicModule],
   selector: 'app-choice-sheet',
   encapsulation: ViewEncapsulation.None,
   template: `
@@ -28,8 +32,14 @@ export interface ChoiceSheetData<T = string> {
       <h2>{{ data.titleKey | translate }}</h2>
       @for (opt of data.options; track opt.value) {
         <button type="button" class="rm-choice-sheet__opt" (click)="choose(opt.value)">
-          @if (opt.icon) {
-            <span class="rm-choice-sheet__icon">{{ opt.icon }}</span>
+          @if (opt.ionIcon || opt.icon) {
+            <span class="rm-choice-sheet__icon">
+              @if (opt.ionIcon) {
+                <ion-icon [name]="opt.ionIcon"></ion-icon>
+              } @else {
+                {{ opt.icon }}
+              }
+            </span>
           }
           <span>{{ opt.labelKey | translate }}</span>
         </button>
@@ -90,8 +100,13 @@ export interface ChoiceSheetData<T = string> {
         border-radius: 12px;
         display: grid;
         place-items: center;
-        background: rgba(59, 130, 246, 0.12);
+        background: rgba(181, 118, 199, 0.16);
+        color: #8a4fa0;
         font-size: 1.25rem;
+      }
+
+      .rm-choice-sheet__icon ion-icon {
+        font-size: 1.3rem;
       }
 
       .rm-choice-sheet__cancel {

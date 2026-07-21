@@ -36,7 +36,12 @@
         autocomplete="current-password"
       ></ion-input>
 
-      <ion-button expand="block" type="submit" class="rm-cta ion-margin-top" [disabled]="loading() || loadingGoogle()">
+      <ion-button
+        expand="block"
+        type="submit"
+        class="rm-cta-login"
+        [disabled]="loading() || loadingGoogle()"
+      >
         @if (loading()) {
           <ion-spinner name="crescent"></ion-spinner>
         } @else {
@@ -46,8 +51,8 @@
 
       <ion-button
         expand="block"
-        fill="outline"
-        class="ion-margin-top"
+        fill="solid"
+        class="rm-btn-google"
         type="button"
         (click)="google()"
         [disabled]="loadingGoogle() || loading()"
@@ -55,9 +60,9 @@
         @if (loadingGoogle()) {
           <ion-spinner name="crescent"></ion-spinner>
         } @else {
-          <span>Google</span>
+          <ion-icon name="logo-google" aria-hidden="true"></ion-icon>
+          <span>{{ 'loginWithGoogle' | translate }}</span>
         }
-
       </ion-button>
 
       <div class="links">

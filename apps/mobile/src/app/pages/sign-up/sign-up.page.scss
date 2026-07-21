@@ -25,6 +25,11 @@
   box-shadow: 0 1px 0 var(--rm-line), 0 10px 28px rgba(22, 24, 42, 0.06);
 }
 
+.auth-form ion-button.rm-cta-login,
+.auth-form ion-button.rm-btn-google {
+  margin: 0;
+}
+
 .auth-input {
   --background: var(--rm-surface-2, #e4e7f2);
   --padding-start: 12px;

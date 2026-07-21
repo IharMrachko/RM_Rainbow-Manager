@@ -1,0 +1,85 @@
+.lb-center {
+  min-height: 50vh;
+  display: grid;
+  place-items: center;
+}
+
+.lb-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px 24px;
+}
+
+.lb-header-add {
+  --background: rgba(255, 255, 255, 0.16);
+  --border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  margin-inline: 2px;
+}
+
+.lb-search-toolbar {
+  --background: var(--ion-background-color, #f3f5fb);
+  --min-height: 58px;
+  padding: 5px 10px 4px;
+}
+
+.lb-search-box {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  border: 1px solid rgba(138, 79, 160, 0.16);
+  border-radius: 14px;
+  background: var(--rm-elevated, #fff);
+  box-shadow: 0 4px 14px rgba(22, 24, 42, 0.06);
+}
+
+.lb-search-box > ion-icon {
+  flex: 0 0 auto;
+  font-size: 20px;
+  color: #8a4fa0;
+}
+
+.lb-search-box ion-input {
+  min-height: 44px;
+  --padding-start: 0;
+  --padding-end: 0;
+  --placeholder-color: #72778b;
+  --placeholder-opacity: 0.85;
+  color: var(--ion-text-color, #16182a);
+}
+
+.lb-no-results {
+  min-height: 42vh;
+}
+
+.lb-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 10px 14px 16px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--rm-elevated, #fff);
+  color: inherit;
+  text-align: left;
+  box-shadow: 0 4px 16px rgba(22, 24, 42, 0.06);
+}
+
+.lb-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.lb-card__title {
+  font-weight: 700;
+  font-size: 1.02rem;
+}
+
+.lb-card__delete {
+  margin: 0;
+}

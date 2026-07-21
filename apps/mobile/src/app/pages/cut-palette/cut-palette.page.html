@@ -1,11 +1,11 @@
 <div class="char-page" [class.is-step2]="step === 2">
   <div class="char-topbar">
     @if (step === 2) {
-      <ion-button fill="clear" color="dark" class="char-menu-btn" (click)="back()">
+      <ion-button fill="clear" class="char-menu-btn" (click)="back()">
         <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
       </ion-button>
     } @else {
-      <ion-button fill="clear" color="dark" class="char-menu-btn" (click)="openMenu()">
+      <ion-button fill="clear" class="char-menu-btn" (click)="openMenu()">
         <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
       </ion-button>
     }
@@ -13,8 +13,7 @@
     <div class="char-topbar__actions">
       @if (step === 2) {
         <ion-button
-          fill="solid"
-          color="primary"
+          fill="clear"
           class="char-gear-btn"
           [class.is-active]="settingsOpen"
           (click)="toggleSettings()"
@@ -23,8 +22,7 @@
           <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
         </ion-button>
         <ion-button
-          fill="solid"
-          color="primary"
+          fill="clear"
           class="char-save-btn"
           [disabled]="!canSave || loading"
           (click)="openSaveTarget()"

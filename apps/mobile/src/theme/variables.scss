@@ -32,7 +32,19 @@
   --rm-radius-lg: 22px;
   --rm-space: 16px;
   --rm-tab-h: 48px;
-  --rm-header-blur: blur(16px) saturate(1.2);
+  /* One header system for every page and custom tool topbar. */
+  --rm-header-height: 52px;
+  --rm-header-action-size: 40px;
+  --rm-header-action-radius: 10px;
+  --rm-header-action-bg: rgba(255, 255, 255, 0.14);
+  --rm-header-action-bg-active: rgba(255, 255, 255, 0.24);
+  --rm-header-icon-size: 22px;
+  --rm-header-title-size: 1rem;
+  --rm-header-blur: blur(16px) saturate(1.25);
+  --rm-header-bg: rgba(181, 118, 199, 0.78);
+  --rm-header-bg-solid: #b576c7;
+  --rm-header-fg: #ffffff;
+  --rm-header-shadow: 0 4px 14px rgba(22, 24, 42, 0.14);
 
   /* Legacy Vue token aliases */
   --color-bg: var(--rm-surface);
@@ -105,7 +117,7 @@
   --ion-background-color-rgb: 238, 240, 247;
   --ion-text-color: var(--rm-ink);
   --ion-text-color-rgb: 22, 24, 42;
-  --ion-toolbar-background: rgba(238, 240, 247, 0.86);
+  --ion-toolbar-background: var(--rm-header-bg);
   --ion-item-background: var(--rm-elevated);
   --ion-card-background: var(--rm-elevated);
   --ion-border-color: var(--rm-line);
@@ -121,6 +133,10 @@ html.ion-palette-dark {
   --rm-line: rgba(255, 255, 255, 0.08);
   --rm-hero-gradient: linear-gradient(145deg, #2a3148 0%, #1e2438 100%);
   --rm-brand-gradient: linear-gradient(135deg, #475569 0%, #334155 100%);
+  --rm-header-bg: rgba(30, 31, 43, 0.88);
+  --rm-header-bg-solid: #1e1f2b;
+  --rm-header-fg: #f0f1f7;
+  --rm-header-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 
   --color-bg: var(--rm-surface);
   --color-text: var(--rm-ink);
@@ -133,7 +149,7 @@ html.ion-palette-dark {
   --ion-background-color-rgb: 18, 19, 26;
   --ion-text-color: var(--rm-ink);
   --ion-text-color-rgb: 240, 241, 247;
-  --ion-toolbar-background: rgba(18, 19, 26, 0.9);
+  --ion-toolbar-background: var(--rm-header-bg);
   --ion-item-background: var(--rm-elevated);
   --ion-card-background: var(--rm-elevated);
   --ion-border-color: var(--rm-line);

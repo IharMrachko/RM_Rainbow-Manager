@@ -1,0 +1,193 @@
+<div class="lb-rich lb-pm" [class.lb-rich--disabled]="disabled" (click)="closePalettes()">
+  <div class="lb-rich__toolbar" (mousedown)="onToolbarPointerDown($event)">
+    <div class="lb-rich__toolbar-row">
+      <div class="lb-rich__primary">
+        <button
+          type="button"
+          class="lb-rich__btn lb-rich__btn--template"
+          (click)="requestTemplateClick()"
+          [attr.aria-label]="'lookbookTemplate' | translate"
+        >
+          <ion-icon name="grid-outline"></ion-icon>
+          <span>{{ 'lookbookTemplate' | translate }}</span>
+        </button>
+      </div>
+
+      <div class="lb-rich__strip">
+      <button type="button" class="lb-rich__btn" (click)="undo()" aria-label="Undo">↶</button>
+      <button type="button" class="lb-rich__btn" (click)="redo()" aria-label="Redo">↷</button>
+
+      <span class="lb-rich__sep"></span>
+
+      <div class="lb-rich__field">
+        <button
+          type="button"
+          class="lb-rich__select"
+          [disabled]="disabled"
+          (click)="openFontPicker($event)"
+        >
+          <span>{{ fontFamilyLabel }}</span>
+          <ion-icon name="chevron-down-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="lb-rich__field lb-rich__field--size">
+        <button
+          type="button"
+          class="lb-rich__select"
+          [disabled]="disabled"
+          (click)="openFontSizePicker($event)"
+        >
+          <span>{{ fontSize }}</span>
+          <ion-icon name="chevron-down-outline"></ion-icon>
+        </button>
+      </div>
+
+      <span class="lb-rich__sep"></span>
+
+      <button
+        type="button"
+        class="lb-rich__btn lb-rich__btn--text"
+        [class.is-active]="active.bold"
+        (click)="toggleBold()"
+      >
+        <b>B</b>
+      </button>
+      <button
+        type="button"
+        class="lb-rich__btn lb-rich__btn--text"
+        [class.is-active]="active.italic"
+        (click)="toggleItalic()"
+      >
+        <i>I</i>
+      </button>
+      <button
+        type="button"
+        class="lb-rich__btn lb-rich__btn--text"
+        [class.is-active]="active.underline"
+        (click)="toggleUnderline()"
+      >
+        <u>U</u>
+      </button>
+      <button
+        type="button"
+        class="lb-rich__btn lb-rich__btn--text"
+        [class.is-active]="active.strikeThrough"
+        (click)="toggleStrike()"
+      >
+        <s>S</s>
+      </button>
+
+      <span class="lb-rich__sep"></span>
+
+      <div class="lb-rich__color-wrap">
+        <button
+          type="button"
+          class="lb-rich__btn lb-rich__btn--swatch"
+          [class.is-open]="showTextColor"
+          (click)="toggleTextColor($event)"
+          aria-label="Text color"
+        >
+          <span class="lb-rich__letter">A</span>
+          <span class="lb-rich__bar" [style.background]="textColor"></span>
+        </button>
+      </div>
+
+      <div class="lb-rich__color-wrap">
+        <button
+          type="button"
+          class="lb-rich__btn lb-rich__btn--swatch"
+          [class.is-open]="showFillColor"
+          (click)="toggleFillColor($event)"
+          aria-label="Highlight"
+        >
+          <span class="lb-rich__letter lb-rich__letter--fill">A</span>
+          <span class="lb-rich__bar" [style.background]="fillColor"></span>
+        </button>
+      </div>
+
+      <span class="lb-rich__sep"></span>
+
+      <button type="button" class="lb-rich__btn lb-rich__btn--text" [class.is-active]="active.block === 'p'" (click)="formatBlock('p')">P</button>
+      <button type="button" class="lb-rich__btn lb-rich__btn--text" [class.is-active]="active.block === 'h1'" (click)="formatBlock('h1')">H1</button>
+      <button type="button" class="lb-rich__btn lb-rich__btn--text" [class.is-active]="active.block === 'h2'" (click)="formatBlock('h2')">H2</button>
+      <button type="button" class="lb-rich__btn lb-rich__btn--text" [class.is-active]="active.block === 'h3'" (click)="formatBlock('h3')">H3</button>
+
+      <span class="lb-rich__sep"></span>
+
+      <button type="button" class="lb-rich__btn lb-rich__btn--text" [class.is-active]="active.insertUnorderedList" (click)="toggleBulletList()" aria-label="Bullets">•≡</button>
+      <button type="button" class="lb-rich__btn lb-rich__btn--text" [class.is-active]="active.insertOrderedList" (click)="toggleOrderedList()" aria-label="Numbers">1.</button>
+      <button type="button" class="lb-rich__btn lb-rich__btn--text" [class.is-active]="active.block === 'blockquote'" (click)="formatBlock('blockquote')" aria-label="Quote">❝</button>
+      <button type="button" class="lb-rich__btn lb-rich__btn--text" (click)="insertHr()" aria-label="Line">―</button>
+
+      <span class="lb-rich__sep"></span>
+
+      <button type="button" class="lb-rich__btn lb-rich__btn--text" [class.is-active]="active.justifyLeft" (click)="setAlign('left')" aria-label="Left">L</button>
+      <button type="button" class="lb-rich__btn lb-rich__btn--text" [class.is-active]="active.justifyCenter" (click)="setAlign('center')" aria-label="Center">C</button>
+      <button type="button" class="lb-rich__btn lb-rich__btn--text" [class.is-active]="active.justifyRight" (click)="setAlign('right')" aria-label="Right">R</button>
+      <button type="button" class="lb-rich__btn lb-rich__btn--text" (click)="indent()" aria-label="Indent">»</button>
+      <button type="button" class="lb-rich__btn lb-rich__btn--text" (click)="outdent()" aria-label="Outdent">«</button>
+
+      <span class="lb-rich__sep"></span>
+
+      <button type="button" class="lb-rich__btn" (click)="requestPhotoClick()" aria-label="Image">
+        <ion-icon name="image-outline"></ion-icon>
+      </button>
+      <button type="button" class="lb-rich__btn lb-rich__btn--text" (click)="clearFormat()" aria-label="Clear">✕</button>
+      </div>
+    </div>
+  </div>
+
+  @if (showTextColor || showFillColor) {
+    <div
+      class="lb-rich__palette lb-rich__palette--float"
+      [style.top.px]="palettePos.top"
+      [style.left.px]="palettePos.left"
+      (mousedown)="$event.stopPropagation()"
+      (pointerdown)="$event.stopPropagation()"
+      (click)="$event.stopPropagation()"
+    >
+      @for (c of palette; track c) {
+        <button
+          type="button"
+          class="lb-rich__chip"
+          [class.is-active]="showFillColor ? fillColor === c : textColor === c"
+          [style.background]="c"
+          (click)="showFillColor ? pickFillColor(c) : pickTextColor(c)"
+        ></button>
+      }
+    </div>
+  }
+
+  <div
+    class="lb-rich__canvas"
+    #canvasHost
+    [class.lb-rich__canvas--ready]="layoutReady"
+    [style.height.px]="scaledHostHeight || null"
+  >
+    <div class="lb-rich__scale" [style.transform]="'scale(' + printScale + ')'">
+      <div class="lb-rich__sheet" #sheet>
+        <div class="lb-rich__pages" aria-hidden="true">
+          @for (p of pageMarks; track p.n) {
+            <div
+              class="lb-rich__page"
+              [class.lb-rich__page--first]="p.n === 1"
+              [style.top.px]="p.top"
+              [style.height.px]="p.height"
+            >
+              <span class="lb-rich__page-badge">{{ 'lookbookPage' | translate:{ n: p.n } }}</span>
+              @if (p.n > 1) {
+                <div class="lb-rich__page-rule"></div>
+              }
+            </div>
+          }
+        </div>
+        <header class="lb-rich__doc-header" aria-hidden="true">
+          <p class="lb-rich__doc-brand">Rainbow Manager</p>
+          <p class="lb-rich__doc-title">{{ documentTitle || 'Lookbook' }}</p>
+        </header>
+        <div #mount class="lb-pm__mount" [attr.data-placeholder]="placeholder"></div>
+      </div>
+    </div>
+  </div>
+</div>

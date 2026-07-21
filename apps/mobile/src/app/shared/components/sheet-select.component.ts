@@ -12,9 +12,16 @@ export interface SheetSelectOption {
   selector: 'app-sheet-select',
   encapsulation: ViewEncapsulation.None,
   template: `
-    <div class="rm-sheet-select" [class.is-open]="open" [class.is-filled]="hasValue">
+    <div
+      class="rm-sheet-select"
+      [class.is-open]="open"
+      [class.is-filled]="hasValue"
+      [class.is-compact]="compact"
+    >
       <button type="button" class="rm-sheet-select__trigger" (click)="toggle($event)">
-        <span class="rm-sheet-select__label">{{ label }}</span>
+        @if (label) {
+          <span class="rm-sheet-select__label">{{ label }}</span>
+        }
         <span class="rm-sheet-select__value">
           <span class="rm-sheet-select__text">{{ displayLabel }}</span>
           @if (hasValue) {
@@ -178,6 +185,31 @@ export interface SheetSelectOption {
         background: rgba(91, 110, 245, 0.14);
         color: #5b6ef5;
       }
+
+      .rm-sheet-select.is-compact .rm-sheet-select__trigger {
+        min-height: 42px;
+        padding: 6px 11px;
+        gap: 1px;
+        border-radius: 11px;
+      }
+
+      .rm-sheet-select.is-compact.is-open .rm-sheet-select__trigger {
+        border-radius: 11px 11px 0 0;
+      }
+
+      .rm-sheet-select.is-compact .rm-sheet-select__value {
+        font-size: 0.84rem;
+      }
+
+      .rm-sheet-select.is-compact .rm-sheet-select__menu {
+        border-radius: 0 0 11px 11px;
+      }
+
+      .rm-sheet-select.is-compact .rm-sheet-select__opt {
+        min-height: 38px;
+        padding: 7px 10px;
+        font-size: 0.84rem;
+      }
     `,
   ],
 })
@@ -187,6 +219,7 @@ export class SheetSelectComponent {
   @Input() value = '';
   /** Value used when cleared (usually empty string for "all"). */
   @Input() emptyValue = '';
+  @Input() compact = false;
   @Input() options: SheetSelectOption[] = [];
   @Output() valueChange = new EventEmitter<string>();
   @Output() openedChange = new EventEmitter<boolean>();

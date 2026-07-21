@@ -1,0 +1,76 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="page-toolbar">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="openAppMenu()">
+        <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'lookbook' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button
+        fill="clear"
+        class="lb-header-add"
+        (click)="createNew()"
+        [attr.aria-label]="'lookbookCreate' | translate"
+      >
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" (click)="reload()">
+        <ion-icon slot="icon-only" name="refresh"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  @if (!loading && items.length) {
+    <ion-toolbar class="lb-search-toolbar">
+      <div class="lb-search-box">
+        <ion-icon name="search-outline"></ion-icon>
+        <ion-input
+          type="search"
+          [placeholder]="'search' | translate"
+          [value]="searchQuery"
+          (ionInput)="onSearch($any($event).detail.value)"
+          [clearInput]="true"
+          [debounce]="120"
+        ></ion-input>
+      </div>
+    </ion-toolbar>
+  }
+</ion-header>
+
+<ion-content class="page-content">
+  @if (loading) {
+    <div class="lb-center"><ion-spinner></ion-spinner></div>
+  } @else if (!items.length) {
+    <div class="rm-empty">
+      <div class="rm-empty__icon"><ion-icon name="book-outline"></ion-icon></div>
+      <div class="rm-empty__title">{{ 'lookbook' | translate }}</div>
+      <div>{{ 'lookbookEmptyList' | translate }}</div>
+      <ion-button class="ion-margin-top" (click)="createNew()">
+        {{ 'lookbookCreate' | translate }}
+      </ion-button>
+    </div>
+  } @else if (!filteredItems.length) {
+    <div class="rm-empty lb-no-results">
+      <div class="rm-empty__icon"><ion-icon name="search-outline"></ion-icon></div>
+      <div class="rm-empty__title">{{ 'noResults' | translate }}</div>
+    </div>
+  } @else {
+    <div class="lb-list">
+      @for (item of filteredItems; track item.id) {
+        <button type="button" class="lb-card" (click)="openItem(item)">
+          <div class="lb-card__body">
+            <div class="lb-card__title">{{ item.title || ('lookbook' | translate) }}</div>
+          </div>
+          <ion-button
+            fill="clear"
+            color="danger"
+            class="lb-card__delete"
+            (click)="confirmDelete(item, $event)"
+          >
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-button>
+        </button>
+      }
+    </div>
+  }
+</ion-content>

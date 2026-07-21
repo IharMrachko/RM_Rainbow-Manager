@@ -3,11 +3,11 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@color/splash_bg" />
     <item
-        android:width="160dp"
-        android:height="160dp"
+        android:width="200dp"
+        android:height="200dp"
         android:gravity="center">
         <bitmap
-            android:gravity="fill"
-            android:src="@drawable/rainbow_boot" />
+            android:gravity="center"
+            android:src="@drawable/rainbow_boot_padded" />
     </item>
 </layer-list>

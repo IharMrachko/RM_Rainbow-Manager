@@ -12,7 +12,9 @@
     "mobile:serve": "npm --prefix apps/mobile start",
     "mobile:build": "npm --prefix apps/mobile run build",
     "mobile:android": "npm --prefix apps/mobile run cap:android",
-    "mobile:lint": "npm --prefix apps/mobile run lint"
+    "mobile:lint": "npm --prefix apps/mobile run lint",
+    "functions:build": "npm --prefix functions run build",
+    "functions:deploy": "firebase deploy --only functions"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.0.1",

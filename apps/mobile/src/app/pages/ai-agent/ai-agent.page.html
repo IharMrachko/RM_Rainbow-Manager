@@ -51,10 +51,9 @@
       </div>
     }
     <div class="composer__row">
-      <button type="button" class="composer__icon-btn" (click)="imgInput.click()" aria-label="attach">
+      <button type="button" class="composer__icon-btn" (click)="openImageSource()" aria-label="attach">
         <ion-icon name="image-outline"></ion-icon>
       </button>
-      <input #imgInput type="file" accept="image/*" hidden (change)="onImage($event)" />
       <ion-textarea
         class="composer__input"
         [placeholder]="'askAiShort' | translate"

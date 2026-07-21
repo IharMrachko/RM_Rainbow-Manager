@@ -119,8 +119,12 @@
 }
 
 .composer {
-  padding: 8px 10px 10px;
+  padding: 8px 10px calc(10px + env(safe-area-inset-bottom, 0px));
   background: var(--rm-elevated, #fff);
+}
+
+html.plt-android .composer {
+  padding-bottom: calc(10px + max(env(safe-area-inset-bottom, 0px), 44px));
 }
 
 .composer__row {

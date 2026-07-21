@@ -8,10 +8,10 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActionSheetController, IonicModule } from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { register } from 'swiper/element/bundle';
-import { ConfirmService, liftAboveCdk } from '../../core/services/confirm.service';
+import { ConfirmService } from '../../core/services/confirm.service';
 import { GalleryImage, GalleryService } from '../../core/services/gallery.service';
 import { GalleryFolder } from '../../core/services/folder.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -22,11 +22,14 @@ import {
   OverlaySheetService,
 } from '../../core/services/overlay-sheet.service';
 import {
+  ChoiceSheetComponent,
+  ChoiceSheetData,
+} from './choice-sheet.component';
+import {
   FolderPickerSheetComponent,
   FolderPickerSheetData,
   FolderPickerSheetResult,
 } from './folder-picker-sheet.component';
-
 register();
 
 export interface GalleryViewerSheetData {
@@ -386,7 +389,6 @@ export class GalleryViewerSheetComponent implements AfterViewInit {
     @Inject(OVERLAY_SHEET_REF)
     private readonly sheetRef: OverlaySheetRef<GalleryViewerSheetResult>,
     private readonly cdr: ChangeDetectorRef,
-    private readonly actionSheetCtrl: ActionSheetController,
     private readonly confirm: ConfirmService,
     private readonly sheets: OverlaySheetService,
     private readonly translate: TranslateService,
@@ -474,38 +476,31 @@ export class GalleryViewerSheetComponent implements AfterViewInit {
   }
 
   async openMenu(): Promise<void> {
-    const sheet = await this.actionSheetCtrl.create({
-      header: this.translate.instant('actions'),
-      buttons: [
-        {
-          text: this.translate.instant('addFolder'),
-          icon: 'folder-outline',
-          handler: () => {
-            void this.pickFolder();
-          },
-        },
-        {
-          text: this.translate.instant('update'),
-          icon: 'refresh-outline',
-          handler: () => {
-            void this.refreshCurrent();
-          },
-        },
-        {
-          text: this.translate.instant('copyLink'),
-          icon: 'link-outline',
-          handler: () => {
-            void this.copyLink();
-          },
-        },
-        {
-          text: this.translate.instant('cancel'),
-          role: 'cancel',
-        },
-      ],
-    });
-    await sheet.present();
-    liftAboveCdk(sheet);
+    type ViewerAction = 'folder' | 'update' | 'copyLink';
+    const action = await this.sheets.open<
+      ChoiceSheetComponent<ViewerAction>,
+      ChoiceSheetData<ViewerAction>,
+      ViewerAction
+    >(
+      ChoiceSheetComponent,
+      {
+        titleKey: 'actions',
+        options: [
+          { value: 'folder', labelKey: 'addFolder', ionIcon: 'folder-outline' },
+          { value: 'update', labelKey: 'update', ionIcon: 'refresh-outline' },
+          { value: 'copyLink', labelKey: 'copyLink', ionIcon: 'link-outline' },
+        ],
+      },
+      { stack: true, closeOnBackdrop: true },
+    );
+
+    if (action === 'folder') {
+      await this.pickFolder();
+    } else if (action === 'update') {
+      await this.refreshCurrent();
+    } else if (action === 'copyLink') {
+      await this.copyLink();
+    }
   }
 
   async pickFolder(): Promise<void> {

@@ -8,6 +8,7 @@ import {
 } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
+import { getFunctions, Functions } from 'firebase/functions';
 import { getAI, AI } from 'firebase/ai';
 import { Capacitor } from '@capacitor/core';
 import { environment } from '../../environments/environment';
@@ -16,6 +17,7 @@ let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let db: Firestore | null = null;
 let storage: FirebaseStorage | null = null;
+let functions: Functions | null = null;
 let ai: AI | null = null;
 
 export function initFirebase(): FirebaseApp {
@@ -41,6 +43,7 @@ export function initFirebase(): FirebaseApp {
 
   db = getFirestore(app);
   storage = getStorage(app);
+  functions = getFunctions(app, 'us-central1');
   try {
     ai = getAI(app);
   } catch {
@@ -68,6 +71,13 @@ export function getFirebaseStorage(): FirebaseStorage {
     initFirebase();
   }
   return storage!;
+}
+
+export function getFirebaseFunctions(): Functions {
+  if (!functions) {
+    initFirebase();
+  }
+  return functions!;
 }
 
 export function getFirebaseAi(): AI | null {

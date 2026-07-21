@@ -42,6 +42,15 @@ export const TABS_SHELL_ROUTES: Routes = [
         loadComponent: () => import('../consult/consult.page').then((m) => m.ConsultPage),
       },
       {
+        path: 'lookbook',
+        loadComponent: () => import('../lookbook/lookbook.page').then((m) => m.LookbookPage),
+      },
+      {
+        path: 'lookbook/:id',
+        loadComponent: () =>
+          import('../lookbook/lookbook-editor.page').then((m) => m.LookbookEditorPage),
+      },
+      {
         path: 'my-palette',
         loadComponent: () =>
           import('../my-palette/my-palette.page').then((m) => m.MyPalettePage),

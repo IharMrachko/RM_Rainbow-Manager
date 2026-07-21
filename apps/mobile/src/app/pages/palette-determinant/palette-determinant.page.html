@@ -1,14 +1,13 @@
 <div class="char-page">
   <div class="char-topbar">
-    <ion-button fill="clear" color="dark" class="char-menu-btn" (click)="openMenu()">
+    <ion-button fill="clear" class="char-menu-btn" (click)="openMenu()">
       <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
     </ion-button>
     <h1 class="char-topbar__title">{{ 'paletteDeterminant' | translate }}</h1>
     <div class="char-topbar__actions">
       @if (hasPhoto) {
         <ion-button
-          fill="solid"
-          color="primary"
+          fill="clear"
           class="char-save-btn"
           [disabled]="!canSave || isLoading()"
           (click)="openSaveTarget()"
@@ -20,7 +19,7 @@
           }
         </ion-button>
       }
-      <ion-button fill="solid" color="primary" class="char-cam-btn" (click)="openSourcePicker()">
+      <ion-button fill="clear" class="char-cam-btn" (click)="openSourcePicker()">
         <ion-icon slot="icon-only" name="camera-outline"></ion-icon>
       </ion-button>
     </div>

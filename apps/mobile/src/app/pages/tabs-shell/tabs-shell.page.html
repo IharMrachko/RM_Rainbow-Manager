@@ -6,10 +6,9 @@
 >
   <ion-header>
     <ion-toolbar class="app-menu__toolbar">
-      <ion-title>
-        <span class="app-menu__brand">🌈</span>
-        {{ 'menu' | translate }}
-      </ion-title>
+      <div class="app-menu__brand">
+        <img src="assets/rainbow-logo.svg" alt="Rainbow Manager" />
+      </div>
     </ion-toolbar>
   </ion-header>
 
@@ -20,7 +19,14 @@
           [class.is-active]="isMenuActive(item.url)"
           (click)="navigateMenu(item.url)"
         >
-          <ion-icon slot="start" [name]="item.icon"></ion-icon>
+          <svg
+            slot="start"
+            class="app-menu__nav-icon"
+            [attr.viewBox]="item.iconViewBox"
+            aria-hidden="true"
+          >
+            <path [attr.d]="item.iconPath"></path>
+          </svg>
           <ion-label>{{ item.titleKey | translate }}</ion-label>
         </ion-item>
       }
@@ -30,48 +36,30 @@
 
     <div class="app-menu__settings">
       <p class="app-menu__label">{{ 'themeSettings' | translate }}</p>
-      <div class="choice-row">
-        <button
-          type="button"
-          class="choice-btn"
-          [class.is-active]="!theme.isDark"
-          (click)="setTheme(false)"
-        >
-          <span class="choice-btn__icon">☀️</span>
-          <span>{{ 'light' | translate }}</span>
-        </button>
-        <button
-          type="button"
-          class="choice-btn"
-          [class.is-active]="theme.isDark"
-          (click)="setTheme(true)"
-        >
-          <span class="choice-btn__icon">🌙</span>
-          <span>{{ 'dark' | translate }}</span>
-        </button>
+      <div class="app-menu__setting-control">
+        <label class="theme-switch">
+          <input
+            type="checkbox"
+            [checked]="theme.isDark"
+            (change)="setTheme($any($event.target).checked)"
+          />
+          <span class="theme-switch__track"></span>
+        </label>
+        <span class="app-menu__current-value">
+          {{ (theme.isDark ? 'dark' : 'light') | translate }}
+        </span>
       </div>
 
       <p class="app-menu__label">{{ 'languageSettings' | translate }}</p>
-      <div class="choice-row">
-        <button
-          type="button"
-          class="choice-btn"
-          [class.is-active]="language.language === 'ru'"
-          (click)="setLanguage('ru')"
-        >
-          <span class="choice-btn__icon">RU</span>
-          <span>Русский</span>
-        </button>
-        <button
-          type="button"
-          class="choice-btn"
-          [class.is-active]="language.language === 'en'"
-          (click)="setLanguage('en')"
-        >
-          <span class="choice-btn__icon">EN</span>
-          <span>English</span>
-        </button>
-      </div>
+      <app-sheet-select
+        label=""
+        [placeholder]="'languageSettings' | translate"
+        [value]="language.language"
+        [emptyValue]="language.language"
+        [compact]="true"
+        [options]="languageOptions"
+        (valueChange)="setLanguage($any($event))"
+      ></app-sheet-select>
     </div>
 
     <div class="app-menu__divider"></div>
@@ -95,7 +83,13 @@
       <ion-tab-bar slot="bottom" class="rm-ion-tabbar">
         @for (tab of tabs; track tab.url) {
           <ion-tab-button [tab]="tab.tab" [href]="tab.url">
-            <ion-icon [name]="tab.icon"></ion-icon>
+            <svg
+              class="app-tab__icon"
+              [attr.viewBox]="tab.iconViewBox"
+              aria-hidden="true"
+            >
+              <path [attr.d]="tab.iconPath"></path>
+            </svg>
             <ion-label>{{ tab.titleKey | translate }}</ion-label>
           </ion-tab-button>
         }

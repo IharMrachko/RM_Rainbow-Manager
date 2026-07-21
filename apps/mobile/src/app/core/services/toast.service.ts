@@ -37,7 +37,7 @@ export class ToastService {
         message,
         duration,
         color,
-        position: 'top',
+        position: 'bottom',
         buttons: [{ role: 'cancel', text: 'OK' }],
       });
       this.active = toast;
