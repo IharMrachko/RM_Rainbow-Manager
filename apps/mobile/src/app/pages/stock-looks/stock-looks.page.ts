@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
@@ -17,7 +17,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import {
   bookmarkOutline,
+  closeCircle,
   colorPaletteOutline,
+  eyedrop,
   imagesOutline,
   menuOutline,
   openOutline,
@@ -27,6 +29,7 @@ import {
 import { Palette, palettesObj, palettesObjShort } from '@rainbow/shared';
 import { AppMenuService } from '../../core/services/app-menu.service';
 import { GalleryService } from '../../core/services/gallery.service';
+import { OverlaySheetService } from '../../core/services/overlay-sheet.service';
 import { StockLooksService } from '../../core/services/stock-looks.service';
 import {
   StockLookItem,
@@ -34,10 +37,17 @@ import {
   StockLooksMode,
 } from '../../core/services/stock-looks.types';
 import { ToastService } from '../../core/services/toast.service';
+import {
+  ColorPickerSheetComponent,
+  ColorPickerSheetData,
+  ColorPickerSheetResult,
+} from '../../shared/components/color-picker-sheet.component';
 
 addIcons({
   bookmarkOutline,
+  closeCircle,
   colorPaletteOutline,
+  eyedrop,
   imagesOutline,
   menuOutline,
   openOutline,
@@ -66,7 +76,7 @@ addIcons({
   templateUrl: './stock-looks.page.html',
   styleUrls: ['./stock-looks.page.scss'],
 })
-export class StockLooksPage implements OnInit {
+export class StockLooksPage implements OnInit, OnDestroy {
   readonly paletteNames = Object.keys(palettesObj) as Palette[];
   readonly categories: StockLooksCategory[] = ['outfit', 'portrait', 'accessories'];
   readonly modes: StockLooksMode[] = ['palette', 'free'];
@@ -75,6 +85,7 @@ export class StockLooksPage implements OnInit {
   selectedPalette: Palette = this.paletteNames[0];
   selectedCategory: StockLooksCategory = 'outfit';
   freeQuery = '';
+  freeColorHex = '';
   items: StockLookItem[] = [];
   loading = false;
   usedMock = true;
@@ -87,6 +98,7 @@ export class StockLooksPage implements OnInit {
     private readonly gallery: GalleryService,
     private readonly route: ActivatedRoute,
     private readonly appMenu: AppMenuService,
+    private readonly sheets: OverlaySheetService,
     private readonly toasts: ToastService,
     private readonly translate: TranslateService,
     private readonly cdr: ChangeDetectorRef,
@@ -105,6 +117,10 @@ export class StockLooksPage implements OnInit {
     if (this.mode === 'palette') {
       void this.search();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.sheets.close();
   }
 
   get accentSwatches(): string[] {
@@ -152,8 +168,41 @@ export class StockLooksPage implements OnInit {
     void this.search();
   }
 
+  async openFreeColorPicker(): Promise<void> {
+    const result = await this.sheets.open<
+      ColorPickerSheetComponent,
+      ColorPickerSheetData,
+      ColorPickerSheetResult
+    >(
+      ColorPickerSheetComponent,
+      { hex: this.freeColorHex || '#C48A8F' },
+      {
+        closeOnBackdrop: true,
+        hasBackdrop: true,
+        backdropClass: 'rm-cdk-backdrop',
+      },
+    );
+    if (!result?.hex) return;
+    this.freeColorHex = result.hex.trim().toUpperCase();
+    this.cdr.markForCheck();
+    if (this.freeQuery.trim() || this.freeColorHex) {
+      void this.search();
+    }
+  }
+
+  clearFreeColor(): void {
+    this.freeColorHex = '';
+    this.cdr.markForCheck();
+    if (this.freeQuery.trim()) {
+      void this.search();
+    } else {
+      this.items = [];
+      this.querySummary = '';
+    }
+  }
+
   async search(): Promise<void> {
-    if (this.mode === 'free' && !this.freeQuery.trim()) {
+    if (this.mode === 'free' && !this.freeQuery.trim() && !this.freeColorHex) {
       this.items = [];
       this.errorMessage = '';
       this.querySummary = '';
@@ -171,6 +220,7 @@ export class StockLooksPage implements OnInit {
           ? {
               mode: 'free',
               freeQuery: this.freeQuery.trim(),
+              freeColorHex: this.freeColorHex || undefined,
               perPage: 24,
             }
           : {

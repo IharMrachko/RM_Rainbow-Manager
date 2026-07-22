@@ -8,6 +8,7 @@ import {
   buildColorAnchors,
   buildSearchQueries,
   isNeutralHex,
+  nearestPexelsColor,
   subjectRelevanceDelta,
 } from './stock-looks-query';
 import {
@@ -260,35 +261,53 @@ export class StockLooksService {
     return { items, usedMock, querySummary };
   }
 
-  /** Free text search: no palette color filters and no palette scoring. */
+  /** Free text search: no palette scoring; optional color-picker filter. */
   private async searchFree(
     params: StockLooksSearchParams,
   ): Promise<StockLooksSearchResult> {
     const freeQuery = (params.freeQuery || '').trim();
-    if (!freeQuery) {
+    const freeColorHex = (params.freeColorHex || '').trim();
+    const pexelsColor = freeColorHex ? nearestPexelsColor(freeColorHex) : null;
+
+    if (!freeQuery && !freeColorHex) {
       return { items: [], usedMock: false, querySummary: 'free' };
     }
 
-    const querySummary = `free · ${freeQuery}`;
+    const queryText =
+      freeQuery ||
+      (pexelsColor ? `${pexelsColor} fashion clothing` : 'fashion clothing');
+    const querySummary = [
+      'free',
+      freeQuery || null,
+      freeColorHex || null,
+      pexelsColor || null,
+    ]
+      .filter(Boolean)
+      .join(' · ');
+
     let raw: RawLook[] = [];
     let usedMock = false;
 
     if (this.hasApiKey) {
       try {
-        raw = await this.fetchFromPexels(freeQuery, undefined, params.perPage ?? 24);
+        raw = await this.fetchFromPexels(
+          queryText,
+          pexelsColor ?? undefined,
+          params.perPage ?? 24,
+        );
       } catch {
         raw = [];
       }
       if (!raw.length) {
-        raw = this.filterMocksByQuery(freeQuery);
+        raw = this.filterMocksByQuery(queryText);
         usedMock = true;
       }
     } else {
-      raw = this.filterMocksByQuery(freeQuery);
+      raw = this.filterMocksByQuery(queryText);
       usedMock = true;
     }
 
-    const items = this.rankFree(raw, freeQuery);
+    const items = this.rankFree(raw, queryText, freeColorHex);
     return { items, usedMock, querySummary };
   }
 
@@ -305,11 +324,16 @@ export class StockLooksService {
     return matched.length ? matched : [...MOCK_LOOKS];
   }
 
-  private rankFree(raw: RawLook[], query: string): StockLookItem[] {
+  private rankFree(
+    raw: RawLook[],
+    query: string,
+    freeColorHex?: string,
+  ): StockLookItem[] {
     const tokens = query
       .toLowerCase()
       .split(/\s+/)
       .filter((t) => t.length > 1);
+    const hasPickerColor = Boolean(freeColorHex && chroma.valid(freeColorHex));
 
     return raw
       .map((item) => {
@@ -318,6 +342,10 @@ export class StockLooksService {
         for (const token of tokens) {
           if (hay.includes(token)) matchScore += 10;
         }
+        if (hasPickerColor && chroma.valid(item.avgColor)) {
+          const dist = chroma.deltaE(freeColorHex!, item.avgColor);
+          matchScore += Math.max(-20, Math.min(20, Math.round(20 - dist * 0.7)));
+        }
         matchScore = Math.max(0, Math.min(100, matchScore));
         const matchLabel: StockLookItem['matchLabel'] =
           matchScore >= 72 ? 'excellent' : matchScore >= 48 ? 'good' : 'fair';
@@ -325,7 +353,7 @@ export class StockLooksService {
           ...item,
           matchScore,
           matchLabel,
-          matchedSwatches: [],
+          matchedSwatches: hasPickerColor ? [chroma(freeColorHex!).hex()] : [],
         };
       })
       .sort((a, b) => b.matchScore - a.matchScore);

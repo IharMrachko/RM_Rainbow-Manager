@@ -81,4 +81,15 @@ describe('StockLooksService scoring', () => {
     expect(result.items.length).toBeGreaterThan(0);
     expect(result.items.every((item) => item.matchedSwatches.length === 0)).toBeTrue();
   });
+
+  it('accepts free search by color picker hex alone', async () => {
+    const service = new StockLooksService({} as never);
+    const result = await service.search({
+      mode: 'free',
+      freeColorHex: '#C48A8F',
+    });
+    expect(result.items.length).toBeGreaterThan(0);
+    expect(result.querySummary.toLowerCase()).toContain('#c48a8f');
+    expect(result.items[0].matchedSwatches.length).toBe(1);
+  });
 });

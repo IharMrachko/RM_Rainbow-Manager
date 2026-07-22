@@ -10,7 +10,7 @@
       <ion-button
         fill="clear"
         (click)="search()"
-        [disabled]="loading || (isFreeMode && !freeQuery.trim())"
+        [disabled]="loading || (isFreeMode && !freeQuery.trim() && !freeColorHex)"
         [attr.aria-label]="'stockLooksRefresh' | translate"
       >
         <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
@@ -64,15 +64,40 @@
           (keyup.enter)="onFreeQuerySubmit()"
         ></ion-input>
         <ion-button
+          fill="outline"
+          size="small"
+          class="stock-looks__color-btn"
+          (click)="openFreeColorPicker()"
+          [attr.aria-label]="'stockLooksPickColor' | translate"
+        >
+          <span
+            class="stock-looks__color-dot"
+            [style.background]="freeColorHex || 'transparent'"
+            [class.stock-looks__color-dot--empty]="!freeColorHex"
+          ></span>
+          <ion-icon name="eyedrop"></ion-icon>
+        </ion-button>
+        <ion-button
           fill="solid"
           size="small"
-          [disabled]="loading || !freeQuery.trim()"
+          [disabled]="loading || (!freeQuery.trim() && !freeColorHex)"
           (click)="onFreeQuerySubmit()"
         >
           <ion-icon slot="start" name="search-outline"></ion-icon>
           {{ 'stockLooksSearch' | translate }}
         </ion-button>
       </div>
+      @if (freeColorHex) {
+        <div class="stock-looks__picked">
+          <button type="button" class="stock-looks__picked-chip" (click)="openFreeColorPicker()">
+            <span class="stock-looks__picked-swatch" [style.background]="freeColorHex"></span>
+            <span>{{ freeColorHex }}</span>
+          </button>
+          <ion-button fill="clear" size="small" (click)="clearFreeColor()" [attr.aria-label]="'clear' | translate">
+            <ion-icon slot="icon-only" name="close-circle"></ion-icon>
+          </ion-button>
+        </div>
+      }
     </section>
   } @else {
     <section class="stock-looks__block">
@@ -121,7 +146,7 @@
       <p>{{ errorMessage }}</p>
       <ion-button fill="outline" size="small" (click)="search()">{{ 'retry' | translate }}</ion-button>
     </div>
-  } @else if (isFreeMode && !freeQuery.trim()) {
+  } @else if (isFreeMode && !freeQuery.trim() && !freeColorHex) {
     <div class="stock-looks__state">
       <ion-icon name="search-outline"></ion-icon>
       <p>{{ 'stockLooksFreeEmptyHint' | translate }}</p>
@@ -143,7 +168,7 @@
               loading="lazy"
               decoding="async"
             />
-            @if (!isFreeMode) {
+            @if (!isFreeMode || freeColorHex) {
               <span class="stock-card__score" [attr.data-label]="item.matchLabel">
                 {{ matchLabelKey(item.matchLabel) | translate }}
                 · {{ item.matchScore }}
@@ -155,7 +180,7 @@
             <small>
               {{ 'stockLooksPhotoBy' | translate: { name: item.photographer } }}
             </small>
-            @if (!isFreeMode && item.matchedSwatches.length) {
+            @if (item.matchedSwatches.length) {
               <div class="stock-card__swatches">
                 @for (hex of item.matchedSwatches; track hex) {
                   <span [style.background]="hex"></span>

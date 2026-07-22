@@ -52,6 +52,8 @@ export interface StockLooksSearchParams {
   category?: StockLooksCategory;
   /** Free-text query for free mode (e.g. "red blazer", "linen shirt"). */
   freeQuery?: string;
+  /** Optional hex from color picker for free mode (maps to Pexels color filter). */
+  freeColorHex?: string;
   /** Optional user-picked accent hexes from the palette (1–3). */
   accentHexes?: string[];
   perPage?: number;
