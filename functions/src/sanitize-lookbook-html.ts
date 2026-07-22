@@ -16,12 +16,12 @@ export function sanitizeLookbookHtmlForPrint(html: string): string {
 }
 
 /** In-place DOM cleanup shared by mobile + Puppeteer. */
-export function sanitizePrintDom(root: ParentNode): void {
+export function sanitizePrintDom(root: Element): void {
   const q = (sel: string) => Array.from(root.querySelectorAll(sel));
 
   // Editor chrome / NodeView shells.
   q(
-    '.lb-img-handle, .lb-img-rotate, .lb-img-delete, .lb-img-move, .lb-img-placeholder, .lb-tpl-delete, .lb-tpl-height, .lb-tpl-ring, .lb-tpl-slot-handle, .lb-tpl-slot-resize, .lb-tpl-slot-actions, .lb-pm-badge',
+    '.lb-img-handle, .lb-img-rotate, .lb-img-delete, .lb-img-move, .lb-img-placeholder, .lb-tpl-delete, .lb-tpl-height, .lb-tpl-ring, .lb-tpl-slot-handle, .lb-tpl-slot-resize, .lb-tpl-slot-actions, .lb-pm-badge'
   ).forEach((el) => el.remove());
 
   // Unwrap NodeView hosts: keep .lb-tpl child, drop the shell.

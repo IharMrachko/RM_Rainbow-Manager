@@ -18,7 +18,7 @@ export interface LookbookTemplateShift {
 export function paginateLookbookTemplatesInBrowser(
   pageHeightPx: number,
   pagePadTopPx: number,
-  pagePadBottomPx: number,
+  pagePadBottomPx: number
 ): LookbookTemplateShift[] {
   const BLOCK_SEL = '.lb-tpl, .lb-img-row';
 
@@ -64,9 +64,7 @@ export function paginateLookbookTemplatesInBrowser(
       const base = parseFloat(el.dataset['lbPageBaseMargin'] || '0') || 0;
       const push = parseFloat(el.dataset['lbPagePush'] || '0') || 0;
       const targetTop =
-        top < contentStart - 0.5
-          ? contentStart
-          : (pageIndex + 1) * pageHeightPx + pagePadTopPx;
+        top < contentStart - 0.5 ? contentStart : (pageIndex + 1) * pageHeightPx + pagePadTopPx;
       const gap = targetTop - top;
       if (gap <= 0.5) continue;
 

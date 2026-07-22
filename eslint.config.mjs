@@ -8,7 +8,15 @@ import tsPlugin from '@typescript-eslint/eslint-plugin';
 
 export default [
   {
-    ignores: ['apps/**', 'packages/**', 'dist/**', 'coverage/**', 'node_modules/**'],
+    ignores: [
+      'apps/**',
+      'packages/**',
+      'dist/**',
+      'coverage/**',
+      'node_modules/**',
+      'functions/lib/**',
+      'functions/.puppeteerrc.cjs',
+    ],
   },
   js.configs.recommended,
   ...vue.configs['flat/recommended'],

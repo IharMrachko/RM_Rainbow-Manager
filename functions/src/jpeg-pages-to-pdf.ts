@@ -2,11 +2,7 @@
  * Build a multi-page PDF from JPEG buffers (one JPEG = one A4 page).
  * PDF matches preview screenshots and editor page bands exactly.
  */
-export function jpegPagesToPdf(
-  pages: Buffer[],
-  pageWidthPx = 794,
-  pageHeightPx = 1123,
-): Buffer {
+export function jpegPagesToPdf(pages: Buffer[], pageWidthPx = 794, pageHeightPx = 1123): Buffer {
   if (!pages.length) {
     throw new Error('jpegPagesToPdf: no pages');
   }
@@ -94,9 +90,11 @@ export function jpegPagesToPdf(
 
   parts.push(
     Buffer.from(
-      `trailer\n<< /Size ${objs.length + 1} /Root ${catalogNum} 0 R >>\nstartxref\n${xrefStart}\n%%EOF\n`,
-      'utf8',
-    ),
+      `trailer\n<< /Size ${
+        objs.length + 1
+      } /Root ${catalogNum} 0 R >>\nstartxref\n${xrefStart}\n%%EOF\n`,
+      'utf8'
+    )
   );
 
   return Buffer.concat(parts);

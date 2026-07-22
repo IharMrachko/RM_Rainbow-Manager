@@ -97,7 +97,7 @@ export const generateLookbookPdf = onCall(
         if (!body) return;
         const q = (sel: string) => Array.from(body.querySelectorAll(sel));
         q(
-          '.lb-img-handle, .lb-img-rotate, .lb-img-delete, .lb-img-move, .lb-img-placeholder, .lb-tpl-delete, .lb-tpl-height, .lb-tpl-ring, .lb-tpl-slot-handle, .lb-tpl-slot-resize, .lb-tpl-slot-actions',
+          '.lb-img-handle, .lb-img-rotate, .lb-img-delete, .lb-img-move, .lb-img-placeholder, .lb-tpl-delete, .lb-tpl-height, .lb-tpl-ring, .lb-tpl-slot-handle, .lb-tpl-slot-resize, .lb-tpl-slot-actions'
         ).forEach((el) => el.remove());
         q('.lb-tpl-host').forEach((host) => {
           const tpl = host.querySelector(':scope > .lb-tpl');
@@ -159,7 +159,7 @@ export const generateLookbookPdf = onCall(
         paginateLookbookTemplatesInBrowser,
         pageHeight,
         pagePadTop,
-        pagePadBottom,
+        pagePadBottom
       );
 
       // Same A4 JPEG clips as in-app preview — PDF is stitched from those frames
@@ -181,7 +181,7 @@ export const generateLookbookPdf = onCall(
           bucket,
           previewPath,
           previewPages[i]!,
-          'image/jpeg',
+          'image/jpeg'
         );
         pages.push(url);
       }
@@ -200,28 +200,29 @@ export const generateLookbookPdf = onCall(
       }
       throw new HttpsError(
         'internal',
-        err instanceof Error ? err.message : 'PDF generation failed',
+        err instanceof Error ? err.message : 'PDF generation failed'
       );
     } finally {
       if (browser) {
         await browser.close().catch(() => undefined);
       }
     }
-  },
+  }
 );
 
 async function saveWithDownloadToken(
   bucket: ReturnType<ReturnType<typeof getStorage>['bucket']>,
   path: string,
   data: Buffer,
-  contentType: string,
+  contentType: string
 ): Promise<string> {
   const token = randomUUID();
   const file = bucket.file(path);
   await file.save(data, {
     contentType,
     metadata: {
-      cacheControl: contentType === 'application/pdf' ? 'private, max-age=0' : 'private, max-age=3600',
+      cacheControl:
+        contentType === 'application/pdf' ? 'private, max-age=0' : 'private, max-age=3600',
       metadata: {
         firebaseStorageDownloadTokens: token,
       },
@@ -235,15 +236,14 @@ async function waitForImages(page: Page): Promise<void> {
   await page.evaluate(async () => {
     const imgs = Array.from(document.images);
     await Promise.all(
-      imgs.map(
-        (img) =>
-          img.complete
-            ? Promise.resolve()
-            : new Promise<void>((resolve) => {
-                img.onload = () => resolve();
-                img.onerror = () => resolve();
-              }),
-      ),
+      imgs.map((img) =>
+        img.complete
+          ? Promise.resolve()
+          : new Promise<void>((resolve) => {
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            })
+      )
     );
   });
   await new Promise((r) => setTimeout(r, 400));
@@ -252,7 +252,7 @@ async function waitForImages(page: Page): Promise<void> {
 async function capturePreviewPages(
   page: Page,
   pageWidth: number,
-  pageHeight: number,
+  pageHeight: number
 ): Promise<Buffer[]> {
   const contentBottom = await page.evaluate((fallbackHeight: number) => {
     const scrollY =
@@ -268,7 +268,7 @@ async function capturePreviewPages(
       ...elements.map((el) => {
         const rect = el.getBoundingClientRect();
         return rect.height > 0 ? rect.bottom + scrollY : 0;
-      }),
+      })
     );
   }, pageHeight);
 

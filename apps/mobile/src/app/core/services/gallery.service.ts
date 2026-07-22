@@ -174,6 +174,34 @@ export class GalleryService {
   }
 
   async saveImage(options: SaveGalleryOptions): Promise<string> {
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      options.canvas.toBlob(
+        (b) => (b ? resolve(b) : reject(new Error('Blob failed'))),
+        'image/png',
+      );
+    });
+    return this.saveBlob({
+      blob,
+      path: options.path || `avatar/${Date.now()}.png`,
+      title: options.title,
+      paletteType: options.paletteType,
+      coloristicType: options.coloristicType,
+      maskType: options.maskType,
+      folderId: options.folderId,
+      deprecated: options.deprecated,
+    });
+  }
+
+  async saveBlob(options: {
+    blob: Blob;
+    path?: string;
+    title?: string;
+    coloristicType?: string;
+    maskType?: string;
+    paletteType?: string;
+    folderId?: string;
+    deprecated?: boolean;
+  }): Promise<string> {
     await this.auth.whenReady();
     const userId = this.auth.userId;
     if (!userId) {
@@ -181,8 +209,8 @@ export class GalleryService {
     }
 
     const {
-      canvas,
-      path = `avatar/${Date.now()}.png`,
+      blob,
+      path = `ai/${userId}/${Date.now()}.jpg`,
       title = '',
       paletteType,
       coloristicType,
@@ -190,10 +218,6 @@ export class GalleryService {
       folderId = '',
       deprecated = false,
     } = options;
-
-    const blob = await new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Blob failed'))), 'image/png');
-    });
 
     const fileRef = storageRef(getFirebaseStorage(), path);
     await uploadBytes(fileRef, blob);
@@ -203,7 +227,7 @@ export class GalleryService {
       userId,
       url: downloadURL,
       title: title || '',
-      coloristicType: coloristicType ?? '',
+      coloristicType: coloristicType ?? 'ai',
       paletteType: paletteType ?? '',
       maskType: maskType ?? '',
       folderId: folderId || '',

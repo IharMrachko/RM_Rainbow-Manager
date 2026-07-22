@@ -10,6 +10,8 @@ export const FIREBASE_PATHS = {
   paletteTemplatesItems: 'kFDy9AD2SVL64PG7hOl1',
   lookbookRoot: 'lookbooks',
   lookbookItems: 'RmLookbookItems01',
+  aiChatRoot: 'ai-chats',
+  aiChatItems: 'RmAiChatItems01',
   statisticsRoot: 'statistics',
 } as const;
 

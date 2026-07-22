@@ -14,12 +14,29 @@ export interface ChoiceSheetOption<T = string> {
   icon?: string;
   /** Ionic icon name, e.g. book-outline */
   ionIcon?: string;
+  /**
+   * Open the system file picker on tap (keeps the user gesture).
+   * Sheet closes with `{ value, files }` after selection.
+   */
+  filePick?: {
+    accept: string;
+    multiple?: boolean;
+  };
 }
 
 export interface ChoiceSheetData<T = string> {
   titleKey: string;
   options: ChoiceSheetOption<T>[];
   cancelKey?: string;
+}
+
+/** Normal option value, or file-pick payload. */
+export type ChoiceSheetResult<T> = T | { value: T; files: File[] };
+
+export function isChoiceSheetFiles<T>(
+  result: ChoiceSheetResult<T> | null | undefined,
+): result is { value: T; files: File[] } {
+  return !!result && typeof result === 'object' && Array.isArray((result as { files?: unknown }).files);
 }
 
 @Component({
@@ -30,19 +47,41 @@ export interface ChoiceSheetData<T = string> {
   template: `
     <div class="rm-choice-sheet" role="dialog" aria-modal="true">
       <h2>{{ data.titleKey | translate }}</h2>
-      @for (opt of data.options; track opt.value) {
-        <button type="button" class="rm-choice-sheet__opt" (click)="choose(opt.value)">
-          @if (opt.ionIcon || opt.icon) {
-            <span class="rm-choice-sheet__icon">
-              @if (opt.ionIcon) {
-                <ion-icon [name]="opt.ionIcon"></ion-icon>
-              } @else {
-                {{ opt.icon }}
-              }
-            </span>
-          }
-          <span>{{ opt.labelKey | translate }}</span>
-        </button>
+      @for (opt of data.options; track trackOpt($index, opt)) {
+        @if (opt.filePick) {
+          <label class="rm-choice-sheet__opt">
+            <input
+              type="file"
+              hidden
+              [attr.accept]="opt.filePick.accept"
+              [multiple]="!!opt.filePick.multiple"
+              (change)="onFilePicked(opt, $event)"
+            />
+            @if (opt.ionIcon || opt.icon) {
+              <span class="rm-choice-sheet__icon">
+                @if (opt.ionIcon) {
+                  <ion-icon [name]="opt.ionIcon"></ion-icon>
+                } @else {
+                  {{ opt.icon }}
+                }
+              </span>
+            }
+            <span>{{ opt.labelKey | translate }}</span>
+          </label>
+        } @else {
+          <button type="button" class="rm-choice-sheet__opt" (click)="choose(opt.value)">
+            @if (opt.ionIcon || opt.icon) {
+              <span class="rm-choice-sheet__icon">
+                @if (opt.ionIcon) {
+                  <ion-icon [name]="opt.ionIcon"></ion-icon>
+                } @else {
+                  {{ opt.icon }}
+                }
+              </span>
+            }
+            <span>{{ opt.labelKey | translate }}</span>
+          </button>
+        }
       }
       <button type="button" class="rm-choice-sheet__cancel" (click)="cancel()">
         {{ (data.cancelKey || 'cancel') | translate }}
@@ -91,6 +130,12 @@ export interface ChoiceSheetData<T = string> {
         font-size: 1rem;
         font-weight: 600;
         text-align: left;
+        box-sizing: border-box;
+        cursor: pointer;
+      }
+
+      label.rm-choice-sheet__opt {
+        margin-bottom: 10px;
       }
 
       .rm-choice-sheet__icon {
@@ -126,11 +171,23 @@ export interface ChoiceSheetData<T = string> {
 export class ChoiceSheetComponent<T = string> {
   constructor(
     @Inject(OVERLAY_SHEET_DATA) readonly data: ChoiceSheetData<T>,
-    @Inject(OVERLAY_SHEET_REF) private readonly sheetRef: OverlaySheetRef<T>,
+    @Inject(OVERLAY_SHEET_REF) private readonly sheetRef: OverlaySheetRef<ChoiceSheetResult<T>>,
   ) {}
+
+  trackOpt(index: number, opt: ChoiceSheetOption<T>): string {
+    return `${index}:${String(opt.value)}`;
+  }
 
   choose(value: T): void {
     this.sheetRef.close(value);
+  }
+
+  onFilePicked(opt: ChoiceSheetOption<T>, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files || []);
+    input.value = '';
+    if (!files.length) return;
+    this.sheetRef.close({ value: opt.value, files });
   }
 
   cancel(): void {

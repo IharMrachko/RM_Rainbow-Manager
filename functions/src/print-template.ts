@@ -544,10 +544,7 @@ export function buildPrintContentCss(bodySel = '.doc-body'): string {
 }
 
 /** Print document for Puppeteer — fonts match the mobile editor (Outfit/Syne). */
-export function buildPrintDocument(opts: {
-  title: string;
-  bodyHtml: string;
-}): string {
+export function buildPrintDocument(opts: { title: string; bodyHtml: string }): string {
   const title = escapeHtml(opts.title || 'Lookbook');
   const body = opts.bodyHtml || '<p></p>';
   const { widthPx, heightPx, padTopPx, padXPx, padBottomPx } = A4;

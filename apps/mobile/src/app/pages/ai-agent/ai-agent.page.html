@@ -6,53 +6,208 @@
       </ion-button>
     </ion-buttons>
     <ion-title>{{ 'aiAgent' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="openHistory()" [disabled]="booting" [attr.aria-label]="'aiHistory' | translate">
+        <ion-icon slot="icon-only" name="time-outline"></ion-icon>
+      </ion-button>
+      @if (!booting && exchanges.length) {
+        <ion-button fill="clear" (click)="exitToWelcome()" [attr.aria-label]="'aiExitToWelcome' | translate">
+          <ion-icon slot="icon-only" name="sparkles-outline"></ion-icon>
+        </ion-button>
+      }
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="page-content chat-content">
-  <div class="chat" [class.chat--empty]="!answers.length">
-    @if (!answers.length) {
-      <div class="empty">
-        <div class="empty__icon">
-          <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+  @if (booting) {
+    <div class="ai-boot">
+      <ion-spinner name="crescent"></ion-spinner>
+      <span>{{ 'aiLoadingChat' | translate }}</span>
+    </div>
+  } @else {
+  <div class="chat" [class.chat--empty]="!exchanges.length">
+    @if (!exchanges.length) {
+      <section class="ai-welcome">
+        <div class="ai-welcome__icon"><ion-icon name="sparkles-outline"></ion-icon></div>
+        <h1>{{ 'aiWelcomeTitle' | translate }}</h1>
+        <p>{{ 'aiWelcomeHint' | translate }}</p>
+
+        <div class="ai-scenario-group ai-scenario-group--image">
+          <div class="ai-scenario-group__head">
+            <ion-icon name="image-outline"></ion-icon>
+            <div>
+              <strong>{{ 'aiGroupImageTitle' | translate }}</strong>
+              <small>{{ 'aiGroupImageHint' | translate }}</small>
+            </div>
+          </div>
+          <div class="ai-scenarios ai-scenarios--image">
+            @for (card of imageScenarios; track card.id) {
+              <button type="button" class="ai-scenario ai-scenario--image" (click)="chooseScenario(card)">
+                <span class="ai-scenario__icon"><ion-icon [name]="card.icon"></ion-icon></span>
+                <span>
+                  <strong>{{ card.titleKey | translate }}</strong>
+                  <small>{{ card.hintKey | translate }}</small>
+                </span>
+              </button>
+            }
+          </div>
         </div>
-        <p class="empty__hint">{{ 'askAiHint' | translate }}</p>
-      </div>
+
+        <div class="ai-scenario-group ai-scenario-group--text">
+          <div class="ai-scenario-group__head">
+            <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+            <div>
+              <strong>{{ 'aiGroupTextTitle' | translate }}</strong>
+              <small>{{ 'aiGroupTextHint' | translate }}</small>
+            </div>
+          </div>
+          <div class="ai-scenarios">
+            @for (card of textScenarios; track card.id) {
+              <button type="button" class="ai-scenario" (click)="chooseScenario(card)">
+                <span class="ai-scenario__icon"><ion-icon [name]="card.icon"></ion-icon></span>
+                <span>
+                  <strong>{{ card.titleKey | translate }}</strong>
+                  <small>{{ card.hintKey | translate }}</small>
+                </span>
+              </button>
+            }
+          </div>
+        </div>
+      </section>
     }
 
-    @for (item of answers; track item.id) {
-      <div class="msg">
+    @for (item of exchanges; track item.id) {
+      <article class="msg">
         <div class="ask-wrap">
-          @if (item.url) {
-            <img [src]="item.url" alt="" />
+          @if (exchangePhotoPreviews(item).length) {
+            <div class="ask-wrap__photos">
+              @for (src of exchangePhotoPreviews(item); track $index) {
+                <button type="button" class="ask-wrap__photo" (click)="previewImage(src, 'aiAttachedPhoto')">
+                  <img [src]="src" alt="" />
+                </button>
+              }
+            </div>
+          } @else if (item.imageAttached) {
+            <div class="ask-photo"><ion-icon name="image-outline"></ion-icon>{{ 'photo' | translate }}</div>
           }
-          <div class="ask">{{ item.ask }}</div>
+          <div class="ask-block">
+            <div class="ask">{{ item.ask }}</div>
+            <button
+              type="button"
+              class="ask-copy"
+              (click)="copyAsk(item)"
+              [attr.aria-label]="'aiCopyAsk' | translate"
+            >
+              <ion-icon name="copy-outline"></ion-icon>{{ 'aiCopyAsk' | translate }}
+            </button>
+          </div>
         </div>
-        @if (item.answerHtml) {
-          <div class="answer" [innerHTML]="item.answerHtml"></div>
-        } @else {
+
+        @if (item.state === 'loading') {
           <div class="answer answer--loading">
             <ion-spinner name="dots"></ion-spinner>
+            <span>{{ (item.wantsImage ? 'aiGeneratingImage' : 'aiThinking') | translate }}</span>
+          </div>
+        } @else if (item.state === 'error') {
+          <div class="answer answer--error">
+            <p>{{ (item.errorKey || 'aiRequestError') | translate }}</p>
+            <button type="button" (click)="retry(item)">
+              <ion-icon name="refresh-outline"></ion-icon>{{ 'retry' | translate }}
+            </button>
+          </div>
+        } @else {
+          <div class="answer">
+            @if (item.answerHtml) {
+              <div [innerHTML]="trustedAnswerHtml(item.answerHtml)"></div>
+            }
+            @if (item.generatedImages?.length) {
+              <div class="answer-images">
+                @for (src of item.generatedImages; track $index) {
+                  <button type="button" class="answer-images__btn" (click)="previewImage(src)">
+                    <img [src]="src" alt="" />
+                  </button>
+                }
+              </div>
+            } @else if (item.hasGeneratedImage) {
+              <div class="answer-image-missing">{{ 'aiGeneratedImageLost' | translate }}</div>
+            }
+          </div>
+          <div class="answer-actions">
+            @if (item.answerMarkdown) {
+              <button type="button" (click)="copyAnswer(item)">
+                <ion-icon name="copy-outline"></ion-icon>{{ 'aiCopy' | translate }}
+              </button>
+            }
+            <button type="button" (click)="retry(item)">
+              <ion-icon name="refresh-outline"></ion-icon>{{ 'retry' | translate }}
+            </button>
+            @if (item.generatedImages?.length) {
+              <button
+                type="button"
+                (click)="saveGeneratedToGallery(item)"
+                [disabled]="savingGalleryExchangeId === item.id || addingLookbookExchangeId === item.id"
+              >
+                @if (savingGalleryExchangeId === item.id) {
+                  <ion-spinner name="crescent"></ion-spinner>
+                } @else {
+                  <ion-icon name="download-outline"></ion-icon>
+                }
+                {{ 'aiSaveImage' | translate }}
+              </button>
+            }
+            <button
+              type="button"
+              (click)="addToLookbook(item)"
+              [disabled]="addingLookbookExchangeId === item.id || savingGalleryExchangeId === item.id"
+            >
+              @if (addingLookbookExchangeId === item.id) {
+                <ion-spinner name="crescent"></ion-spinner>
+              } @else {
+                <ion-icon name="bookmark-outline"></ion-icon>
+              }
+              {{ 'aiAddToLookbook' | translate }}
+            </button>
+          </div>
+        }
+      </article>
+    }
+  </div>
+  }
+</ion-content>
+
+<ion-footer class="composer-footer" [class.composer-footer--hidden]="booting">
+  <div class="composer">
+    @if (attachedImages.length) {
+      <div class="attach-row">
+        @for (img of attachedImages; track img.id) {
+          <div class="attach">
+            <img [src]="img.preview" alt="" />
+            <button type="button" class="attach__clear" (click)="removeAttachedImage(img.id)">
+              <ion-icon name="close"></ion-icon>
+            </button>
           </div>
         }
       </div>
     }
-  </div>
-</ion-content>
-
-<ion-footer class="composer-footer">
-  <div class="composer">
-    @if (imagePreview) {
-      <div class="attach">
-        <img [src]="imagePreview" alt="" />
-        <button type="button" class="attach__clear" (click)="clearImage()">
-          <ion-icon name="close"></ion-icon>
-        </button>
-      </div>
-    }
     <div class="composer__row">
-      <button type="button" class="composer__icon-btn" (click)="openImageSource()" aria-label="attach">
+      <button
+        type="button"
+        class="composer__icon-btn"
+        (click)="openImageSource()"
+        [disabled]="booting || !canAttachMoreImages"
+        [attr.aria-label]="'pickPhoto' | translate"
+      >
         <ion-icon name="image-outline"></ion-icon>
+      </button>
+      <button
+        type="button"
+        class="composer__icon-btn"
+        (click)="openColorPicker()"
+        [disabled]="booting"
+        [attr.aria-label]="'aiPickColor' | translate"
+      >
+        <ion-icon name="color-palette-outline"></ion-icon>
       </button>
       <ion-textarea
         class="composer__input"
@@ -60,12 +215,14 @@
         [(ngModel)]="prompt"
         autoGrow="true"
         rows="1"
+        [disabled]="booting"
+        (keydown.enter)="onComposerEnter($event)"
       ></ion-textarea>
       <button
         type="button"
         class="composer__send"
         (click)="send()"
-        [disabled]="loading || (!prompt.trim() && !imageBase64)"
+        [disabled]="booting || loading || (!prompt.trim() && !attachedImages.length)"
         aria-label="send"
       >
         <ion-icon name="send"></ion-icon>
