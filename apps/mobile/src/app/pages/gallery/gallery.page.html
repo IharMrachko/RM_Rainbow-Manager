@@ -40,6 +40,12 @@
           <ion-icon [name]="selectMode ? 'checkbox' : 'checkbox-outline'"></ion-icon>
         </ion-button>
         <ion-button
+          (click)="openStockLooks()"
+          [attr.aria-label]="'stockLooks' | translate"
+        >
+          <ion-icon name="shirt-outline"></ion-icon>
+        </ion-button>
+        <ion-button
           (click)="openFolders()"
           [attr.aria-label]="'folder' | translate"
         >

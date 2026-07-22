@@ -5,6 +5,14 @@
     </ion-button>
     <h1 class="char-topbar__title">{{ 'paletteDeterminant' | translate }}</h1>
     <div class="char-topbar__actions">
+      <ion-button
+        fill="clear"
+        class="char-cam-btn"
+        (click)="openStockLooks()"
+        [attr.aria-label]="'stockLooksFromPalette' | translate"
+      >
+        <ion-icon slot="icon-only" name="shirt-outline"></ion-icon>
+      </ion-button>
       @if (hasPhoto) {
         <ion-button
           fill="clear"

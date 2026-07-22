@@ -60,6 +60,11 @@ export const TABS_SHELL_ROUTES: Routes = [
         loadComponent: () => import('../palette/palette.page').then((m) => m.PalettePage),
       },
       {
+        path: 'stock-looks',
+        loadComponent: () =>
+          import('../stock-looks/stock-looks.page').then((m) => m.StockLooksPage),
+      },
+      {
         path: '',
         redirectTo: 'characteristics',
         pathMatch: 'full',

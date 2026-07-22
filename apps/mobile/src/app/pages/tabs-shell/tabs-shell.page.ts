@@ -25,6 +25,7 @@ import {
   faPaintbrush,
   faRainbow,
   faScissors,
+  faShirt,
   faUserTie,
 } from '@fortawesome/free-solid-svg-icons';
 import { Subscription } from 'rxjs';
@@ -127,6 +128,7 @@ export class TabsShellPage implements OnInit, OnDestroy {
     { titleKey: 'pickColor', url: '/tabs/chroma', ...menuIcon(faEyeDropper) },
     { titleKey: 'aiAgent', url: '/tabs/ai-agent', ...menuIcon(faMicrochip) },
     { titleKey: 'gallery', url: '/tabs/gallery', ...menuIcon(faImages) },
+    { titleKey: 'stockLooks', url: '/tabs/stock-looks', ...menuIcon(faShirt) },
     { titleKey: 'lookbook', url: '/tabs/lookbook', ...menuIcon(faBookOpen) },
     { titleKey: 'consultation', url: '/tabs/consultation', ...menuIcon(faUserTie) },
   ];
