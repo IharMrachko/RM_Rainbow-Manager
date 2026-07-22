@@ -1,0 +1,130 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="page-toolbar">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="openAppMenu()">
+        <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'stockLooks' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="search()" [disabled]="loading" [attr.aria-label]="'stockLooksRefresh' | translate">
+        <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-content stock-looks">
+  <section class="stock-looks__intro">
+    <div class="stock-looks__intro-icon">
+      <ion-icon name="color-palette-outline"></ion-icon>
+    </div>
+    <div>
+      <h1>{{ 'stockLooksTitle' | translate }}</h1>
+      <p>{{ 'stockLooksHint' | translate }}</p>
+    </div>
+  </section>
+
+  @if (usedMock) {
+    <p class="stock-looks__banner">
+      {{ (hasApiKey ? 'stockLooksFallbackMock' : 'stockLooksMockMode') | translate }}
+    </p>
+  }
+
+  <section class="stock-looks__block">
+    <h2>{{ 'stockLooksPalette' | translate }}</h2>
+    <div class="stock-looks__swatches" aria-hidden="true">
+      @for (hex of accentSwatches; track hex) {
+        <span class="stock-looks__swatch" [style.background]="hex"></span>
+      }
+    </div>
+    <div class="stock-looks__chips">
+      @for (name of paletteNames; track name) {
+        <ion-chip
+          [outline]="selectedPalette !== name"
+          [color]="selectedPalette === name ? 'primary' : 'medium'"
+          (click)="selectPalette(name)"
+        >
+          {{ name | translate }}
+        </ion-chip>
+      }
+    </div>
+  </section>
+
+  <section class="stock-looks__block">
+    <h2>{{ 'stockLooksCategory' | translate }}</h2>
+    <div class="stock-looks__chips">
+      @for (category of categories; track category) {
+        <ion-chip
+          [outline]="selectedCategory !== category"
+          [color]="selectedCategory === category ? 'primary' : 'medium'"
+          (click)="selectCategory(category)"
+        >
+          {{ categoryKey(category) | translate }}
+        </ion-chip>
+      }
+    </div>
+  </section>
+
+  @if (loading) {
+    <div class="stock-looks__state">
+      <ion-spinner name="crescent"></ion-spinner>
+      <span>{{ 'stockLooksLoading' | translate }}</span>
+    </div>
+  } @else if (errorMessage) {
+    <div class="stock-looks__state stock-looks__state--error">
+      <p>{{ errorMessage }}</p>
+      <ion-button fill="outline" size="small" (click)="search()">{{ 'retry' | translate }}</ion-button>
+    </div>
+  } @else if (!items.length) {
+    <div class="stock-looks__state">
+      <ion-icon name="images-outline"></ion-icon>
+      <p>{{ 'stockLooksEmpty' | translate }}</p>
+    </div>
+  } @else {
+    <p class="stock-looks__meta">{{ querySummary }}</p>
+    <div class="stock-looks__grid">
+      @for (item of items; track item.id) {
+        <article class="stock-card">
+          <div class="stock-card__media" [style.--avg]="item.avgColor">
+            <img [src]="item.previewUrl" [alt]="item.title" loading="lazy" />
+            <span class="stock-card__score" [attr.data-label]="item.matchLabel">
+              {{ matchLabelKey(item.matchLabel) | translate }}
+              · {{ item.matchScore }}
+            </span>
+          </div>
+          <div class="stock-card__body">
+            <strong>{{ item.title }}</strong>
+            <small>
+              {{ 'stockLooksPhotoBy' | translate: { name: item.photographer } }}
+            </small>
+            <div class="stock-card__swatches">
+              @for (hex of item.matchedSwatches; track hex) {
+                <span [style.background]="hex"></span>
+              }
+            </div>
+            <div class="stock-card__actions">
+              <ion-button fill="clear" size="small" (click)="openSource(item)">
+                <ion-icon slot="start" name="open-outline"></ion-icon>
+                {{ 'stockLooksOpen' | translate }}
+              </ion-button>
+              <ion-button
+                fill="clear"
+                size="small"
+                [disabled]="savingId === item.id"
+                (click)="saveToGallery(item)"
+              >
+                @if (savingId === item.id) {
+                  <ion-spinner name="crescent"></ion-spinner>
+                } @else {
+                  <ion-icon slot="start" name="bookmark-outline"></ion-icon>
+                  {{ 'stockLooksSave' | translate }}
+                }
+              </ion-button>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</ion-content>

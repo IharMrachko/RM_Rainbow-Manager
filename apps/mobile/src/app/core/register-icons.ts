@@ -49,6 +49,7 @@ import {
   searchOutline,
   settingsOutline,
   shareOutline,
+  shirtOutline,
   swapHorizontalOutline,
   trashOutline,
 } from 'ionicons/icons';
@@ -105,6 +106,7 @@ export function registerAppIcons(): void {
     'search-outline': searchOutline,
     'settings-outline': settingsOutline,
     'share-outline': shareOutline,
+    'shirt-outline': shirtOutline,
     'swap-horizontal-outline': swapHorizontalOutline,
     'trash-outline': trashOutline,
   });

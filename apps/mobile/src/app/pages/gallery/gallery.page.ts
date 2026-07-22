@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { IonContent, IonicModule, ScrollDetail } from '@ionic/angular';
 import { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
 import { colorCards, Palette, palettesObj } from '@rainbow/shared';
@@ -98,6 +98,7 @@ export class GalleryPage implements OnInit, OnDestroy {
     private readonly foldersApi: FolderService,
     private readonly toasts: ToastService,
     private readonly confirm: ConfirmService,
+    private readonly router: Router,
     private readonly translate: TranslateService,
     private readonly appMenu: AppMenuService,
     private readonly sheets: OverlaySheetService,
@@ -106,6 +107,13 @@ export class GalleryPage implements OnInit, OnDestroy {
 
   openAppMenu(): void {
     this.appMenu.open();
+  }
+
+  openStockLooks(): void {
+    const queryParams = this.filter.paletteType
+      ? { paletteType: this.filter.paletteType }
+      : undefined;
+    void this.router.navigate(['/tabs/stock-looks'], { queryParams });
   }
 
   get hasActiveFilter(): boolean {

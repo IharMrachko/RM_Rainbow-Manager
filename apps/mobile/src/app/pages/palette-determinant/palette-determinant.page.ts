@@ -8,7 +8,7 @@ import {
   ViewChild,
   WritableSignal,
 } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { IonButton, IonChip, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
@@ -76,6 +76,7 @@ export class PaletteDeterminantPage implements OnDestroy {
     private readonly deviceMedia: DeviceMediaService,
     private readonly sheets: OverlaySheetService,
     private readonly toasts: ToastService,
+    private readonly router: Router,
     private readonly ngZone: NgZone,
     private readonly cdr: ChangeDetectorRef,
   ) {}
@@ -112,6 +113,12 @@ export class PaletteDeterminantPage implements OnDestroy {
 
   openMenu(): void {
     this.appMenu.open();
+  }
+
+  openStockLooks(): void {
+    void this.router.navigate(['/tabs/stock-looks'], {
+      queryParams: { paletteType: this.selected },
+    });
   }
 
   select(name: Palette): void {

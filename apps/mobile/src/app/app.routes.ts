@@ -41,6 +41,7 @@ export const APP_ROUTES: Routes = [
   { path: 'tabs/picker', redirectTo: 'tabs/palette-determinant', pathMatch: 'full' },
   { path: 'main/cut-palette', redirectTo: 'tabs/cut', pathMatch: 'full' },
   { path: 'main/gallery', redirectTo: 'tabs/gallery', pathMatch: 'full' },
+  { path: 'main/stock-looks', redirectTo: 'tabs/stock-looks', pathMatch: 'full' },
   { path: 'main/chroma', redirectTo: 'tabs/chroma', pathMatch: 'full' },
   { path: 'main/ai-agent', redirectTo: 'tabs/ai-agent', pathMatch: 'full' },
   { path: 'main/consultation', redirectTo: 'tabs/consultation', pathMatch: 'full' },
