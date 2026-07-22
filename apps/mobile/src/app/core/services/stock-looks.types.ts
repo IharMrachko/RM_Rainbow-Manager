@@ -3,6 +3,9 @@ import { Palette } from '@rainbow/shared';
 /** Stock search category presets for the prototype. */
 export type StockLooksCategory = 'outfit' | 'portrait' | 'accessories';
 
+/** Palette-matched search vs free text search without palette filters. */
+export type StockLooksMode = 'palette' | 'free';
+
 /** Named colors accepted by the Pexels search API. */
 export type PexelsColorName =
   | 'red'
@@ -43,8 +46,12 @@ export interface StockLookItem {
 }
 
 export interface StockLooksSearchParams {
-  paletteType: Palette;
-  category: StockLooksCategory;
+  mode?: StockLooksMode;
+  /** Required for palette mode. */
+  paletteType?: Palette;
+  category?: StockLooksCategory;
+  /** Free-text query for free mode (e.g. "red blazer", "linen shirt"). */
+  freeQuery?: string;
   /** Optional user-picked accent hexes from the palette (1–3). */
   accentHexes?: string[];
   perPage?: number;

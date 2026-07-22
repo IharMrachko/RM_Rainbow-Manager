@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
   IonButton,
@@ -7,6 +8,7 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
+  IonInput,
   IonSpinner,
   IonTitle,
   IonToolbar,
@@ -20,6 +22,7 @@ import {
   menuOutline,
   openOutline,
   refreshOutline,
+  searchOutline,
 } from 'ionicons/icons';
 import { Palette, palettesObj, palettesObjShort } from '@rainbow/shared';
 import { AppMenuService } from '../../core/services/app-menu.service';
@@ -28,6 +31,7 @@ import { StockLooksService } from '../../core/services/stock-looks.service';
 import {
   StockLookItem,
   StockLooksCategory,
+  StockLooksMode,
 } from '../../core/services/stock-looks.types';
 import { ToastService } from '../../core/services/toast.service';
 
@@ -38,6 +42,7 @@ addIcons({
   menuOutline,
   openOutline,
   refreshOutline,
+  searchOutline,
 });
 
 @Component({
@@ -45,6 +50,7 @@ addIcons({
   imports: [
     TranslateModule,
     RouterModule,
+    FormsModule,
     IonHeader,
     IonToolbar,
     IonButtons,
@@ -54,6 +60,7 @@ addIcons({
     IonContent,
     IonChip,
     IonSpinner,
+    IonInput,
   ],
   selector: 'app-stock-looks',
   templateUrl: './stock-looks.page.html',
@@ -62,9 +69,12 @@ addIcons({
 export class StockLooksPage implements OnInit {
   readonly paletteNames = Object.keys(palettesObj) as Palette[];
   readonly categories: StockLooksCategory[] = ['outfit', 'portrait', 'accessories'];
+  readonly modes: StockLooksMode[] = ['palette', 'free'];
 
+  mode: StockLooksMode = 'palette';
   selectedPalette: Palette = this.paletteNames[0];
   selectedCategory: StockLooksCategory = 'outfit';
+  freeQuery = '';
   items: StockLookItem[] = [];
   loading = false;
   usedMock = true;
@@ -86,8 +96,15 @@ export class StockLooksPage implements OnInit {
     const fromQuery = this.route.snapshot.queryParamMap.get('paletteType');
     if (fromQuery && this.paletteNames.includes(fromQuery as Palette)) {
       this.selectedPalette = fromQuery as Palette;
+      this.mode = 'palette';
     }
-    void this.search();
+    const mode = this.route.snapshot.queryParamMap.get('mode');
+    if (mode === 'free' || mode === 'palette') {
+      this.mode = mode;
+    }
+    if (this.mode === 'palette') {
+      void this.search();
+    }
   }
 
   get accentSwatches(): string[] {
@@ -98,8 +115,25 @@ export class StockLooksPage implements OnInit {
     return this.stockLooks.hasApiKey;
   }
 
+  get isFreeMode(): boolean {
+    return this.mode === 'free';
+  }
+
   openAppMenu(): void {
     void this.appMenu.open();
+  }
+
+  selectMode(mode: StockLooksMode): void {
+    if (this.mode === mode) return;
+    this.mode = mode;
+    this.items = [];
+    this.errorMessage = '';
+    this.querySummary = '';
+    if (mode === 'palette') {
+      void this.search();
+    } else {
+      this.cdr.markForCheck();
+    }
   }
 
   selectPalette(name: Palette): void {
@@ -114,16 +148,38 @@ export class StockLooksPage implements OnInit {
     void this.search();
   }
 
+  onFreeQuerySubmit(): void {
+    void this.search();
+  }
+
   async search(): Promise<void> {
+    if (this.mode === 'free' && !this.freeQuery.trim()) {
+      this.items = [];
+      this.errorMessage = '';
+      this.querySummary = '';
+      this.usedMock = false;
+      this.cdr.markForCheck();
+      return;
+    }
+
     this.loading = true;
     this.errorMessage = '';
     this.cdr.markForCheck();
     try {
-      const result = await this.stockLooks.search({
-        paletteType: this.selectedPalette,
-        category: this.selectedCategory,
-        perPage: 24,
-      });
+      const result = await this.stockLooks.search(
+        this.mode === 'free'
+          ? {
+              mode: 'free',
+              freeQuery: this.freeQuery.trim(),
+              perPage: 24,
+            }
+          : {
+              mode: 'palette',
+              paletteType: this.selectedPalette,
+              category: this.selectedCategory,
+              perPage: 24,
+            },
+      );
       this.items = result.items;
       this.usedMock = result.usedMock;
       this.querySummary = result.querySummary;
@@ -140,6 +196,10 @@ export class StockLooksPage implements OnInit {
     if (label === 'excellent') return 'stockLooksMatchExcellent';
     if (label === 'good') return 'stockLooksMatchGood';
     return 'stockLooksMatchFair';
+  }
+
+  modeKey(mode: StockLooksMode): string {
+    return mode === 'free' ? 'stockLooksModeFree' : 'stockLooksModePalette';
   }
 
   categoryKey(category: StockLooksCategory): string {
@@ -162,7 +222,7 @@ export class StockLooksPage implements OnInit {
         canvas,
         title: item.title,
         coloristicType: 'stock',
-        paletteType: this.selectedPalette,
+        paletteType: this.isFreeMode ? undefined : this.selectedPalette,
       });
       this.toasts.show(this.translate.instant('stockLooksSaved'));
     } catch {

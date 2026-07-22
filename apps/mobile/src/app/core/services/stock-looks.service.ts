@@ -209,6 +209,19 @@ export class StockLooksService {
   }
 
   async search(params: StockLooksSearchParams): Promise<StockLooksSearchResult> {
+    if ((params.mode ?? 'palette') === 'free') {
+      return this.searchFree(params);
+    }
+    return this.searchByPalette(params);
+  }
+
+  private async searchByPalette(
+    params: StockLooksSearchParams,
+  ): Promise<StockLooksSearchResult> {
+    if (!params.paletteType || !params.category) {
+      return { items: [], usedMock: false, querySummary: 'palette' };
+    }
+
     const anchors = buildColorAnchors(
       params.paletteType,
       3,
@@ -245,6 +258,77 @@ export class StockLooksService {
 
     const items = this.scoreAndRank(raw, params.paletteType);
     return { items, usedMock, querySummary };
+  }
+
+  /** Free text search: no palette color filters and no palette scoring. */
+  private async searchFree(
+    params: StockLooksSearchParams,
+  ): Promise<StockLooksSearchResult> {
+    const freeQuery = (params.freeQuery || '').trim();
+    if (!freeQuery) {
+      return { items: [], usedMock: false, querySummary: 'free' };
+    }
+
+    const querySummary = `free · ${freeQuery}`;
+    let raw: RawLook[] = [];
+    let usedMock = false;
+
+    if (this.hasApiKey) {
+      try {
+        raw = await this.fetchFromPexels(freeQuery, undefined, params.perPage ?? 24);
+      } catch {
+        raw = [];
+      }
+      if (!raw.length) {
+        raw = this.filterMocksByQuery(freeQuery);
+        usedMock = true;
+      }
+    } else {
+      raw = this.filterMocksByQuery(freeQuery);
+      usedMock = true;
+    }
+
+    const items = this.rankFree(raw, freeQuery);
+    return { items, usedMock, querySummary };
+  }
+
+  private filterMocksByQuery(query: string): RawLook[] {
+    const tokens = query
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((t) => t.length > 1);
+    if (!tokens.length) return [...MOCK_LOOKS];
+    const matched = MOCK_LOOKS.filter((item) => {
+      const hay = item.title.toLowerCase();
+      return tokens.some((t) => hay.includes(t));
+    });
+    return matched.length ? matched : [...MOCK_LOOKS];
+  }
+
+  private rankFree(raw: RawLook[], query: string): StockLookItem[] {
+    const tokens = query
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((t) => t.length > 1);
+
+    return raw
+      .map((item) => {
+        const hay = item.title.toLowerCase();
+        let matchScore = 40 + subjectRelevanceDelta(item.title);
+        for (const token of tokens) {
+          if (hay.includes(token)) matchScore += 10;
+        }
+        matchScore = Math.max(0, Math.min(100, matchScore));
+        const matchLabel: StockLookItem['matchLabel'] =
+          matchScore >= 72 ? 'excellent' : matchScore >= 48 ? 'good' : 'fair';
+        return {
+          ...item,
+          matchScore,
+          matchLabel,
+          matchedSwatches: [],
+        };
+      })
+      .sort((a, b) => b.matchScore - a.matchScore);
   }
 
   /**

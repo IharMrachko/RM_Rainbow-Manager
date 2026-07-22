@@ -85,6 +85,22 @@
   gap: 6px;
 }
 
+.stock-looks__search {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.stock-looks__search-input {
+  flex: 1;
+  min-height: 42px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--ion-text-color) 12%, transparent);
+  background: color-mix(in srgb, var(--ion-text-color) 4%, var(--ion-background-color, #fff));
+}
+
 .stock-looks__chips ion-chip {
   margin: 0;
 }

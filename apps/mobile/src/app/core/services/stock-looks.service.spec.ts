@@ -66,4 +66,19 @@ describe('StockLooksService scoring', () => {
     const gray = service.scoreAgainstPalette('#B0B0B0', 'softAutumnPalette');
     expect(warm.matchScore).toBeGreaterThan(gray.matchScore);
   });
+
+  it('returns empty results for blank free search', async () => {
+    const service = new StockLooksService({} as never);
+    const result = await service.search({ mode: 'free', freeQuery: '   ' });
+    expect(result.items.length).toBe(0);
+    expect(result.querySummary).toBe('free');
+  });
+
+  it('runs free search without palette filters using mocks', async () => {
+    const service = new StockLooksService({} as never);
+    const result = await service.search({ mode: 'free', freeQuery: 'knit' });
+    expect(result.usedMock).toBeTrue();
+    expect(result.items.length).toBeGreaterThan(0);
+    expect(result.items.every((item) => item.matchedSwatches.length === 0)).toBeTrue();
+  });
 });

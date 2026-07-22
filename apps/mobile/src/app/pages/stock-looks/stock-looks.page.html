@@ -7,7 +7,12 @@
     </ion-buttons>
     <ion-title>{{ 'stockLooks' | translate }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="search()" [disabled]="loading" [attr.aria-label]="'stockLooksRefresh' | translate">
+      <ion-button
+        fill="clear"
+        (click)="search()"
+        [disabled]="loading || (isFreeMode && !freeQuery.trim())"
+        [attr.aria-label]="'stockLooksRefresh' | translate"
+      >
         <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -17,54 +22,94 @@
 <ion-content class="page-content stock-looks">
   <section class="stock-looks__intro">
     <div class="stock-looks__intro-icon">
-      <ion-icon name="color-palette-outline"></ion-icon>
+      <ion-icon [name]="isFreeMode ? 'search-outline' : 'color-palette-outline'"></ion-icon>
     </div>
     <div>
-      <h1>{{ 'stockLooksTitle' | translate }}</h1>
-      <p>{{ 'stockLooksHint' | translate }}</p>
+      <h1>{{ (isFreeMode ? 'stockLooksFreeTitle' : 'stockLooksTitle') | translate }}</h1>
+      <p>{{ (isFreeMode ? 'stockLooksFreeHint' : 'stockLooksHint') | translate }}</p>
     </div>
   </section>
 
-  @if (usedMock) {
+  <section class="stock-looks__block">
+    <h2>{{ 'stockLooksMode' | translate }}</h2>
+    <div class="stock-looks__chips">
+      @for (m of modes; track m) {
+        <ion-chip
+          [outline]="mode !== m"
+          [color]="mode === m ? 'primary' : 'medium'"
+          (click)="selectMode(m)"
+        >
+          {{ modeKey(m) | translate }}
+        </ion-chip>
+      }
+    </div>
+  </section>
+
+  @if (usedMock && (items.length || !isFreeMode)) {
     <p class="stock-looks__banner">
       {{ (hasApiKey ? 'stockLooksFallbackMock' : 'stockLooksMockMode') | translate }}
     </p>
   }
 
-  <section class="stock-looks__block">
-    <h2>{{ 'stockLooksPalette' | translate }}</h2>
-    <div class="stock-looks__swatches" aria-hidden="true">
-      @for (hex of accentSwatches; track hex) {
-        <span class="stock-looks__swatch" [style.background]="hex"></span>
-      }
-    </div>
-    <div class="stock-looks__chips">
-      @for (name of paletteNames; track name) {
-        <ion-chip
-          [outline]="selectedPalette !== name"
-          [color]="selectedPalette === name ? 'primary' : 'medium'"
-          (click)="selectPalette(name)"
+  @if (isFreeMode) {
+    <section class="stock-looks__block">
+      <h2>{{ 'stockLooksFreeQuery' | translate }}</h2>
+      <div class="stock-looks__search">
+        <ion-input
+          class="stock-looks__search-input"
+          type="search"
+          enterkeyhint="search"
+          [placeholder]="'stockLooksFreePlaceholder' | translate"
+          [(ngModel)]="freeQuery"
+          (keyup.enter)="onFreeQuerySubmit()"
+        ></ion-input>
+        <ion-button
+          fill="solid"
+          size="small"
+          [disabled]="loading || !freeQuery.trim()"
+          (click)="onFreeQuerySubmit()"
         >
-          {{ name | translate }}
-        </ion-chip>
-      }
-    </div>
-  </section>
+          <ion-icon slot="start" name="search-outline"></ion-icon>
+          {{ 'stockLooksSearch' | translate }}
+        </ion-button>
+      </div>
+    </section>
+  } @else {
+    <section class="stock-looks__block">
+      <h2>{{ 'stockLooksPalette' | translate }}</h2>
+      <div class="stock-looks__swatches" aria-hidden="true">
+        @for (hex of accentSwatches; track hex) {
+          <span class="stock-looks__swatch" [style.background]="hex"></span>
+        }
+      </div>
+      <div class="stock-looks__chips">
+        @for (name of paletteNames; track name) {
+          <ion-chip
+            [outline]="selectedPalette !== name"
+            [color]="selectedPalette === name ? 'primary' : 'medium'"
+            (click)="selectPalette(name)"
+          >
+            {{ name | translate }}
+          </ion-chip>
+        }
+      </div>
+    </section>
 
-  <section class="stock-looks__block">
-    <h2>{{ 'stockLooksCategory' | translate }}</h2>
-    <div class="stock-looks__chips">
-      @for (category of categories; track category) {
-        <ion-chip
-          [outline]="selectedCategory !== category"
-          [color]="selectedCategory === category ? 'primary' : 'medium'"
-          (click)="selectCategory(category)"
-        >
-          {{ categoryKey(category) | translate }}
-        </ion-chip>
-      }
-    </div>
-  </section>
+    <section class="stock-looks__block">
+      <h2>{{ 'stockLooksCategory' | translate }}</h2>
+      <div class="stock-looks__chips">
+        @for (category of categories; track category) {
+          <ion-chip
+            [outline]="selectedCategory !== category"
+            [color]="selectedCategory === category ? 'primary' : 'medium'"
+            (click)="selectCategory(category)"
+          >
+            {{ categoryKey(category) | translate }}
+          </ion-chip>
+        }
+      </div>
+    </section>
+  }
 
   @if (loading) {
     <div class="stock-looks__state">
@@ -76,10 +121,15 @@
       <p>{{ errorMessage }}</p>
       <ion-button fill="outline" size="small" (click)="search()">{{ 'retry' | translate }}</ion-button>
     </div>
+  } @else if (isFreeMode && !freeQuery.trim()) {
+    <div class="stock-looks__state">
+      <ion-icon name="search-outline"></ion-icon>
+      <p>{{ 'stockLooksFreeEmptyHint' | translate }}</p>
+    </div>
   } @else if (!items.length) {
     <div class="stock-looks__state">
       <ion-icon name="images-outline"></ion-icon>
-      <p>{{ 'stockLooksEmpty' | translate }}</p>
+      <p>{{ (isFreeMode ? 'stockLooksFreeEmpty' : 'stockLooksEmpty') | translate }}</p>
     </div>
   } @else {
     <p class="stock-looks__meta">{{ querySummary }}</p>
@@ -93,21 +143,25 @@
               loading="lazy"
               decoding="async"
             />
-            <span class="stock-card__score" [attr.data-label]="item.matchLabel">
-              {{ matchLabelKey(item.matchLabel) | translate }}
-              · {{ item.matchScore }}
-            </span>
+            @if (!isFreeMode) {
+              <span class="stock-card__score" [attr.data-label]="item.matchLabel">
+                {{ matchLabelKey(item.matchLabel) | translate }}
+                · {{ item.matchScore }}
+              </span>
+            }
           </div>
           <div class="stock-card__body">
             <strong>{{ item.title }}</strong>
             <small>
               {{ 'stockLooksPhotoBy' | translate: { name: item.photographer } }}
             </small>
-            <div class="stock-card__swatches">
-              @for (hex of item.matchedSwatches; track hex) {
-                <span [style.background]="hex"></span>
-              }
-            </div>
+            @if (!isFreeMode && item.matchedSwatches.length) {
+              <div class="stock-card__swatches">
+                @for (hex of item.matchedSwatches; track hex) {
+                  <span [style.background]="hex"></span>
+                }
+              </div>
+            }
             <div class="stock-card__actions">
               <ion-button fill="clear" size="small" (click)="openSource(item)">
                 <ion-icon slot="start" name="open-outline"></ion-icon>
