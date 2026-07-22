@@ -45,7 +45,7 @@
   "gallery": "Галерея",
   "stockLooks": "Образы из стока",
   "stockLooksTitle": "Подбор образов под палитру",
-  "stockLooksHint": "Внешние референсы по цветотипу: сток ищет по цвету, приложение ранжирует по палитре RM.",
+  "stockLooksHint": "Референсы одежды под палитру: приоритет кадрам с моделью/вещью, выше разрешение превью.",
   "stockLooksPalette": "Палитра",
   "stockLooksCategory": "Категория",
   "stockLooksCategoryOutfit": "Одежда",

@@ -1,5 +1,10 @@
 import chroma from 'chroma-js';
-import { buildColorAnchors, nearestPexelsColor } from './stock-looks-query';
+import {
+  buildColorAnchors,
+  buildSearchQueries,
+  nearestPexelsColor,
+  subjectRelevanceDelta,
+} from './stock-looks-query';
 import { StockLooksService } from './stock-looks.service';
 
 describe('stock-looks-query', () => {
@@ -18,6 +23,19 @@ describe('stock-looks-query', () => {
     for (const anchor of anchors) {
       expect(chroma.valid(anchor.hex)).toBeTrue();
     }
+  });
+
+  it('keeps clothing-focused search queries', () => {
+    const queries = buildSearchQueries('softAutumnPalette', 'outfit');
+    expect(queries[0].toLowerCase()).toContain('clothing');
+    expect(queries.some((q) => q.toLowerCase().includes('studio'))).toBeTrue();
+  });
+
+  it('boosts clothing alts and penalizes background scenes', () => {
+    expect(subjectRelevanceDelta('Woman wearing blazer dress clothing')).toBeGreaterThan(
+      subjectRelevanceDelta('Mountain landscape sunset sky'),
+    );
+    expect(subjectRelevanceDelta('Mountain landscape sunset sky')).toBeLessThan(0);
   });
 });
 

@@ -26,7 +26,7 @@ cd apps/mobile && npm install && npm start
 
 Документация: [`apps/mobile/README.md`](apps/mobile/README.md)
 
-Прототип подбора стоковых образов по палитре: экран **Stock Looks** (`/tabs/stock-looks`) в мобильном приложении. Опционально: `pexelsApiKey` в `apps/mobile/src/environments/environment.ts`.
+Прототип подбора стоковых образов по палитре: экран **Stock Looks** (`/tabs/stock-looks`) в мобильном приложении. Опционально: `pexelsApiKey` в `apps/mobile/src/environments/environment.ts`. Выдача заточена под одежду/объект и более высокое разрешение превью.
 
 Общие типы/константы: `packages/shared`
 

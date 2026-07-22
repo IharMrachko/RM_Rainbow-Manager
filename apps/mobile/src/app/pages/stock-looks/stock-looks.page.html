@@ -87,7 +87,12 @@
       @for (item of items; track item.id) {
         <article class="stock-card">
           <div class="stock-card__media" [style.--avg]="item.avgColor">
-            <img [src]="item.previewUrl" [alt]="item.title" loading="lazy" />
+            <img
+              [src]="item.previewUrl"
+              [alt]="item.title"
+              loading="lazy"
+              decoding="async"
+            />
             <span class="stock-card__score" [attr.data-label]="item.matchLabel">
               {{ matchLabelKey(item.matchLabel) | translate }}
               · {{ item.matchScore }}

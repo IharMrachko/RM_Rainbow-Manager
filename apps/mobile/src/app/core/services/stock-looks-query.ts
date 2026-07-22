@@ -6,26 +6,43 @@ import {
   StockLooksCategory,
 } from './stock-looks.types';
 
+/**
+ * Clothing / subject-first queries. Avoid lifestyle / interior / landscape wording
+ * that makes backgrounds dominate avg_color matching.
+ */
 const CATEGORY_QUERIES: Record<StockLooksCategory, string[]> = {
-  outfit: ['women fashion outfit', 'elegant clothing look', 'seasonal fashion style'],
-  portrait: ['fashion portrait', 'woman portrait style', 'editorial portrait'],
-  accessories: ['fashion accessories', 'scarf jewelry bag', 'style accessories flatlay'],
+  outfit: [
+    'studio fashion model outfit clothing',
+    'woman wearing dress blazer apparel',
+    'fashion lookbook clothing close up',
+    'editorial fashion garment on model',
+  ],
+  portrait: [
+    'fashion model portrait clothing studio',
+    'beauty fashion portrait outfit close up',
+    'editorial fashion face portrait apparel',
+  ],
+  accessories: [
+    'fashion accessories product close up studio',
+    'scarf handbag jewelry flat lay',
+    'fashion shoes bag product photography',
+  ],
 };
 
-/** Soft season wording hints layered onto the base query. */
+/** Light clothing-oriented color hints (not nature/interior scenes). */
 const PALETTE_QUERY_HINTS: Partial<Record<Palette, string>> = {
-  softSummerPalette: 'muted soft tones',
-  softAutumnPalette: 'muted earth tones',
-  darkAutumnPalette: 'deep warm earth',
+  softSummerPalette: 'soft muted colors',
+  softAutumnPalette: 'soft earthy colors',
+  darkAutumnPalette: 'deep warm colors',
   warmAutumnPalette: 'warm autumn colors',
-  coldSummerPalette: 'cool soft colors',
-  lightSummerPalette: 'light pastel cool',
-  lightSpringPalette: 'light warm pastel',
-  brightSpringPalette: 'bright clear spring',
+  coldSummerPalette: 'cool muted colors',
+  lightSummerPalette: 'light cool colors',
+  lightSpringPalette: 'light warm colors',
+  brightSpringPalette: 'bright clear colors',
   warmSpringPalette: 'warm spring colors',
-  darkWinterPalette: 'deep cool contrast',
-  coldWinterPalette: 'cool clear winter',
-  brightWinterPalette: 'bright jewel tones',
+  darkWinterPalette: 'deep cool colors',
+  coldWinterPalette: 'cool clear colors',
+  brightWinterPalette: 'bright jewel colors',
 };
 
 const PEXELS_COLOR_HEX: Record<PexelsColorName, string> = {
@@ -42,6 +59,64 @@ const PEXELS_COLOR_HEX: Record<PexelsColorName, string> = {
   gray: '#9E9E9E',
   white: '#FAFAFA',
 };
+
+const SUBJECT_BOOST_TERMS = [
+  'dress',
+  'outfit',
+  'clothing',
+  'clothes',
+  'apparel',
+  'garment',
+  'blazer',
+  'jacket',
+  'coat',
+  'sweater',
+  'knit',
+  'blouse',
+  'shirt',
+  'skirt',
+  'pants',
+  'trousers',
+  'suit',
+  'fashion',
+  'model',
+  'wearing',
+  'lookbook',
+  'runway',
+  'scarf',
+  'handbag',
+  'jewelry',
+  'shoes',
+  'heels',
+  'bag',
+];
+
+const SUBJECT_PENALTY_TERMS = [
+  'landscape',
+  'mountain',
+  'forest',
+  'beach',
+  'ocean',
+  'sky',
+  'sunset',
+  'sunrise',
+  'interior',
+  'living room',
+  'bedroom',
+  'kitchen',
+  'architecture',
+  'building',
+  'cityscape',
+  'wall',
+  'wallpaper',
+  'background',
+  'nature',
+  'tree',
+  'flower field',
+  'coffee shop',
+  'restaurant',
+  'street view',
+];
 
 /**
  * Pick up to `count` distinct anchors from a RM palette, mapped to Pexels color names.
@@ -83,7 +158,9 @@ export function buildSearchQueries(
 ): string[] {
   const base = CATEGORY_QUERIES[category] ?? CATEGORY_QUERIES.outfit;
   const hint = PALETTE_QUERY_HINTS[paletteType];
-  return base.map((q) => (hint ? `${q} ${hint}` : q));
+  // Keep one plain clothing query first (better subject hit), then hinted variants.
+  const withHint = hint ? base.map((q) => `${q} ${hint}`) : base;
+  return [base[0], ...withHint].filter((q, i, arr) => arr.indexOf(q) === i);
 }
 
 export function nearestPexelsColor(hex: string): PexelsColorName {
@@ -100,6 +177,24 @@ export function nearestPexelsColor(hex: string): PexelsColorName {
     }
   }
   return best;
+}
+
+/**
+ * Bias ranking toward clothing/subject photos and away from background-heavy scenes
+ * using Pexels alt/title text.
+ */
+export function subjectRelevanceDelta(text: string): number {
+  const hay = (text || '').toLowerCase();
+  if (!hay.trim()) return -4;
+
+  let delta = 0;
+  for (const term of SUBJECT_BOOST_TERMS) {
+    if (hay.includes(term)) delta += 4;
+  }
+  for (const term of SUBJECT_PENALTY_TERMS) {
+    if (hay.includes(term)) delta -= 8;
+  }
+  return Math.max(-24, Math.min(18, delta));
 }
 
 /** Spread sample across the palette array so anchors cover different segments. */
