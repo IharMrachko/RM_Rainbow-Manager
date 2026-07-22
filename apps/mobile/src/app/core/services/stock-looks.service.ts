@@ -7,6 +7,7 @@ import { environment } from '../../../environments/environment';
 import {
   buildColorAnchors,
   buildSearchQueries,
+  isNeutralHex,
   subjectRelevanceDelta,
 } from './stock-looks-query';
 import {
@@ -263,12 +264,18 @@ export class StockLooksService {
       .map((hex) => ({ hex, dist: chroma.deltaE(avgColor, hex) }))
       .sort((a, b) => a.dist - b.dist);
 
-    const nearest = distances.slice(0, 5);
+    // Prefer chromatic palette swatches so neutrals don't dominate the match.
+    const chromatic = distances.filter((d) => !isNeutralHex(d.hex));
+    const nearest = (chromatic.length ? chromatic : distances).slice(0, 5);
     const avgDist =
       nearest.reduce((sum, d) => sum + d.dist, 0) / Math.max(nearest.length, 1);
 
     // ΔE ~0 → 100, ΔE ≥40 → 0
-    const matchScore = Math.max(0, Math.min(100, Math.round(100 - avgDist * 2.5)));
+    let matchScore = Math.max(0, Math.min(100, Math.round(100 - avgDist * 2.5)));
+    // White / gray / black-dominated frames (studio BG, B&W) rank lower.
+    if (isNeutralHex(avgColor)) {
+      matchScore = Math.max(0, matchScore - 28);
+    }
     const matchLabel: StockLookItem['matchLabel'] =
       matchScore >= 72 ? 'excellent' : matchScore >= 48 ? 'good' : 'fair';
 

@@ -18,9 +18,12 @@ export type PexelsColorName =
   | 'gray'
   | 'white';
 
+/** Pexels colors allowed as stock search filters (no white/gray/black). */
+export type ChromaticPexelsColor = Exclude<PexelsColorName, 'white' | 'gray' | 'black'>;
+
 export interface StockColorAnchor {
   hex: string;
-  pexelsColor: PexelsColorName;
+  pexelsColor: ChromaticPexelsColor;
 }
 
 export interface StockLookItem {

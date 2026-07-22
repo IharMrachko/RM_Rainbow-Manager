@@ -1,6 +1,7 @@
 import chroma from 'chroma-js';
 import { Palette, palettesObj } from '@rainbow/shared';
 import {
+  ChromaticPexelsColor,
   PexelsColorName,
   StockColorAnchor,
   StockLooksCategory,
@@ -59,6 +60,16 @@ const PEXELS_COLOR_HEX: Record<PexelsColorName, string> = {
   gray: '#9E9E9E',
   white: '#FAFAFA',
 };
+
+/** Neutrals pull studio backgrounds / B&W scenes — never use as Pexels color filters. */
+export const EXCLUDED_PEXELS_COLORS: ReadonlySet<PexelsColorName> = new Set([
+  'white',
+  'gray',
+  'black',
+]);
+
+/** Hexes below this chroma (Lab C) are treated as white/gray/black-like neutrals. */
+const NEUTRAL_CHROMA_MAX = 12;
 
 const SUBJECT_BOOST_TERMS = [
   'dress',
@@ -119,7 +130,9 @@ const SUBJECT_PENALTY_TERMS = [
 ];
 
 /**
- * Pick up to `count` distinct anchors from a RM palette, mapped to Pexels color names.
+ * Pick up to `count` distinct chromatic anchors from a RM palette.
+ * White / gray / black (and near-neutrals) are skipped so stock search
+ * does not filter by those Pexels color names.
  */
 export function buildColorAnchors(
   paletteType: Palette,
@@ -127,29 +140,38 @@ export function buildColorAnchors(
   preferredHexes?: string[],
 ): StockColorAnchor[] {
   const palette = palettesObj[paletteType] ?? [];
-  const source =
+  const preferred =
     preferredHexes?.length && preferredHexes.every((h) => chroma.valid(h))
       ? preferredHexes
-      : pickSpreadHexes(palette, Math.max(count * 2, 6));
+      : [];
+  // Prefer user accents, then a wide spread, then the full palette as fallback.
+  const source = [
+    ...preferred,
+    ...pickSpreadHexes(palette, Math.max(count * 4, 12)),
+    ...palette,
+  ];
 
   const anchors: StockColorAnchor[] = [];
   const used = new Set<PexelsColorName>();
 
   for (const hex of source) {
-    if (!chroma.valid(hex)) continue;
+    if (!chroma.valid(hex) || isNeutralHex(hex)) continue;
     const pexelsColor = nearestPexelsColor(hex);
+    if (!pexelsColor || EXCLUDED_PEXELS_COLORS.has(pexelsColor)) continue;
     if (used.has(pexelsColor)) continue;
     used.add(pexelsColor);
     anchors.push({ hex: chroma(hex).hex(), pexelsColor });
     if (anchors.length >= count) break;
   }
 
-  if (!anchors.length && palette.length) {
-    const hex = chroma(palette[0]).hex();
-    anchors.push({ hex, pexelsColor: nearestPexelsColor(hex) });
-  }
-
   return anchors;
+}
+
+/** True for white / gray / black-like swatches (low chroma). */
+export function isNeutralHex(hex: string): boolean {
+  if (!chroma.valid(hex)) return true;
+  const c = chroma(hex).lch()[1];
+  return c <= NEUTRAL_CHROMA_MAX;
 }
 
 export function buildSearchQueries(
@@ -163,17 +185,24 @@ export function buildSearchQueries(
   return [base[0], ...withHint].filter((q, i, arr) => arr.indexOf(q) === i);
 }
 
-export function nearestPexelsColor(hex: string): PexelsColorName {
-  let best: PexelsColorName = 'gray';
+/**
+ * Nearest Pexels named color, excluding white/gray/black.
+ * Returns null when no chromatic match is reasonable.
+ */
+export function nearestPexelsColor(hex: string): ChromaticPexelsColor | null {
+  if (!chroma.valid(hex) || isNeutralHex(hex)) return null;
+
+  let best: ChromaticPexelsColor | null = null;
   let bestDist = Number.POSITIVE_INFINITY;
   for (const [name, sample] of Object.entries(PEXELS_COLOR_HEX) as [
     PexelsColorName,
     string,
   ][]) {
+    if (EXCLUDED_PEXELS_COLORS.has(name)) continue;
     const dist = chroma.deltaE(hex, sample);
     if (dist < bestDist) {
       bestDist = dist;
-      best = name;
+      best = name as ChromaticPexelsColor;
     }
   }
   return best;
