@@ -39,6 +39,7 @@ import {
   VirtualScrollGridComponent,
   VirtualScrollGridScrollEvent,
 } from '../../shared/components/virtual-scroll-grid.component';
+import { InputSearchComponent } from '../../shared/components/input-search.component';
 
 export interface GalleryFilterState {
   folderId: string | null;
@@ -49,7 +50,14 @@ export interface GalleryFilterState {
 
 @Component({
   standalone: true,
-  imports: [IonicModule, TranslateModule, RouterModule, FormsModule, VirtualScrollGridComponent],
+  imports: [
+    IonicModule,
+    TranslateModule,
+    RouterModule,
+    FormsModule,
+    VirtualScrollGridComponent,
+    InputSearchComponent,
+  ],
   selector: 'app-gallery',
   templateUrl: './gallery.page.html',
   styleUrls: ['./gallery.page.scss'],

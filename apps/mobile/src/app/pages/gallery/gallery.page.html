@@ -79,23 +79,14 @@
   (ionScrollEnd)="onContentScrollEnd()"
 >
   <div class="gallery-layout" [class.gallery-layout--virtual]="useVirtualGrid">
-    <div class="gallery-search" [class.is-hidden]="searchHidden || selectMode">
-      <ion-input
-        class="gallery-search__input"
-        type="search"
-        inputmode="search"
-        enterkeyhint="search"
-        fill="outline"
-        mode="md"
-        [clearInput]="true"
-        [placeholder]="'search' | translate"
-        [value]="search"
-        (ionInput)="onSearchChange($any($event).detail.value)"
-        (ionFocus)="onSearchFocus()"
-      >
-        <ion-icon slot="start" name="search-outline" aria-hidden="true"></ion-icon>
-      </ion-input>
-    </div>
+    <app-input-search
+      class="gallery-search"
+      [isHidden]="searchHidden || selectMode"
+      [value]="search"
+      [placeholder]="'search' | translate"
+      (valueChange)="onSearchChange($event)"
+      (focused)="onSearchFocus()"
+    />
 
     @if (loading) {
       <div class="center">

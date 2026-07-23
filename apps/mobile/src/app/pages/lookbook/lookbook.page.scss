@@ -19,39 +19,6 @@
   margin-inline: 2px;
 }
 
-.lb-search-toolbar {
-  --background: var(--ion-background-color, #f3f5fb);
-  --min-height: 58px;
-  padding: 5px 10px 4px;
-}
-
-.lb-search-box {
-  height: 46px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 12px;
-  border: 1px solid rgba(138, 79, 160, 0.16);
-  border-radius: 14px;
-  background: var(--rm-elevated, #fff);
-  box-shadow: 0 4px 14px rgba(22, 24, 42, 0.06);
-}
-
-.lb-search-box > ion-icon {
-  flex: 0 0 auto;
-  font-size: 20px;
-  color: #8a4fa0;
-}
-
-.lb-search-box ion-input {
-  min-height: 44px;
-  --padding-start: 0;
-  --padding-end: 0;
-  --placeholder-color: #72778b;
-  --placeholder-opacity: 0.85;
-  color: var(--ion-text-color, #16182a);
-}
-
 .lb-no-results {
   min-height: 42vh;
 }
