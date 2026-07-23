@@ -358,6 +358,8 @@
   "noName": "Untitled",
   "linkCopied": "Link copied",
   "copyError": "Could not copy link",
+  "share": "Share",
+  "shareError": "Could not share the photo",
   "successUpdateImage": "Photo updated",
   "softSummerPaletteShort": "Soft summer",
   "darkAutumnPaletteShort": "Dark autumn",

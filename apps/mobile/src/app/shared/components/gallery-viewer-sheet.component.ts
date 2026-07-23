@@ -8,6 +8,9 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Capacitor } from '@capacitor/core';
+import { Directory, Filesystem } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { register } from 'swiper/element/bundle';
@@ -52,6 +55,7 @@ type SwiperEl = HTMLElement & {
     activeIndex: number;
     slideTo: (index: number, speed?: number) => void;
     update: () => void;
+    zoom?: { out: () => void };
   };
   initialize?: () => void;
 };
@@ -63,15 +67,21 @@ type SwiperEl = HTMLElement & {
   selector: 'app-gallery-viewer-sheet',
   template: `
     <div class="viewer">
-      <header class="viewer__bar">
-        <button type="button" class="viewer__icon-btn" (click)="dismiss()" aria-label="close">
-          <ion-icon name="arrow-back-outline"></ion-icon>
-        </button>
-        <div class="viewer__counter">{{ index + 1 }} / {{ items.length }}</div>
-        <button type="button" class="viewer__icon-btn viewer__icon-btn--accent" (click)="openMenu()" aria-label="menu">
-          <ion-icon name="ellipsis-vertical"></ion-icon>
-        </button>
-      </header>
+      <ion-header class="ion-no-border">
+        <ion-toolbar class="page-toolbar">
+          <ion-buttons slot="start">
+            <ion-button fill="clear" (click)="dismiss()">
+              <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+          <ion-title>{{ index + 1 }} / {{ items.length }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button fill="clear" (click)="openMenu()">
+              <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
 
       <div class="viewer__stage">
         <swiper-container
@@ -83,7 +93,9 @@ type SwiperEl = HTMLElement & {
           @for (item of items; track item.id) {
             <swiper-slide>
               <div class="viewer__slide">
-                <img [src]="item.src" [alt]="item.title || 'gallery'" draggable="false" />
+                <div class="swiper-zoom-container">
+                  <img [src]="item.src" [alt]="item.title || 'gallery'" draggable="false" />
+                </div>
               </div>
             </swiper-slide>
           }
@@ -144,51 +156,12 @@ type SwiperEl = HTMLElement & {
         flex-direction: column;
         background: var(--rm-surface, #eef0f7);
         color: var(--rm-ink, #16182a);
-        padding-top: env(safe-area-inset-top);
         box-sizing: border-box;
         font-family: var(--rm-font-body, Outfit, system-ui, sans-serif);
       }
 
-      .viewer__bar {
+      .viewer ion-header {
         flex: 0 0 auto;
-        display: grid;
-        grid-template-columns: 48px 1fr 48px;
-        align-items: center;
-        gap: 8px;
-        min-height: 52px;
-        padding: 8px 12px;
-        background: rgba(238, 240, 247, 0.92);
-        backdrop-filter: blur(16px) saturate(1.2);
-        -webkit-backdrop-filter: blur(16px) saturate(1.2);
-        border-bottom: 1px solid var(--rm-line, rgba(22, 24, 42, 0.08));
-      }
-
-      .viewer__counter {
-        text-align: center;
-        font-family: var(--rm-font-display, Syne, system-ui, sans-serif);
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--rm-ink, #16182a);
-      }
-
-      .viewer__icon-btn {
-        width: 44px;
-        height: 44px;
-        border: none;
-        border-radius: 14px;
-        background: var(--rm-elevated, #fff);
-        color: var(--rm-ink, #16182a);
-        box-shadow: 0 1px 0 var(--rm-line, rgba(22, 24, 42, 0.08)),
-          0 6px 16px rgba(22, 24, 42, 0.06);
-        display: grid;
-        place-items: center;
-        font-size: 1.25rem;
-      }
-
-      .viewer__icon-btn--accent {
-        background: var(--ion-color-primary, #5b6ef5);
-        color: #fff;
-        box-shadow: 0 6px 16px rgba(91, 110, 245, 0.3);
       }
 
       .viewer__stage {
@@ -231,6 +204,15 @@ type SwiperEl = HTMLElement & {
         justify-content: center;
         padding: 12px;
         box-sizing: border-box;
+        touch-action: pan-x pan-y pinch-zoom;
+      }
+
+      .viewer__slide .swiper-zoom-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .viewer__slide img {
@@ -476,7 +458,7 @@ export class GalleryViewerSheetComponent implements AfterViewInit {
   }
 
   async openMenu(): Promise<void> {
-    type ViewerAction = 'folder' | 'update' | 'copyLink';
+    type ViewerAction = 'folder' | 'update' | 'share';
     const action = await this.sheets.open<
       ChoiceSheetComponent<ViewerAction>,
       ChoiceSheetData<ViewerAction>,
@@ -488,7 +470,7 @@ export class GalleryViewerSheetComponent implements AfterViewInit {
         options: [
           { value: 'folder', labelKey: 'addFolder', ionIcon: 'folder-outline' },
           { value: 'update', labelKey: 'update', ionIcon: 'refresh-outline' },
-          { value: 'copyLink', labelKey: 'copyLink', ionIcon: 'link-outline' },
+          { value: 'share', labelKey: 'share', ionIcon: 'share-outline' },
         ],
       },
       { stack: true, closeOnBackdrop: true },
@@ -498,8 +480,8 @@ export class GalleryViewerSheetComponent implements AfterViewInit {
       await this.pickFolder();
     } else if (action === 'update') {
       await this.refreshCurrent();
-    } else if (action === 'copyLink') {
-      await this.copyLink();
+    } else if (action === 'share') {
+      await this.sharePhoto();
     }
   }
 
@@ -552,16 +534,67 @@ export class GalleryViewerSheetComponent implements AfterViewInit {
     }
   }
 
-  async copyLink(): Promise<void> {
-    const src = this.current?.src;
+  async sharePhoto(): Promise<void> {
+    const img = this.current;
+    const src = img?.src;
     if (!src) {
       return;
     }
+    const title = img.title?.trim() || this.translate.instant('photo');
     try {
-      await navigator.clipboard.writeText(src);
-      await this.toasts.show(this.translate.instant('linkCopied'), 'success');
-    } catch {
-      await this.toasts.show(this.translate.instant('copyError'), 'danger');
+      if (Capacitor.isNativePlatform()) {
+        const response = await fetch(src);
+        if (!response.ok) {
+          throw new Error(`fetch ${response.status}`);
+        }
+        const blob = await response.blob();
+        const base64 = await blobToBase64(blob);
+        const ext = mimeToExt(blob.type);
+        await Filesystem.mkdir({
+          path: 'rainbow-share',
+          directory: Directory.Cache,
+          recursive: true,
+        }).catch(() => undefined);
+        const written = await Filesystem.writeFile({
+          path: `rainbow-share/${Date.now()}.${ext}`,
+          data: base64,
+          directory: Directory.Cache,
+        });
+        await Share.share({
+          title,
+          files: [written.uri],
+          dialogTitle: this.translate.instant('share'),
+        });
+        return;
+      }
+
+      if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+        const response = await fetch(src);
+        if (!response.ok) {
+          throw new Error(`fetch ${response.status}`);
+        }
+        const blob = await response.blob();
+        const ext = mimeToExt(blob.type);
+        const file = new File([blob], `${title}.${ext}`, {
+          type: blob.type || 'image/jpeg',
+        });
+        const payload: ShareData = { title, files: [file] };
+        if (navigator.canShare?.(payload)) {
+          await navigator.share(payload);
+          return;
+        }
+        await navigator.share({ title, url: src });
+        return;
+      }
+
+      window.open(src, '_blank', 'noopener,noreferrer');
+    } catch (err) {
+      // User dismissing the share sheet is not an error.
+      if (isShareCancellation(err)) {
+        return;
+      }
+      console.error(err);
+      await this.toasts.show(this.translate.instant('shareError'), 'danger');
     }
   }
 
@@ -582,6 +615,7 @@ export class GalleryViewerSheetComponent implements AfterViewInit {
     if (!swiper) {
       return;
     }
+    swiper.zoom?.out();
     this.index = swiper.activeIndex;
     this.editingTitle = false;
     this.cdr.markForCheck();
@@ -648,6 +682,10 @@ export class GalleryViewerSheetComponent implements AfterViewInit {
       initialSlide: this.index,
       speed: 280,
       resistanceRatio: 0.65,
+      zoom: {
+        maxRatio: 4,
+        minRatio: 1,
+      },
     });
     if (!el.swiper) {
       el.initialize?.();
@@ -680,4 +718,31 @@ export class GalleryViewerSheetComponent implements AfterViewInit {
       this.loadingMore = false;
     }
   }
+}
+
+function mimeToExt(mime: string | undefined): string {
+  if (!mime) return 'jpg';
+  if (mime.includes('png')) return 'png';
+  if (mime.includes('webp')) return 'webp';
+  if (mime.includes('gif')) return 'gif';
+  return 'jpg';
+}
+
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error ?? new Error('read failed'));
+    reader.onload = () => {
+      const result = String(reader.result || '');
+      const comma = result.indexOf(',');
+      resolve(comma >= 0 ? result.slice(comma + 1) : result);
+    };
+    reader.readAsDataURL(blob);
+  });
+}
+
+function isShareCancellation(err: unknown): boolean {
+  if (!err || typeof err !== 'object') return false;
+  const name = 'name' in err ? String((err as { name?: unknown }).name || '') : '';
+  return name === 'AbortError' || name === 'NotAllowedError';
 }

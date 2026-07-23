@@ -358,6 +358,8 @@
   "noName": "Без названия",
   "linkCopied": "Ссылка скопирована",
   "copyError": "Не удалось скопировать",
+  "share": "Поделиться",
+  "shareError": "Не удалось поделиться фото",
   "successUpdateImage": "Фото обновлено",
   "softSummerPaletteShort": "Мягкое лето",
   "darkAutumnPaletteShort": "Тёмная осень",
