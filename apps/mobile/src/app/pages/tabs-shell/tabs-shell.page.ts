@@ -34,13 +34,7 @@ import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { AppMenuService } from '../../core/services/app-menu.service';
-import { AppLanguage, LanguageService } from '../../core/services/language.service';
-import { ThemeService } from '../../core/services/theme.service';
-import { DEFAULT_USER_AVATAR, resolveUserAvatarUrl, hasUserPhoto } from '../../core/utils/user-avatar';
-import {
-  SheetSelectComponent,
-  SheetSelectOption,
-} from '../../shared/components/sheet-select.component';
+import { userAvatarInitials } from '../../core/utils/user-avatar';
 
 addIcons({ chevronDownOutline, logOutOutline });
 
@@ -92,7 +86,6 @@ function menuIcon(definition: {
     IonTabs,
     IonTabBar,
     IonTabButton,
-    SheetSelectComponent,
   ],
   selector: 'app-tabs-shell',
   templateUrl: './tabs-shell.page.html',
@@ -102,15 +95,10 @@ export class TabsShellPage implements OnInit, OnDestroy {
   activeUrl = '';
   /** Accordion: one open section at a time. */
   expandedGroupId: MenuGroup['id'] | null = null;
-  avatarPhotoUrl = DEFAULT_USER_AVATAR;
+  avatarPhotoUrl: string | null = null;
   avatarEmail = '';
   avatarDisplayName = '';
-  avatarHasPhoto = false;
-
-  readonly languageOptions: SheetSelectOption[] = [
-    { value: 'ru', label: 'RU · Русский' },
-    { value: 'en', label: 'EN · English' },
-  ];
+  avatarInitials = '?';
 
   readonly tabs: TabItem[] = [
     {
@@ -184,8 +172,6 @@ export class TabsShellPage implements OnInit, OnDestroy {
   private subs = new Subscription();
 
   constructor(
-    readonly theme: ThemeService,
-    readonly language: LanguageService,
     private readonly auth: AuthService,
     private readonly router: Router,
     private readonly appMenu: AppMenuService,
@@ -257,16 +243,6 @@ export class TabsShellPage implements OnInit, OnDestroy {
     void this.navigateMenu('/tabs/account');
   }
 
-  setTheme(isDark: boolean): void {
-    this.theme.setDark(isDark);
-    this.cdr.detectChanges();
-  }
-
-  setLanguage(lang: AppLanguage): void {
-    this.language.setLanguage(lang);
-    this.cdr.detectChanges();
-  }
-
   async logout(): Promise<void> {
     await this.menuCtrl.close(AppMenuService.menuId);
     await this.auth.logout();
@@ -281,10 +257,10 @@ export class TabsShellPage implements OnInit, OnDestroy {
   }
 
   private refreshAvatar(user: { photoURL?: string | null; email?: string | null; displayName?: string | null } | null): void {
-    this.avatarHasPhoto = hasUserPhoto(user?.photoURL);
-    this.avatarPhotoUrl = resolveUserAvatarUrl(user?.photoURL);
+    this.avatarPhotoUrl = user?.photoURL?.trim() || null;
     this.avatarEmail = user?.email?.trim() || '';
     this.avatarDisplayName =
       user?.displayName?.trim() || this.avatarEmail.split('@')[0] || '';
+    this.avatarInitials = userAvatarInitials(user?.displayName, user?.email);
   }
 }
