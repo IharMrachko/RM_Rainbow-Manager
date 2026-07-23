@@ -92,6 +92,7 @@ export class StockLooksPage implements OnInit, OnDestroy {
   items: StockLookItem[] = [];
   loading = false;
   usedMock = true;
+  warningKey = '';
   querySummary = '';
   errorMessage = '';
   savingId: string | null = null;
@@ -228,6 +229,7 @@ export class StockLooksPage implements OnInit, OnDestroy {
       this.errorMessage = '';
       this.querySummary = '';
       this.usedMock = false;
+      this.warningKey = '';
       this.cdr.markForCheck();
       return;
     }
@@ -256,8 +258,11 @@ export class StockLooksPage implements OnInit, OnDestroy {
       this.items = result.items;
       this.usedMock = result.usedMock;
       this.querySummary = result.querySummary;
+      this.warningKey = result.warningKey || '';
     } catch {
       this.items = [];
+      this.usedMock = false;
+      this.warningKey = '';
       this.errorMessage = this.translate.instant('stockLooksError');
     } finally {
       this.loading = false;

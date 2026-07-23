@@ -78,4 +78,13 @@ export interface StockLooksSearchResult {
   items: StockLookItem[];
   usedMock: boolean;
   querySummary: string;
+  /** Providers that returned at least one photo. */
+  sourcesUsed?: Array<'pexels' | 'unsplash' | 'mock'>;
+  /** Why mock/empty happened — for UI banner. */
+  warningKey?:
+    | 'stockLooksMockMode'
+    | 'stockLooksFallbackMock'
+    | 'stockLooksProviderKeyMissing'
+    | 'stockLooksApiFailed'
+    | 'stockLooksEmptyLive';
 }

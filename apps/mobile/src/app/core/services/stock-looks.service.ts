@@ -284,9 +284,13 @@ export class StockLooksService {
     ].join(' · ');
 
     const perPage = params.perPage ?? 24;
-    const jobs: Array<Promise<RawLook[]>> = [];
+    const requested = providers.filter((p) => p === 'pexels' || p === 'unsplash');
+    const available = requested.filter(
+      (p) => (p === 'pexels' && this.hasPexelsKey) || (p === 'unsplash' && this.hasUnsplashKey),
+    );
 
-    if (providers.includes('pexels') && this.hasPexelsKey) {
+    const jobs: Array<Promise<RawLook[]>> = [];
+    if (available.includes('pexels')) {
       jobs.push(
         this.fetchMergedFromPexels(
           queries,
@@ -295,7 +299,7 @@ export class StockLooksService {
         ),
       );
     }
-    if (providers.includes('unsplash') && this.hasUnsplashKey) {
+    if (available.includes('unsplash')) {
       jobs.push(
         this.fetchMergedFromUnsplash(
           queries,
@@ -307,23 +311,42 @@ export class StockLooksService {
 
     let raw: RawLook[] = [];
     let usedMock = false;
+    let warningKey: StockLooksSearchResult['warningKey'];
 
-    if (jobs.length) {
-      try {
-        const chunks = await Promise.all(jobs.map((job) => job.catch(() => [] as RawLook[])));
-        raw = this.dedupeLooks(chunks);
-      } catch {
-        raw = [];
+    if (!available.length) {
+      raw = [...MOCK_LOOKS];
+      usedMock = true;
+      warningKey = requested.length
+        ? 'stockLooksProviderKeyMissing'
+        : 'stockLooksMockMode';
+    } else {
+      const settled = await Promise.all(
+        jobs.map(async (job) => {
+          try {
+            return { ok: true as const, value: await job };
+          } catch {
+            return { ok: false as const, value: [] as RawLook[] };
+          }
+        }),
+      );
+      const chunks = settled.filter((s) => s.ok).map((s) => s.value);
+      const anyRejected = settled.some((s) => !s.ok);
+      raw = this.dedupeLooks(chunks);
+      if (!raw.length) {
+        raw = [...MOCK_LOOKS];
+        usedMock = true;
+        warningKey = anyRejected ? 'stockLooksApiFailed' : 'stockLooksEmptyLive';
       }
     }
 
-    if (!raw.length) {
-      raw = [...MOCK_LOOKS];
-      usedMock = true;
-    }
-
     const items = this.scoreAndRank(raw, params.paletteType);
-    return { items, usedMock, querySummary };
+    return {
+      items,
+      usedMock,
+      querySummary,
+      sourcesUsed: [...new Set(items.map((i) => i.source))],
+      warningKey,
+    };
   }
 
   /** Free text search: no palette scoring; optional color-picker filter. */
@@ -354,33 +377,57 @@ export class StockLooksService {
       .join(' · ');
 
     const perPage = params.perPage ?? 24;
+    const requested = providers.filter((p) => p === 'pexels' || p === 'unsplash');
+    const available = requested.filter(
+      (p) => (p === 'pexels' && this.hasPexelsKey) || (p === 'unsplash' && this.hasUnsplashKey),
+    );
+
     const jobs: Array<Promise<RawLook[]>> = [];
-    if (providers.includes('pexels') && this.hasPexelsKey) {
+    if (available.includes('pexels')) {
       jobs.push(this.fetchFromPexels(queryText, pexelsColor ?? undefined, perPage));
     }
-    if (providers.includes('unsplash') && this.hasUnsplashKey) {
+    if (available.includes('unsplash')) {
       jobs.push(this.fetchFromUnsplash(queryText, unsplashColor ?? undefined, perPage));
     }
 
     let raw: RawLook[] = [];
     let usedMock = false;
+    let warningKey: StockLooksSearchResult['warningKey'];
 
-    if (jobs.length) {
-      try {
-        const chunks = await Promise.all(jobs.map((job) => job.catch(() => [] as RawLook[])));
-        raw = this.dedupeLooks(chunks);
-      } catch {
-        raw = [];
+    if (!available.length) {
+      raw = this.filterMocksByQuery(queryText);
+      usedMock = true;
+      warningKey = requested.length
+        ? 'stockLooksProviderKeyMissing'
+        : 'stockLooksMockMode';
+    } else {
+      const settled = await Promise.all(
+        jobs.map(async (job) => {
+          try {
+            return { ok: true as const, value: await job };
+          } catch {
+            return { ok: false as const, value: [] as RawLook[] };
+          }
+        }),
+      );
+      const chunks = settled.filter((s) => s.ok).map((s) => s.value);
+      const anyRejected = settled.some((s) => !s.ok);
+      raw = this.dedupeLooks(chunks);
+      if (!raw.length) {
+        raw = this.filterMocksByQuery(queryText);
+        usedMock = true;
+        warningKey = anyRejected ? 'stockLooksApiFailed' : 'stockLooksEmptyLive';
       }
     }
 
-    if (!raw.length) {
-      raw = this.filterMocksByQuery(queryText);
-      usedMock = true;
-    }
-
     const items = this.rankFree(raw, queryText, freeColorHex);
-    return { items, usedMock, querySummary };
+    return {
+      items,
+      usedMock,
+      querySummary,
+      sourcesUsed: [...new Set(items.map((i) => i.source))],
+      warningKey,
+    };
   }
 
   private dedupeLooks(chunks: RawLook[][]): RawLook[] {
@@ -526,15 +573,7 @@ export class StockLooksService {
     const chunks = await Promise.all(
       jobs.map((job) => job.catch(() => [] as RawLook[])),
     );
-    const byId = new Map<string, RawLook>();
-    for (const chunk of chunks) {
-      for (const item of chunk) {
-        if (!byId.has(item.id)) {
-          byId.set(item.id, item);
-        }
-      }
-    }
-    return [...byId.values()];
+    return this.dedupeLooks(chunks);
   }
 
   private async fetchFromPexels(

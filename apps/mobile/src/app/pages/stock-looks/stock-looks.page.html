@@ -71,9 +71,9 @@
     }
   </section>
 
-  @if (usedMock && (items.length || !isFreeMode)) {
+  @if (warningKey) {
     <p class="stock-looks__banner">
-      {{ (hasApiKey ? 'stockLooksFallbackMock' : 'stockLooksMockMode') | translate }}
+      {{ warningKey | translate }}
     </p>
   }
 
