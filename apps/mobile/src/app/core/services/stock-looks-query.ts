@@ -5,6 +5,7 @@ import {
   PexelsColorName,
   StockColorAnchor,
   StockLooksCategory,
+  UnsplashColorName,
 } from './stock-looks.types';
 
 /**
@@ -206,6 +207,31 @@ export function nearestPexelsColor(hex: string): ChromaticPexelsColor | null {
     }
   }
   return best;
+}
+
+const PEXELS_TO_UNSPLASH: Partial<Record<ChromaticPexelsColor, UnsplashColorName>> = {
+  red: 'red',
+  orange: 'orange',
+  yellow: 'yellow',
+  green: 'green',
+  turquoise: 'teal',
+  blue: 'blue',
+  violet: 'purple',
+  pink: 'magenta',
+  // Unsplash has no brown — skip rather than force a wrong filter.
+};
+
+/** Map a hex (or Pexels chromatic color) to an Unsplash color filter. */
+export function nearestUnsplashColor(hex: string): UnsplashColorName | null {
+  const pexels = nearestPexelsColor(hex);
+  if (!pexels) return null;
+  return PEXELS_TO_UNSPLASH[pexels] ?? null;
+}
+
+export function pexelsColorToUnsplash(
+  color: ChromaticPexelsColor,
+): UnsplashColorName | null {
+  return PEXELS_TO_UNSPLASH[color] ?? null;
 }
 
 /**

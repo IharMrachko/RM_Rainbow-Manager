@@ -45,6 +45,32 @@
     </div>
   </section>
 
+  <section class="stock-looks__block">
+    <h2>{{ 'stockLooksProvider' | translate }}</h2>
+    <div class="stock-looks__chips">
+      @for (p of providers; track p) {
+        <ion-chip
+          [outline]="provider !== p"
+          [color]="provider === p ? 'primary' : 'medium'"
+          (click)="selectProvider(p)"
+        >
+          {{ providerKey(p) | translate }}
+        </ion-chip>
+      }
+    </div>
+    @if (!hasPexelsKey || !hasUnsplashKey) {
+      <p class="stock-looks__provider-hint">
+        @if (!hasPexelsKey && !hasUnsplashKey) {
+          {{ 'stockLooksNoKeys' | translate }}
+        } @else if (!hasPexelsKey) {
+          {{ 'stockLooksMissingPexels' | translate }}
+        } @else {
+          {{ 'stockLooksMissingUnsplash' | translate }}
+        }
+      </p>
+    }
+  </section>
+
   @if (usedMock && (items.length || !isFreeMode)) {
     <p class="stock-looks__banner">
       {{ (hasApiKey ? 'stockLooksFallbackMock' : 'stockLooksMockMode') | translate }}
@@ -168,6 +194,7 @@
               loading="lazy"
               decoding="async"
             />
+            <span class="stock-card__source">{{ sourceKey(item.source) | translate }}</span>
             @if (!isFreeMode || freeColorHex) {
               <span class="stock-card__score" [attr.data-label]="item.matchLabel">
                 {{ matchLabelKey(item.matchLabel) | translate }}

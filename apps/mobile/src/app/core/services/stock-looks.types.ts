@@ -6,6 +6,9 @@ export type StockLooksCategory = 'outfit' | 'portrait' | 'accessories';
 /** Palette-matched search vs free text search without palette filters. */
 export type StockLooksMode = 'palette' | 'free';
 
+/** Which stock provider(s) to query. */
+export type StockLooksProvider = 'all' | 'pexels' | 'unsplash';
+
 /** Named colors accepted by the Pexels search API. */
 export type PexelsColorName =
   | 'red'
@@ -20,6 +23,17 @@ export type PexelsColorName =
   | 'black'
   | 'gray'
   | 'white';
+
+/** Chromatic Unsplash color filter names (no black/white). */
+export type UnsplashColorName =
+  | 'yellow'
+  | 'orange'
+  | 'red'
+  | 'purple'
+  | 'magenta'
+  | 'green'
+  | 'teal'
+  | 'blue';
 
 /** Pexels colors allowed as stock search filters (no white/gray/black). */
 export type ChromaticPexelsColor = Exclude<PexelsColorName, 'white' | 'gray' | 'black'>;
@@ -42,17 +56,18 @@ export interface StockLookItem {
   matchScore: number;
   matchLabel: 'excellent' | 'good' | 'fair';
   matchedSwatches: string[];
-  source: 'pexels' | 'mock';
+  source: 'pexels' | 'unsplash' | 'mock';
 }
 
 export interface StockLooksSearchParams {
   mode?: StockLooksMode;
+  provider?: StockLooksProvider;
   /** Required for palette mode. */
   paletteType?: Palette;
   category?: StockLooksCategory;
   /** Free-text query for free mode (e.g. "red blazer", "linen shirt"). */
   freeQuery?: string;
-  /** Optional hex from color picker for free mode (maps to Pexels color filter). */
+  /** Optional hex from color picker for free mode (maps to color filters). */
   freeColorHex?: string;
   /** Optional user-picked accent hexes from the palette (1–3). */
   accentHexes?: string[];

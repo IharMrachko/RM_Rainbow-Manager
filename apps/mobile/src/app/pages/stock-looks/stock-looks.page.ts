@@ -35,6 +35,7 @@ import {
   StockLookItem,
   StockLooksCategory,
   StockLooksMode,
+  StockLooksProvider,
 } from '../../core/services/stock-looks.types';
 import { ToastService } from '../../core/services/toast.service';
 import {
@@ -80,8 +81,10 @@ export class StockLooksPage implements OnInit, OnDestroy {
   readonly paletteNames = Object.keys(palettesObj) as Palette[];
   readonly categories: StockLooksCategory[] = ['outfit', 'portrait', 'accessories'];
   readonly modes: StockLooksMode[] = ['palette', 'free'];
+  readonly providers: StockLooksProvider[] = ['all', 'pexels', 'unsplash'];
 
   mode: StockLooksMode = 'palette';
+  provider: StockLooksProvider = 'all';
   selectedPalette: Palette = this.paletteNames[0];
   selectedCategory: StockLooksCategory = 'outfit';
   freeQuery = '';
@@ -131,6 +134,14 @@ export class StockLooksPage implements OnInit, OnDestroy {
     return this.stockLooks.hasApiKey;
   }
 
+  get hasPexelsKey(): boolean {
+    return this.stockLooks.hasPexelsKey;
+  }
+
+  get hasUnsplashKey(): boolean {
+    return this.stockLooks.hasUnsplashKey;
+  }
+
   get isFreeMode(): boolean {
     return this.mode === 'free';
   }
@@ -146,6 +157,16 @@ export class StockLooksPage implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.querySummary = '';
     if (mode === 'palette') {
+      void this.search();
+    } else {
+      this.cdr.markForCheck();
+    }
+  }
+
+  selectProvider(provider: StockLooksProvider): void {
+    if (this.provider === provider) return;
+    this.provider = provider;
+    if (this.mode === 'palette' || this.freeQuery.trim() || this.freeColorHex) {
       void this.search();
     } else {
       this.cdr.markForCheck();
@@ -219,12 +240,14 @@ export class StockLooksPage implements OnInit, OnDestroy {
         this.mode === 'free'
           ? {
               mode: 'free',
+              provider: this.provider,
               freeQuery: this.freeQuery.trim(),
               freeColorHex: this.freeColorHex || undefined,
               perPage: 24,
             }
           : {
               mode: 'palette',
+              provider: this.provider,
               paletteType: this.selectedPalette,
               category: this.selectedCategory,
               perPage: 24,
@@ -250,6 +273,18 @@ export class StockLooksPage implements OnInit, OnDestroy {
 
   modeKey(mode: StockLooksMode): string {
     return mode === 'free' ? 'stockLooksModeFree' : 'stockLooksModePalette';
+  }
+
+  providerKey(provider: StockLooksProvider): string {
+    if (provider === 'pexels') return 'stockLooksProviderPexels';
+    if (provider === 'unsplash') return 'stockLooksProviderUnsplash';
+    return 'stockLooksProviderAll';
+  }
+
+  sourceKey(source: StockLookItem['source']): string {
+    if (source === 'unsplash') return 'stockLooksProviderUnsplash';
+    if (source === 'pexels') return 'stockLooksProviderPexels';
+    return 'stockLooksProviderMock';
   }
 
   categoryKey(category: StockLooksCategory): string {

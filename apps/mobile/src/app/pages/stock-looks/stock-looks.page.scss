@@ -228,6 +228,28 @@
   color: #fff;
 }
 
+.stock-card__source {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 650;
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.stock-looks__provider-hint {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  color: var(--ion-color-medium-shade, #6b7280);
+  line-height: 1.35;
+}
+
 .stock-card__score[data-label='excellent'] {
   background: rgba(22, 101, 52, 0.8);
 }

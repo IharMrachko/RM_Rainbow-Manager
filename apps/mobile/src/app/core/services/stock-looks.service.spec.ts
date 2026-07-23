@@ -5,6 +5,7 @@ import {
   EXCLUDED_PEXELS_COLORS,
   isNeutralHex,
   nearestPexelsColor,
+  nearestUnsplashColor,
   subjectRelevanceDelta,
 } from './stock-looks-query';
 import { StockLooksService } from './stock-looks.service';
@@ -14,6 +15,12 @@ describe('stock-looks-query', () => {
     expect(nearestPexelsColor('#EC407A')).toBe('pink');
     expect(nearestPexelsColor('#43A047')).toBe('green');
     expect(nearestPexelsColor('#1E88E5')).toBe('blue');
+  });
+
+  it('maps chromatic hexes to Unsplash color filters', () => {
+    expect(nearestUnsplashColor('#EC407A')).toBe('magenta');
+    expect(nearestUnsplashColor('#26A69A')).toBe('teal');
+    expect(nearestUnsplashColor('#FFFFFF')).toBeNull();
   });
 
   it('rejects white / gray / black as search colors', () => {

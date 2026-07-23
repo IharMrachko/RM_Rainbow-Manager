@@ -9,10 +9,13 @@ import {
   buildSearchQueries,
   isNeutralHex,
   nearestPexelsColor,
+  nearestUnsplashColor,
+  pexelsColorToUnsplash,
   subjectRelevanceDelta,
 } from './stock-looks-query';
 import {
   StockLookItem,
+  StockLooksProvider,
   StockLooksSearchParams,
   StockLooksSearchResult,
 } from './stock-looks.types';
@@ -36,6 +39,34 @@ interface PexelsPhoto {
 
 interface PexelsSearchResponse {
   photos: PexelsPhoto[];
+}
+
+interface UnsplashPhoto {
+  id: string;
+  width?: number;
+  height?: number;
+  color?: string;
+  description?: string | null;
+  alt_description?: string | null;
+  urls: {
+    regular: string;
+    full: string;
+    raw?: string;
+    small?: string;
+  };
+  links: {
+    html: string;
+  };
+  user: {
+    name: string;
+    links?: {
+      html?: string;
+    };
+  };
+}
+
+interface UnsplashSearchResponse {
+  results: UnsplashPhoto[];
 }
 
 type RawLook = Omit<StockLookItem, 'matchScore' | 'matchLabel' | 'matchedSwatches'>;
@@ -204,9 +235,17 @@ const MOCK_LOOKS: RawLook[] = [
 export class StockLooksService {
   constructor(private readonly http: HttpClient) {}
 
-  /** True when a Pexels API key is configured in environment. */
-  get hasApiKey(): boolean {
+  get hasPexelsKey(): boolean {
     return Boolean(environment.pexelsApiKey?.trim());
+  }
+
+  get hasUnsplashKey(): boolean {
+    return Boolean(environment.unsplashAccessKey?.trim());
+  }
+
+  /** True when at least one stock provider key is configured. */
+  get hasApiKey(): boolean {
+    return this.hasPexelsKey || this.hasUnsplashKey;
   }
 
   async search(params: StockLooksSearchParams): Promise<StockLooksSearchResult> {
@@ -216,6 +255,13 @@ export class StockLooksService {
     return this.searchByPalette(params);
   }
 
+  private resolveProviders(provider?: StockLooksProvider): StockLooksProvider[] {
+    const selected = provider ?? 'all';
+    if (selected === 'pexels') return ['pexels'];
+    if (selected === 'unsplash') return ['unsplash'];
+    return ['pexels', 'unsplash'];
+  }
+
   private async searchByPalette(
     params: StockLooksSearchParams,
   ): Promise<StockLooksSearchResult> {
@@ -223,6 +269,7 @@ export class StockLooksService {
       return { items: [], usedMock: false, querySummary: 'palette' };
     }
 
+    const providers = this.resolveProviders(params.provider);
     const anchors = buildColorAnchors(
       params.paletteType,
       3,
@@ -230,29 +277,47 @@ export class StockLooksService {
     );
     const queries = buildSearchQueries(params.paletteType, params.category);
     const querySummary = [
+      params.provider ?? 'all',
       params.paletteType,
       params.category,
       ...anchors.map((a) => a.pexelsColor),
     ].join(' · ');
 
+    const perPage = params.perPage ?? 24;
+    const jobs: Array<Promise<RawLook[]>> = [];
+
+    if (providers.includes('pexels') && this.hasPexelsKey) {
+      jobs.push(
+        this.fetchMergedFromPexels(
+          queries,
+          anchors.map((a) => a.pexelsColor),
+          perPage,
+        ),
+      );
+    }
+    if (providers.includes('unsplash') && this.hasUnsplashKey) {
+      jobs.push(
+        this.fetchMergedFromUnsplash(
+          queries,
+          anchors.map((a) => pexelsColorToUnsplash(a.pexelsColor)),
+          perPage,
+        ),
+      );
+    }
+
     let raw: RawLook[] = [];
     let usedMock = false;
 
-    if (this.hasApiKey) {
+    if (jobs.length) {
       try {
-        raw = await this.fetchMergedFromPexels(
-          queries,
-          anchors.map((a) => a.pexelsColor),
-          params.perPage ?? 24,
-        );
+        const chunks = await Promise.all(jobs.map((job) => job.catch(() => [] as RawLook[])));
+        raw = this.dedupeLooks(chunks);
       } catch {
         raw = [];
       }
-      if (!raw.length) {
-        raw = [...MOCK_LOOKS];
-        usedMock = true;
-      }
-    } else {
+    }
+
+    if (!raw.length) {
       raw = [...MOCK_LOOKS];
       usedMock = true;
     }
@@ -268,6 +333,8 @@ export class StockLooksService {
     const freeQuery = (params.freeQuery || '').trim();
     const freeColorHex = (params.freeColorHex || '').trim();
     const pexelsColor = freeColorHex ? nearestPexelsColor(freeColorHex) : null;
+    const unsplashColor = freeColorHex ? nearestUnsplashColor(freeColorHex) : null;
+    const providers = this.resolveProviders(params.provider);
 
     if (!freeQuery && !freeColorHex) {
       return { items: [], usedMock: false, querySummary: 'free' };
@@ -278,37 +345,54 @@ export class StockLooksService {
       (pexelsColor ? `${pexelsColor} fashion clothing` : 'fashion clothing');
     const querySummary = [
       'free',
+      params.provider ?? 'all',
       freeQuery || null,
       freeColorHex || null,
-      pexelsColor || null,
+      pexelsColor || unsplashColor || null,
     ]
       .filter(Boolean)
       .join(' · ');
 
+    const perPage = params.perPage ?? 24;
+    const jobs: Array<Promise<RawLook[]>> = [];
+    if (providers.includes('pexels') && this.hasPexelsKey) {
+      jobs.push(this.fetchFromPexels(queryText, pexelsColor ?? undefined, perPage));
+    }
+    if (providers.includes('unsplash') && this.hasUnsplashKey) {
+      jobs.push(this.fetchFromUnsplash(queryText, unsplashColor ?? undefined, perPage));
+    }
+
     let raw: RawLook[] = [];
     let usedMock = false;
 
-    if (this.hasApiKey) {
+    if (jobs.length) {
       try {
-        raw = await this.fetchFromPexels(
-          queryText,
-          pexelsColor ?? undefined,
-          params.perPage ?? 24,
-        );
+        const chunks = await Promise.all(jobs.map((job) => job.catch(() => [] as RawLook[])));
+        raw = this.dedupeLooks(chunks);
       } catch {
         raw = [];
       }
-      if (!raw.length) {
-        raw = this.filterMocksByQuery(queryText);
-        usedMock = true;
-      }
-    } else {
+    }
+
+    if (!raw.length) {
       raw = this.filterMocksByQuery(queryText);
       usedMock = true;
     }
 
     const items = this.rankFree(raw, queryText, freeColorHex);
     return { items, usedMock, querySummary };
+  }
+
+  private dedupeLooks(chunks: RawLook[][]): RawLook[] {
+    const byId = new Map<string, RawLook>();
+    for (const chunk of chunks) {
+      for (const item of chunk) {
+        if (!byId.has(item.id)) {
+          byId.set(item.id, item);
+        }
+      }
+    }
+    return [...byId.values()];
   }
 
   private filterMocksByQuery(query: string): RawLook[] {
@@ -479,7 +563,7 @@ export class StockLooksService {
     return (response.photos ?? [])
       .filter((photo) => (photo.width ?? 0) === 0 || (photo.width ?? 0) >= 1000)
       .map((photo) => ({
-        id: String(photo.id),
+        id: `pexels:${photo.id}`,
         title: photo.alt?.trim() || `Pexels ${photo.id}`,
         previewUrl: photo.src.large2x || photo.src.large || photo.src.medium,
         largeUrl: photo.src.original || photo.src.large2x || photo.src.large,
@@ -488,6 +572,72 @@ export class StockLooksService {
         sourceUrl: photo.url,
         avgColor: photo.avg_color || '#888888',
         source: 'pexels' as const,
+      }));
+  }
+
+  private async fetchMergedFromUnsplash(
+    queries: string[],
+    colors: Array<string | null | undefined>,
+    perPage: number,
+  ): Promise<RawLook[]> {
+    const pageSize = Math.min(20, Math.max(8, Math.ceil(perPage / 2)));
+    const jobs: Array<Promise<RawLook[]>> = [
+      this.fetchFromUnsplash(queries[0], undefined, pageSize),
+    ];
+    if (queries[1]) {
+      jobs.push(this.fetchFromUnsplash(queries[1], colors[0] || undefined, pageSize));
+    }
+    if (queries[2] && colors[1]) {
+      jobs.push(this.fetchFromUnsplash(queries[2], colors[1] || undefined, pageSize));
+    }
+
+    const chunks = await Promise.all(
+      jobs.map((job) => job.catch(() => [] as RawLook[])),
+    );
+    return this.dedupeLooks(chunks);
+  }
+
+  private async fetchFromUnsplash(
+    query: string,
+    color: string | undefined,
+    perPage: number,
+  ): Promise<RawLook[]> {
+    const key = environment.unsplashAccessKey.trim();
+    let params = new HttpParams()
+      .set('query', query)
+      .set('per_page', String(Math.min(30, perPage)))
+      .set('orientation', 'portrait')
+      .set('content_filter', 'high');
+    if (color) {
+      params = params.set('color', color);
+    }
+
+    const headers = new HttpHeaders({
+      Authorization: `Client-ID ${key}`,
+      'Accept-Version': 'v1',
+    });
+    const response = await firstValueFrom(
+      this.http.get<UnsplashSearchResponse>('https://api.unsplash.com/search/photos', {
+        headers,
+        params,
+      }),
+    );
+
+    return (response.results ?? [])
+      .filter((photo) => (photo.width ?? 0) === 0 || (photo.width ?? 0) >= 1000)
+      .map((photo) => ({
+        id: `unsplash:${photo.id}`,
+        title:
+          photo.alt_description?.trim() ||
+          photo.description?.trim() ||
+          `Unsplash ${photo.id}`,
+        previewUrl: photo.urls.regular,
+        largeUrl: photo.urls.full || photo.urls.raw || photo.urls.regular,
+        photographer: photo.user?.name || 'Unsplash',
+        photographerUrl: photo.user?.links?.html || 'https://unsplash.com',
+        sourceUrl: photo.links?.html || 'https://unsplash.com',
+        avgColor: photo.color || '#888888',
+        source: 'unsplash' as const,
       }));
   }
 }
