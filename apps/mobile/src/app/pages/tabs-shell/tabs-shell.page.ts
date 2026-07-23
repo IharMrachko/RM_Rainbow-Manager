@@ -28,6 +28,8 @@ import {
   faShirt,
   faUserTie,
 } from '@fortawesome/free-solid-svg-icons';
+import { addIcons } from 'ionicons';
+import { chevronBackOutline, logOutOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
@@ -39,11 +41,22 @@ import {
   SheetSelectOption,
 } from '../../shared/components/sheet-select.component';
 
+addIcons({ chevronBackOutline, logOutOutline });
+
 interface NavItem {
   titleKey: string;
   url: string;
   iconPath: string;
   iconViewBox: string;
+}
+
+interface MenuGroup {
+  id: 'color' | 'analysis' | 'looks' | 'client';
+  titleKey: string;
+  hintKey: string;
+  iconPath: string;
+  iconViewBox: string;
+  items: NavItem[];
 }
 
 interface TabItem {
@@ -87,6 +100,8 @@ function menuIcon(definition: {
 })
 export class TabsShellPage implements OnInit, OnDestroy {
   activeUrl = '';
+  activeGroup: MenuGroup | null = null;
+
   readonly languageOptions: SheetSelectOption[] = [
     { value: 'ru', label: 'RU · Русский' },
     { value: 'en', label: 'EN · English' },
@@ -119,18 +134,50 @@ export class TabsShellPage implements OnInit, OnDestroy {
     },
   ];
 
-  readonly menuTools: NavItem[] = [
-    { titleKey: 'characteristicColors', url: '/tabs/characteristics', ...menuIcon(faRainbow) },
-    { titleKey: 'paletteDeterminant', url: '/tabs/palette-determinant', ...menuIcon(faPaintbrush) },
-    { titleKey: 'cutPalette', url: '/tabs/cut', ...menuIcon(faScissors) },
-    { titleKey: 'myPalette', url: '/tabs/my-palette', ...menuIcon(faFillDrip) },
-    { titleKey: 'analysisByPhoto', url: '/tabs/palette', ...menuIcon(faCamera) },
-    { titleKey: 'pickColor', url: '/tabs/chroma', ...menuIcon(faEyeDropper) },
-    { titleKey: 'aiAgent', url: '/tabs/ai-agent', ...menuIcon(faMicrochip) },
-    { titleKey: 'gallery', url: '/tabs/gallery', ...menuIcon(faImages) },
-    { titleKey: 'stockLooks', url: '/tabs/stock-looks', ...menuIcon(faShirt) },
-    { titleKey: 'lookbook', url: '/tabs/lookbook', ...menuIcon(faBookOpen) },
-    { titleKey: 'consultation', url: '/tabs/consultation', ...menuIcon(faUserTie) },
+  readonly menuGroups: MenuGroup[] = [
+    {
+      id: 'color',
+      titleKey: 'menuGroupColor',
+      hintKey: 'menuGroupColorHint',
+      ...menuIcon(faRainbow),
+      items: [
+        { titleKey: 'characteristicColors', url: '/tabs/characteristics', ...menuIcon(faRainbow) },
+        { titleKey: 'paletteDeterminant', url: '/tabs/palette-determinant', ...menuIcon(faPaintbrush) },
+        { titleKey: 'cutPalette', url: '/tabs/cut', ...menuIcon(faScissors) },
+        { titleKey: 'myPalette', url: '/tabs/my-palette', ...menuIcon(faFillDrip) },
+        { titleKey: 'pickColor', url: '/tabs/chroma', ...menuIcon(faEyeDropper) },
+      ],
+    },
+    {
+      id: 'analysis',
+      titleKey: 'menuGroupAnalysis',
+      hintKey: 'menuGroupAnalysisHint',
+      ...menuIcon(faCamera),
+      items: [
+        { titleKey: 'analysisByPhoto', url: '/tabs/palette', ...menuIcon(faCamera) },
+        { titleKey: 'aiAgent', url: '/tabs/ai-agent', ...menuIcon(faMicrochip) },
+      ],
+    },
+    {
+      id: 'looks',
+      titleKey: 'menuGroupLooks',
+      hintKey: 'menuGroupLooksHint',
+      ...menuIcon(faImages),
+      items: [
+        { titleKey: 'gallery', url: '/tabs/gallery', ...menuIcon(faImages) },
+        { titleKey: 'stockLooks', url: '/tabs/stock-looks', ...menuIcon(faShirt) },
+        { titleKey: 'lookbook', url: '/tabs/lookbook', ...menuIcon(faBookOpen) },
+      ],
+    },
+    {
+      id: 'client',
+      titleKey: 'menuGroupClient',
+      hintKey: 'menuGroupClientHint',
+      ...menuIcon(faUserTie),
+      items: [
+        { titleKey: 'consultation', url: '/tabs/consultation', ...menuIcon(faUserTie) },
+      ],
+    },
   ];
 
   private subs = new Subscription();
@@ -142,7 +189,7 @@ export class TabsShellPage implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly appMenu: AppMenuService,
     private readonly menuCtrl: MenuController,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
   ) {
     this.activeUrl = this.router.url;
   }
@@ -153,9 +200,10 @@ export class TabsShellPage implements OnInit, OnDestroy {
         .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
         .subscribe((e) => {
           this.activeUrl = e.urlAfterRedirects;
+          this.activeGroup = null;
           this.appMenu.close();
           this.cdr.markForCheck();
-        })
+        }),
     );
   }
 
@@ -170,10 +218,35 @@ export class TabsShellPage implements OnInit, OnDestroy {
   }
 
   isMenuActive(url: string): boolean {
-    return this.activeUrl === url || this.activeUrl.startsWith(url + '?');
+    const current = this.activeUrl.split('?')[0];
+    return current === url || current.startsWith(url + '/');
+  }
+
+  isGroupActive(group: MenuGroup): boolean {
+    return group.items.some((item) => this.isMenuActive(item.url));
+  }
+
+  openGroup(group: MenuGroup): void {
+    if (group.items.length === 1) {
+      void this.navigateMenu(group.items[0].url);
+      return;
+    }
+    this.activeGroup = group;
+    this.cdr.markForCheck();
+  }
+
+  closeGroup(): void {
+    this.activeGroup = null;
+    this.cdr.markForCheck();
+  }
+
+  onMenuDidClose(): void {
+    this.activeGroup = null;
+    this.cdr.markForCheck();
   }
 
   async navigateMenu(url: string): Promise<void> {
+    this.activeGroup = null;
     await this.menuCtrl.close(AppMenuService.menuId);
     await this.router.navigateByUrl(url);
   }
@@ -189,6 +262,7 @@ export class TabsShellPage implements OnInit, OnDestroy {
   }
 
   async logout(): Promise<void> {
+    this.activeGroup = null;
     await this.menuCtrl.close(AppMenuService.menuId);
     await this.auth.logout();
     await this.router.navigateByUrl('/home');
