@@ -89,42 +89,6 @@
       </div>
     </section>
 
-    <section class="account-card">
-      <h2>{{ 'settings' | translate }}</h2>
-      <div class="account-settings">
-        <div class="account-setting">
-          <div class="account-setting__label">
-            <ion-icon name="moon-outline" aria-hidden="true"></ion-icon>
-            <span>{{ 'theme' | translate }}</span>
-          </div>
-          <div class="account-setting__control">
-            <ion-toggle
-              [checked]="theme.isDark"
-              (ionChange)="setTheme($any($event.detail.checked))"
-            ></ion-toggle>
-            <span class="account-setting__value">
-              {{ (theme.isDark ? 'dark' : 'light') | translate }}
-            </span>
-          </div>
-        </div>
-
-        <div class="account-setting">
-          <div class="account-setting__label">
-            <ion-icon name="globe-outline" aria-hidden="true"></ion-icon>
-            <span>{{ 'language' | translate }}</span>
-          </div>
-          <ion-segment
-            class="account-lang"
-            [value]="language.language"
-            (ionChange)="setLanguage($any($event.detail.value))"
-          >
-            <ion-segment-button value="en">EN</ion-segment-button>
-            <ion-segment-button value="ru">RU</ion-segment-button>
-          </ion-segment>
-        </div>
-      </div>
-    </section>
-
     <section class="account-card account-card--more">
       <h2>{{ 'accountMore' | translate }}</h2>
       <div class="account-actions">

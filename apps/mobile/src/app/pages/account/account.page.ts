@@ -6,22 +6,13 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
-  IonSegment,
-  IonSegmentButton,
   IonTitle,
-  IonToggle,
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { User } from 'firebase/auth';
 import { addIcons } from 'ionicons';
-import {
-  chatbubbleEllipsesOutline,
-  globeOutline,
-  logOutOutline,
-  mailOutline,
-  moonOutline,
-} from 'ionicons/icons';
+import { chatbubbleEllipsesOutline, logOutOutline, mailOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 import {
   AccountPlanService,
@@ -29,16 +20,12 @@ import {
 } from '../../core/services/account-plan.service';
 import { AppMenuService } from '../../core/services/app-menu.service';
 import { AuthService } from '../../core/services/auth.service';
-import { AppLanguage, LanguageService } from '../../core/services/language.service';
-import { ThemeService } from '../../core/services/theme.service';
 import { userAvatarInitials } from '../../core/utils/user-avatar';
 
 addIcons({
   chatbubbleEllipsesOutline,
-  globeOutline,
   logOutOutline,
   mailOutline,
-  moonOutline,
 });
 
 @Component({
@@ -53,9 +40,6 @@ addIcons({
     IonIcon,
     IonTitle,
     IonContent,
-    IonToggle,
-    IonSegment,
-    IonSegmentButton,
   ],
   selector: 'app-account',
   templateUrl: './account.page.html',
@@ -68,8 +52,6 @@ export class AccountPage implements OnInit, OnDestroy {
 
   constructor(
     readonly plans: AccountPlanService,
-    readonly theme: ThemeService,
-    readonly language: LanguageService,
     private readonly auth: AuthService,
     private readonly appMenu: AppMenuService,
     private readonly router: Router,
@@ -114,16 +96,6 @@ export class AccountPage implements OnInit, OnDestroy {
 
   usagePercent(limit: AccountUsageLimit): number {
     return this.plans.usagePercent(limit);
-  }
-
-  setTheme(isDark: boolean): void {
-    this.theme.setDark(isDark);
-    this.cdr.markForCheck();
-  }
-
-  setLanguage(lang: AppLanguage): void {
-    this.language.setLanguage(lang);
-    this.cdr.markForCheck();
   }
 
   openConsultation(): void {
