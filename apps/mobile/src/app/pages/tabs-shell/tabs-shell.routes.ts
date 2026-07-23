@@ -69,6 +69,10 @@ export const TABS_SHELL_ROUTES: Routes = [
         loadComponent: () => import('../account/account.page').then((m) => m.AccountPage),
       },
       {
+        path: 'contacts',
+        loadComponent: () => import('../contacts/contacts.page').then((m) => m.ContactsPage),
+      },
+      {
         path: '',
         redirectTo: 'characteristics',
         pathMatch: 'full',
