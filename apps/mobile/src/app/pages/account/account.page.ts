@@ -103,7 +103,7 @@ export class AccountPage implements OnInit, OnDestroy {
   }
 
   openContacts(): void {
-    void this.router.navigateByUrl('/contacts');
+    void this.router.navigateByUrl('/tabs/contacts');
   }
 
   async logout(): Promise<void> {
