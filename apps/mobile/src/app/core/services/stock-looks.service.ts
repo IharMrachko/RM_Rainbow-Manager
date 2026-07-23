@@ -39,6 +39,10 @@ interface PexelsPhoto {
 
 interface PexelsSearchResponse {
   photos: PexelsPhoto[];
+  page?: number;
+  per_page?: number;
+  total_results?: number;
+  next_page?: string;
 }
 
 interface UnsplashPhoto {
@@ -67,9 +71,16 @@ interface UnsplashPhoto {
 
 interface UnsplashSearchResponse {
   results: UnsplashPhoto[];
+  total?: number;
+  total_pages?: number;
 }
 
 type RawLook = Omit<StockLookItem, 'matchScore' | 'matchLabel' | 'matchedSwatches'>;
+
+interface ProviderFetchResult {
+  items: RawLook[];
+  hasMore: boolean;
+}
 
 /** Curated mock looks with avg colors so scoring works without an API key. */
 const MOCK_LOOKS: RawLook[] = [
@@ -284,18 +295,20 @@ export class StockLooksService {
     ].join(' · ');
 
     const perPage = params.perPage ?? 24;
+    const page = Math.max(1, params.page ?? 1);
     const requested = providers.filter((p) => p === 'pexels' || p === 'unsplash');
     const available = requested.filter(
       (p) => (p === 'pexels' && this.hasPexelsKey) || (p === 'unsplash' && this.hasUnsplashKey),
     );
 
-    const jobs: Array<Promise<RawLook[]>> = [];
+    const jobs: Array<Promise<ProviderFetchResult>> = [];
     if (available.includes('pexels')) {
       jobs.push(
         this.fetchMergedFromPexels(
           queries,
           anchors.map((a) => a.pexelsColor),
           perPage,
+          page,
         ),
       );
     }
@@ -305,17 +318,21 @@ export class StockLooksService {
           queries,
           anchors.map((a) => pexelsColorToUnsplash(a.pexelsColor)),
           perPage,
+          page,
         ),
       );
     }
 
     let raw: RawLook[] = [];
     let usedMock = false;
+    let hasMore = false;
     let warningKey: StockLooksSearchResult['warningKey'];
 
     if (!available.length) {
-      raw = [...MOCK_LOOKS];
-      usedMock = true;
+      // Mock only on first page — nothing more to paginate.
+      raw = page === 1 ? [...MOCK_LOOKS] : [];
+      usedMock = page === 1;
+      hasMore = false;
       warningKey = requested.length
         ? 'stockLooksProviderKeyMissing'
         : 'stockLooksMockMode';
@@ -325,17 +342,26 @@ export class StockLooksService {
           try {
             return { ok: true as const, value: await job };
           } catch {
-            return { ok: false as const, value: [] as RawLook[] };
+            return {
+              ok: false as const,
+              value: { items: [] as RawLook[], hasMore: false },
+            };
           }
         }),
       );
-      const chunks = settled.filter((s) => s.ok).map((s) => s.value);
+      const chunks = settled.filter((s) => s.ok).map((s) => s.value.items);
       const anyRejected = settled.some((s) => !s.ok);
+      hasMore = settled.some((s) => s.ok && s.value.hasMore);
       raw = this.dedupeLooks(chunks);
       if (!raw.length) {
-        raw = [...MOCK_LOOKS];
-        usedMock = true;
-        warningKey = anyRejected ? 'stockLooksApiFailed' : 'stockLooksEmptyLive';
+        if (page === 1) {
+          raw = [...MOCK_LOOKS];
+          usedMock = true;
+          hasMore = false;
+          warningKey = anyRejected ? 'stockLooksApiFailed' : 'stockLooksEmptyLive';
+        } else {
+          hasMore = false;
+        }
       }
     }
 
@@ -344,6 +370,8 @@ export class StockLooksService {
       items,
       usedMock,
       querySummary,
+      hasMore,
+      page,
       sourcesUsed: [...new Set(items.map((i) => i.source))],
       warningKey,
     };
@@ -377,26 +405,29 @@ export class StockLooksService {
       .join(' · ');
 
     const perPage = params.perPage ?? 24;
+    const page = Math.max(1, params.page ?? 1);
     const requested = providers.filter((p) => p === 'pexels' || p === 'unsplash');
     const available = requested.filter(
       (p) => (p === 'pexels' && this.hasPexelsKey) || (p === 'unsplash' && this.hasUnsplashKey),
     );
 
-    const jobs: Array<Promise<RawLook[]>> = [];
+    const jobs: Array<Promise<ProviderFetchResult>> = [];
     if (available.includes('pexels')) {
-      jobs.push(this.fetchFromPexels(queryText, pexelsColor ?? undefined, perPage));
+      jobs.push(this.fetchFromPexels(queryText, pexelsColor ?? undefined, perPage, page));
     }
     if (available.includes('unsplash')) {
-      jobs.push(this.fetchFromUnsplash(queryText, unsplashColor ?? undefined, perPage));
+      jobs.push(this.fetchFromUnsplash(queryText, unsplashColor ?? undefined, perPage, page));
     }
 
     let raw: RawLook[] = [];
     let usedMock = false;
+    let hasMore = false;
     let warningKey: StockLooksSearchResult['warningKey'];
 
     if (!available.length) {
-      raw = this.filterMocksByQuery(queryText);
-      usedMock = true;
+      raw = page === 1 ? this.filterMocksByQuery(queryText) : [];
+      usedMock = page === 1;
+      hasMore = false;
       warningKey = requested.length
         ? 'stockLooksProviderKeyMissing'
         : 'stockLooksMockMode';
@@ -406,17 +437,26 @@ export class StockLooksService {
           try {
             return { ok: true as const, value: await job };
           } catch {
-            return { ok: false as const, value: [] as RawLook[] };
+            return {
+              ok: false as const,
+              value: { items: [] as RawLook[], hasMore: false },
+            };
           }
         }),
       );
-      const chunks = settled.filter((s) => s.ok).map((s) => s.value);
+      const chunks = settled.filter((s) => s.ok).map((s) => s.value.items);
       const anyRejected = settled.some((s) => !s.ok);
+      hasMore = settled.some((s) => s.ok && s.value.hasMore);
       raw = this.dedupeLooks(chunks);
       if (!raw.length) {
-        raw = this.filterMocksByQuery(queryText);
-        usedMock = true;
-        warningKey = anyRejected ? 'stockLooksApiFailed' : 'stockLooksEmptyLive';
+        if (page === 1) {
+          raw = this.filterMocksByQuery(queryText);
+          usedMock = true;
+          hasMore = false;
+          warningKey = anyRejected ? 'stockLooksApiFailed' : 'stockLooksEmptyLive';
+        } else {
+          hasMore = false;
+        }
       }
     }
 
@@ -425,6 +465,8 @@ export class StockLooksService {
       items,
       usedMock,
       querySummary,
+      hasMore,
+      page,
       sourcesUsed: [...new Set(items.map((i) => i.source))],
       warningKey,
     };
@@ -554,37 +596,52 @@ export class StockLooksService {
    * Merge a few clothing-focused queries. First query is color-free for better
    * subject hits; later queries use palette color anchors.
    */
+  /**
+   * Page 1: merge a few clothing-focused queries.
+   * Page 2+: paginate the primary query only (stable infinite scroll).
+   */
   private async fetchMergedFromPexels(
     queries: string[],
     colors: string[],
     perPage: number,
-  ): Promise<RawLook[]> {
+    page = 1,
+  ): Promise<ProviderFetchResult> {
+    if (page > 1) {
+      return this.fetchFromPexels(queries[0], undefined, perPage, page);
+    }
     const pageSize = Math.min(20, Math.max(8, Math.ceil(perPage / 2)));
-    const jobs: Array<Promise<RawLook[]>> = [
-      this.fetchFromPexels(queries[0], undefined, pageSize),
+    const jobs: Array<Promise<ProviderFetchResult>> = [
+      this.fetchFromPexels(queries[0], undefined, pageSize, 1),
     ];
     if (queries[1]) {
-      jobs.push(this.fetchFromPexels(queries[1], colors[0], pageSize));
+      jobs.push(this.fetchFromPexels(queries[1], colors[0], pageSize, 1));
     }
     if (queries[2] && colors[1]) {
-      jobs.push(this.fetchFromPexels(queries[2], colors[1], pageSize));
+      jobs.push(this.fetchFromPexels(queries[2], colors[1], pageSize, 1));
     }
 
     const chunks = await Promise.all(
-      jobs.map((job) => job.catch(() => [] as RawLook[])),
+      jobs.map((job) =>
+        job.catch(() => ({ items: [] as RawLook[], hasMore: false })),
+      ),
     );
-    return this.dedupeLooks(chunks);
+    return {
+      items: this.dedupeLooks(chunks.map((c) => c.items)),
+      hasMore: chunks.some((c) => c.hasMore),
+    };
   }
 
   private async fetchFromPexels(
     query: string,
     color: string | undefined,
     perPage: number,
-  ): Promise<RawLook[]> {
+    page = 1,
+  ): Promise<ProviderFetchResult> {
     const key = environment.pexelsApiKey.trim();
     let params = new HttpParams()
       .set('query', query)
       .set('per_page', String(perPage))
+      .set('page', String(page))
       .set('orientation', 'portrait')
       .set('size', 'large');
     if (color) {
@@ -599,7 +656,8 @@ export class StockLooksService {
       }),
     );
 
-    return (response.photos ?? [])
+    const photos = response.photos ?? [];
+    const items = photos
       .filter((photo) => (photo.width ?? 0) === 0 || (photo.width ?? 0) >= 1000)
       .map((photo) => ({
         id: `pexels:${photo.id}`,
@@ -612,39 +670,59 @@ export class StockLooksService {
         avgColor: photo.avg_color || '#888888',
         source: 'pexels' as const,
       }));
+
+    const total = response.total_results ?? 0;
+    const currentPage = response.page ?? page;
+    const size = response.per_page ?? perPage;
+    const hasMore =
+      Boolean(response.next_page) ||
+      (total > 0 ? currentPage * size < total : photos.length >= perPage);
+
+    return { items, hasMore };
   }
 
   private async fetchMergedFromUnsplash(
     queries: string[],
     colors: Array<string | null | undefined>,
     perPage: number,
-  ): Promise<RawLook[]> {
+    page = 1,
+  ): Promise<ProviderFetchResult> {
+    if (page > 1) {
+      return this.fetchFromUnsplash(queries[0], undefined, perPage, page);
+    }
     const pageSize = Math.min(20, Math.max(8, Math.ceil(perPage / 2)));
-    const jobs: Array<Promise<RawLook[]>> = [
-      this.fetchFromUnsplash(queries[0], undefined, pageSize),
+    const jobs: Array<Promise<ProviderFetchResult>> = [
+      this.fetchFromUnsplash(queries[0], undefined, pageSize, 1),
     ];
     if (queries[1]) {
-      jobs.push(this.fetchFromUnsplash(queries[1], colors[0] || undefined, pageSize));
+      jobs.push(this.fetchFromUnsplash(queries[1], colors[0] || undefined, pageSize, 1));
     }
     if (queries[2] && colors[1]) {
-      jobs.push(this.fetchFromUnsplash(queries[2], colors[1] || undefined, pageSize));
+      jobs.push(this.fetchFromUnsplash(queries[2], colors[1] || undefined, pageSize, 1));
     }
 
     const chunks = await Promise.all(
-      jobs.map((job) => job.catch(() => [] as RawLook[])),
+      jobs.map((job) =>
+        job.catch(() => ({ items: [] as RawLook[], hasMore: false })),
+      ),
     );
-    return this.dedupeLooks(chunks);
+    return {
+      items: this.dedupeLooks(chunks.map((c) => c.items)),
+      hasMore: chunks.some((c) => c.hasMore),
+    };
   }
 
   private async fetchFromUnsplash(
     query: string,
     color: string | undefined,
     perPage: number,
-  ): Promise<RawLook[]> {
+    page = 1,
+  ): Promise<ProviderFetchResult> {
     const key = environment.unsplashAccessKey.trim();
     let params = new HttpParams()
       .set('query', query)
       .set('per_page', String(Math.min(30, perPage)))
+      .set('page', String(page))
       .set('orientation', 'portrait')
       .set('content_filter', 'high');
     if (color) {
@@ -662,7 +740,8 @@ export class StockLooksService {
       }),
     );
 
-    return (response.results ?? [])
+    const results = response.results ?? [];
+    const items = results
       .filter((photo) => (photo.width ?? 0) === 0 || (photo.width ?? 0) >= 1000)
       .map((photo) => ({
         id: `unsplash:${photo.id}`,
@@ -678,5 +757,11 @@ export class StockLooksService {
         avgColor: photo.color || '#888888',
         source: 'unsplash' as const,
       }));
+
+    const totalPages = response.total_pages ?? 0;
+    const hasMore =
+      totalPages > 0 ? page < totalPages : results.length >= Math.min(30, perPage);
+
+    return { items, hasMore };
   }
 }

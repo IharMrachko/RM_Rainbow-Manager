@@ -8,6 +8,8 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   IonInput,
   IonSpinner,
   IonTitle,
@@ -72,6 +74,8 @@ addIcons({
     IonChip,
     IonSpinner,
     IonInput,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
   ],
   selector: 'app-stock-looks',
   templateUrl: './stock-looks.page.html',
@@ -91,6 +95,9 @@ export class StockLooksPage implements OnInit, OnDestroy {
   freeColorHex = '';
   items: StockLookItem[] = [];
   loading = false;
+  loadingMore = false;
+  hasMore = false;
+  currentPage = 1;
   usedMock = true;
   warningKey = '';
   querySummary = '';
@@ -155,8 +162,11 @@ export class StockLooksPage implements OnInit, OnDestroy {
     if (this.mode === mode) return;
     this.mode = mode;
     this.items = [];
+    this.hasMore = false;
+    this.currentPage = 1;
     this.errorMessage = '';
     this.querySummary = '';
+    this.warningKey = '';
     if (mode === 'palette') {
       void this.search();
     } else {
@@ -230,44 +240,84 @@ export class StockLooksPage implements OnInit, OnDestroy {
       this.querySummary = '';
       this.usedMock = false;
       this.warningKey = '';
+      this.hasMore = false;
+      this.currentPage = 1;
       this.cdr.markForCheck();
       return;
     }
 
     this.loading = true;
+    this.loadingMore = false;
+    this.currentPage = 1;
     this.errorMessage = '';
     this.cdr.markForCheck();
     try {
-      const result = await this.stockLooks.search(
-        this.mode === 'free'
-          ? {
-              mode: 'free',
-              provider: this.provider,
-              freeQuery: this.freeQuery.trim(),
-              freeColorHex: this.freeColorHex || undefined,
-              perPage: 24,
-            }
-          : {
-              mode: 'palette',
-              provider: this.provider,
-              paletteType: this.selectedPalette,
-              category: this.selectedCategory,
-              perPage: 24,
-            },
-      );
+      const result = await this.stockLooks.search(this.buildSearchParams(1));
       this.items = result.items;
       this.usedMock = result.usedMock;
       this.querySummary = result.querySummary;
       this.warningKey = result.warningKey || '';
+      this.hasMore = Boolean(result.hasMore) && !result.usedMock;
+      this.currentPage = result.page ?? 1;
     } catch {
       this.items = [];
       this.usedMock = false;
       this.warningKey = '';
+      this.hasMore = false;
       this.errorMessage = this.translate.instant('stockLooksError');
     } finally {
       this.loading = false;
       this.cdr.markForCheck();
     }
+  }
+
+  async loadMore(event?: Event): Promise<void> {
+    const target = event?.target as HTMLIonInfiniteScrollElement | undefined;
+    if (this.loading || this.loadingMore || !this.hasMore || this.usedMock) {
+      target?.complete();
+      return;
+    }
+
+    this.loadingMore = true;
+    this.cdr.markForCheck();
+    try {
+      const nextPage = this.currentPage + 1;
+      const result = await this.stockLooks.search(this.buildSearchParams(nextPage));
+      const existing = new Set(this.items.map((item) => item.id));
+      const appended = result.items.filter((item) => !existing.has(item.id));
+      this.items = [...this.items, ...appended];
+      this.currentPage = result.page ?? nextPage;
+      this.hasMore = Boolean(result.hasMore) && appended.length > 0;
+      if (result.warningKey && !this.items.length) {
+        this.warningKey = result.warningKey;
+      }
+    } catch {
+      this.hasMore = false;
+    } finally {
+      this.loadingMore = false;
+      target?.complete();
+      this.cdr.markForCheck();
+    }
+  }
+
+  private buildSearchParams(page: number) {
+    return this.mode === 'free'
+      ? {
+          mode: 'free' as const,
+          provider: this.provider,
+          freeQuery: this.freeQuery.trim(),
+          freeColorHex: this.freeColorHex || undefined,
+          perPage: 24,
+          page,
+        }
+      : {
+          mode: 'palette' as const,
+          provider: this.provider,
+          paletteType: this.selectedPalette,
+          category: this.selectedCategory,
+          perPage: 24,
+          page,
+        };
   }
 
   matchLabelKey(label: StockLookItem['matchLabel']): string {

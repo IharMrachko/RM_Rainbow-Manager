@@ -72,12 +72,18 @@ export interface StockLooksSearchParams {
   /** Optional user-picked accent hexes from the palette (1–3). */
   accentHexes?: string[];
   perPage?: number;
+  /** 1-based page for infinite scroll (default 1). */
+  page?: number;
 }
 
 export interface StockLooksSearchResult {
   items: StockLookItem[];
   usedMock: boolean;
   querySummary: string;
+  /** True when another live page may be available. */
+  hasMore?: boolean;
+  /** Page that was fetched. */
+  page?: number;
   /** Providers that returned at least one photo. */
   sourcesUsed?: Array<'pexels' | 'unsplash' | 'mock'>;
   /** Why mock/empty happened — for UI banner. */
