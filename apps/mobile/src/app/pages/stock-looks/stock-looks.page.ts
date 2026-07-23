@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
@@ -8,8 +8,6 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
-  IonInfiniteScroll,
-  IonInfiniteScrollContent,
   IonInput,
   IonSpinner,
   IonTitle,
@@ -45,6 +43,7 @@ import {
   ColorPickerSheetData,
   ColorPickerSheetResult,
 } from '../../shared/components/color-picker-sheet.component';
+import { VirtualScrollGridComponent } from '../../shared/components/virtual-scroll-grid.component';
 
 addIcons({
   bookmarkOutline,
@@ -74,18 +73,26 @@ addIcons({
     IonChip,
     IonSpinner,
     IonInput,
-    IonInfiniteScroll,
-    IonInfiniteScrollContent,
+    VirtualScrollGridComponent,
   ],
   selector: 'app-stock-looks',
   templateUrl: './stock-looks.page.html',
   styleUrls: ['./stock-looks.page.scss'],
 })
 export class StockLooksPage implements OnInit, OnDestroy {
+  @ViewChild(VirtualScrollGridComponent) private virtualGrid?: VirtualScrollGridComponent<StockLookItem>;
+
   readonly paletteNames = Object.keys(palettesObj) as Palette[];
   readonly categories: StockLooksCategory[] = ['outfit', 'portrait', 'accessories'];
   readonly modes: StockLooksMode[] = ['palette', 'free'];
   readonly providers: StockLooksProvider[] = ['all', 'pexels', 'unsplash'];
+  /** 1 col on phones, 2 from ~520px content width. */
+  readonly gridMinColumnWidth = 240;
+  /** Portrait media 3:4. */
+  readonly gridMediaAspect = 3 / 4;
+  /** Title, photographer, swatches, action row. */
+  readonly gridMetaHeight = 132;
+  readonly stockItemKey = (item: StockLookItem) => item.id;
 
   mode: StockLooksMode = 'palette';
   provider: StockLooksProvider = 'all';
@@ -114,6 +121,10 @@ export class StockLooksPage implements OnInit, OnDestroy {
     private readonly translate: TranslateService,
     private readonly cdr: ChangeDetectorRef,
   ) {}
+
+  get useVirtualGrid(): boolean {
+    return !this.loading && !this.errorMessage && this.items.length > 0;
+  }
 
   ngOnInit(): void {
     const fromQuery = this.route.snapshot.queryParamMap.get('paletteType');
@@ -268,13 +279,21 @@ export class StockLooksPage implements OnInit, OnDestroy {
     } finally {
       this.loading = false;
       this.cdr.markForCheck();
+      queueMicrotask(() => this.virtualGrid?.scrollToTop());
     }
+  }
+
+  onVirtualGridNearEnd(): void {
+    void this.loadMore();
   }
 
   async loadMore(event?: Event): Promise<void> {
     const target = event?.target as HTMLIonInfiniteScrollElement | undefined;
     if (this.loading || this.loadingMore || !this.hasMore || this.usedMock) {
       target?.complete();
+      if (!this.loadingMore) {
+        this.virtualGrid?.resetNearEndLatch();
+      }
       return;
     }
 
@@ -296,6 +315,7 @@ export class StockLooksPage implements OnInit, OnDestroy {
     } finally {
       this.loadingMore = false;
       target?.complete();
+      this.virtualGrid?.resetNearEndLatch();
       this.cdr.markForCheck();
     }
   }

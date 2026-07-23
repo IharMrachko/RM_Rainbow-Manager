@@ -19,231 +19,252 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="page-content stock-looks">
-  <section class="stock-looks__intro">
-    <div class="stock-looks__intro-icon">
-      <ion-icon [name]="isFreeMode ? 'search-outline' : 'color-palette-outline'"></ion-icon>
-    </div>
-    <div>
-      <h1>{{ (isFreeMode ? 'stockLooksFreeTitle' : 'stockLooksTitle') | translate }}</h1>
-      <p>{{ (isFreeMode ? 'stockLooksFreeHint' : 'stockLooksHint') | translate }}</p>
-    </div>
-  </section>
-
-  <section class="stock-looks__block">
-    <h2>{{ 'stockLooksMode' | translate }}</h2>
-    <div class="stock-looks__chips">
-      @for (m of modes; track m) {
-        <ion-chip
-          [outline]="mode !== m"
-          [color]="mode === m ? 'primary' : 'medium'"
-          (click)="selectMode(m)"
-        >
-          {{ modeKey(m) | translate }}
-        </ion-chip>
-      }
-    </div>
-  </section>
-
-  <section class="stock-looks__block">
-    <h2>{{ 'stockLooksProvider' | translate }}</h2>
-    <div class="stock-looks__chips">
-      @for (p of providers; track p) {
-        <ion-chip
-          [outline]="provider !== p"
-          [color]="provider === p ? 'primary' : 'medium'"
-          (click)="selectProvider(p)"
-        >
-          {{ providerKey(p) | translate }}
-        </ion-chip>
-      }
-    </div>
-    @if (!hasPexelsKey || !hasUnsplashKey) {
-      <p class="stock-looks__provider-hint">
-        @if (!hasPexelsKey && !hasUnsplashKey) {
-          {{ 'stockLooksNoKeys' | translate }}
-        } @else if (!hasPexelsKey) {
-          {{ 'stockLooksMissingPexels' | translate }}
-        } @else {
-          {{ 'stockLooksMissingUnsplash' | translate }}
-        }
-      </p>
-    }
-  </section>
-
-  @if (warningKey) {
-    <p class="stock-looks__banner">
-      {{ warningKey | translate }}
-    </p>
-  }
-
-  @if (isFreeMode) {
-    <section class="stock-looks__block">
-      <h2>{{ 'stockLooksFreeQuery' | translate }}</h2>
-      <div class="stock-looks__search">
-        <ion-input
-          class="stock-looks__search-input"
-          type="search"
-          enterkeyhint="search"
-          [placeholder]="'stockLooksFreePlaceholder' | translate"
-          [(ngModel)]="freeQuery"
-          (keyup.enter)="onFreeQuerySubmit()"
-        ></ion-input>
-        <ion-button
-          fill="outline"
-          size="small"
-          class="stock-looks__color-btn"
-          (click)="openFreeColorPicker()"
-          [attr.aria-label]="'stockLooksPickColor' | translate"
-        >
-          <span
-            class="stock-looks__color-dot"
-            [style.background]="freeColorHex || 'transparent'"
-            [class.stock-looks__color-dot--empty]="!freeColorHex"
-          ></span>
-          <ion-icon name="eyedrop"></ion-icon>
-        </ion-button>
-        <ion-button
-          fill="solid"
-          size="small"
-          [disabled]="loading || (!freeQuery.trim() && !freeColorHex)"
-          (click)="onFreeQuerySubmit()"
-        >
-          <ion-icon slot="start" name="search-outline"></ion-icon>
-          {{ 'stockLooksSearch' | translate }}
-        </ion-button>
-      </div>
-      @if (freeColorHex) {
-        <div class="stock-looks__picked">
-          <button type="button" class="stock-looks__picked-chip" (click)="openFreeColorPicker()">
-            <span class="stock-looks__picked-swatch" [style.background]="freeColorHex"></span>
-            <span>{{ freeColorHex }}</span>
-          </button>
-          <ion-button fill="clear" size="small" (click)="clearFreeColor()" [attr.aria-label]="'clear' | translate">
-            <ion-icon slot="icon-only" name="close-circle"></ion-icon>
-          </ion-button>
+<ion-content
+  class="page-content stock-looks"
+  [class.stock-looks--virtual]="useVirtualGrid"
+  [scrollY]="!useVirtualGrid"
+>
+  <div class="stock-looks__layout" [class.stock-looks__layout--virtual]="useVirtualGrid">
+    <div class="stock-looks__controls">
+      <section class="stock-looks__intro">
+        <div class="stock-looks__intro-icon">
+          <ion-icon [name]="isFreeMode ? 'search-outline' : 'color-palette-outline'"></ion-icon>
         </div>
+        <div>
+          <h1>{{ (isFreeMode ? 'stockLooksFreeTitle' : 'stockLooksTitle') | translate }}</h1>
+          <p>{{ (isFreeMode ? 'stockLooksFreeHint' : 'stockLooksHint') | translate }}</p>
+        </div>
+      </section>
+
+      <section class="stock-looks__block">
+        <h2>{{ 'stockLooksMode' | translate }}</h2>
+        <div class="stock-looks__chips">
+          @for (m of modes; track m) {
+            <ion-chip
+              [outline]="mode !== m"
+              [color]="mode === m ? 'primary' : 'medium'"
+              (click)="selectMode(m)"
+            >
+              {{ modeKey(m) | translate }}
+            </ion-chip>
+          }
+        </div>
+      </section>
+
+      <section class="stock-looks__block">
+        <h2>{{ 'stockLooksProvider' | translate }}</h2>
+        <div class="stock-looks__chips">
+          @for (p of providers; track p) {
+            <ion-chip
+              [outline]="provider !== p"
+              [color]="provider === p ? 'primary' : 'medium'"
+              (click)="selectProvider(p)"
+            >
+              {{ providerKey(p) | translate }}
+            </ion-chip>
+          }
+        </div>
+        @if (!hasPexelsKey || !hasUnsplashKey) {
+          <p class="stock-looks__provider-hint">
+            @if (!hasPexelsKey && !hasUnsplashKey) {
+              {{ 'stockLooksNoKeys' | translate }}
+            } @else if (!hasPexelsKey) {
+              {{ 'stockLooksMissingPexels' | translate }}
+            } @else {
+              {{ 'stockLooksMissingUnsplash' | translate }}
+            }
+          </p>
+        }
+      </section>
+
+      @if (warningKey) {
+        <p class="stock-looks__banner">
+          {{ warningKey | translate }}
+        </p>
       }
-    </section>
-  } @else {
-    <section class="stock-looks__block">
-      <h2>{{ 'stockLooksPalette' | translate }}</h2>
-      <div class="stock-looks__swatches" aria-hidden="true">
-        @for (hex of accentSwatches; track hex) {
-          <span class="stock-looks__swatch" [style.background]="hex"></span>
-        }
-      </div>
-      <div class="stock-looks__chips">
-        @for (name of paletteNames; track name) {
-          <ion-chip
-            [outline]="selectedPalette !== name"
-            [color]="selectedPalette === name ? 'primary' : 'medium'"
-            (click)="selectPalette(name)"
-          >
-            {{ name | translate }}
-          </ion-chip>
-        }
-      </div>
-    </section>
 
-    <section class="stock-looks__block">
-      <h2>{{ 'stockLooksCategory' | translate }}</h2>
-      <div class="stock-looks__chips">
-        @for (category of categories; track category) {
-          <ion-chip
-            [outline]="selectedCategory !== category"
-            [color]="selectedCategory === category ? 'primary' : 'medium'"
-            (click)="selectCategory(category)"
-          >
-            {{ categoryKey(category) | translate }}
-          </ion-chip>
-        }
-      </div>
-    </section>
-  }
-
-  @if (loading) {
-    <div class="stock-looks__state">
-      <ion-spinner name="crescent"></ion-spinner>
-      <span>{{ 'stockLooksLoading' | translate }}</span>
-    </div>
-  } @else if (errorMessage) {
-    <div class="stock-looks__state stock-looks__state--error">
-      <p>{{ errorMessage }}</p>
-      <ion-button fill="outline" size="small" (click)="search()">{{ 'retry' | translate }}</ion-button>
-    </div>
-  } @else if (isFreeMode && !freeQuery.trim() && !freeColorHex) {
-    <div class="stock-looks__state">
-      <ion-icon name="search-outline"></ion-icon>
-      <p>{{ 'stockLooksFreeEmptyHint' | translate }}</p>
-    </div>
-  } @else if (!items.length) {
-    <div class="stock-looks__state">
-      <ion-icon name="images-outline"></ion-icon>
-      <p>{{ (isFreeMode ? 'stockLooksFreeEmpty' : 'stockLooksEmpty') | translate }}</p>
-    </div>
-  } @else {
-    <p class="stock-looks__meta">{{ querySummary }}</p>
-    <div class="stock-looks__grid">
-      @for (item of items; track item.id) {
-        <article class="stock-card">
-          <div class="stock-card__media" [style.--avg]="item.avgColor">
-            <img
-              [src]="item.previewUrl"
-              [alt]="item.title"
-              loading="lazy"
-              decoding="async"
-            />
-            <span class="stock-card__source">{{ sourceKey(item.source) | translate }}</span>
-            @if (!isFreeMode || freeColorHex) {
-              <span class="stock-card__score" [attr.data-label]="item.matchLabel">
-                {{ matchLabelKey(item.matchLabel) | translate }}
-                · {{ item.matchScore }}
-              </span>
-            }
+      @if (isFreeMode) {
+        <section class="stock-looks__block">
+          <h2>{{ 'stockLooksFreeQuery' | translate }}</h2>
+          <div class="stock-looks__search">
+            <ion-input
+              class="stock-looks__search-input"
+              type="search"
+              enterkeyhint="search"
+              [placeholder]="'stockLooksFreePlaceholder' | translate"
+              [(ngModel)]="freeQuery"
+              (keyup.enter)="onFreeQuerySubmit()"
+            ></ion-input>
+            <ion-button
+              fill="outline"
+              size="small"
+              class="stock-looks__color-btn"
+              (click)="openFreeColorPicker()"
+              [attr.aria-label]="'stockLooksPickColor' | translate"
+            >
+              <span
+                class="stock-looks__color-dot"
+                [style.background]="freeColorHex || 'transparent'"
+                [class.stock-looks__color-dot--empty]="!freeColorHex"
+              ></span>
+              <ion-icon name="eyedrop"></ion-icon>
+            </ion-button>
+            <ion-button
+              fill="solid"
+              size="small"
+              [disabled]="loading || (!freeQuery.trim() && !freeColorHex)"
+              (click)="onFreeQuerySubmit()"
+            >
+              <ion-icon slot="start" name="search-outline"></ion-icon>
+              {{ 'stockLooksSearch' | translate }}
+            </ion-button>
           </div>
-          <div class="stock-card__body">
-            <strong>{{ item.title }}</strong>
-            <small>
-              {{ 'stockLooksPhotoBy' | translate: { name: item.photographer } }}
-            </small>
-            @if (item.matchedSwatches.length) {
-              <div class="stock-card__swatches">
-                @for (hex of item.matchedSwatches; track hex) {
-                  <span [style.background]="hex"></span>
-                }
-              </div>
-            }
-            <div class="stock-card__actions">
-              <ion-button fill="clear" size="small" (click)="openSource(item)">
-                <ion-icon slot="start" name="open-outline"></ion-icon>
-                {{ 'stockLooksOpen' | translate }}
-              </ion-button>
-              <ion-button
-                fill="clear"
-                size="small"
-                [disabled]="savingId === item.id"
-                (click)="saveToGallery(item)"
-              >
-                @if (savingId === item.id) {
-                  <ion-spinner name="crescent"></ion-spinner>
-                } @else {
-                  <ion-icon slot="start" name="bookmark-outline"></ion-icon>
-                  {{ 'stockLooksSave' | translate }}
-                }
+          @if (freeColorHex) {
+            <div class="stock-looks__picked">
+              <button type="button" class="stock-looks__picked-chip" (click)="openFreeColorPicker()">
+                <span class="stock-looks__picked-swatch" [style.background]="freeColorHex"></span>
+                <span>{{ freeColorHex }}</span>
+              </button>
+              <ion-button fill="clear" size="small" (click)="clearFreeColor()" [attr.aria-label]="'clear' | translate">
+                <ion-icon slot="icon-only" name="close-circle"></ion-icon>
               </ion-button>
             </div>
+          }
+        </section>
+      } @else {
+        <section class="stock-looks__block">
+          <h2>{{ 'stockLooksPalette' | translate }}</h2>
+          <div class="stock-looks__swatches" aria-hidden="true">
+            @for (hex of accentSwatches; track hex) {
+              <span class="stock-looks__swatch" [style.background]="hex"></span>
+            }
           </div>
-        </article>
+          <div class="stock-looks__chips">
+            @for (name of paletteNames; track name) {
+              <ion-chip
+                [outline]="selectedPalette !== name"
+                [color]="selectedPalette === name ? 'primary' : 'medium'"
+                (click)="selectPalette(name)"
+              >
+                {{ name | translate }}
+              </ion-chip>
+            }
+          </div>
+        </section>
+
+        <section class="stock-looks__block">
+          <h2>{{ 'stockLooksCategory' | translate }}</h2>
+          <div class="stock-looks__chips">
+            @for (category of categories; track category) {
+              <ion-chip
+                [outline]="selectedCategory !== category"
+                [color]="selectedCategory === category ? 'primary' : 'medium'"
+                (click)="selectCategory(category)"
+              >
+                {{ categoryKey(category) | translate }}
+              </ion-chip>
+            }
+          </div>
+        </section>
       }
     </div>
-  }
 
-  <ion-infinite-scroll
-    threshold="20%"
-    [disabled]="!hasMore || loading || loadingMore || usedMock || !items.length"
-    (ionInfinite)="loadMore($event)"
-  >
-    <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
-  </ion-infinite-scroll>
+    @if (loading) {
+      <div class="stock-looks__state">
+        <ion-spinner name="crescent"></ion-spinner>
+        <span>{{ 'stockLooksLoading' | translate }}</span>
+      </div>
+    } @else if (errorMessage) {
+      <div class="stock-looks__state stock-looks__state--error">
+        <p>{{ errorMessage }}</p>
+        <ion-button fill="outline" size="small" (click)="search()">{{ 'retry' | translate }}</ion-button>
+      </div>
+    } @else if (isFreeMode && !freeQuery.trim() && !freeColorHex) {
+      <div class="stock-looks__state">
+        <ion-icon name="search-outline"></ion-icon>
+        <p>{{ 'stockLooksFreeEmptyHint' | translate }}</p>
+      </div>
+    } @else if (!items.length) {
+      <div class="stock-looks__state">
+        <ion-icon name="images-outline"></ion-icon>
+        <p>{{ (isFreeMode ? 'stockLooksFreeEmpty' : 'stockLooksEmpty') | translate }}</p>
+      </div>
+    } @else {
+      <div class="stock-looks__results">
+        <p class="stock-looks__meta">{{ querySummary }}</p>
+        <div class="stock-looks__grid-wrap">
+          <app-virtual-scroll-grid
+            class="stock-looks__virtual"
+            [items]="items"
+            [itemKey]="stockItemKey"
+            [minColumnWidth]="gridMinColumnWidth"
+            [gap]="14"
+            [mediaAspectRatio]="gridMediaAspect"
+            [metaHeight]="gridMetaHeight"
+            [bufferRows]="4"
+            [nearEndOffset]="280"
+            (nearEnd)="onVirtualGridNearEnd()"
+          >
+            <ng-template let-item>
+              <article class="stock-card">
+                <div class="stock-card__media" [style.--avg]="item.avgColor">
+                  <img
+                    [src]="item.previewUrl"
+                    [alt]="item.title"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <span class="stock-card__source">{{ sourceKey(item.source) | translate }}</span>
+                  @if (!isFreeMode || freeColorHex) {
+                    <span class="stock-card__score" [attr.data-label]="item.matchLabel">
+                      {{ matchLabelKey(item.matchLabel) | translate }}
+                      · {{ item.matchScore }}
+                    </span>
+                  }
+                </div>
+                <div class="stock-card__body">
+                  <strong>{{ item.title }}</strong>
+                  <small>
+                    {{ 'stockLooksPhotoBy' | translate: { name: item.photographer } }}
+                  </small>
+                  @if (item.matchedSwatches.length) {
+                    <div class="stock-card__swatches">
+                      @for (hex of item.matchedSwatches; track hex) {
+                        <span [style.background]="hex"></span>
+                      }
+                    </div>
+                  }
+                  <div class="stock-card__actions">
+                    <ion-button fill="clear" size="small" (click)="openSource(item)">
+                      <ion-icon slot="start" name="open-outline"></ion-icon>
+                      {{ 'stockLooksOpen' | translate }}
+                    </ion-button>
+                    <ion-button
+                      fill="clear"
+                      size="small"
+                      [disabled]="savingId === item.id"
+                      (click)="saveToGallery(item)"
+                    >
+                      @if (savingId === item.id) {
+                        <ion-spinner name="crescent"></ion-spinner>
+                      } @else {
+                        <ion-icon slot="start" name="bookmark-outline"></ion-icon>
+                        {{ 'stockLooksSave' | translate }}
+                      }
+                    </ion-button>
+                  </div>
+                </div>
+              </article>
+            </ng-template>
+          </app-virtual-scroll-grid>
+
+          @if (loadingMore) {
+            <div class="stock-looks__grid-more">
+              <ion-spinner name="crescent"></ion-spinner>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
 </ion-content>
