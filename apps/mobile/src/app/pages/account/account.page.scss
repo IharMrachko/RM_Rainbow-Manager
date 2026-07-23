@@ -4,6 +4,11 @@
   height: 100%;
 }
 
+.toolbar-balance {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .account-page {
   --padding-start: 16px;
   --padding-end: 16px;
