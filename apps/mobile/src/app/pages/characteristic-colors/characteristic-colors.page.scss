@@ -28,65 +28,30 @@
   height: 18px;
 }
 
-.char-seg {
-  width: 100%;
-  --background: var(--rm-surface-2, #e2e5ee);
+.char-mode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
   border-radius: 14px;
-  padding: 3px;
+  background: color-mix(in srgb, var(--rm-ink, #16182a) 6%, var(--rm-surface, #eef0f7));
 }
 
-.char-seg ion-segment-button {
-  --border-width: 0 !important;
-  --border-color: transparent !important;
-  --border-style: none !important;
-  --indicator-box-shadow: none !important;
-  --indicator-color: var(--rm-elevated, #fff);
-  --background: transparent;
-  --background-checked: transparent;
-  --color: var(--rm-muted, #8b90a5);
-  --color-checked: #57b846;
-  --border-radius: 12px;
+.char-mode__btn {
   min-height: 36px;
-  text-transform: none;
-  letter-spacing: 0;
-  font-weight: 600;
-  max-width: none;
-  flex: 1 1 0;
-}
-
-.char-seg ion-segment-button::before {
-  display: none !important;
-  content: none !important;
-  border: none !important;
-  opacity: 0 !important;
-}
-
-.char-seg ion-segment-button::part(native) {
   border: none;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--rm-muted, #8b90a5);
+  font-size: 0.86rem;
+  font-weight: 650;
+  padding: 0 10px;
 }
 
-.char-seg ion-segment-button::part(indicator-background) {
-  box-shadow: none !important;
-  background: var(--rm-elevated, #fff) !important;
-  border-radius: 12px;
-}
-
-.char-seg ion-segment-button::after {
-  content: '';
-  position: absolute;
-  z-index: 3;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 4px;
-  border-radius: 0 0 12px 12px;
-  background: #57b846;
-  transform: scaleX(0);
-  transition: transform 180ms ease;
-}
-
-.char-seg ion-segment-button.segment-button-checked::after {
-  transform: scaleX(1);
+.char-mode__btn.is-on {
+  background: var(--rm-elevated, #fff);
+  color: var(--ion-color-primary, #5b6ef5);
+  box-shadow: 0 1px 4px rgba(22, 24, 42, 0.1);
 }
 
 .char-scroll {

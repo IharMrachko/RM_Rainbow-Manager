@@ -25,14 +25,28 @@
     </div>
   </div>
 
-  <ion-segment mode="md" scrollable="false" class="char-seg" [value]="tab" (ionChange)="onTabChange($event)">
-    <ion-segment-button value="mask">
-      <ion-label>{{ 'mask' | translate }}</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="collage">
-      <ion-label>{{ 'collage' | translate }}</ion-label>
-    </ion-segment-button>
-  </ion-segment>
+  <div class="char-mode" role="tablist" [attr.aria-label]="'characteristicColors' | translate">
+    <button
+      type="button"
+      role="tab"
+      class="char-mode__btn"
+      [class.is-on]="tab === 'mask'"
+      [attr.aria-selected]="tab === 'mask'"
+      (click)="setTab('mask')"
+    >
+      {{ 'mask' | translate }}
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="char-mode__btn"
+      [class.is-on]="tab === 'collage'"
+      [attr.aria-selected]="tab === 'collage'"
+      (click)="setTab('collage')"
+    >
+      {{ 'collage' | translate }}
+    </button>
+  </div>
 
   <div class="char-scroll">
     @if (tab === 'mask') {
