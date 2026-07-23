@@ -26,6 +26,7 @@ import {
   faRainbow,
   faScissors,
   faShirt,
+  faUserTie,
 } from '@fortawesome/free-solid-svg-icons';
 import { addIcons } from 'ionicons';
 import { chevronDownOutline, logOutOutline } from 'ionicons/icons';
@@ -50,7 +51,7 @@ interface NavItem {
 }
 
 interface MenuGroup {
-  id: 'color' | 'analysis' | 'looks';
+  id: 'color' | 'analysis' | 'looks' | 'consultation';
   titleKey: string;
   iconPath: string;
   iconViewBox: string;
@@ -163,6 +164,14 @@ export class TabsShellPage implements OnInit, OnDestroy {
         { titleKey: 'gallery', url: '/tabs/gallery', ...menuIcon(faImages) },
         { titleKey: 'stockLooks', url: '/tabs/stock-looks', ...menuIcon(faShirt) },
         { titleKey: 'lookbook', url: '/tabs/lookbook', ...menuIcon(faBookOpen) },
+      ],
+    },
+    {
+      id: 'consultation',
+      titleKey: 'consultation',
+      ...menuIcon(faUserTie),
+      items: [
+        { titleKey: 'consultation', url: '/tabs/consultation', ...menuIcon(faUserTie) },
       ],
     },
   ];
