@@ -6,6 +6,12 @@
       </ion-button>
     </ion-buttons>
     <ion-title>{{ 'account' | translate }}</ion-title>
+    <!-- Mirror start button width so the title stays optically centered. -->
+    <ion-buttons slot="end">
+      <ion-button fill="clear" disabled aria-hidden="true" tabindex="-1" class="toolbar-balance">
+        <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
