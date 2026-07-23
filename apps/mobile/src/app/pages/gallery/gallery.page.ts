@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { IonContent, IonicModule, ScrollDetail } from '@ionic/angular';
+import { IonicModule, ScrollDetail } from '@ionic/angular';
 import { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
 import { colorCards, Palette, palettesObj } from '@rainbow/shared';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -35,6 +35,10 @@ import {
   GalleryViewerSheetData,
   GalleryViewerSheetResult,
 } from '../../shared/components/gallery-viewer-sheet.component';
+import {
+  VirtualScrollGridComponent,
+  VirtualScrollGridScrollEvent,
+} from '../../shared/components/virtual-scroll-grid.component';
 
 export interface GalleryFilterState {
   folderId: string | null;
@@ -45,13 +49,13 @@ export interface GalleryFilterState {
 
 @Component({
   standalone: true,
-  imports: [IonicModule, TranslateModule, RouterModule, FormsModule],
+  imports: [IonicModule, TranslateModule, RouterModule, FormsModule, VirtualScrollGridComponent],
   selector: 'app-gallery',
   templateUrl: './gallery.page.html',
   styleUrls: ['./gallery.page.scss'],
 })
 export class GalleryPage implements OnInit, OnDestroy {
-  @ViewChild(IonContent) private content?: IonContent;
+  @ViewChild(VirtualScrollGridComponent) private virtualGrid?: VirtualScrollGridComponent<GalleryImage>;
 
   items: GalleryImage[] = [];
   total = 0;
@@ -75,6 +79,13 @@ export class GalleryPage implements OnInit, OnDestroy {
   readonly maskTypes = colorCards.map((c) => c.type);
   readonly paletteTypes = Object.keys(palettesObj) as Palette[];
   readonly coloristicTypes = ['mask', 'collage'] as const;
+  /** ~2 columns on phones, more on wider screens (Vue uses 100px mobile / 250px desktop). */
+  readonly gridMinColumnWidth = 160;
+  readonly galleryItemKey = (item: GalleryImage) => item.id;
+
+  get useVirtualGrid(): boolean {
+    return !this.loading && this.items.length > 0;
+  }
 
   private lastDoc: QueryDocumentSnapshot<DocumentData> | null = null;
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
@@ -192,6 +203,8 @@ export class GalleryPage implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.lastDoc = null;
     this.hasMore = false;
+    this.lastScrollTop = 0;
+    this.showSearch();
     try {
       const page = await this.gallery.loadUserItems(this.buildOptions());
       this.items = page.items;
@@ -208,19 +221,37 @@ export class GalleryPage implements OnInit, OnDestroy {
       await this.showToast(this.errorMessage, 'danger');
     } finally {
       this.loading = false;
+      queueMicrotask(() => this.virtualGrid?.scrollToTop());
     }
   }
 
   onContentScroll(event?: CustomEvent<ScrollDetail>): void {
+    // Virtual grid owns scrolling when the gallery list is shown.
+    if (this.useVirtualGrid) {
+      return;
+    }
     if (this.paintSelecting) {
       return;
     }
     const scrollTop = event?.detail?.scrollTop ?? 0;
     this.updateSearchVisibility(scrollTop);
-    void this.maybeLoadMore(scrollTop);
+  }
+
+  onVirtualGridScroll(event: VirtualScrollGridScrollEvent): void {
+    if (this.paintSelecting) {
+      return;
+    }
+    this.updateSearchVisibility(event.scrollTop);
+  }
+
+  onVirtualGridNearEnd(): void {
+    void this.loadMore();
   }
 
   onContentScrollEnd(): void {
+    if (this.useVirtualGrid) {
+      return;
+    }
     this.scheduleSearchReveal(120);
   }
 
@@ -265,22 +296,13 @@ export class GalleryPage implements OnInit, OnDestroy {
     }
   }
 
-  private async maybeLoadMore(scrollTop?: number): Promise<void> {
-    if (!this.hasMore || this.loading || this.loadingMore || !this.content || this.paintSelecting) {
-      return;
-    }
-    const el = await this.content.getScrollElement();
-    const top = scrollTop ?? el.scrollTop;
-    const nearEnd = top + el.clientHeight >= el.scrollHeight - 160;
-    if (nearEnd) {
-      await this.loadMore();
-    }
-  }
-
   async loadMore(event?: Event): Promise<void> {
     const target = event?.target as HTMLIonInfiniteScrollElement | undefined;
     if (this.loading || this.loadingMore || !this.hasMore || !this.lastDoc) {
       target?.complete();
+      if (!this.loadingMore) {
+        this.virtualGrid?.resetNearEndLatch();
+      }
       return;
     }
     this.loadingMore = true;
@@ -299,6 +321,8 @@ export class GalleryPage implements OnInit, OnDestroy {
     } finally {
       this.loadingMore = false;
       target?.complete();
+      this.virtualGrid?.resetNearEndLatch();
+      this.cdr.markForCheck();
     }
   }
 
