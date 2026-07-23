@@ -65,6 +65,10 @@ export const TABS_SHELL_ROUTES: Routes = [
           import('../stock-looks/stock-looks.page').then((m) => m.StockLooksPage),
       },
       {
+        path: 'account',
+        loadComponent: () => import('../account/account.page').then((m) => m.AccountPage),
+      },
+      {
         path: '',
         redirectTo: 'characteristics',
         pathMatch: 'full',
