@@ -188,17 +188,28 @@ export interface SheetSelectOption {
 
       .rm-sheet-select.is-compact .rm-sheet-select__trigger {
         min-height: 42px;
-        padding: 6px 11px;
-        gap: 1px;
+        padding: 0 12px;
+        gap: 0;
         border-radius: 11px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .rm-sheet-select.is-compact .rm-sheet-select__label {
+        display: none;
+      }
+
+      .rm-sheet-select.is-compact .rm-sheet-select__value {
+        flex: 1;
+        min-width: 0;
+        min-height: 42px;
+        font-size: 0.84rem;
+        align-items: center;
       }
 
       .rm-sheet-select.is-compact.is-open .rm-sheet-select__trigger {
         border-radius: 11px 11px 0 0;
-      }
-
-      .rm-sheet-select.is-compact .rm-sheet-select__value {
-        font-size: 0.84rem;
       }
 
       .rm-sheet-select.is-compact .rm-sheet-select__menu {
