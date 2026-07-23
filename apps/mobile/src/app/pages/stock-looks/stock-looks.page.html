@@ -8,6 +8,17 @@
     <ion-title>{{ 'stockLooks' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button
+        class="filter-btn"
+        fill="clear"
+        (click)="openFilter()"
+        [attr.aria-label]="'filter' | translate"
+      >
+        <ion-icon slot="icon-only" name="filter-outline"></ion-icon>
+        @if (filterBadgeCount) {
+          <span class="filter-badge">{{ filterBadgeCount }}</span>
+        }
+      </ion-button>
+      <ion-button
         fill="clear"
         (click)="search()"
         [disabled]="loading || (isFreeMode && !freeQuery.trim() && !freeColorHex)"
@@ -26,146 +37,79 @@
 >
   <div class="stock-looks__layout" [class.stock-looks__layout--virtual]="useVirtualGrid">
     <div class="stock-looks__controls">
-      <section class="stock-looks__intro">
-        <div class="stock-looks__intro-icon">
-          <ion-icon [name]="isFreeMode ? 'search-outline' : 'color-palette-outline'"></ion-icon>
-        </div>
-        <div>
-          <h1>{{ (isFreeMode ? 'stockLooksFreeTitle' : 'stockLooksTitle') | translate }}</h1>
-          <p>{{ (isFreeMode ? 'stockLooksFreeHint' : 'stockLooksHint') | translate }}</p>
-        </div>
-      </section>
-
-      <section class="stock-looks__block">
-        <h2>{{ 'stockLooksMode' | translate }}</h2>
-        <div class="stock-looks__chips">
-          @for (m of modes; track m) {
-            <ion-chip
-              [outline]="mode !== m"
-              [color]="mode === m ? 'primary' : 'medium'"
-              (click)="selectMode(m)"
-            >
-              {{ modeKey(m) | translate }}
-            </ion-chip>
-          }
-        </div>
-      </section>
-
-      <section class="stock-looks__block">
-        <h2>{{ 'stockLooksProvider' | translate }}</h2>
-        <div class="stock-looks__chips">
-          @for (p of providers; track p) {
-            <ion-chip
-              [outline]="provider !== p"
-              [color]="provider === p ? 'primary' : 'medium'"
-              (click)="selectProvider(p)"
-            >
-              {{ providerKey(p) | translate }}
-            </ion-chip>
-          }
-        </div>
-        @if (!hasPexelsKey || !hasUnsplashKey) {
-          <p class="stock-looks__provider-hint">
-            @if (!hasPexelsKey && !hasUnsplashKey) {
-              {{ 'stockLooksNoKeys' | translate }}
-            } @else if (!hasPexelsKey) {
-              {{ 'stockLooksMissingPexels' | translate }}
-            } @else {
-              {{ 'stockLooksMissingUnsplash' | translate }}
-            }
-          </p>
+      <div class="stock-looks__mode" role="tablist" [attr.aria-label]="'stockLooksMode' | translate">
+        @for (m of modes; track m) {
+          <button
+            type="button"
+            role="tab"
+            class="stock-looks__mode-btn"
+            [class.is-on]="mode === m"
+            [attr.aria-selected]="mode === m"
+            (click)="selectMode(m)"
+          >
+            {{ modeKey(m) | translate }}
+          </button>
         }
-      </section>
-
-      @if (warningKey) {
-        <p class="stock-looks__banner">
-          {{ warningKey | translate }}
-        </p>
-      }
+      </div>
 
       @if (isFreeMode) {
-        <section class="stock-looks__block">
-          <h2>{{ 'stockLooksFreeQuery' | translate }}</h2>
-          <div class="stock-looks__search">
-            <ion-input
-              class="stock-looks__search-input"
-              type="search"
-              enterkeyhint="search"
-              [placeholder]="'stockLooksFreePlaceholder' | translate"
-              [(ngModel)]="freeQuery"
-              (keyup.enter)="onFreeQuerySubmit()"
-            ></ion-input>
-            <ion-button
-              fill="outline"
-              size="small"
-              class="stock-looks__color-btn"
-              (click)="openFreeColorPicker()"
-              [attr.aria-label]="'stockLooksPickColor' | translate"
-            >
-              <span
-                class="stock-looks__color-dot"
-                [style.background]="freeColorHex || 'transparent'"
-                [class.stock-looks__color-dot--empty]="!freeColorHex"
-              ></span>
-              <ion-icon name="eyedrop"></ion-icon>
-            </ion-button>
-            <ion-button
-              fill="solid"
-              size="small"
-              [disabled]="loading || (!freeQuery.trim() && !freeColorHex)"
-              (click)="onFreeQuerySubmit()"
-            >
-              <ion-icon slot="start" name="search-outline"></ion-icon>
-              {{ 'stockLooksSearch' | translate }}
+        <div class="stock-looks__search">
+          <ion-input
+            class="stock-looks__search-input"
+            type="search"
+            enterkeyhint="search"
+            [placeholder]="'stockLooksFreePlaceholder' | translate"
+            [(ngModel)]="freeQuery"
+            (keyup.enter)="onFreeQuerySubmit()"
+          ></ion-input>
+          <ion-button
+            fill="outline"
+            size="small"
+            class="stock-looks__color-btn"
+            (click)="openFreeColorPicker()"
+            [attr.aria-label]="'stockLooksPickColor' | translate"
+          >
+            <span
+              class="stock-looks__color-dot"
+              [style.background]="freeColorHex || 'transparent'"
+              [class.stock-looks__color-dot--empty]="!freeColorHex"
+            ></span>
+            <ion-icon name="eyedrop"></ion-icon>
+          </ion-button>
+          <ion-button
+            fill="solid"
+            size="small"
+            [disabled]="loading || (!freeQuery.trim() && !freeColorHex)"
+            (click)="onFreeQuerySubmit()"
+          >
+            <ion-icon slot="icon-only" name="search-outline"></ion-icon>
+          </ion-button>
+        </div>
+        @if (freeColorHex) {
+          <div class="stock-looks__picked">
+            <button type="button" class="stock-looks__picked-chip" (click)="openFreeColorPicker()">
+              <span class="stock-looks__picked-swatch" [style.background]="freeColorHex"></span>
+              <span>{{ freeColorHex }}</span>
+            </button>
+            <ion-button fill="clear" size="small" (click)="clearFreeColor()" [attr.aria-label]="'clear' | translate">
+              <ion-icon slot="icon-only" name="close-circle"></ion-icon>
             </ion-button>
           </div>
-          @if (freeColorHex) {
-            <div class="stock-looks__picked">
-              <button type="button" class="stock-looks__picked-chip" (click)="openFreeColorPicker()">
-                <span class="stock-looks__picked-swatch" [style.background]="freeColorHex"></span>
-                <span>{{ freeColorHex }}</span>
-              </button>
-              <ion-button fill="clear" size="small" (click)="clearFreeColor()" [attr.aria-label]="'clear' | translate">
-                <ion-icon slot="icon-only" name="close-circle"></ion-icon>
-              </ion-button>
-            </div>
-          }
-        </section>
+        }
       } @else {
-        <section class="stock-looks__block">
-          <h2>{{ 'stockLooksPalette' | translate }}</h2>
-          <div class="stock-looks__swatches" aria-hidden="true">
+        <button type="button" class="stock-looks__summary" (click)="openFilter()">
+          <span class="stock-looks__summary-swatches" aria-hidden="true">
             @for (hex of accentSwatches; track hex) {
-              <span class="stock-looks__swatch" [style.background]="hex"></span>
+              <span [style.background]="hex"></span>
             }
-          </div>
-          <div class="stock-looks__chips">
-            @for (name of paletteNames; track name) {
-              <ion-chip
-                [outline]="selectedPalette !== name"
-                [color]="selectedPalette === name ? 'primary' : 'medium'"
-                (click)="selectPalette(name)"
-              >
-                {{ name | translate }}
-              </ion-chip>
-            }
-          </div>
-        </section>
+          </span>
+          <span class="stock-looks__summary-text">{{ filterSummary }}</span>
+          <ion-icon name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+        </button>
+      }
 
-        <section class="stock-looks__block">
-          <h2>{{ 'stockLooksCategory' | translate }}</h2>
-          <div class="stock-looks__chips">
-            @for (category of categories; track category) {
-              <ion-chip
-                [outline]="selectedCategory !== category"
-                [color]="selectedCategory === category ? 'primary' : 'medium'"
-                (click)="selectCategory(category)"
-              >
-                {{ categoryKey(category) | translate }}
-              </ion-chip>
-            }
-          </div>
-        </section>
+      @if (warningKey) {
+        <p class="stock-looks__banner">{{ warningKey | translate }}</p>
       }
     </div>
 
@@ -191,7 +135,6 @@
       </div>
     } @else {
       <div class="stock-looks__results">
-        <p class="stock-looks__meta">{{ querySummary }}</p>
         <div class="stock-looks__grid-wrap">
           <app-virtual-scroll-grid
             class="stock-looks__virtual"
