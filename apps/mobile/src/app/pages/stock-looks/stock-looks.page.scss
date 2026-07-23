@@ -8,7 +8,7 @@
   --padding-start: 16px;
   --padding-end: 16px;
   --padding-top: 8px;
-  --padding-bottom: 32px;
+  --padding-bottom: 16px;
 }
 
 .stock-looks--virtual {
@@ -25,94 +25,108 @@
 
 .stock-looks__controls {
   flex-shrink: 0;
-}
-
-.stock-looks__layout--virtual .stock-looks__controls {
-  max-height: 42vh;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-bottom: 4px;
-  mask-image: linear-gradient(180deg, #000 88%, transparent);
-}
-
-.stock-looks__intro {
   display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  margin: 8px 0 16px;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 8px;
 }
 
-.stock-looks__intro-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+.filter-btn {
+  position: relative;
+}
+
+.filter-badge {
+  position: absolute;
+  top: 4px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 16px;
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--ion-color-primary) 16%, transparent);
-  color: var(--ion-color-primary);
+  z-index: 2;
+  pointer-events: none;
+  box-shadow: 0 0 0 2px var(--rm-elevated, #fff);
+}
+
+.stock-looks__mode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--ion-text-color) 6%, var(--ion-background-color, #fff));
+}
+
+.stock-looks__mode-btn {
+  min-height: 36px;
+  border: none;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--ion-color-medium-shade, #6b7280);
+  font-size: 0.86rem;
+  font-weight: 650;
+  padding: 0 10px;
+}
+
+.stock-looks__mode-btn.is-on {
+  background: var(--ion-background-color, #fff);
+  color: var(--ion-color-primary, #5b6ef5);
+  box-shadow: 0 1px 4px rgba(22, 24, 42, 0.1);
+}
+
+.stock-looks__summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--ion-text-color) 10%, transparent);
+  background: color-mix(in srgb, var(--ion-text-color) 3%, var(--ion-background-color, #fff));
+  color: inherit;
+  text-align: left;
+}
+
+.stock-looks__summary--slim {
+  min-height: 38px;
+}
+
+.stock-looks__summary-swatches {
+  display: flex;
+  gap: 3px;
   flex-shrink: 0;
 }
 
-.stock-looks__intro-icon ion-icon {
-  font-size: 22px;
+.stock-looks__summary-swatches span {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 1px solid color-mix(in srgb, var(--ion-text-color) 14%, transparent);
 }
 
-.stock-looks__intro h1 {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 650;
-  line-height: 1.25;
-}
-
-.stock-looks__intro p {
-  margin: 4px 0 0;
-  color: var(--ion-color-medium-shade, #6b7280);
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-.stock-looks__banner {
-  margin: 0 0 14px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  line-height: 1.35;
-  background: color-mix(in srgb, var(--ion-color-warning) 18%, transparent);
-  color: var(--ion-text-color);
-}
-
-.stock-looks__block {
-  margin-bottom: 16px;
-}
-
-.stock-looks__block h2 {
-  margin: 0 0 8px;
-  font-size: 0.8rem;
+.stock-looks__summary-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.84rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--ion-color-medium-shade, #6b7280);
-}
-
-.stock-looks__swatches {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 10px;
+  line-height: 1.25;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.stock-looks__swatch {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  border: 1px solid color-mix(in srgb, var(--ion-text-color) 12%, transparent);
-  flex: 0 0 auto;
-}
-
-.stock-looks__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+.stock-looks__summary ion-icon {
+  flex-shrink: 0;
+  color: var(--ion-color-medium);
+  font-size: 16px;
 }
 
 .stock-looks__search {
@@ -160,7 +174,6 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-top: 10px;
 }
 
 .stock-looks__picked-chip {
@@ -182,8 +195,14 @@
   border: 1px solid color-mix(in srgb, var(--ion-text-color) 14%, transparent);
 }
 
-.stock-looks__chips ion-chip {
+.stock-looks__banner {
   margin: 0;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  line-height: 1.3;
+  background: color-mix(in srgb, var(--ion-color-warning) 18%, transparent);
+  color: var(--ion-text-color);
 }
 
 .stock-looks__results {
@@ -191,14 +210,6 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-}
-
-.stock-looks__meta {
-  margin: 0 0 8px;
-  font-size: 0.75rem;
-  color: var(--ion-color-medium);
-  word-break: break-word;
-  flex-shrink: 0;
 }
 
 .stock-looks__grid-wrap {
@@ -239,13 +250,6 @@
 
 .stock-looks__state--error {
   color: var(--ion-color-danger);
-}
-
-.stock-looks__provider-hint {
-  margin: 8px 0 0;
-  font-size: 0.8rem;
-  color: var(--ion-color-medium-shade, #6b7280);
-  line-height: 1.35;
 }
 
 .stock-card {

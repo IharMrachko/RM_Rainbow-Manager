@@ -4,7 +4,6 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
   IonButton,
   IonButtons,
-  IonChip,
   IonContent,
   IonHeader,
   IonIcon,
@@ -17,9 +16,10 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import {
   bookmarkOutline,
+  chevronForwardOutline,
   closeCircle,
-  colorPaletteOutline,
   eyedrop,
+  filterOutline,
   imagesOutline,
   menuOutline,
   openOutline,
@@ -43,13 +43,19 @@ import {
   ColorPickerSheetData,
   ColorPickerSheetResult,
 } from '../../shared/components/color-picker-sheet.component';
+import {
+  StockLooksFilterSheetComponent,
+  StockLooksFilterSheetData,
+  StockLooksFilterSheetResult,
+} from '../../shared/components/stock-looks-filter-sheet.component';
 import { VirtualScrollGridComponent } from '../../shared/components/virtual-scroll-grid.component';
 
 addIcons({
   bookmarkOutline,
+  chevronForwardOutline,
   closeCircle,
-  colorPaletteOutline,
   eyedrop,
+  filterOutline,
   imagesOutline,
   menuOutline,
   openOutline,
@@ -70,7 +76,6 @@ addIcons({
     IonIcon,
     IonTitle,
     IonContent,
-    IonChip,
     IonSpinner,
     IonInput,
     VirtualScrollGridComponent,
@@ -126,6 +131,45 @@ export class StockLooksPage implements OnInit, OnDestroy {
     return !this.loading && !this.errorMessage && this.items.length > 0;
   }
 
+  get accentSwatches(): string[] {
+    return (palettesObjShort[this.selectedPalette] ?? []).slice(0, 6);
+  }
+
+  get hasPexelsKey(): boolean {
+    return this.stockLooks.hasPexelsKey;
+  }
+
+  get hasUnsplashKey(): boolean {
+    return this.stockLooks.hasUnsplashKey;
+  }
+
+  get isFreeMode(): boolean {
+    return this.mode === 'free';
+  }
+
+  /** Non-default filters → badge on filter button. */
+  get filterBadgeCount(): number {
+    let n = 0;
+    if (this.provider !== 'all') n += 1;
+    if (!this.isFreeMode) {
+      if (this.selectedCategory !== 'outfit') n += 1;
+      // palette always set; count only when not first default if we want — skip, always show summary
+    }
+    return n;
+  }
+
+  get filterSummary(): string {
+    if (this.isFreeMode) {
+      return this.translate.instant(this.providerKey(this.provider));
+    }
+    const parts = [
+      this.translate.instant(this.selectedPalette),
+      this.translate.instant(this.categoryKey(this.selectedCategory)),
+      this.translate.instant(this.providerKey(this.provider)),
+    ];
+    return parts.join(' · ');
+  }
+
   ngOnInit(): void {
     const fromQuery = this.route.snapshot.queryParamMap.get('paletteType');
     if (fromQuery && this.paletteNames.includes(fromQuery as Palette)) {
@@ -143,26 +187,6 @@ export class StockLooksPage implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.sheets.close();
-  }
-
-  get accentSwatches(): string[] {
-    return (palettesObjShort[this.selectedPalette] ?? []).slice(0, 8);
-  }
-
-  get hasApiKey(): boolean {
-    return this.stockLooks.hasApiKey;
-  }
-
-  get hasPexelsKey(): boolean {
-    return this.stockLooks.hasPexelsKey;
-  }
-
-  get hasUnsplashKey(): boolean {
-    return this.stockLooks.hasUnsplashKey;
-  }
-
-  get isFreeMode(): boolean {
-    return this.mode === 'free';
   }
 
   openAppMenu(): void {
@@ -185,25 +209,49 @@ export class StockLooksPage implements OnInit, OnDestroy {
     }
   }
 
-  selectProvider(provider: StockLooksProvider): void {
-    if (this.provider === provider) return;
-    this.provider = provider;
-    if (this.mode === 'palette' || this.freeQuery.trim() || this.freeColorHex) {
-      void this.search();
-    } else {
-      this.cdr.markForCheck();
+  async openFilter(): Promise<void> {
+    const result = await this.sheets.open<
+      StockLooksFilterSheetComponent,
+      StockLooksFilterSheetData,
+      StockLooksFilterSheetResult
+    >(
+      StockLooksFilterSheetComponent,
+      {
+        mode: this.mode,
+        filter: {
+          provider: this.provider,
+          palette: this.selectedPalette,
+          category: this.selectedCategory,
+        },
+        paletteNames: this.paletteNames,
+        categories: this.categories,
+        providers: this.providers,
+        hasPexelsKey: this.hasPexelsKey,
+        hasUnsplashKey: this.hasUnsplashKey,
+      },
+      { fullscreen: false, closeOnBackdrop: true, hasBackdrop: true, backdropClass: 'rm-cdk-backdrop' },
+    );
+
+    if (!result) return;
+
+    const changed =
+      result.provider !== this.provider ||
+      result.palette !== this.selectedPalette ||
+      result.category !== this.selectedCategory;
+
+    this.provider = result.provider;
+    this.selectedPalette = result.palette;
+    this.selectedCategory = result.category;
+    this.cdr.markForCheck();
+
+    if (!changed) return;
+
+    if (this.isFreeMode) {
+      if (this.freeQuery.trim() || this.freeColorHex) {
+        void this.search();
+      }
+      return;
     }
-  }
-
-  selectPalette(name: Palette): void {
-    if (this.selectedPalette === name) return;
-    this.selectedPalette = name;
-    void this.search();
-  }
-
-  selectCategory(category: StockLooksCategory): void {
-    if (this.selectedCategory === category) return;
-    this.selectedCategory = category;
     void this.search();
   }
 
