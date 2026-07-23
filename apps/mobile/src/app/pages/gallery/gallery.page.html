@@ -72,125 +72,131 @@
 
 <ion-content
   class="page-content"
-  [scrollY]="!paintSelecting"
+  [class.page-content--virtual]="useVirtualGrid"
+  [scrollY]="!paintSelecting && !useVirtualGrid"
   [scrollEvents]="true"
   (ionScroll)="onContentScroll($event)"
   (ionScrollEnd)="onContentScrollEnd()"
 >
-  <div class="gallery-search" [class.is-hidden]="searchHidden || selectMode">
-    <ion-input
-      class="gallery-search__input"
-      type="search"
-      inputmode="search"
-      enterkeyhint="search"
-      fill="outline"
-      mode="md"
-      [clearInput]="true"
-      [placeholder]="'search' | translate"
-      [value]="search"
-      (ionInput)="onSearchChange($any($event).detail.value)"
-      (ionFocus)="onSearchFocus()"
-    >
-      <ion-icon slot="start" name="search-outline" aria-hidden="true"></ion-icon>
-    </ion-input>
-  </div>
-
-  @if (loading) {
-    <div class="center">
-      <ion-spinner></ion-spinner>
-    </div>
-  }
-
-  @if (!loading && errorMessage) {
-    <div class="feature-card ion-margin">
-      <div class="feature-card__header">{{ 'gallery' | translate }}</div>
-      <div class="feature-card__body">{{ errorMessage }}</div>
-      <ion-button expand="block" class="ion-margin-top" (click)="reload()">
-        {{ 'retry' | translate }}
-      </ion-button>
-    </div>
-  }
-
-  @if (isEmptyGallery) {
-    <div class="rm-empty">
-      <div class="rm-empty__icon"><ion-icon name="images"></ion-icon></div>
-      <div class="rm-empty__title">{{ 'gallery' | translate }}</div>
-      <div>{{ 'galleryEmpty' | translate }}</div>
-    </div>
-  }
-
-  @if (isNotFound) {
-    <div class="rm-empty">
-      <div class="rm-empty__title">{{ 'noResults' | translate }}</div>
-    </div>
-  }
-
-  @if (selectMode && items.length) {
-    <div class="toolbar-row ion-padding-horizontal">
-      <ion-button fill="clear" size="small" (click)="toggleSelectAll()">
-        {{ 'chooseAll' | translate }}
-      </ion-button>
-      <ion-button
-        fill="clear"
-        size="small"
-        [disabled]="!selectedCount"
-        (click)="clearSelection()"
+  <div class="gallery-layout" [class.gallery-layout--virtual]="useVirtualGrid">
+    <div class="gallery-search" [class.is-hidden]="searchHidden || selectMode">
+      <ion-input
+        class="gallery-search__input"
+        type="search"
+        inputmode="search"
+        enterkeyhint="search"
+        fill="outline"
+        mode="md"
+        [clearInput]="true"
+        [placeholder]="'search' | translate"
+        [value]="search"
+        (ionInput)="onSearchChange($any($event).detail.value)"
+        (ionFocus)="onSearchFocus()"
       >
-        {{ 'clearSelection' | translate }}
-      </ion-button>
+        <ion-icon slot="start" name="search-outline" aria-hidden="true"></ion-icon>
+      </ion-input>
     </div>
-  }
 
-  @if (!loading && items.length) {
-    <div
-      class="grid ion-padding"
-      [class.grid--select]="selectMode"
-      [class.grid--painting]="paintSelecting"
-    >
-      @for (item of items; track item.id; let i = $index) {
-        <button
-          type="button"
-          class="cell"
-          [attr.data-gallery-id]="item.id"
-          [class.selected]="isSelected(item.id)"
-          (pointerdown)="onCellPointerDown($event, item)"
-          (click)="onCardClick(item, i)"
+    @if (loading) {
+      <div class="center">
+        <ion-spinner></ion-spinner>
+      </div>
+    }
+
+    @if (!loading && errorMessage) {
+      <div class="feature-card ion-margin">
+        <div class="feature-card__header">{{ 'gallery' | translate }}</div>
+        <div class="feature-card__body">{{ errorMessage }}</div>
+        <ion-button expand="block" class="ion-margin-top" (click)="reload()">
+          {{ 'retry' | translate }}
+        </ion-button>
+      </div>
+    }
+
+    @if (isEmptyGallery) {
+      <div class="rm-empty">
+        <div class="rm-empty__icon"><ion-icon name="images"></ion-icon></div>
+        <div class="rm-empty__title">{{ 'gallery' | translate }}</div>
+        <div>{{ 'galleryEmpty' | translate }}</div>
+      </div>
+    }
+
+    @if (isNotFound) {
+      <div class="rm-empty">
+        <div class="rm-empty__title">{{ 'noResults' | translate }}</div>
+      </div>
+    }
+
+    @if (selectMode && items.length) {
+      <div class="toolbar-row ion-padding-horizontal">
+        <ion-button fill="clear" size="small" (click)="toggleSelectAll()">
+          {{ 'chooseAll' | translate }}
+        </ion-button>
+        <ion-button
+          fill="clear"
+          size="small"
+          [disabled]="!selectedCount"
+          (click)="clearSelection()"
         >
-          <img [src]="item.src" [alt]="item.title || 'gallery'" loading="lazy" draggable="false" />
-          @if (selectMode) {
-            <span class="cell__check" [class.cell__check--on]="isSelected(item.id)">
-              <ion-icon [name]="isSelected(item.id) ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
-            </span>
-          }
-          @if (item.title) {
-            <div class="cell__meta">
-              <small>{{ item.title }}</small>
-            </div>
-          }
-          <span class="cell__index">{{ 'photo' | translate }} {{ i + 1 }}</span>
-        </button>
-      }
-    </div>
-  }
+          {{ 'clearSelection' | translate }}
+        </ion-button>
+      </div>
+    }
 
-  @if (!loading && loadingMore) {
-    <div class="center center--more">
-      <ion-spinner name="crescent"></ion-spinner>
-    </div>
-  }
+    @if (useVirtualGrid) {
+      <div class="gallery-grid-wrap">
+        <app-virtual-scroll-grid
+          class="gallery-virtual"
+          [items]="items"
+          [itemKey]="galleryItemKey"
+          [minColumnWidth]="gridMinColumnWidth"
+          [gap]="10"
+          [metaHeight]="36"
+          [bufferRows]="6"
+          [nearEndOffset]="240"
+          [scrollLocked]="paintSelecting"
+          (gridScroll)="onVirtualGridScroll($event)"
+          (nearEnd)="onVirtualGridNearEnd()"
+        >
+          <ng-template let-item let-i="index">
+            <button
+              type="button"
+              class="cell"
+              [class.cell--select]="selectMode"
+              [attr.data-gallery-id]="item.id"
+              [class.selected]="isSelected(item.id)"
+              (pointerdown)="onCellPointerDown($event, item)"
+              (click)="onCardClick(item, i)"
+            >
+              <img [src]="item.src" [alt]="item.title || 'gallery'" loading="lazy" draggable="false" />
+              @if (selectMode) {
+                <span class="cell__check" [class.cell__check--on]="isSelected(item.id)">
+                  <ion-icon [name]="isSelected(item.id) ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+                </span>
+              }
+              @if (item.title) {
+                <div class="cell__meta">
+                  <small>{{ item.title }}</small>
+                </div>
+              }
+              <span class="cell__index">{{ 'photo' | translate }} {{ i + 1 }}</span>
+            </button>
+          </ng-template>
+        </app-virtual-scroll-grid>
 
-  @if (!loading && total) {
-    <div class="footer-count">
-      <ion-icon name="list"></ion-icon>
-      <span>{{ items.length }} / {{ total }}</span>
-    </div>
-  }
+        @if (loadingMore) {
+          <div class="gallery-grid-wrap__more">
+            <ion-spinner name="crescent"></ion-spinner>
+          </div>
+        }
 
-  <ion-infinite-scroll
-    threshold="20%"
-    [disabled]="!hasMore || loading || loadingMore || paintSelecting"
-    (ionInfinite)="loadMore($event)"
-  >
-    <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
-  </ion-infinite-scroll>
+        @if (total) {
+          <div class="footer-count footer-count--overlay">
+            <ion-icon name="list"></ion-icon>
+            <span>{{ items.length }} / {{ total }}</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
 </ion-content>
