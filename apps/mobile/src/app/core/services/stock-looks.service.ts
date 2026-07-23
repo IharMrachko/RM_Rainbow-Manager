@@ -9,11 +9,15 @@ import {
   buildSearchQueries,
   isNeutralHex,
   nearestPexelsColor,
+  nearestPixabayColor,
   nearestUnsplashColor,
+  pexelsColorToPixabay,
   pexelsColorToUnsplash,
+  PIXABAY_COLOR_HEX,
   subjectRelevanceDelta,
 } from './stock-looks-query';
 import {
+  PixabayColorName,
   StockLookItem,
   StockLooksProvider,
   StockLooksSearchParams,
@@ -75,12 +79,39 @@ interface UnsplashSearchResponse {
   total_pages?: number;
 }
 
+interface PixabayHit {
+  id: number;
+  pageURL: string;
+  tags?: string;
+  previewURL?: string;
+  webformatURL: string;
+  largeImageURL?: string;
+  fullHDURL?: string;
+  imageURL?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  user: string;
+  user_id: number;
+}
+
+interface PixabaySearchResponse {
+  total?: number;
+  totalHits?: number;
+  hits: PixabayHit[];
+}
+
 type RawLook = Omit<StockLookItem, 'matchScore' | 'matchLabel' | 'matchedSwatches'>;
 
 interface ProviderFetchResult {
   items: RawLook[];
   hasMore: boolean;
 }
+
+const LIVE_PROVIDERS: Array<Exclude<StockLooksProvider, 'all'>> = [
+  'pexels',
+  'unsplash',
+  'pixabay',
+];
 
 /** Curated mock looks with avg colors so scoring works without an API key. */
 const MOCK_LOOKS: RawLook[] = [
@@ -254,9 +285,13 @@ export class StockLooksService {
     return Boolean(environment.unsplashAccessKey?.trim());
   }
 
+  get hasPixabayKey(): boolean {
+    return Boolean(environment.pixabayApiKey?.trim());
+  }
+
   /** True when at least one stock provider key is configured. */
   get hasApiKey(): boolean {
-    return this.hasPexelsKey || this.hasUnsplashKey;
+    return this.hasPexelsKey || this.hasUnsplashKey || this.hasPixabayKey;
   }
 
   async search(params: StockLooksSearchParams): Promise<StockLooksSearchResult> {
@@ -266,11 +301,18 @@ export class StockLooksService {
     return this.searchByPalette(params);
   }
 
-  private resolveProviders(provider?: StockLooksProvider): StockLooksProvider[] {
+  private resolveProviders(provider?: StockLooksProvider): Array<Exclude<StockLooksProvider, 'all'>> {
     const selected = provider ?? 'all';
     if (selected === 'pexels') return ['pexels'];
     if (selected === 'unsplash') return ['unsplash'];
-    return ['pexels', 'unsplash'];
+    if (selected === 'pixabay') return ['pixabay'];
+    return [...LIVE_PROVIDERS];
+  }
+
+  private isProviderAvailable(provider: Exclude<StockLooksProvider, 'all'>): boolean {
+    if (provider === 'pexels') return this.hasPexelsKey;
+    if (provider === 'unsplash') return this.hasUnsplashKey;
+    return this.hasPixabayKey;
   }
 
   private async searchByPalette(
@@ -280,7 +322,6 @@ export class StockLooksService {
       return { items: [], usedMock: false, querySummary: 'palette' };
     }
 
-    const providers = this.resolveProviders(params.provider);
     const anchors = buildColorAnchors(
       params.paletteType,
       3,
@@ -296,10 +337,8 @@ export class StockLooksService {
 
     const perPage = params.perPage ?? 24;
     const page = Math.max(1, params.page ?? 1);
-    const requested = providers.filter((p) => p === 'pexels' || p === 'unsplash');
-    const available = requested.filter(
-      (p) => (p === 'pexels' && this.hasPexelsKey) || (p === 'unsplash' && this.hasUnsplashKey),
-    );
+    const requested = this.resolveProviders(params.provider);
+    const available = requested.filter((p) => this.isProviderAvailable(p));
 
     const jobs: Array<Promise<ProviderFetchResult>> = [];
     if (available.includes('pexels')) {
@@ -317,6 +356,16 @@ export class StockLooksService {
         this.fetchMergedFromUnsplash(
           queries,
           anchors.map((a) => pexelsColorToUnsplash(a.pexelsColor)),
+          perPage,
+          page,
+        ),
+      );
+    }
+    if (available.includes('pixabay')) {
+      jobs.push(
+        this.fetchMergedFromPixabay(
+          queries,
+          anchors.map((a) => pexelsColorToPixabay(a.pexelsColor)),
           perPage,
           page,
         ),
@@ -385,7 +434,7 @@ export class StockLooksService {
     const freeColorHex = (params.freeColorHex || '').trim();
     const pexelsColor = freeColorHex ? nearestPexelsColor(freeColorHex) : null;
     const unsplashColor = freeColorHex ? nearestUnsplashColor(freeColorHex) : null;
-    const providers = this.resolveProviders(params.provider);
+    const pixabayColor = freeColorHex ? nearestPixabayColor(freeColorHex) : null;
 
     if (!freeQuery && !freeColorHex) {
       return { items: [], usedMock: false, querySummary: 'free' };
@@ -399,17 +448,15 @@ export class StockLooksService {
       params.provider ?? 'all',
       freeQuery || null,
       freeColorHex || null,
-      pexelsColor || unsplashColor || null,
+      pexelsColor || unsplashColor || pixabayColor || null,
     ]
       .filter(Boolean)
       .join(' · ');
 
     const perPage = params.perPage ?? 24;
     const page = Math.max(1, params.page ?? 1);
-    const requested = providers.filter((p) => p === 'pexels' || p === 'unsplash');
-    const available = requested.filter(
-      (p) => (p === 'pexels' && this.hasPexelsKey) || (p === 'unsplash' && this.hasUnsplashKey),
-    );
+    const requested = this.resolveProviders(params.provider);
+    const available = requested.filter((p) => this.isProviderAvailable(p));
 
     const jobs: Array<Promise<ProviderFetchResult>> = [];
     if (available.includes('pexels')) {
@@ -417,6 +464,9 @@ export class StockLooksService {
     }
     if (available.includes('unsplash')) {
       jobs.push(this.fetchFromUnsplash(queryText, unsplashColor ?? undefined, perPage, page));
+    }
+    if (available.includes('pixabay')) {
+      jobs.push(this.fetchFromPixabay(queryText, pixabayColor ?? undefined, perPage, page));
     }
 
     let raw: RawLook[] = [];
@@ -761,6 +811,87 @@ export class StockLooksService {
     const totalPages = response.total_pages ?? 0;
     const hasMore =
       totalPages > 0 ? page < totalPages : results.length >= Math.min(30, perPage);
+
+    return { items, hasMore };
+  }
+
+  private async fetchMergedFromPixabay(
+    queries: string[],
+    colors: Array<PixabayColorName | null | undefined>,
+    perPage: number,
+    page = 1,
+  ): Promise<ProviderFetchResult> {
+    if (page > 1) {
+      return this.fetchFromPixabay(queries[0], undefined, perPage, page);
+    }
+    const pageSize = Math.min(20, Math.max(8, Math.ceil(perPage / 2)));
+    const jobs: Array<Promise<ProviderFetchResult>> = [
+      this.fetchFromPixabay(queries[0], undefined, pageSize, 1),
+    ];
+    if (queries[1]) {
+      jobs.push(this.fetchFromPixabay(queries[1], colors[0] || undefined, pageSize, 1));
+    }
+    if (queries[2] && colors[1]) {
+      jobs.push(this.fetchFromPixabay(queries[2], colors[1] || undefined, pageSize, 1));
+    }
+
+    const chunks = await Promise.all(
+      jobs.map((job) =>
+        job.catch(() => ({ items: [] as RawLook[], hasMore: false })),
+      ),
+    );
+    return {
+      items: this.dedupeLooks(chunks.map((c) => c.items)),
+      hasMore: chunks.some((c) => c.hasMore),
+    };
+  }
+
+  private async fetchFromPixabay(
+    query: string,
+    color: PixabayColorName | undefined,
+    perPage: number,
+    page = 1,
+  ): Promise<ProviderFetchResult> {
+    const key = environment.pixabayApiKey.trim();
+    let params = new HttpParams()
+      .set('key', key)
+      .set('q', query.slice(0, 100))
+      .set('image_type', 'photo')
+      .set('orientation', 'vertical')
+      .set('category', 'fashion')
+      .set('safesearch', 'true')
+      .set('min_width', '1000')
+      .set('per_page', String(Math.min(200, Math.max(3, perPage))))
+      .set('page', String(page));
+    if (color) {
+      params = params.set('colors', color);
+    }
+
+    const response = await firstValueFrom(
+      this.http.get<PixabaySearchResponse>('https://pixabay.com/api/', { params }),
+    );
+
+    const hits = response.hits ?? [];
+    const fallbackAvg = color ? PIXABAY_COLOR_HEX[color] : '#888888';
+    const items = hits
+      .filter((hit) => (hit.imageWidth ?? 0) === 0 || (hit.imageWidth ?? 0) >= 1000)
+      .map((hit) => ({
+        id: `pixabay:${hit.id}`,
+        title: hit.tags?.split(',')[0]?.trim() || `Pixabay ${hit.id}`,
+        previewUrl: hit.largeImageURL || hit.webformatURL || hit.previewURL || '',
+        largeUrl:
+          hit.fullHDURL || hit.imageURL || hit.largeImageURL || hit.webformatURL || '',
+        photographer: hit.user || 'Pixabay',
+        photographerUrl: `https://pixabay.com/users/${encodeURIComponent(hit.user)}-${hit.user_id}/`,
+        sourceUrl: hit.pageURL || 'https://pixabay.com/',
+        avgColor: fallbackAvg,
+        source: 'pixabay' as const,
+      }));
+
+    const totalHits = response.totalHits ?? 0;
+    const size = Math.min(200, Math.max(3, perPage));
+    const hasMore =
+      totalHits > 0 ? page * size < totalHits : hits.length >= size;
 
     return { items, hasMore };
   }

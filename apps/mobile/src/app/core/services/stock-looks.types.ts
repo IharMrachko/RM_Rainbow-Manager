@@ -7,7 +7,7 @@ export type StockLooksCategory = 'outfit' | 'portrait' | 'accessories';
 export type StockLooksMode = 'palette' | 'free';
 
 /** Which stock provider(s) to query. */
-export type StockLooksProvider = 'all' | 'pexels' | 'unsplash';
+export type StockLooksProvider = 'all' | 'pexels' | 'unsplash' | 'pixabay';
 
 /** Named colors accepted by the Pexels search API. */
 export type PexelsColorName =
@@ -35,7 +35,19 @@ export type UnsplashColorName =
   | 'teal'
   | 'blue';
 
-/** Pexels colors allowed as stock search filters (no white/gray/black). */
+/** Pixabay chromatic color filters (excludes white/gray/black/grayscale/transparent). */
+export type PixabayColorName =
+  | 'red'
+  | 'orange'
+  | 'yellow'
+  | 'green'
+  | 'turquoise'
+  | 'blue'
+  | 'lilac'
+  | 'pink'
+  | 'brown';
+
+/** Chromatic Pexels colors allowed as stock search filters (no white/gray/black). */
 export type ChromaticPexelsColor = Exclude<PexelsColorName, 'white' | 'gray' | 'black'>;
 
 export interface StockColorAnchor {
@@ -56,7 +68,7 @@ export interface StockLookItem {
   matchScore: number;
   matchLabel: 'excellent' | 'good' | 'fair';
   matchedSwatches: string[];
-  source: 'pexels' | 'unsplash' | 'mock';
+  source: 'pexels' | 'unsplash' | 'pixabay' | 'mock';
 }
 
 export interface StockLooksSearchParams {
@@ -85,7 +97,7 @@ export interface StockLooksSearchResult {
   /** Page that was fetched. */
   page?: number;
   /** Providers that returned at least one photo. */
-  sourcesUsed?: Array<'pexels' | 'unsplash' | 'mock'>;
+  sourcesUsed?: Array<'pexels' | 'unsplash' | 'pixabay' | 'mock'>;
   /** Why mock/empty happened — for UI banner. */
   warningKey?:
     | 'stockLooksMockMode'

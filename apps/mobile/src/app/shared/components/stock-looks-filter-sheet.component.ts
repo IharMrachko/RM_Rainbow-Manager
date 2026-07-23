@@ -27,6 +27,7 @@ export interface StockLooksFilterSheetData {
   providers: StockLooksProvider[];
   hasPexelsKey: boolean;
   hasUnsplashKey: boolean;
+  hasPixabayKey: boolean;
 }
 
 export type StockLooksFilterSheetResult = StockLooksFilterSheetState | null;
@@ -60,14 +61,20 @@ export type StockLooksFilterSheetResult = StockLooksFilterSheetState | null;
               </button>
             }
           </div>
-          @if (!data.hasPexelsKey || !data.hasUnsplashKey) {
+          @if (!data.hasPexelsKey || !data.hasUnsplashKey || !data.hasPixabayKey) {
             <p class="stock-filter-sheet__hint">
-              @if (!data.hasPexelsKey && !data.hasUnsplashKey) {
+              @if (!data.hasPexelsKey && !data.hasUnsplashKey && !data.hasPixabayKey) {
                 {{ 'stockLooksNoKeys' | translate }}
-              } @else if (!data.hasPexelsKey) {
-                {{ 'stockLooksMissingPexels' | translate }}
               } @else {
-                {{ 'stockLooksMissingUnsplash' | translate }}
+                @if (!data.hasPexelsKey) {
+                  <span>{{ 'stockLooksMissingPexels' | translate }}</span>
+                }
+                @if (!data.hasUnsplashKey) {
+                  <span>{{ 'stockLooksMissingUnsplash' | translate }}</span>
+                }
+                @if (!data.hasPixabayKey) {
+                  <span>{{ 'stockLooksMissingPixabay' | translate }}</span>
+                }
               }
             </p>
           }
@@ -230,6 +237,8 @@ export type StockLooksFilterSheetResult = StockLooksFilterSheetState | null;
         font-size: 0.78rem;
         line-height: 1.35;
         color: #6b7280;
+        display: grid;
+        gap: 4px;
       }
 
       .rm-filter-sheet__actions {
@@ -282,6 +291,7 @@ export class StockLooksFilterSheetComponent {
   providerKey(provider: StockLooksProvider): string {
     if (provider === 'pexels') return 'stockLooksProviderPexels';
     if (provider === 'unsplash') return 'stockLooksProviderUnsplash';
+    if (provider === 'pixabay') return 'stockLooksProviderPixabay';
     return 'stockLooksProviderAll';
   }
 

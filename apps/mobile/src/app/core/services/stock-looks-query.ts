@@ -3,6 +3,7 @@ import { Palette, palettesObj } from '@rainbow/shared';
 import {
   ChromaticPexelsColor,
   PexelsColorName,
+  PixabayColorName,
   StockColorAnchor,
   StockLooksCategory,
   UnsplashColorName,
@@ -221,6 +222,31 @@ const PEXELS_TO_UNSPLASH: Partial<Record<ChromaticPexelsColor, UnsplashColorName
   // Unsplash has no brown — skip rather than force a wrong filter.
 };
 
+const PEXELS_TO_PIXABAY: Record<ChromaticPexelsColor, PixabayColorName> = {
+  red: 'red',
+  orange: 'orange',
+  yellow: 'yellow',
+  green: 'green',
+  turquoise: 'turquoise',
+  blue: 'blue',
+  violet: 'lilac',
+  pink: 'pink',
+  brown: 'brown',
+};
+
+/** Sample hexes for Pixabay named colors (used when API has no avg_color). */
+export const PIXABAY_COLOR_HEX: Record<PixabayColorName, string> = {
+  red: '#E53935',
+  orange: '#FB8C00',
+  yellow: '#FDD835',
+  green: '#43A047',
+  turquoise: '#26A69A',
+  blue: '#1E88E5',
+  lilac: '#8E24AA',
+  pink: '#EC407A',
+  brown: '#8D6E63',
+};
+
 /** Map a hex (or Pexels chromatic color) to an Unsplash color filter. */
 export function nearestUnsplashColor(hex: string): UnsplashColorName | null {
   const pexels = nearestPexelsColor(hex);
@@ -232,6 +258,16 @@ export function pexelsColorToUnsplash(
   color: ChromaticPexelsColor,
 ): UnsplashColorName | null {
   return PEXELS_TO_UNSPLASH[color] ?? null;
+}
+
+export function nearestPixabayColor(hex: string): PixabayColorName | null {
+  const pexels = nearestPexelsColor(hex);
+  if (!pexels) return null;
+  return PEXELS_TO_PIXABAY[pexels];
+}
+
+export function pexelsColorToPixabay(color: ChromaticPexelsColor): PixabayColorName {
+  return PEXELS_TO_PIXABAY[color];
 }
 
 /**
