@@ -90,7 +90,7 @@ export class StockLooksPage implements OnInit, OnDestroy {
   readonly paletteNames = Object.keys(palettesObj) as Palette[];
   readonly categories: StockLooksCategory[] = ['outfit', 'portrait', 'accessories'];
   readonly modes: StockLooksMode[] = ['palette', 'free'];
-  readonly providers: StockLooksProvider[] = ['all', 'pexels', 'unsplash'];
+  readonly providers: StockLooksProvider[] = ['all', 'pexels', 'unsplash', 'pixabay'];
   /** 1 col on phones, 2 from ~520px content width. */
   readonly gridMinColumnWidth = 240;
   /** Portrait media 3:4. */
@@ -143,6 +143,10 @@ export class StockLooksPage implements OnInit, OnDestroy {
     return this.stockLooks.hasUnsplashKey;
   }
 
+  get hasPixabayKey(): boolean {
+    return this.stockLooks.hasPixabayKey;
+  }
+
   get isFreeMode(): boolean {
     return this.mode === 'free';
   }
@@ -153,7 +157,6 @@ export class StockLooksPage implements OnInit, OnDestroy {
     if (this.provider !== 'all') n += 1;
     if (!this.isFreeMode) {
       if (this.selectedCategory !== 'outfit') n += 1;
-      // palette always set; count only when not first default if we want — skip, always show summary
     }
     return n;
   }
@@ -228,6 +231,7 @@ export class StockLooksPage implements OnInit, OnDestroy {
         providers: this.providers,
         hasPexelsKey: this.hasPexelsKey,
         hasUnsplashKey: this.hasUnsplashKey,
+        hasPixabayKey: this.hasPixabayKey,
       },
       { fullscreen: false, closeOnBackdrop: true, hasBackdrop: true, backdropClass: 'rm-cdk-backdrop' },
     );
@@ -401,12 +405,14 @@ export class StockLooksPage implements OnInit, OnDestroy {
   providerKey(provider: StockLooksProvider): string {
     if (provider === 'pexels') return 'stockLooksProviderPexels';
     if (provider === 'unsplash') return 'stockLooksProviderUnsplash';
+    if (provider === 'pixabay') return 'stockLooksProviderPixabay';
     return 'stockLooksProviderAll';
   }
 
   sourceKey(source: StockLookItem['source']): string {
     if (source === 'unsplash') return 'stockLooksProviderUnsplash';
     if (source === 'pexels') return 'stockLooksProviderPexels';
+    if (source === 'pixabay') return 'stockLooksProviderPixabay';
     return 'stockLooksProviderMock';
   }
 
