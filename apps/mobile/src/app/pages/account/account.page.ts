@@ -12,7 +12,7 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 import { User } from 'firebase/auth';
 import { addIcons } from 'ionicons';
-import { chatbubbleEllipsesOutline, logOutOutline } from 'ionicons/icons';
+import { chatbubbleEllipsesOutline, logOutOutline, mailOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 import {
   AccountPlanService,
@@ -20,11 +20,12 @@ import {
 } from '../../core/services/account-plan.service';
 import { AppMenuService } from '../../core/services/app-menu.service';
 import { AuthService } from '../../core/services/auth.service';
-import { userAvatarInitials } from '../../core/utils/user-avatar';
+import { hasUserPhoto, resolveUserAvatarUrl } from '../../core/utils/user-avatar';
 
 addIcons({
   chatbubbleEllipsesOutline,
   logOutOutline,
+  mailOutline,
 });
 
 @Component({
@@ -73,8 +74,12 @@ export class AccountPage implements OnInit, OnDestroy {
     this.sub.unsubscribe();
   }
 
-  get photoUrl(): string | null {
-    return this.user?.photoURL?.trim() || null;
+  get photoUrl(): string {
+    return resolveUserAvatarUrl(this.user?.photoURL);
+  }
+
+  get hasPhoto(): boolean {
+    return hasUserPhoto(this.user?.photoURL);
   }
 
   get displayName(): string {
@@ -83,10 +88,6 @@ export class AccountPage implements OnInit, OnDestroy {
 
   get email(): string {
     return this.user?.email?.trim() || '';
-  }
-
-  get initials(): string {
-    return userAvatarInitials(this.user?.displayName, this.user?.email);
   }
 
   openAppMenu(): void {
@@ -99,6 +100,10 @@ export class AccountPage implements OnInit, OnDestroy {
 
   openConsultation(): void {
     void this.router.navigateByUrl('/tabs/consultation');
+  }
+
+  openContacts(): void {
+    void this.router.navigateByUrl('/contacts');
   }
 
   async logout(): Promise<void> {

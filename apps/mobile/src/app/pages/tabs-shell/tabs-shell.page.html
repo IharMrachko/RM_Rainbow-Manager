@@ -11,14 +11,11 @@
           type="button"
           class="app-menu__avatar"
           [class.is-active]="isMenuActive('/tabs/account')"
+          [class.is-fallback]="!avatarHasPhoto"
           [attr.aria-label]="'account' | translate"
           (click)="openAccount()"
         >
-          @if (avatarPhotoUrl) {
-            <img [src]="avatarPhotoUrl" alt="" />
-          } @else {
-            <span>{{ avatarInitials }}</span>
-          }
+          <img [src]="avatarPhotoUrl" alt="" />
         </button>
         <div class="app-menu__brand-text">
           <strong>{{ avatarDisplayName || ('account' | translate) }}</strong>
