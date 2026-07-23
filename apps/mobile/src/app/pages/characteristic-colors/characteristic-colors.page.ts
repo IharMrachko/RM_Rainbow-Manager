@@ -13,12 +13,8 @@ import {
   IonButton,
   IonChip,
   IonIcon,
-  IonLabel,
-  IonSegment,
-  IonSegmentButton,
   IonSpinner,
 } from '@ionic/angular/standalone';
-import { SegmentChangeEventDetail } from '@ionic/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
@@ -60,9 +56,6 @@ register();
     IonButton,
     IonChip,
     IonIcon,
-    IonLabel,
-    IonSegment,
-    IonSegmentButton,
     IonSpinner,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -134,13 +127,6 @@ export class CharacteristicColorsPage implements OnDestroy {
 
   setTab(tab: 'mask' | 'collage'): void {
     this.tab = tab;
-  }
-
-  onTabChange(ev: CustomEvent<SegmentChangeEventDetail>): void {
-    const value = ev.detail.value;
-    if (value === 'mask' || value === 'collage') {
-      this.setTab(value);
-    }
   }
 
   async openSourcePicker(): Promise<void> {
