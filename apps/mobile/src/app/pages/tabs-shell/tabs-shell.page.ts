@@ -36,6 +36,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { AppMenuService } from '../../core/services/app-menu.service';
 import { AppLanguage, LanguageService } from '../../core/services/language.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { userAvatarInitials } from '../../core/utils/user-avatar';
 import {
   SheetSelectComponent,
   SheetSelectOption,
@@ -101,6 +102,10 @@ export class TabsShellPage implements OnInit, OnDestroy {
   activeUrl = '';
   /** Accordion: one open section at a time. */
   expandedGroupId: MenuGroup['id'] | null = null;
+  avatarPhotoUrl: string | null = null;
+  avatarEmail = '';
+  avatarDisplayName = '';
+  avatarInitials = '?';
 
   readonly languageOptions: SheetSelectOption[] = [
     { value: 'ru', label: 'RU · Русский' },
@@ -192,6 +197,13 @@ export class TabsShellPage implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.refreshAvatar(this.auth.currentUser);
+    this.subs.add(
+      this.auth.user$.subscribe((user) => {
+        this.refreshAvatar(user);
+        this.cdr.markForCheck();
+      }),
+    );
     this.subs.add(
       this.router.events
         .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
@@ -241,6 +253,10 @@ export class TabsShellPage implements OnInit, OnDestroy {
     await this.router.navigateByUrl(url);
   }
 
+  openAccount(): void {
+    void this.navigateMenu('/tabs/account');
+  }
+
   setTheme(isDark: boolean): void {
     this.theme.setDark(isDark);
     this.cdr.detectChanges();
@@ -262,5 +278,13 @@ export class TabsShellPage implements OnInit, OnDestroy {
       group.items.some((item) => this.isMenuActive(item.url)),
     );
     this.expandedGroupId = active?.id ?? null;
+  }
+
+  private refreshAvatar(user: { photoURL?: string | null; email?: string | null; displayName?: string | null } | null): void {
+    this.avatarPhotoUrl = user?.photoURL?.trim() || null;
+    this.avatarEmail = user?.email?.trim() || '';
+    this.avatarDisplayName =
+      user?.displayName?.trim() || this.avatarEmail.split('@')[0] || '';
+    this.avatarInitials = userAvatarInitials(user?.displayName, user?.email);
   }
 }

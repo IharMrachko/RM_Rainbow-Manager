@@ -7,7 +7,25 @@
   <ion-header>
     <ion-toolbar class="app-menu__toolbar">
       <div class="app-menu__brand">
-        <img src="assets/rainbow-logo.svg" alt="Rainbow Manager" />
+        <button
+          type="button"
+          class="app-menu__avatar"
+          [class.is-active]="isMenuActive('/tabs/account')"
+          [attr.aria-label]="'account' | translate"
+          (click)="openAccount()"
+        >
+          @if (avatarPhotoUrl) {
+            <img [src]="avatarPhotoUrl" alt="" />
+          } @else {
+            <span>{{ avatarInitials }}</span>
+          }
+        </button>
+        <div class="app-menu__brand-text">
+          <strong>{{ avatarDisplayName || ('account' | translate) }}</strong>
+          @if (avatarEmail) {
+            <small>{{ avatarEmail }}</small>
+          }
+        </div>
       </div>
     </ion-toolbar>
   </ion-header>

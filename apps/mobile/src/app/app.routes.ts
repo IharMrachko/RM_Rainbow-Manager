@@ -45,6 +45,7 @@ export const APP_ROUTES: Routes = [
   { path: 'main/chroma', redirectTo: 'tabs/chroma', pathMatch: 'full' },
   { path: 'main/ai-agent', redirectTo: 'tabs/ai-agent', pathMatch: 'full' },
   { path: 'main/consultation', redirectTo: 'tabs/consultation', pathMatch: 'full' },
+  { path: 'main/account', redirectTo: 'tabs/account', pathMatch: 'full' },
   { path: 'main/my-palette', redirectTo: 'tabs/my-palette', pathMatch: 'full' },
   { path: 'main/palette', redirectTo: 'tabs/palette', pathMatch: 'full' },
   { path: 'main/more', redirectTo: 'tabs/characteristics', pathMatch: 'full' },
