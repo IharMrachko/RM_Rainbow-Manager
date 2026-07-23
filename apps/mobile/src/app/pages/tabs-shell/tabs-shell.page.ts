@@ -36,7 +36,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { AppMenuService } from '../../core/services/app-menu.service';
 import { AppLanguage, LanguageService } from '../../core/services/language.service';
 import { ThemeService } from '../../core/services/theme.service';
-import { userAvatarInitials } from '../../core/utils/user-avatar';
+import { DEFAULT_USER_AVATAR, resolveUserAvatarUrl, hasUserPhoto } from '../../core/utils/user-avatar';
 import {
   SheetSelectComponent,
   SheetSelectOption,
@@ -102,10 +102,10 @@ export class TabsShellPage implements OnInit, OnDestroy {
   activeUrl = '';
   /** Accordion: one open section at a time. */
   expandedGroupId: MenuGroup['id'] | null = null;
-  avatarPhotoUrl: string | null = null;
+  avatarPhotoUrl = DEFAULT_USER_AVATAR;
   avatarEmail = '';
   avatarDisplayName = '';
-  avatarInitials = '?';
+  avatarHasPhoto = false;
 
   readonly languageOptions: SheetSelectOption[] = [
     { value: 'ru', label: 'RU · Русский' },
@@ -281,10 +281,10 @@ export class TabsShellPage implements OnInit, OnDestroy {
   }
 
   private refreshAvatar(user: { photoURL?: string | null; email?: string | null; displayName?: string | null } | null): void {
-    this.avatarPhotoUrl = user?.photoURL?.trim() || null;
+    this.avatarHasPhoto = hasUserPhoto(user?.photoURL);
+    this.avatarPhotoUrl = resolveUserAvatarUrl(user?.photoURL);
     this.avatarEmail = user?.email?.trim() || '';
     this.avatarDisplayName =
       user?.displayName?.trim() || this.avatarEmail.split('@')[0] || '';
-    this.avatarInitials = userAvatarInitials(user?.displayName, user?.email);
   }
 }

@@ -65,11 +65,21 @@
   letter-spacing: 0.02em;
 }
 
+.app-menu__avatar.is-fallback {
+  background: #fff;
+  padding: 4px;
+  box-sizing: border-box;
+}
+
 .app-menu__avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.app-menu__avatar.is-fallback img {
+  object-fit: contain;
 }
 
 .app-menu__avatar.is-active {

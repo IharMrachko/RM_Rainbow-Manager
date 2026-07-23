@@ -9,90 +9,98 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="page-content account-page">
-  <section class="account-profile">
-    <div class="account-avatar" aria-hidden="true">
-      @if (photoUrl) {
+<ion-content class="page-content account-page" [scrollY]="true">
+  <div class="account-scroll">
+    <section class="account-profile">
+      <div class="account-avatar" [class.is-fallback]="!hasPhoto" aria-hidden="true">
         <img [src]="photoUrl" alt="" />
-      } @else {
-        <span>{{ initials }}</span>
-      }
-    </div>
-    <div class="account-profile__text">
-      <h1>{{ displayName || ('account' | translate) }}</h1>
-      @if (email) {
-        <p>{{ email }}</p>
-      }
-    </div>
-  </section>
+      </div>
+      <div class="account-profile__text">
+        <h1>{{ displayName || ('account' | translate) }}</h1>
+        @if (email) {
+          <p>{{ email }}</p>
+        }
+      </div>
+    </section>
 
-  <section class="account-card">
-    <div class="account-card__head">
-      <h2>{{ 'accountCurrentPlan' | translate }}</h2>
-      <span class="account-badge">{{ plans.currentPlan.titleKey | translate }}</span>
-    </div>
-    <p class="account-card__hint">{{ 'accountCurrentPlanHint' | translate }}</p>
+    <section class="account-card">
+      <div class="account-card__head">
+        <h2>{{ 'accountCurrentPlan' | translate }}</h2>
+        <span class="account-badge">{{ plans.currentPlan.titleKey | translate }}</span>
+      </div>
+      <p class="account-card__hint">{{ 'accountCurrentPlanHint' | translate }}</p>
 
-    <div class="account-limits">
-      @for (limit of usageLimits; track limit.id) {
-        <div class="account-limit">
-          <div class="account-limit__row">
-            <span>{{ limit.titleKey | translate }}</span>
-            <strong>
-              {{ limit.used }} / {{ limit.limit }}
-              {{ limit.unitKey | translate }}
-            </strong>
+      <div class="account-limits">
+        @for (limit of usageLimits; track limit.id) {
+          <div class="account-limit">
+            <div class="account-limit__row">
+              <span>{{ limit.titleKey | translate }}</span>
+              <strong>
+                {{ limit.used }} / {{ limit.limit }}
+                {{ limit.unitKey | translate }}
+              </strong>
+            </div>
+            <div
+              class="account-limit__bar"
+              role="progressbar"
+              [attr.aria-valuenow]="usagePercent(limit)"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            >
+              <span [style.width.%]="usagePercent(limit)"></span>
+            </div>
           </div>
-          <div class="account-limit__bar" role="progressbar" [attr.aria-valuenow]="usagePercent(limit)" aria-valuemin="0" aria-valuemax="100">
-            <span [style.width.%]="usagePercent(limit)"></span>
-          </div>
-        </div>
-      }
-    </div>
-  </section>
+        }
+      </div>
+    </section>
 
-  <section class="account-card">
-    <h2>{{ 'accountPlans' | translate }}</h2>
-    <p class="account-card__hint">{{ 'accountPlansHint' | translate }}</p>
+    <section class="account-card">
+      <h2>{{ 'accountPlans' | translate }}</h2>
+      <p class="account-card__hint">{{ 'accountPlansHint' | translate }}</p>
 
-    <div class="account-plans">
-      @for (plan of plans.plans; track plan.id) {
-        <article
-          class="account-plan"
-          [class.is-current]="plan.id === plans.currentPlanId"
-        >
-          <div class="account-plan__top">
-            <h3>{{ plan.titleKey | translate }}</h3>
-            <span>{{ plan.priceKey | translate }}</span>
-          </div>
-          <ul>
-            @for (feature of plan.featuresKeys; track feature) {
-              <li>{{ feature | translate }}</li>
+      <div class="account-plans">
+        @for (plan of plans.plans; track plan.id) {
+          <article
+            class="account-plan"
+            [class.is-current]="plan.id === plans.currentPlanId"
+          >
+            <div class="account-plan__top">
+              <h3>{{ plan.titleKey | translate }}</h3>
+              <span>{{ plan.priceKey | translate }}</span>
+            </div>
+            <ul>
+              @for (feature of plan.featuresKeys; track feature) {
+                <li>{{ feature | translate }}</li>
+              }
+            </ul>
+            @if (plan.id === plans.currentPlanId) {
+              <div class="account-plan__current">{{ 'accountPlanCurrent' | translate }}</div>
+            } @else {
+              <ion-button expand="block" fill="outline" size="small" disabled>
+                {{ 'accountPlanSoon' | translate }}
+              </ion-button>
             }
-          </ul>
-          @if (plan.id === plans.currentPlanId) {
-            <div class="account-plan__current">{{ 'accountPlanCurrent' | translate }}</div>
-          } @else {
-            <ion-button expand="block" fill="outline" size="small" disabled>
-              {{ 'accountPlanSoon' | translate }}
-            </ion-button>
-          }
-        </article>
-      }
-    </div>
-  </section>
+          </article>
+        }
+      </div>
+    </section>
 
-  <section class="account-card">
-    <h2>{{ 'accountMore' | translate }}</h2>
-    <div class="account-actions">
-      <button type="button" class="account-action" (click)="openConsultation()">
-        <ion-icon name="chatbubble-ellipses-outline" aria-hidden="true"></ion-icon>
-        <span>{{ 'consultation' | translate }}</span>
-      </button>
-      <button type="button" class="account-action account-action--danger" (click)="logout()">
-        <ion-icon name="log-out-outline" aria-hidden="true"></ion-icon>
-        <span>{{ 'logout' | translate }}</span>
-      </button>
-    </div>
-  </section>
+    <section class="account-card account-card--more">
+      <h2>{{ 'accountMore' | translate }}</h2>
+      <div class="account-actions">
+        <button type="button" class="account-action" (click)="openConsultation()">
+          <ion-icon name="chatbubble-ellipses-outline" aria-hidden="true"></ion-icon>
+          <span>{{ 'consultation' | translate }}</span>
+        </button>
+        <button type="button" class="account-action" (click)="openContacts()">
+          <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+          <span>{{ 'contacts' | translate }}</span>
+        </button>
+        <button type="button" class="account-action account-action--danger" (click)="logout()">
+          <ion-icon name="log-out-outline" aria-hidden="true"></ion-icon>
+          <span>{{ 'logout' | translate }}</span>
+        </button>
+      </div>
+    </section>
+  </div>
 </ion-content>
