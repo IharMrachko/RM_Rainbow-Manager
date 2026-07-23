@@ -34,7 +34,13 @@ import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { AppMenuService } from '../../core/services/app-menu.service';
+import { AppLanguage, LanguageService } from '../../core/services/language.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { userAvatarInitials } from '../../core/utils/user-avatar';
+import {
+  SheetSelectComponent,
+  SheetSelectOption,
+} from '../../shared/components/sheet-select.component';
 
 addIcons({ chevronDownOutline, logOutOutline });
 
@@ -86,6 +92,7 @@ function menuIcon(definition: {
     IonTabs,
     IonTabBar,
     IonTabButton,
+    SheetSelectComponent,
   ],
   selector: 'app-tabs-shell',
   templateUrl: './tabs-shell.page.html',
@@ -99,6 +106,11 @@ export class TabsShellPage implements OnInit, OnDestroy {
   avatarEmail = '';
   avatarDisplayName = '';
   avatarInitials = '?';
+
+  readonly languageOptions: SheetSelectOption[] = [
+    { value: 'ru', label: 'RU · Русский' },
+    { value: 'en', label: 'EN · English' },
+  ];
 
   readonly tabs: TabItem[] = [
     {
@@ -172,6 +184,8 @@ export class TabsShellPage implements OnInit, OnDestroy {
   private subs = new Subscription();
 
   constructor(
+    readonly theme: ThemeService,
+    readonly language: LanguageService,
     private readonly auth: AuthService,
     private readonly router: Router,
     private readonly appMenu: AppMenuService,
@@ -241,6 +255,16 @@ export class TabsShellPage implements OnInit, OnDestroy {
 
   openAccount(): void {
     void this.navigateMenu('/tabs/account');
+  }
+
+  setTheme(isDark: boolean): void {
+    this.theme.setDark(isDark);
+    this.cdr.detectChanges();
+  }
+
+  setLanguage(lang: AppLanguage): void {
+    this.language.setLanguage(lang);
+    this.cdr.detectChanges();
   }
 
   async logout(): Promise<void> {

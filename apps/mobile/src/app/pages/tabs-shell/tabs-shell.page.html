@@ -87,6 +87,36 @@
 
     <div class="app-menu__divider"></div>
 
+    <div class="app-menu__settings">
+      <p class="app-menu__label">{{ 'languageSettings' | translate }}</p>
+      <app-sheet-select
+        label=""
+        [placeholder]="'languageSettings' | translate"
+        [value]="language.language"
+        [emptyValue]="language.language"
+        [compact]="true"
+        [options]="languageOptions"
+        (valueChange)="setLanguage($any($event))"
+      ></app-sheet-select>
+
+      <p class="app-menu__label">{{ 'themeSettings' | translate }}</p>
+      <div class="app-menu__setting-control">
+        <label class="theme-switch">
+          <input
+            type="checkbox"
+            [checked]="theme.isDark"
+            (change)="setTheme($any($event.target).checked)"
+          />
+          <span class="theme-switch__track"></span>
+        </label>
+        <span class="app-menu__current-value">
+          {{ (theme.isDark ? 'dark' : 'light') | translate }}
+        </span>
+      </div>
+    </div>
+
+    <div class="app-menu__divider"></div>
+
     <ion-list lines="none" class="app-menu__list">
       <ion-item class="app-menu__logout" (click)="logout()">
         <ion-icon slot="start" name="log-out-outline"></ion-icon>

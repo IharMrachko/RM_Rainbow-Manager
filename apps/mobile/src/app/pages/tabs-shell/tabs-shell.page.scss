@@ -235,6 +235,89 @@
   background: rgba(181, 118, 199, 0.28);
 }
 
+.app-menu__settings {
+  padding: 4px 8px 8px;
+}
+
+.app-menu__label {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--rm-muted, #5c6178);
+}
+
+.app-menu__settings .app-menu__label:not(:first-child) {
+  margin-top: 10px;
+}
+
+.app-menu__setting-control {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-menu__current-value {
+  font-size: 0.8rem;
+  font-weight: 650;
+  color: var(--rm-ink, #16182a);
+}
+
+.theme-switch {
+  position: relative;
+  display: block;
+  width: 52px;
+  height: 30px;
+  flex: 0 0 52px;
+  cursor: pointer;
+}
+
+.theme-switch input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.theme-switch__track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #f4f4f5;
+  box-shadow: inset 0 0 0 1px rgba(22, 24, 42, 0.08);
+  transition: background 180ms ease;
+}
+
+.theme-switch__track::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(40deg, #ff0080, #ff8c00 70%);
+  box-shadow: 0 2px 6px rgba(22, 24, 42, 0.2);
+  transition: left 180ms ease, background 180ms ease;
+}
+
+.theme-switch input:checked + .theme-switch__track {
+  background: #303136;
+}
+
+.theme-switch input:checked + .theme-switch__track::before {
+  left: 27px;
+  background: #303136;
+  box-shadow: inset -3px -2px 5px -2px #8983f7, inset -9px -3px 0 0 #a3dafb;
+}
+
+.theme-switch input:focus-visible + .theme-switch__track {
+  outline: 2px solid #8a4fa0;
+  outline-offset: 2px;
+}
+
 /* Dark theme — solid dark menu, no lavender wash */
 :host-context(html.dark) .app-menu__toolbar,
 :host-context(html.ion-palette-dark) .app-menu__toolbar {
@@ -323,4 +406,14 @@
 :host-context(html.dark) .app-menu__divider,
 :host-context(html.ion-palette-dark) .app-menu__divider {
   background: rgba(255, 255, 255, 0.1);
+}
+
+:host-context(html.dark) .app-menu__label,
+:host-context(html.ion-palette-dark) .app-menu__label {
+  color: var(--rm-muted, #a6abc0);
+}
+
+:host-context(html.dark) .app-menu__current-value,
+:host-context(html.ion-palette-dark) .app-menu__current-value {
+  color: var(--rm-ink, #f0f1f7);
 }
