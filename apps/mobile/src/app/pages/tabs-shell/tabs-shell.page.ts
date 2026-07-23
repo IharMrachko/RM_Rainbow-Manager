@@ -29,7 +29,7 @@ import {
   faUserTie,
 } from '@fortawesome/free-solid-svg-icons';
 import { addIcons } from 'ionicons';
-import { chevronBackOutline, logOutOutline } from 'ionicons/icons';
+import { chevronDownOutline, logOutOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
@@ -41,7 +41,7 @@ import {
   SheetSelectOption,
 } from '../../shared/components/sheet-select.component';
 
-addIcons({ chevronBackOutline, logOutOutline });
+addIcons({ chevronDownOutline, logOutOutline });
 
 interface NavItem {
   titleKey: string;
@@ -53,7 +53,6 @@ interface NavItem {
 interface MenuGroup {
   id: 'color' | 'analysis' | 'looks' | 'client';
   titleKey: string;
-  hintKey: string;
   iconPath: string;
   iconViewBox: string;
   items: NavItem[];
@@ -100,7 +99,8 @@ function menuIcon(definition: {
 })
 export class TabsShellPage implements OnInit, OnDestroy {
   activeUrl = '';
-  activeGroup: MenuGroup | null = null;
+  /** Accordion: one open section at a time. */
+  expandedGroupId: MenuGroup['id'] | null = null;
 
   readonly languageOptions: SheetSelectOption[] = [
     { value: 'ru', label: 'RU · Русский' },
@@ -138,7 +138,6 @@ export class TabsShellPage implements OnInit, OnDestroy {
     {
       id: 'color',
       titleKey: 'menuGroupColor',
-      hintKey: 'menuGroupColorHint',
       ...menuIcon(faRainbow),
       items: [
         { titleKey: 'characteristicColors', url: '/tabs/characteristics', ...menuIcon(faRainbow) },
@@ -151,7 +150,6 @@ export class TabsShellPage implements OnInit, OnDestroy {
     {
       id: 'analysis',
       titleKey: 'menuGroupAnalysis',
-      hintKey: 'menuGroupAnalysisHint',
       ...menuIcon(faCamera),
       items: [
         { titleKey: 'analysisByPhoto', url: '/tabs/palette', ...menuIcon(faCamera) },
@@ -161,7 +159,6 @@ export class TabsShellPage implements OnInit, OnDestroy {
     {
       id: 'looks',
       titleKey: 'menuGroupLooks',
-      hintKey: 'menuGroupLooksHint',
       ...menuIcon(faImages),
       items: [
         { titleKey: 'gallery', url: '/tabs/gallery', ...menuIcon(faImages) },
@@ -172,7 +169,6 @@ export class TabsShellPage implements OnInit, OnDestroy {
     {
       id: 'client',
       titleKey: 'menuGroupClient',
-      hintKey: 'menuGroupClientHint',
       ...menuIcon(faUserTie),
       items: [
         { titleKey: 'consultation', url: '/tabs/consultation', ...menuIcon(faUserTie) },
@@ -192,6 +188,7 @@ export class TabsShellPage implements OnInit, OnDestroy {
     private readonly cdr: ChangeDetectorRef,
   ) {
     this.activeUrl = this.router.url;
+    this.syncExpandedFromUrl();
   }
 
   ngOnInit(): void {
@@ -200,7 +197,7 @@ export class TabsShellPage implements OnInit, OnDestroy {
         .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
         .subscribe((e) => {
           this.activeUrl = e.urlAfterRedirects;
-          this.activeGroup = null;
+          this.syncExpandedFromUrl();
           this.appMenu.close();
           this.cdr.markForCheck();
         }),
@@ -222,31 +219,24 @@ export class TabsShellPage implements OnInit, OnDestroy {
     return current === url || current.startsWith(url + '/');
   }
 
+  isGroupExpanded(group: MenuGroup): boolean {
+    return this.expandedGroupId === group.id;
+  }
+
   isGroupActive(group: MenuGroup): boolean {
     return group.items.some((item) => this.isMenuActive(item.url));
   }
 
-  openGroup(group: MenuGroup): void {
+  toggleGroup(group: MenuGroup): void {
     if (group.items.length === 1) {
       void this.navigateMenu(group.items[0].url);
       return;
     }
-    this.activeGroup = group;
-    this.cdr.markForCheck();
-  }
-
-  closeGroup(): void {
-    this.activeGroup = null;
-    this.cdr.markForCheck();
-  }
-
-  onMenuDidClose(): void {
-    this.activeGroup = null;
+    this.expandedGroupId = this.expandedGroupId === group.id ? null : group.id;
     this.cdr.markForCheck();
   }
 
   async navigateMenu(url: string): Promise<void> {
-    this.activeGroup = null;
     await this.menuCtrl.close(AppMenuService.menuId);
     await this.router.navigateByUrl(url);
   }
@@ -262,9 +252,15 @@ export class TabsShellPage implements OnInit, OnDestroy {
   }
 
   async logout(): Promise<void> {
-    this.activeGroup = null;
     await this.menuCtrl.close(AppMenuService.menuId);
     await this.auth.logout();
     await this.router.navigateByUrl('/home');
+  }
+
+  private syncExpandedFromUrl(): void {
+    const active = this.menuGroups.find((group) =>
+      group.items.some((item) => this.isMenuActive(item.url)),
+    );
+    this.expandedGroupId = active?.id ?? null;
   }
 }

@@ -3,7 +3,6 @@
   contentId="tabs-main"
   type="overlay"
   [swipeGesture]="true"
-  (ionDidClose)="onMenuDidClose()"
 >
   <ion-header>
     <ion-toolbar class="app-menu__toolbar">
@@ -14,52 +13,59 @@
   </ion-header>
 
   <ion-content class="app-menu__content">
-    @if (!activeGroup) {
-      <div class="app-menu__tiles" role="navigation">
-        @for (group of menuGroups; track group.id) {
+    <nav class="app-menu__accordion" aria-label="menu">
+      @for (group of menuGroups; track group.id) {
+        <section
+          class="app-menu__section"
+          [class.is-open]="isGroupExpanded(group)"
+          [class.is-active]="isGroupActive(group)"
+        >
           <button
             type="button"
-            class="app-menu__tile"
-            [class.is-active]="isGroupActive(group)"
-            (click)="openGroup(group)"
+            class="app-menu__section-head"
+            [attr.aria-expanded]="isGroupExpanded(group)"
+            (click)="toggleGroup(group)"
           >
-            <span class="app-menu__tile-icon" aria-hidden="true">
-              <svg [attr.viewBox]="group.iconViewBox">
-                <path [attr.d]="group.iconPath"></path>
-              </svg>
-            </span>
-            <span class="app-menu__tile-label">{{ group.titleKey | translate }}</span>
-            <span class="app-menu__tile-hint">{{ group.hintKey | translate }}</span>
-          </button>
-        }
-      </div>
-    } @else {
-      <div class="app-menu__subgroup">
-        <button type="button" class="app-menu__back" (click)="closeGroup()">
-          <ion-icon name="chevron-back-outline" aria-hidden="true"></ion-icon>
-          <span>{{ 'menuGroupBack' | translate }}</span>
-        </button>
-        <h2 class="app-menu__subgroup-title">{{ activeGroup.titleKey | translate }}</h2>
-        <ion-list lines="none" class="app-menu__list">
-          @for (item of activeGroup.items; track item.url) {
-            <ion-item
-              [class.is-active]="isMenuActive(item.url)"
-              (click)="navigateMenu(item.url)"
+            <svg
+              class="app-menu__section-icon"
+              [attr.viewBox]="group.iconViewBox"
+              aria-hidden="true"
             >
-              <svg
-                slot="start"
-                class="app-menu__nav-icon"
-                [attr.viewBox]="item.iconViewBox"
+              <path [attr.d]="group.iconPath"></path>
+            </svg>
+            <span class="app-menu__section-label">{{ group.titleKey | translate }}</span>
+            @if (group.items.length > 1) {
+              <ion-icon
+                class="app-menu__section-chevron"
+                name="chevron-down-outline"
                 aria-hidden="true"
-              >
-                <path [attr.d]="item.iconPath"></path>
-              </svg>
-              <ion-label>{{ item.titleKey | translate }}</ion-label>
-            </ion-item>
+              ></ion-icon>
+            }
+          </button>
+
+          @if (isGroupExpanded(group) && group.items.length > 1) {
+            <ion-list lines="none" class="app-menu__list">
+              @for (item of group.items; track item.url) {
+                <ion-item
+                  [class.is-active]="isMenuActive(item.url)"
+                  (click)="navigateMenu(item.url)"
+                >
+                  <svg
+                    slot="start"
+                    class="app-menu__nav-icon"
+                    [attr.viewBox]="item.iconViewBox"
+                    aria-hidden="true"
+                  >
+                    <path [attr.d]="item.iconPath"></path>
+                  </svg>
+                  <ion-label>{{ item.titleKey | translate }}</ion-label>
+                </ion-item>
+              }
+            </ion-list>
           }
-        </ion-list>
-      </div>
-    }
+        </section>
+      }
+    </nav>
 
     <div class="app-menu__divider"></div>
 
