@@ -6,10 +6,11 @@ import { AppMenuService } from '../../core/services/app-menu.service';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { LookbookDoc, LookbookService } from '../../core/services/lookbook.service';
 import { ToastService } from '../../core/services/toast.service';
+import { InputSearchComponent } from '../../shared/components/input-search.component';
 
 @Component({
   standalone: true,
-  imports: [IonicModule, TranslateModule, RouterModule],
+  imports: [IonicModule, TranslateModule, RouterModule, InputSearchComponent],
   selector: 'app-lookbook',
   templateUrl: './lookbook.page.html',
   styleUrls: ['./lookbook.page.scss'],
