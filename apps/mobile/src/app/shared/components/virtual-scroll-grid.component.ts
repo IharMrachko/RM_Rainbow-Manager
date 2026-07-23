@@ -107,7 +107,12 @@ export class VirtualScrollGridComponent<T = unknown>
   @Input() minColumnWidth = 160;
   @Input() gap = 10;
   @Input() bufferRows = 4;
-  /** Extra height below the square image (title row). */
+  /**
+   * Media box width/height (CSS aspect-ratio).
+   * Gallery thumbs use 1; stock look cards use 3/4.
+   */
+  @Input() mediaAspectRatio = 1;
+  /** Extra height below the media (title / actions). */
   @Input() metaHeight = 36;
   @Input() nearEndOffset = 180;
   @Input() scrollLocked = false;
@@ -154,7 +159,13 @@ export class VirtualScrollGridComponent<T = unknown>
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['items'] || changes['minColumnWidth'] || changes['gap'] || changes['metaHeight']) {
+    if (
+      changes['items'] ||
+      changes['minColumnWidth'] ||
+      changes['gap'] ||
+      changes['metaHeight'] ||
+      changes['mediaAspectRatio']
+    ) {
       this.nearEndEmitted = false;
       this.measure();
       this.recompute();
@@ -245,7 +256,9 @@ export class VirtualScrollGridComponent<T = unknown>
     const cols = Math.max(1, Math.floor((width + gap) / (this.minColumnWidth + gap)));
     this.columnsCount = cols;
     this.colWidth = cols > 0 ? (width - (cols - 1) * gap) / cols : width;
-    this.rowHeight = Math.max(1, this.colWidth + this.metaHeight);
+    const aspect = this.mediaAspectRatio > 0 ? this.mediaAspectRatio : 1;
+    const mediaHeight = this.colWidth / aspect;
+    this.rowHeight = Math.max(1, mediaHeight + this.metaHeight);
 
     const totalRows = Math.ceil(this.items.length / cols) || 0;
     this.totalHeight = totalRows * this.rowHeight + Math.max(0, totalRows - 1) * gap;
